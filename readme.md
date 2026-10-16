@@ -4,7 +4,7 @@
 
 ## Последние изменения
 
-Аплеты `nm-applet` и `pasystray` более не учавствуют в polybar, они заменены на стоковые модули, которые являются по большей мере индикацией, чем способом управления. 
+Апплеты `nm-applet` и `pasystray` более не участвуют в polybar, они заменены на стоковые модули, которые являются по большей мере индикацией, чем способом управления.
 `blueman-applet` в планах тоже заменить, и пользоваться всем через терминал или писать скрипты для управления wifi, bluetooth и звуком через rofi.
 
 ## Аппаратная база
@@ -39,9 +39,9 @@
 | JetBrainsMono Nerd Font | Шрифт с иконками |
 | LXAppearance | Настройка GTK-темы и курсора |
 | Thunar | Файловый менеджер |
-| Blueman | Bluetooth-апплет в трее (собираюсь убрать) |
-| Pasystray | Апплет звука в трее (устаревшее) |
-| nm-applet | Апплет Wi-Fi в трее (устаревшее) |
+| ~~Blueman~~ | ~~Bluetooth-апплет в трее (собираюсь убрать)~~ Временно оставлен, управление через `blueman-manager` по клику на модуль в Polybar |
+| ~~Pasystray~~ | ~~Апплет звука в трее (устаревшее)~~ Заменён на `internal/pulseaudio` в Polybar (иконки + полоса + процент) |
+| ~~nm-applet~~ | ~~Апплет Wi-Fi в трее (устаревшее)~~ Заменён на `internal/network` в Polybar (`wlan` и `eth`) |
 | Syncthing | Синхронизация файлов (опционально) |
 
 Цветовая палитра: Tokyo Night (background `#1a1b26`, акцент `#7aa2f7`).
@@ -64,14 +64,17 @@
     │   ├── launch.sh
     │   └── scripts/
     │       ├── battery.sh
+    │       ├── bluetooth.sh
     │       └── brightness.sh
     ├── rofi/
     │   └── config.rasi
+    ├── screenshots/
+    │   ├── screenshot.png
+    │   └── 2026-10-16_21-32-07.png
     ├── sxhkd/
     │   └── sxhkdrc
     ├── link.sh
     ├── unlink.sh
-    ├── screenshot.png
     ├── .gitignore
     └── readme.md
 
@@ -91,10 +94,12 @@
       fonts-noto-color-emoji \
       brightnessctl scrot \
       network-manager-gnome pavucontrol \
-      blueman pasystray \
+      blueman \
       thunar alacritty \
       i3lock-fancy libnotify-bin \
       fish
+
+Убрано: `pasystray` (заменён модулем Polybar). `network-manager-gnome` оставлен для `nm-connection-editor` — GUI-настройка соединений. `blueman` оставлен — управление Bluetooth через `blueman-manager` по клику на модуль.
 
 Опционально:
 
@@ -319,7 +324,7 @@ Debian-установщик по умолчанию настраивает Wi-Fi
 - Скругления окон обеспечивает Picom (`corner-radius = 8`). В конфиге отключены тени и размытие для экономии ресурсов слабого железа.
 - Dunst использует ту же палитру, что и остальное окружение. Скругления уведомлений рисует сам Dunst (`corner_radius = 10`), Picom исключает класс `Dunst` из обработки через `rounded-corners-exclude`. Прозрачность задаётся параметром `transparency = 15`.
 - Меню питания в Polybar реализовано через `custom/menu` с подтверждением через Rofi.
-- Апплеты (Bluetooth, звук, Wi-Fi) запускаются в `bspwmrc` с `pkill -x <applet>` перед стартом, чтобы избежать дублей при `Super + Alt + R`.
+- ~~Апплеты (Bluetooth, звук, Wi-Fi) запускаются в `bspwmrc` с `pkill -x <applet>` перед стартом, чтобы избежать дублей при `Super + Alt + R`.~~ В `bspwmrc` из апплетов запускается только `blueman-applet` (с `pkill -x blueman-applet` перед стартом). Индикация звука, Wi-Fi и Ethernet — через модули Polybar: `internal/pulseaudio`, `internal/network` (`wlan`, `eth`). Статус Bluetooth — через `custom/script` со скриптом `bluetooth.sh`, клик по модулю открывает `blueman-manager`.
 - Обои задаются через `feh --bg-fill` в `bspwmrc`.
 
 ## Перенос на 1920×1080
@@ -357,6 +362,7 @@ Debian-установщик по умолчанию настраивает Wi-Fi
 - Если `echo -e` в скриптах не работает — заменить на `printf`. Polybar и SXHKD запускают команды через `/bin/sh` (dash), который не поддерживает `-e` у встроенного `echo`.
 - В `.ini`-конфиге Polybar inline-комментарии (`;` после значения) не поддерживаются — парсер берёт всё после `=` как буквальное значение. Комментарии только на отдельных строках.
 - Проверка `git status` в `~/.config` не сработает — там нет `.git`. Репозиторий живёт в `~/bspwm-machineslego`, работать с git нужно оттуда.
+- ~~(добавить)~~ **`internal/pulseaudio` в Polybar 3.7.2 не поддерживает format-теги `%{T1}` внутри `ramp-volume-*` и `label-*`.** Из-за этого увеличить **только иконки громкости** (не трогая размер текста) через этот модуль нельзя. Варианты: либо принять общий размер шрифта, либо заменить модуль на `custom/script` с ручной отрисовкой строки.
 
 ## Скриншот
 
