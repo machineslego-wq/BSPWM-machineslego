@@ -10,6 +10,7 @@
 
 Апплеты `nm-applet` и `pasystray` более не участвуют в polybar, они заменены на стоковые модули, которые являются по большей мере индикацией, чем способом управления.
 `blueman-applet` в планах тоже заменить, и пользоваться всем через терминал или писать скрипты для управления wifi, bluetooth и звуком через rofi.
+А также в репозиторий добавлены обои
 
 ## Аппаратная база
 
@@ -75,6 +76,8 @@
     ├── screenshots/
     │   ├── screenshot.png
     │   └── 2026-10-16_21-32-07.png
+    ├── wallpapers/
+    │   └── anime-girl-with-big-blue-eyes-and-blue-hair-wallpaper-1366x768.jpg
     ├── sxhkd/
     │   └── sxhkdrc
     ├── link.sh
