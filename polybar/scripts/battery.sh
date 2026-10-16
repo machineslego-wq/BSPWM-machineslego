@@ -15,8 +15,6 @@ while true; do
         if [ -z "$capacity" ]; then
             out="N/A"
         else
-            # Иконки Nerd Font (Material Design Icons)
-            # Горизонтальные батарейки в зависимости от уровня
             if [ "$status" = "Charging" ]; then
                 icon="󰂄"
             elif [ "$status" = "Full" ]; then
