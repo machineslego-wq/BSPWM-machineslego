@@ -317,15 +317,6 @@ Debian-установщик по умолчанию настраивает Wi-Fi
 - Апплеты (Bluetooth, звук, Wi-Fi) запускаются в `bspwmrc` с `pkill -x <applet>` перед стартом, чтобы избежать дублей при `Super + Alt + R`.
 - Обои задаются через `feh --bg-fill` в `bspwmrc`.
 
-## Работа с репозиторием
-
-После установки через `link.sh` правки в `~/.config/<пакет>` физически изменяют файлы в репозитории. Чтобы сохранить их на GitHub:
-
-    cd ~/bspwm-machineslego
-    git add .
-    git commit -m "Описание изменений"
-    git push
-
 ## Перенос на 1920×1080
 
 Для Full HD изменить:
@@ -364,7 +355,8 @@ Debian-установщик по умолчанию настраивает Wi-Fi
 
 ## Скриншот
 
-![Screenshot](screenshot.png)
+![Screenshot](screenshots/screenshot.png)
+![2026-10-16_21-32-07.png](screenshots/2026-10-16_21-32-07.png)
 
 ## Лицензия
 
