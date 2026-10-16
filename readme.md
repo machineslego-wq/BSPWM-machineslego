@@ -41,32 +41,6 @@
 
 Цветовая палитра: Tokyo Night (background `#1a1b26`, акцент `#7aa2f7`).
 
-## Структура репозитория
-
-```
-.config/
-├── alacritty/
-│   └── alacritty.toml
-├── bspwm/
-│   └── bspwmrc
-├── dunst/
-│   └── dunstrc
-├── fastfetch/
-│   └── config.jsonc
-├── picom/
-│   └── picom.conf
-├── polybar/
-│   ├── config.ini
-│   ├── launch.sh
-│   └── scripts/
-│       ├── battery.sh
-│       └── brightness.sh
-├── rofi/
-│   └── config.rasi
-└── sxhkd/
-    └── sxhkdrc
-```
-
 ## Установка пакетов
 
 Базовые зависимости:
