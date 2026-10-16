@@ -6,17 +6,17 @@
 super + alt + shift + r
     pkill -USR1 -x sxhkd; bspc wm -r
 
-# Logout (с подтверждением)
+# Logout
 super + shift + l
-    rofi -dmenu -p "Выйти? (y/n)" | grep -qi "^y" && loginctl terminate-user $USER
+    ~/.config/polybar/scripts/powermenu.sh logout
 
 # Poweroff (с подтверждением)
 super + shift + p
-    rofi -dmenu -p "Выключить? (y/n)" | grep -qi "^y" && systemctl poweroff
+    ~/.config/polybar/scripts/powermenu.sh poweroff
 
 # Reboot (с подтверждением)
 super + shift + r
-    rofi -dmenu -p "Перезагрузить? (y/n)" | grep -qi "^y" && systemctl reboot
+    ~/.config/polybar/scripts/powermenu.sh reboot
 
 # --- Lock screen ---
 super + l

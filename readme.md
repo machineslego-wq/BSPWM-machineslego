@@ -334,6 +334,7 @@ Debian-установщик по умолчанию настраивает Wi-Fi
 - Меню питания в Polybar реализовано через `custom/menu` с подтверждением через Rofi.
 - ~~Апплеты (Bluetooth, звук, Wi-Fi) запускаются в `bspwmrc` с `pkill -x <applet>` перед стартом, чтобы избежать дублей при `Super + Alt + R`.~~ В `bspwmrc` из апплетов запускается только `blueman-applet` (с `pkill -x blueman-applet` перед стартом). Индикация звука, Wi-Fi и Ethernet — через модули Polybar: `internal/pulseaudio`, `internal/network` (`wlan`, `eth`). Статус Bluetooth — через `custom/script` со скриптом `bluetooth.sh`, клик по модулю открывает `blueman-manager`.
 - Обои задаются через `feh --bg-fill` в `bspwmrc`.
+- Меню питания работает единообразно: и кнопки в Polybar, и горячие клавиши Super+Shift+P/R/L вызывают один скрипт ~/.config/polybar/scripts/powermenu.sh с аргументом (poweroff/reboot/logout). Скрипт показывает Rofi-окно с выбором «Да/Нет», защищённое от ручного ввода (-no-custom).
 
 ## Перенос на 1920×1080
 
