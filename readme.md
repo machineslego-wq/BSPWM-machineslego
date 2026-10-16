@@ -71,6 +71,7 @@
     │   └── scripts/
     │       ├── battery.sh
     │       ├── bluetooth.sh
+    │       ├── powermenu.sh
     │       └── brightness.sh
     ├── rofi/
     │   └── config.rasi
