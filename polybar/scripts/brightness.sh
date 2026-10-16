@@ -9,7 +9,7 @@ while true; do
     else
         percent=$(( current * 100 / max ))
 
-        if   [ "$percent" -le 49 ]; then level=1
+        if   [ "$percent" -le 39 ]; then level=1
         elif [ "$percent" -le 80 ]; then level=2
         else                              level=3
         fi

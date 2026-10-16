@@ -4,10 +4,10 @@ pgrep -x sxhkd > /dev/null || sxhkd &
 ~/.config/polybar/launch.sh &
 picom &
 
-nm-applet --indicator &
+# nm-applet --indicator &
 blueman-applet &
-pkill -x pasystray
-pasystray &
+# pkill -x pasystray
+# pasystray &
 
 # Обои
 feh --bg-fill ~/Изображения/wallpaperswide.com-anime-girl-with-big-blue-eyes-and-blue-hair-wallpaper-1366x768.jpg &
