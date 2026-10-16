@@ -5,7 +5,7 @@
 # =========================================================
 
 # --- Настройки ---
-DOTFILES="${DOTFILES:-$HOME/bspwm-machineslego}"
+DOTFILES="${DOTFILES:-$HOME/BSPWM-machineslego}"
 TARGET="$HOME/.config"
 BACKUP="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
 
