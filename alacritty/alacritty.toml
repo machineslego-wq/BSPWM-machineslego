@@ -1,0 +1,114 @@
+# ==========================================================
+# Alacritty — конфиг с палитрой Tokyo Night и оболочкой fish
+# ==========================================================
+
+# --- Общие настройки ---
+[general]
+# Живое обновление конфига при сохранении
+live_config_reload = true
+
+# --- Окно ---
+[window]
+# Прозрачность (0.0 = полностью прозрачное, 1.0 = непрозрачное)
+# 0.9 = 90% непрозрачности, как у Polybar
+opacity = 0.9
+
+# Внутренние отступы
+padding = { x = 10, y = 10 }
+
+# Стартовый размер окна
+dimensions = { columns = 100, lines = 28 }
+
+# Разрешить прозрачность при старте (обязательно для bspwm)
+dynamic_title = true
+
+# --- Прокрутка ---
+[scrolling]
+history = 10000
+multiplier = 3
+
+# --- Шрифт ---
+[font]
+size = 11
+offset = { x = 0, y = 1 }
+
+[font.normal]
+family = "JetBrainsMono Nerd Font"
+style = "Regular"
+
+[font.bold]
+family = "JetBrainsMono Nerd Font"
+style = "Bold"
+
+[font.italic]
+family = "JetBrainsMono Nerd Font"
+style = "Italic"
+
+[font.bold_italic]
+family = "JetBrainsMono Nerd Font"
+style = "Bold Italic"
+
+# --- Цвета: Tokyo Night ---
+[colors.primary]
+background = "#1a1b26"
+foreground = "#c0caf5"
+
+[colors.cursor]
+text = "#1a1b26"
+cursor = "#c0caf5"
+
+[colors.vi_mode_cursor]
+text = "#1a1b26"
+cursor = "#bb9af7"
+
+[colors.search.matches]
+foreground = "#1a1b26"
+background = "#e0af68"
+
+[colors.search.focused_match]
+foreground = "#1a1b26"
+background = "#9ece6a"
+
+[colors.footer_bar]
+foreground = "#1a1b26"
+background = "#c0caf5"
+
+[colors.selection]
+text = "#1a1b26"
+background = "#7aa2f7"
+
+[colors.normal]
+black   = "#15161e"
+red     = "#f7768e"
+green   = "#9ece6a"
+yellow  = "#e0af68"
+blue    = "#7aa2f7"
+magenta = "#bb9af7"
+cyan    = "#7dcfff"
+white   = "#a9b1d6"
+
+[colors.bright]
+black   = "#414868"
+red     = "#f7768e"
+green   = "#9ece6a"
+yellow  = "#e0af68"
+blue    = "#7aa2f7"
+magenta = "#bb9af7"
+cyan    = "#7dcfff"
+white   = "#c0caf5"
+
+# --- Курсор ---
+[cursor]
+style = { shape = "Block", blinking = "On" }
+blink_interval = 500
+unfocused_hollow = true
+
+# --- Мышь ---
+[mouse]
+hide_when_typing = true
+
+# --- Оболочка ---
+[terminal.shell]
+program = "/usr/bin/fish"
+# Если хочешь запускать fish как login-shell:
+# args = ["-l"]

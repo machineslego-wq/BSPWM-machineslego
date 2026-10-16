@@ -1,0 +1,119 @@
+configuration {
+    modi: "drun,run,window";
+    show-icons: true;
+    icon-theme: "Papirus-Dark";
+    terminal: "alacritty";
+    font: "JetBrains Mono 11";
+    drun-display-format: "{name}";
+}
+
+* {
+    /* Палитра Tokyo Night */
+    bg:         #1a1b26;   /* Основной фон */
+    bg-alt:     #24283b;   /* Фон поля ввода */
+    bg-hover:   #2f334d;   /* Фон при наведении */
+    fg:         #c0caf5;   /* Основной текст */
+    fg-dim:     #565f89;   /* Приглушённый текст (placeholder) */
+    accent:     #7aa2f7;   /* Акцент — синий */
+    accent-2:   #bb9af7;   /* Второй акцент — фиолетовый */
+    urgent:     #f7768e;   /* Красный для срочного */
+}
+
+window {
+    width: 42%;
+    border: 2px;
+    border-color: @accent;
+    border-radius: 12px;
+    background-color: @bg;
+}
+
+mainbox {
+    padding: 12px;
+    background-color: @bg;
+}
+
+inputbar {
+    padding: 10px 12px;
+    background-color: @bg-alt;
+    border-radius: 8px;
+    children: [ prompt, entry ];
+}
+
+prompt {
+    color: @accent;
+    padding: 0 8px 0 0;
+}
+
+entry {
+    color: @fg;
+    placeholder: "Поиск...";
+    placeholder-color: @fg-dim;
+}
+
+listview {
+    lines: 8;
+    scrollbar: false;
+    background-color: @bg;
+    padding: 10px 0 0 0;
+    columns: 1;
+    /* Отключаем зебру */
+    fixed-height: false;
+}
+
+element {
+    padding: 8px 10px;
+    border-radius: 8px;
+    background-color: @bg;
+    text-color: @fg;
+    spacing: 10px;
+}
+
+/* === Обычное (невыделенное) состояние — одинаковое для всех строк === */
+element normal.normal,
+element alternate.normal {
+    background-color: @bg;
+    text-color: @fg;
+}
+
+element normal.urgent,
+element alternate.urgent {
+    background-color: @bg;
+    text-color: @urgent;
+}
+
+element normal.active,
+element alternate.active {
+    background-color: @bg;
+    text-color: @accent-2;
+}
+
+/* === Выделенное (курсор) состояние === */
+element selected.normal {
+    background-color: @accent;
+    text-color: @bg;
+}
+
+element selected.urgent {
+    background-color: @urgent;
+    text-color: @bg;
+}
+
+element selected.active {
+    background-color: @accent;
+    text-color: @bg;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+    vertical-align: 0.5;
+}
+
+element-icon {
+    size: 1.4em;
+    background-color: transparent;
+}
+
+element selected element-text {
+    text-color: @bg;
+}
