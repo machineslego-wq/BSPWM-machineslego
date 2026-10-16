@@ -37,87 +37,160 @@
 | Blueman | Bluetooth-апплет в трее |
 | Pasystray | Апплет звука в трее |
 | nm-applet | Апплет Wi-Fi в трее |
-| Syncthing | Синхронизация файлов |
+| Syncthing | Синхронизация файлов (опционально) |
 
 Цветовая палитра: Tokyo Night (background `#1a1b26`, акцент `#7aa2f7`).
 
-## Установка пакетов
+## Структура репозитория
 
-Базовые зависимости:
+    BSPWM-machineslego/
+    ├── alacritty/
+    │   └── alacritty.toml
+    ├── bspwm/
+    │   └── bspwmrc
+    ├── dunst/
+    │   └── dunstrc
+    ├── fastfetch/
+    │   └── config.jsonc
+    ├── picom/
+    │   └── picom.conf
+    ├── polybar/
+    │   ├── config.ini
+    │   ├── launch.sh
+    │   └── scripts/
+    │       ├── battery.sh
+    │       └── brightness.sh
+    ├── rofi/
+    │   └── config.rasi
+    ├── sxhkd/
+    │   └── sxhkdrc
+    ├── link.sh
+    ├── unlink.sh
+    ├── screenshot.png
+    ├── .gitignore
+    └── readme.md
 
-```
-sudo apt install -y \
-  xorg xinit \
-  bspwm sxhkd \
-  polybar rofi dunst picom feh \
-  lxappearance \
-  papirus-icon-theme \
-  fonts-jetbrains-mono fonts-font-awesome \
-  fonts-noto-color-emoji \
-  brightnessctl scrot \
-  network-manager-gnome pavucontrol \
-  blueman pasystray \
-  thunar alacritty \
-  i3lock-fancy libnotify-bin \
-  fish
-```
+## Установка на новую машину
+
+### Шаг 1. Установить пакеты
+
+Базовый набор:
+
+    sudo apt install -y \
+      xorg xinit \
+      bspwm sxhkd \
+      polybar rofi dunst picom feh \
+      lxappearance \
+      papirus-icon-theme \
+      fonts-jetbrains-mono fonts-font-awesome \
+      fonts-noto-color-emoji \
+      brightnessctl scrot \
+      network-manager-gnome pavucontrol \
+      blueman pasystray \
+      thunar alacritty \
+      i3lock-fancy libnotify-bin \
+      fish
 
 Опционально:
 
-```
-sudo apt install -y syncthing
-```
+    sudo apt install -y syncthing
 
-`zutty` устанавливается как автоматическая зависимость при установке крупных наборов пакетов, но не используется. Удаляется командой `sudo apt autoremove --purge`.
+Примечание: `zutty` может устанавливаться как автоматическая зависимость при установке крупных наборов пакетов, но в конфигурации не используется. Удаляется командой `sudo apt autoremove --purge`.
 
-### Шрифты Nerd Font
+### Шаг 2. Установить шрифты Nerd Font
 
-В репозиториях Debian пакета `fonts-jetbrains-mono-nerd` нет. Шрифт ставится вручную:
+В репозиториях Debian пакета `fonts-jetbrains-mono-nerd` нет — шрифт ставится вручную:
 
 1. Скачать `JetBrainsMono.zip` с https://www.nerdfonts.com/font-downloads
 2. Установить `unzip`: `sudo apt install unzip`
 3. Распаковать и положить `.ttf` в `~/.local/share/fonts/`:
-   ```
-   mkdir -p ~/.local/share/fonts
-   unzip JetBrainsMono.zip -d ~/.local/share/fonts/
-   fc-cache -fv
-   ```
+
+       mkdir -p ~/.local/share/fonts
+       cd ~/.local/share/fonts
+       unzip ~/Загрузки/JetBrainsMono.zip
+       fc-cache -fv
+
 4. Проверить: `fc-list | grep -i "Nerd"`
 
-### Эмодзи
+### Шаг 3. Настроить эмодзи
 
 После установки `fonts-noto-color-emoji` выполнить:
 
-```
-sudo dpkg-reconfigure fontconfig-config
-```
+    sudo dpkg-reconfigure fontconfig-config
 
 В интерактивном меню разрешить растровые шрифты (bitmap fonts = Yes). Затем:
 
-```
-fc-cache -fv
-```
+    fc-cache -fv
 
 Без этого шага эмодзи могут отображаться как чёрно-белые символы или квадраты.
 
-## Применение конфигов
+### Шаг 4. Клонировать репозиторий
 
-```
-git clone https://github.com/machineslego-wq/BSPWM-machineslego ~/dotfiles
-cp -r ~/dotfiles/.config/* ~/.config/
-chmod +x ~/.config/polybar/launch.sh
-chmod +x ~/.config/polybar/scripts/*.sh
-chmod +x ~/.config/bspwm/bspwmrc
-```
+    git clone https://github.com/machineslego-wq/BSPWM-machineslego ~/bspwm-machineslego
+    cd ~/bspwm-machineslego
 
-Создать `~/.xinitrc`:
+Если репозиторий нужен в другом месте — запомни путь, он понадобится для скрипта установки через переменную `DOTFILES`.
 
-```
-#!/bin/sh
-exec bspwm
-```
+### Шаг 5. Установить конфиги
 
-Дать права: `chmod +x ~/.xinitrc`. Запуск: `startx` из TTY.
+Есть два способа: автоматический через `link.sh` (рекомендуется) и ручной через `cp`.
+
+#### Способ A: автоматическая установка через link.sh
+
+Скрипт `link.sh` создаёт символические ссылки из `~/.config/<пакет>` на папки репозитория. Это значит, что правки в `~/.config/polybar/config.ini` физически изменяют файл в `~/bspwm-machineslego/polybar/config.ini`, и достаточно сделать `git commit`, чтобы сохранить их.
+
+    chmod +x ~/bspwm-machineslego/link.sh
+    ~/bspwm-machineslego/link.sh
+
+Что делает скрипт:
+
+- создаёт симлинки из `~/.config/<пакет>` в `~/bspwm-machineslego/<пакет>` для всех пакетов (`alacritty`, `bspwm`, `dunst`, `fastfetch`, `picom`, `polybar`, `rofi`, `sxhkd`);
+- если в `~/.config/<пакет>` уже есть реальная папка — переносит её в `~/.dotfiles-backup-<дата>/`, ничего не теряя;
+- выставляет права `+x` на `polybar/launch.sh`, `polybar/scripts/*.sh`, `bspwm/bspwmrc`.
+
+Если репозиторий лежит не в `~/bspwm-machineslego`, указать путь явно:
+
+    DOTFILES=/путь/к/репо ~/bspwm-machineslego/link.sh
+
+Откатить установку (удалить симлинки, оставив репозиторий целым):
+
+    ~/bspwm-machineslego/unlink.sh
+
+#### Способ B: ручное копирование
+
+Если не хочется использовать симлинки:
+
+    cp -r ~/bspwm-machineslego/alacritty ~/.config/
+    cp -r ~/bspwm-machineslego/bspwm ~/.config/
+    cp -r ~/bspwm-machineslego/dunst ~/.config/
+    cp -r ~/bspwm-machineslego/fastfetch ~/.config/
+    cp -r ~/bspwm-machineslego/picom ~/.config/
+    cp -r ~/bspwm-machineslego/polybar ~/.config/
+    cp -r ~/bspwm-machineslego/rofi ~/.config/
+    cp -r ~/bspwm-machineslego/sxhkd ~/.config/
+
+    chmod +x ~/.config/polybar/launch.sh
+    chmod +x ~/.config/polybar/scripts/*.sh
+    chmod +x ~/.config/bspwm/bspwmrc
+
+Недостаток: правки в `~/.config` не будут автоматически попадать в репозиторий — их нужно копировать вручную.
+
+### Шаг 6. Создать ~/.xinitrc
+
+    #!/bin/sh
+    xrdb -merge ~/.Xresources
+    exec bspwm
+
+Дать права и запустить:
+
+    chmod +x ~/.xinitrc
+    startx
+
+`xrdb -merge ~/.Xresources` нужен для применения размера курсора (см. ниже).
+
+### Шаг 7. Настроить систему
+
+См. раздел «Настройка окружения» — там описано, как перевести Wi-Fi на NetworkManager, настроить тачпад, курсор и Fn-клавиши.
 
 ## Настройка окружения
 
@@ -126,23 +199,24 @@ exec bspwm
 Debian-установщик по умолчанию настраивает Wi-Fi через `ifupdown`, из-за чего NetworkManager не может управлять адаптером (статус `unmanaged` или `unavailable`). Для передачи управления:
 
 1. В `/etc/network/interfaces` закомментировать строки, относящиеся к Wi-Fi:
-   ```
-   # allow-hotplug wlp3s0
-   # iface wlp3s0 inet dhcp
-   #     wpa-ssid MyNetwork
-   #     wpa-psk  mypassword
-   ```
+
+       # allow-hotplug wlp3s0
+       # iface wlp3s0 inet dhcp
+       #     wpa-ssid MyNetwork
+       #     wpa-psk  mypassword
+
 2. В `/etc/NetworkManager/NetworkManager.conf` установить:
-   ```
-   [ifupdown]
-   managed=true
-   ```
+
+       [ifupdown]
+       managed=true
+
 3. Отключить системный `wpa_supplicant`, иначе он держит сокет и мешает NetworkManager запустить свой экземпляр:
-   ```
-   sudo systemctl stop wpa_supplicant
-   sudo systemctl disable wpa_supplicant
-   ```
+
+       sudo systemctl stop wpa_supplicant
+       sudo systemctl disable wpa_supplicant
+
    Не использовать `mask` — иначе NetworkManager не сможет запустить свой экземпляр.
+
 4. Если сокет остался: `sudo pkill -9 wpa_supplicant && sudo rm -rf /run/wpa_supplicant/*`
 5. Перезапустить: `sudo systemctl restart NetworkManager`
 6. Проверить: `nmcli device status` — статус Wi-Fi должен стать `disconnected`.
@@ -154,32 +228,28 @@ Debian-установщик по умолчанию настраивает Wi-Fi
 
 Создать `/etc/X11/xorg.conf.d/30-touchpad.conf`:
 
-```
-Section "InputClass"
-    Identifier "touchpad"
-    Driver "libinput"
-    MatchIsTouchpad "on"
-    Option "Tapping" "on"
-    Option "TappingButtonMap" "lrm"
-    Option "NaturalScrolling" "true"
-    Option "DisableWhileTyping" "true"
-    Option "ClickMethod" "clickfinger"
-    Option "ScrollMethod" "twofinger"
-EndSection
-```
+    Section "InputClass"
+        Identifier "touchpad"
+        Driver "libinput"
+        MatchIsTouchpad "on"
+        Option "Tapping" "on"
+        Option "TappingButtonMap" "lrm"
+        Option "NaturalScrolling" "true"
+        Option "DisableWhileTyping" "true"
+        Option "ClickMethod" "clickfinger"
+        Option "ScrollMethod" "twofinger"
+    EndSection
 
 После перезагрузки тачпад поддерживает тапы, естественную прокрутку и отключение во время набора текста.
 
 ### Курсор
 
-Файл `~/.Xresources`:
+Создать `~/.Xresources`:
 
-```
-Xcursor.theme: Adwaita
-Xcursor.size: 48
-```
+    Xcursor.theme: Adwaita
+    Xcursor.size: 48
 
-Применить: `xrdb -merge ~/.Xresources`. Строка `xrdb -merge ~/.Xresources` должна быть в `~/.xinitrc` перед `exec bspwm`.
+Применить: `xrdb -merge ~/.Xresources`. Эта строка уже добавлена в `~/.xinitrc` на шаге 6.
 
 Тема и иконки GTK настраиваются через `lxappearance`.
 
@@ -187,28 +257,26 @@ Xcursor.size: 48
 
 Клавиши `Fn` на Acer TravelMate отправляют стандартные XF86-события. Бинды в `sxhkdrc`:
 
-```
-XF86MonBrightnessUp
-    brightnessctl set +5%
+    XF86MonBrightnessUp
+        brightnessctl set +5%
 
-XF86MonBrightnessDown
-    brightnessctl set 5%-
+    XF86MonBrightnessDown
+        brightnessctl set 5%-
 
-XF86AudioRaiseVolume
-    pactl set-sink-volume @DEFAULT_SINK@ +5%
+    XF86AudioRaiseVolume
+        pactl set-sink-volume @DEFAULT_SINK@ +5%
 
-XF86AudioLowerVolume
-    pactl set-sink-volume @DEFAULT_SINK@ -5%
+    XF86AudioLowerVolume
+        pactl set-sink-volume @DEFAULT_SINK@ -5%
 
-XF86AudioMute
-    pactl set-sink-mute @DEFAULT_SINK@ toggle
-```
+    XF86AudioMute
+        pactl set-sink-mute @DEFAULT_SINK@ toggle
 
 Если комбинации не срабатывают — проверить через `xev`, какие keysym посылает клавиатура. При использовании PipeWire вместо PulseAudio заменить `pactl` на `wpctl`.
 
 ### Права на выключение
 
-Если `systemctl poweroff` и `systemctl reboot` требуют пароль, заменить на `loginctl poweroff` / `loginctl reboot` — они работают без пароля в активной локальной сессии.
+Если `systemctl poweroff` и `systemctl reboot` требуют пароль, заменить на `loginctl poweroff` / `loginctl reboot` — они работают без пароля в активной локальной сессии. В конфигурации меню питания в Polybar и бинды в `sxhkdrc` уже используют `loginctl`.
 
 ## Горячие клавиши
 
@@ -244,10 +312,19 @@ XF86AudioMute
 
 - Polybar имеет «парящий» вид: `width = 99%`, `offset-x = 0.5%`, `offset-y = 2`, `border-size = 2`, `radius = 10`. Отступ под панель задаётся через `bspc config top_padding 36` в `bspwmrc` (значение соответствует высоте панели в пикселях).
 - Скругления окон обеспечивает Picom (`corner-radius = 8`). В конфиге отключены тени и размытие для экономии ресурсов слабого железа.
-- Dunst использует ту же палитру, что и остальное окружение. Скругления уведомлений рисует сам Dunst (`corner_radius = 10`), Picom исключает класс `Dunst` из обработки через `rounded-corners-exclude`.
+- Dunst использует ту же палитру, что и остальное окружение. Скругления уведомлений рисует сам Dunst (`corner_radius = 10`), Picom исключает класс `Dunst` из обработки через `rounded-corners-exclude`. Прозрачность задаётся параметром `transparency = 15`.
 - Меню питания в Polybar реализовано через `custom/menu` с подтверждением через Rofi.
 - Апплеты (Bluetooth, звук, Wi-Fi) запускаются в `bspwmrc` с `pkill -x <applet>` перед стартом, чтобы избежать дублей при `Super + Alt + R`.
-- Обои задаются через `feh --bg-fill` в `bspwmrc`. Формат имени файла — полный путь без экранирования пробелов.
+- Обои задаются через `feh --bg-fill` в `bspwmrc`.
+
+## Работа с репозиторием
+
+После установки через `link.sh` правки в `~/.config/<пакет>` физически изменяют файлы в репозитории. Чтобы сохранить их на GitHub:
+
+    cd ~/bspwm-machineslego
+    git add .
+    git commit -m "Описание изменений"
+    git push
 
 ## Перенос на 1920×1080
 
@@ -255,23 +332,19 @@ XF86AudioMute
 
 **Polybar** (`~/.config/polybar/config.ini`):
 
-```
-height = 36px
-```
+    height = 36px
+
 заменить на:
-```
-height = 44px
-```
+
+    height = 44px
 
 **BSPWM** (`~/.config/bspwm/bspwmrc`):
 
-```
-bspc config top_padding 36
-```
+    bspc config top_padding 36
+
 заменить на:
-```
-bspc config top_padding 44
-```
+
+    bspc config top_padding 44
 
 **Зазоры между окнами**: при желании увеличить `bspc config window_gap` с `2` до `4–6`.
 
@@ -284,14 +357,14 @@ bspc config top_padding 44
 ## Известные ограничения
 
 - На Celeron N4120 с 4 ГБ ОЗУ не рекомендуется включать эффекты размытия в Picom и тяжёлые модули в Polybar (CPU, memory, graph).
-- Шрифты Nerd Font ставятся вручную.
+- Шрифты Nerd Font ставятся вручную — в репозиториях Debian их нет.
 - Если `echo -e` в скриптах не работает — заменить на `printf`. Polybar и SXHKD запускают команды через `/bin/sh` (dash), который не поддерживает `-e` у встроенного `echo`.
 - В `.ini`-конфиге Polybar inline-комментарии (`;` после значения) не поддерживаются — парсер берёт всё после `=` как буквальное значение. Комментарии только на отдельных строках.
+- Проверка `git status` в `~/.config` не сработает — там нет `.git`. Репозиторий живёт в `~/bspwm-machineslego`, работать с git нужно оттуда.
 
 ## Скриншот
 
 ![Screenshot](screenshot.png)
-
 
 ## Лицензия
 
