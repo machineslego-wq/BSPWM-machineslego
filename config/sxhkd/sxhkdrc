@@ -3,8 +3,8 @@
 #
 
 # Отправка тестового уведомления
-super + alt + n
-	notify-send "Заголовок уведомления" "Проверка стиля Dunst в Tokyo Night"
+super + slash
+	~/.config/polybar/scripts/cheatsheet.sh
 
 # Перезапуск BSPWM + SXHKD одной командой
 super + alt + shift + r
