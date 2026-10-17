@@ -39,9 +39,12 @@ sudo apt install -y \
   blueman \
   thunar alacritty \
   i3lock-fancy libnotify-bin \
-  fish \
+  fish fontconfig \
   wget unzip
 echo "  Базовые пакеты установлены."
+sudo -u "$REAL_USER" mkdir -p "$REAL_HOME/Изображения/Screenshots"
+echo "  Создана папка для скриншотов."
+
 echo ""
 
 # 2. Установка шрифта JetBrainsMono Nerd Font
