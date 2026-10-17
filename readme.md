@@ -116,7 +116,8 @@ wpctl set-default <ID_устройства>
 
 ## Скриншоты
 
-## Новые
+### Новые
+
 ![2026-10-17_23-15-54.png](screenshots/2026-10-17_23-15-54.png)
 ![2026-10-17_23-16-28.png](screenshots/2026-10-17_23-16-28.png)
 ![2026-10-17_23-16-40.png](screenshots/2026-10-17_23-16-40.png)
@@ -126,6 +127,7 @@ wpctl set-default <ID_устройства>
 ![2026-10-17_23-20-23.png](screenshots/2026-10-17_23-20-23.png)
 
 ### Старые
+
 ![Screenshot](screenshots/screenshot.png)
 ![2026-10-17_17-56-38.png](screenshots/2026-10-17_17-56-38.png)
 ![2026-10-17_17-56-43.png](screenshots/2026-10-17_17-56-43.png)
