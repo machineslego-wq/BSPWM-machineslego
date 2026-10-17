@@ -54,7 +54,7 @@ shift + Print
 super + shift + s
     scrot -s -e 'xclip -selection clipboard -t image/png -i $f' ~/Изображения/Screenshots/%Y-%m-%d_%H-%M-%S.png
 
-# Скриншот с задержкой 3 секунды (для Rofi) + копирование в буфер
+# Скриншот с задержкой 3с + буфер
 super + Print
     scrot -d 3 -e 'xclip -selection clipboard -t image/png -i $f' ~/Изображения/Screenshots/%Y-%m-%d_%H-%M-%S.png
 
@@ -128,7 +128,7 @@ super + {_,shift + }{1-9,0}
 super + {_,shift + }w
     bspc node -{c,k}
 
-# Изменить состояние окна (тайл, плавающий, фуллскрин)
+# Состояние окна (тайл, плавающий, фуллскрин)
 super + {t,shift + t,s,f}
     bspc node -t {tiled,pseudo_tiled,floating,fullscreen}
 
@@ -144,7 +144,7 @@ super + y
 super + g
     bspc node -s biggest.window
 
-# Установить флаги окна (marked, locked, sticky, private)
+# Флаги окна (marked, locked, sticky, private)
 super + ctrl + {m,x,y,z}
     bspc node -g {marked,locked,sticky,private}
 
