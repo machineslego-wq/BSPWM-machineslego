@@ -1,33 +1,37 @@
 #!/bin/bash
-# Универсальный скрипт замера температур (CPU, GPU, Hotspot, VRAM, NVMe)
+# Умный скрипт замера температур (скрывает отсутствующие датчики)
 
 SENSORS_OUT=$(sensors 2>/dev/null)
 OUT=""
 
-# 1. Определяем температуру CPU (AMD или Intel)
-CPU_TEMP=$(echo "$SENSORS_OUT" | grep -E 'Tctl|Tdie|Package id 0' | awk '{print $2}' | head -n 1)
-[ -n "$CPU_TEMP" ] && OUT+="󰻠  CPU:        $CPU_TEMP\n"
+# 1. Процессор (Intel или AMD)
+# Ищем нужную строку, а затем с помощью grep -oE вытаскиваем первое совпадение вида "+45.0°C"
+CPU_TEMP=$(echo "$SENSORS_OUT" | grep -E 'Package id 0|Tctl|Tdie|Core 0' | grep -oE '\+[0-9.]+°C' | head -n 1)
 
-# 2. Определяем температуру GPU (Nvidia или AMD/Intel)
+# Если не нашли, ищем acpitz
+if [ -z "$CPU_TEMP" ]; then
+    CPU_TEMP=$(echo "$SENSORS_OUT" | grep -A 1 'acpitz' | grep -oE '\+[0-9.]+°C' | head -n 1)
+fi
+
+if [ -n "$CPU_TEMP" ]; then
+    OUT+="󰻠  CPU:        $CPU_TEMP\n"
+fi
+
+# 2. Видеокарта (Nvidia, AMD или Intel)
 if command -v nvidia-smi &>/dev/null; then
-    # === NVIDIA ===
-    # Запрашиваем температуру чипа и памяти
     NVIDIA_INFO=$(nvidia-smi --query-gpu=temperature.gpu,temperature.memory --format=csv,noheader,nounits 2>/dev/null)
     if [ -n "$NVIDIA_INFO" ]; then
         GPU_TEMP=$(echo "$NVIDIA_INFO" | awk -F', ' '{print $1"°C"}')
         VRAM_TEMP=$(echo "$NVIDIA_INFO" | awk -F', ' '{print $2"°C"}')
-        
         OUT+="󰢮  GPU:        $GPU_TEMP\n"
-        # Проверяем, есть ли датчик памяти (у некоторых старых карт его нет, выдает [N/A])
         if [[ "$VRAM_TEMP" != *"N/A"* ]]; then
             OUT+="󰍛  VRAM:       $VRAM_TEMP\n"
         fi
     fi
 else
-    # === AMD / INTEL ===
-    # Ищем блок amdgpu в выводе sensors
+    # AMD или Intel
     if echo "$SENSORS_OUT" | grep -q "amdgpu"; then
-        # Используем awk, чтобы вытащить значения именно из блока amdgpu
+        # Дискретная AMD
         AMD_DATA=$(echo "$SENSORS_OUT" | awk '
             /^amdgpu/ { in_gpu=1 }
             /^$/ { in_gpu=0 }
@@ -35,7 +39,6 @@ else
             in_gpu && /junction/ { print "junction:" $2 }
             in_gpu && /mem/ { print "mem:" $2 }
         ')
-        
         AMD_EDGE=$(echo "$AMD_DATA" | grep "edge:" | cut -d: -f2)
         AMD_JUNC=$(echo "$AMD_DATA" | grep "junction:" | cut -d: -f2)
         AMD_MEM=$(echo "$AMD_DATA" | grep "mem:" | cut -d: -f2)
@@ -43,28 +46,30 @@ else
         [ -n "$AMD_EDGE" ] && OUT+="󰢮  GPU:        $AMD_EDGE\n"
         [ -n "$AMD_JUNC" ] && OUT+="󰔏  Hotspot:    $AMD_JUNC\n"
         [ -n "$AMD_MEM" ] && OUT+="󰍛  VRAM:       $AMD_MEM\n"
-    else
-        # Встроенная графика (Intel или AMD APU)
-        INTEL_TEMP=$(echo "$SENSORS_OUT" | grep -E 'temp1' | awk '{print $2}' | head -n 1)
-        [ -n "$INTEL_TEMP" ] && OUT+="󰢮  GPU:        $INTEL_TEMP\n"
     fi
+    # Для Intel iGPU мы НЕ выводим строку, так как у него нет отдельного датчика
 fi
 
-# 3. Определяем температуру NVMe (может быть несколько)
+# 3. Диски (NVMe или SATA с модулем drivetemp)
 NVME_INFO=$(echo "$SENSORS_OUT" | awk '
     /^nvme/ { name=$1 }
     /Composite/ { print "  " name " : " $2 }
 ')
-if [ -n "$NVME_INFO" ]; then
-    OUT+="󰋊  NVMe:\n$NVME_INFO"
-else
-    OUT+="󰋊  NVMe:       N/A\n"
+SATA_INFO=$(echo "$SENSORS_OUT" | awk '
+    /^drivetemp/ { name=$1 }
+    /temp1/ { print "  " name " : " $2 }
+')
+
+if [ -n "$NVME_INFO" ] || [ -n "$SATA_INFO" ]; then
+    OUT+="󰋊  Диски:\n"
+    [ -n "$NVME_INFO" ] && OUT+="$NVME_INFO"
+    [ -n "$SATA_INFO" ] && OUT+="$SATA_INFO"
 fi
 
-# Защита от пустого вывода
+# Если вообще ничего не нашли
 if [ -z "$OUT" ]; then
-    OUT="Нет доступных датчиков."
+    OUT="Нет доступных датчиков.\nПопробуйте: sudo sensors-detect"
 fi
 
 # Выводим в Rofi
-echo -e "$OUT" | rofi -dmenu -p "󰔏 Температуры" -theme-str 'window {width: 32%;} listview {lines: 7;}'
+echo -e "$OUT" | rofi -dmenu -p "󰔏 Температуры" -theme-str 'window {width: 28%;} listview {lines: 6;}'
