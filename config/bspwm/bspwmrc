@@ -3,21 +3,6 @@
 pgrep -x sxhkd > /dev/null || sxhkd &
 ~/.config/polybar/launch.sh &
 
-# Автоопределение батареи и адаптера для Polybar
-for bat in /sys/class/power_supply/BAT*; do
-    if [ -d "$bat" ]; then
-        export POLYBAR_BAT=$(basename "$bat")
-        break
-    fi
-done
-
-for ac in /sys/class/power_supply/*; do
-    if [ -f "$ac/online" ]; then
-        export POLYBAR_AC=$(basename "$ac")
-        break
-    fi
-done
-
 # Апплеты
 picom &
 # nm-applet --indicator &
