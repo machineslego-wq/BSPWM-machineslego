@@ -1,3 +1,5 @@
 #!/bin/sh
 xrdb -merge ~/.Xresources
+export XCURSOR_THEME=Bibata-Modern-Amber
+export XCURSOR_SIZE=24
 exec bspwm
