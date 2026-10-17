@@ -16,7 +16,7 @@ feh --bg-fill ~/bspwm-machineslego/wallpapers/anime-girl-with-big-blue-eyes-and-
 bspc config focus_follows_pointer true
 
 # Отступ под Polybar
-bspc config top_padding    38
+bspc config top_padding    36
 bspc config bottom_padding 0
 
 bspc monitor -d I II III IV V VI VII

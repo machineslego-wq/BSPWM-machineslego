@@ -4,7 +4,35 @@
 
 ## TODO
 
-Сделать фунцию управления питания для ноутбука, пока думаю над TLP
+Сделать фунцию управления питания для ноутбука, пока думаю над TLP.
+
+Будущая структура репозитория
+```
+BSPWM-machineslego/
+├── .config/                    # → ~/.config/*
+│   ├── alacritty/
+│   ├── bspwm/
+│   ├── dunst/
+│   ├── fastfetch/
+│   ├── picom/
+│   ├── polybar/
+│   ├── rofi/
+│   └── sxhkd/
+├── home/                       # → ~/*
+│   ├── .xinitrc
+│   └── .Xresources
+├── system/                     # → /etc/* (копирование, не симлинки)
+│   ├── X11/xorg.conf.d/30-touchpad.conf
+│   ├── NetworkManager/NetworkManager.conf
+│   └── network/interfaces
+├── scripts/                    # служебные скрипты репо
+│   ├── link.sh
+│   ├── unlink.sh
+│   └── install.sh
+├── screenshots/
+├── .gitignore
+└── readme.md
+```
 
 ## Последние изменения
 
