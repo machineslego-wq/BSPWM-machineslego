@@ -2,6 +2,10 @@
 # wm independent hotkeys
 #
 
+# Отправка тестового уведомления
+super + alt + n
+	notify-send "Заголовок уведомления" "Проверка стиля Dunst в Tokyo Night"
+
 # Перезапуск BSPWM + SXHKD одной командой
 super + alt + shift + r
     pkill -USR1 -x sxhkd; bspc wm -r
