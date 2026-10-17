@@ -118,6 +118,7 @@ wpctl set-default <ID_устройства>
 
 ### Новые
 
+![2026-10-17_23-14-51.png](screenshots/2026-10-17_23-14-51.png)
 ![2026-10-17_23-15-54.png](screenshots/2026-10-17_23-15-54.png)
 ![2026-10-17_23-16-28.png](screenshots/2026-10-17_23-16-28.png)
 ![2026-10-17_23-16-40.png](screenshots/2026-10-17_23-16-40.png)
@@ -131,7 +132,7 @@ wpctl set-default <ID_устройства>
 ![Screenshot](screenshots/screenshot.png)
 ![2026-10-17_17-56-38.png](screenshots/2026-10-17_17-56-38.png)
 ![2026-10-17_17-56-43.png](screenshots/2026-10-17_17-56-43.png)
-![2026-10-17_23-14-51.png](screenshots/2026-10-17_23-14-51.png)
+
 
 ## Лицензия
 
