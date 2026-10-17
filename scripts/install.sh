@@ -21,19 +21,7 @@ echo ""
 # Запрашиваем пароль sudo один раз в начале
 sudo -v || { echo "Ошибка: требуются права sudo."; exit 1; }
 
-# 1. Выбор типа устройства
-echo "Выберите тип устройства:"
-echo "  1) Ноутбук (установит TLP)"
-echo "  2) ПК (установит cpupower)"
-read -p "Введите 1 или 2: " DEVICE_TYPE
-
-if [ "$DEVICE_TYPE" != "1" ] && [ "$DEVICE_TYPE" != "2" ]; then
-    echo "Неверный выбор. Выход."
-    exit 1
-fi
-echo ""
-
-# 2. Установка пакетов
+# 1. Установка БАЗОВЫХ пакетов (всегда, без условий)
 echo "[1/4] Установка базовых пакетов..."
 sudo apt update
 sudo apt install -y \
@@ -50,36 +38,45 @@ sudo apt install -y \
   thunar alacritty \
   i3lock-fancy libnotify-bin \
   fish
+echo "  Базовые пакеты установлены."
+echo ""
 
-# 3. Установка пакетов питания и настройка sudoers
+# 2. Настройка питания (TLP / cpupower / PPD)
 echo "[2/4] Настройка управления питанием..."
-if [ "$DEVICE_TYPE" = "1" ]; then
-    echo "  -> Выбран ноутбук. Устанавливаем TLP..."
-    sudo apt install -y tlp tlp-rdw
-    sudo systemctl enable --now tlp
-    
-    # Настраиваем sudoers для TLP (без пароля)
-    echo "$REAL_USER ALL=(ALL) NOPASSWD: /usr/sbin/tlp, /usr/bin/tlp-stat" | sudo tee /etc/sudoers.d/tlp > /dev/null
-    sudo chmod 440 /etc/sudoers.d/tlp
-    echo "  -> Добавлено правило в /etc/sudoers.d/tlp"
+
+if command -v powerprofilesctl &>/dev/null; then
+    echo "  -> Обнаружен power-profiles-daemon. Пропускаем установку TLP/cpupower."
+    echo "  -> В Polybar будет использоваться профиль PPD (power-profile-ppd.sh)."
 else
-    echo "  -> Выбран ПК. Устанавливаем cpupower..."
-    sudo apt install -y linux-cpupower
-    
-    # Настраиваем sudoers для cpupower (без пароля)
-    echo "$REAL_USER ALL=(ALL) NOPASSWD: /usr/bin/cpupower" | sudo tee /etc/sudoers.d/cpupower > /dev/null
-    sudo chmod 440 /etc/sudoers.d/cpupower
-    echo "  -> Добавлено правило в /etc/sudoers.d/cpupower"
+    echo "Выберите тип устройства для настройки питания:"
+    echo "  1) Ноутбук (установит TLP)"
+    echo "  2) ПК (установит cpupower)"
+    read -p "Введите 1 или 2: " DEVICE_TYPE
+    echo ""
+
+    if [ "$DEVICE_TYPE" = "1" ]; then
+        echo "  -> Устанавливаем TLP..."
+        sudo apt install -y tlp tlp-rdw
+        sudo systemctl enable --now tlp
+        echo "$REAL_USER ALL=(ALL) NOPASSWD: /usr/sbin/tlp, /usr/bin/tlp-stat" | sudo tee /etc/sudoers.d/tlp > /dev/null
+        sudo chmod 440 /etc/sudoers.d/tlp
+    elif [ "$DEVICE_TYPE" = "2" ]; then
+        echo "  -> Устанавливаем cpupower..."
+        sudo apt install -y linux-cpupower
+        echo "$REAL_USER ALL=(ALL) NOPASSWD: /usr/bin/cpupower" | sudo tee /etc/sudoers.d/cpupower > /dev/null
+        sudo chmod 440 /etc/sudoers.d/cpupower
+    else
+        echo "  ! Неверный выбор. Пропускаем настройку питания."
+    fi
 fi
 echo ""
 
-# 4. Линковка пользовательских конфигов
+# 3. Линковка пользовательских конфигов
 echo "[3/4] Линковка конфигов..."
-# Запускаем линковщик от имени реального пользователя, чтобы права на файлы не стали root'овскими
 sudo -u "$REAL_USER" bash "$DOTFILES/scripts/link.sh"
 echo ""
 
-# 5. Установка системных конфигов
+# 4. Установка системных конфигов
 echo "[4/4] Установка системных конфигов в /etc/..."
 if [ -d "$DOTFILES/system" ]; then
     sudo mkdir -p "$BACKUP"
@@ -91,13 +88,11 @@ if [ -d "$DOTFILES/system" ]; then
 
         echo "  -> $dst_file"
         
-        # Делаем бэкап старого файла
         if [ -f "$dst_file" ]; then
             sudo mkdir -p "$BACKUP/$dst_dir"
             sudo cp "$dst_file" "$BACKUP/$dst_file"
         fi
 
-        # Копируем новый
         sudo mkdir -p "$dst_dir"
         sudo cp "$src_file" "$dst_file"
     done
@@ -106,6 +101,4 @@ fi
 
 echo ""
 echo "=== Установка завершена! ==="
-echo "Для запуска графической сессии введите: startx"
-echo "Не забудьте отключить wpa_supplicant, если Wi-Fi не работает:"
-echo "  sudo systemctl disable --now wpa_supplicant"
+echo "Перезагрузите систему или запустите startx."

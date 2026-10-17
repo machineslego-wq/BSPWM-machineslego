@@ -1,1 +1,1 @@
-/home/nikita/.config/polybar/scripts/power-profile-laptop.sh
+/home/nikita/.config/polybar/scripts/power-profile-ppd.sh

@@ -9,8 +9,17 @@ blueman-applet &
 # pkill -x pasystray
 # pasystray &
 
+# Убиваем демоны GNOME, которые могут перехватывать клавиши
+pkill -x gsd-media-keys &
+
+# Фикс для курсора крестика на рабочем столе
+xsetroot -cursor_name left_ptr &
+
+# Принудительная установка раскладки для BSPWM
+setxkbmap -layout "us,ru" -option "grp:caps_toggle" &
+
 # Обои
-feh --bg-fill ~/bspwm-machineslego/wallpapers/anime-girl-with-big-blue-eyes-and-blue-hair-wallpaper-1366x768.jpg &
+feh --bg-fill ~/BSPWM-machineslego/wallpapers/anime-girl-with-big-blue-eyes-and-blue-hair-wallpaper-1920x1080.jpg &
 
 # Фокус следует за указателем мыши
 bspc config focus_follows_pointer true

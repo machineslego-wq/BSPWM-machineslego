@@ -54,12 +54,16 @@ if [ -d "$DOTFILES/home" ]; then
     done
 fi
 
-# 3. Автовыбор скрипта питания (TLP для ноутбуков, cpupower для ПК)
+# 3. Автовыбор скрипта питания
 echo "--- Настройка профиля питания ---"
 SCRIPTS_DIR="$HOME/.config/polybar/scripts"
 if [ -d "$SCRIPTS_DIR" ]; then
-    if ls /sys/class/power_supply/BAT* >/dev/null 2>&1; then
-        # Нашли батарею — значит это ноутбук
+    if command -v powerprofilesctl &>/dev/null; then
+        # Нашли power-profiles-daemon
+        ln -sf "$SCRIPTS_DIR/power-profile-ppd.sh" "$SCRIPTS_DIR/power-profile.sh"
+        echo "  link: power-profile.sh -> power-profile-ppd.sh (Обнаружен power-profiles-daemon)"
+    elif ls /sys/class/power_supply/BAT* >/dev/null 2>&1; then
+        # Есть батарея — значит это ноутбук
         ln -sf "$SCRIPTS_DIR/power-profile-laptop.sh" "$SCRIPTS_DIR/power-profile.sh"
         echo "  link: power-profile.sh -> power-profile-laptop.sh (Обнаружен ноутбук)"
     else
