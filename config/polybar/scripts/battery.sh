@@ -108,9 +108,10 @@ while true; do
             fi
         fi
 
-        if [ -z "$capacity" ]; then
+                if [ -z "$capacity" ]; then
             out="N/A"
         else
+            # 1. Выбираем иконку (как было)
             if [ "$status" = "Charging" ]; then
                 icon="󰂄"
             elif [ "$status" = "Full" ]; then
@@ -128,7 +129,20 @@ while true; do
                 else                              icon="󰂃"
                 fi
             fi
-            out="$icon $capacity%"
+
+            # 2. Выбираем цвет (Tokyo Night)
+            if [ "$status" = "Charging" ]; then
+                color="#9ece6a"   # Зеленый (success) при зарядке
+            elif [ "$capacity" -le 40 ]; then
+                color="#f7768e"   # Красный (alert) при критическом заряде
+            elif [ "$capacity" -le 60 ]; then
+                color="#e0af68"   # Желтый (warning) при низком заряде
+            else
+                color="#7aa2f7"   # Синий (primary) в обычном режиме
+            fi
+
+            # 3. Оборачиваем в теги Polybar
+            out="%{F$color}$icon $capacity%%{F-}"
         fi
     fi
 
