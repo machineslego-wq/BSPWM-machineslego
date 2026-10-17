@@ -21,6 +21,9 @@ pkill -x gsd-media-keys &
 # Фикс для курсора крестика на рабочем столе
 xsetroot -cursor_name left_ptr &
 
+# Убрать IBUS
+(sleep 3 && pkill -x ibus-x11) &
+
 # Принудительная установка раскладки с задержкой 1 сек (чтобы GDM не перебил)
 (sleep 3 && setxkbmap -layout "us,ru" -option "grp:caps_toggle") &
 
