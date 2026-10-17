@@ -38,6 +38,10 @@ super + Return
 super + d
     rofi -show drun -show-icons
 
+# Показать температуры (Rofi)
+super + x
+    ~/.config/polybar/scripts/sensors.sh
+
 # ==========================================
 # МУЛЬТИМЕДИА И СКРИНШОТЫ
 # ==========================================

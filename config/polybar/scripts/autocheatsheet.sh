@@ -26,4 +26,4 @@ awk '
 /^$/ {
     desc = ""
 }
-' ~/.config/sxhkd/sxhkdrc | rofi -dmenu -i -p "󰌌 Горячие клавиши" -theme-str 'window {width: 45%; height: 60%;} listview {lines: 15; scrollbar: true;}'
+' ~/.config/sxhkd/sxhkdrc | rofi -dmenu -i -p "󰌌 Горячие клавиши" -theme-str 'window {width: 70%; height: 60%;} listview {lines: 15; scrollbar: true;}'
