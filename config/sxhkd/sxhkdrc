@@ -54,6 +54,10 @@ shift + Print
 super + shift + s
     scrot -s ~/Изображения/Screenshots/%Y-%m-%d_%H-%M-%S.png
 
+# Скриншот с задержкой 3 секунды (для меню Rofi)
+super + Print
+    scrot -d 3 ~/Изображения/Screenshots/%Y-%m-%d_%H-%M-%S.png
+
 # Яркость: увеличить
 XF86MonBrightnessUp
     brightnessctl set +5%
