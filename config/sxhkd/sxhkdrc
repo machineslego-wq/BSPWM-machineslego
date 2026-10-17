@@ -42,21 +42,21 @@ super + d
 # МУЛЬТИМЕДИА И СКРИНШОТЫ
 # ==========================================
 
-# Скриншот всего экрана
+# Весь экран + копирование в буфер
 Print
-    scrot ~/Изображения/Screenshots/%Y-%m-%d_%H-%M-%S.png
+    scrot -e 'xclip -selection clipboard -t image/png -i $f' ~/Изображения/Screenshots/%Y-%m-%d_%H-%M-%S.png
 
-# Скриншот активного окна
+# Активное окно + копирование в буфер
 shift + Print
-    scrot -u ~/Изображения/Screenshots/%Y-%m-%d_%H-%M-%S.png
+    scrot -u -e 'xclip -selection clipboard -t image/png -i $f' ~/Изображения/Screenshots/%Y-%m-%d_%H-%M-%S.png
 
-# Скриншот выделенной области
+# Выделенная область + копирование в буфер
 super + shift + s
-    scrot -s ~/Изображения/Screenshots/%Y-%m-%d_%H-%M-%S.png
+    scrot -s -e 'xclip -selection clipboard -t image/png -i $f' ~/Изображения/Screenshots/%Y-%m-%d_%H-%M-%S.png
 
-# Скриншот с задержкой 3 секунды (для меню Rofi)
+# Скриншот с задержкой 3 секунды (для Rofi) + копирование в буфер
 super + Print
-    scrot -d 3 ~/Изображения/Screenshots/%Y-%m-%d_%H-%M-%S.png
+    scrot -d 3 -e 'xclip -selection clipboard -t image/png -i $f' ~/Изображения/Screenshots/%Y-%m-%d_%H-%M-%S.png
 
 # Яркость: увеличить
 XF86MonBrightnessUp
