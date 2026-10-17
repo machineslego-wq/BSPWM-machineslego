@@ -40,7 +40,7 @@ sudo apt install -y \
   thunar alacritty \
   i3lock-fancy libnotify-bin \
   fish fontconfig \
-  wget unzip xclip
+  wget unzip xclip lm-sensors
 echo "  Базовые пакеты установлены."
 sudo -u "$REAL_USER" mkdir -p "$REAL_HOME/Изображения/Screenshots"
 echo "  Создана папка для скриншотов."
