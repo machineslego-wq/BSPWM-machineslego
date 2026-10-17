@@ -131,7 +131,7 @@ echo "drivetemp" | sudo tee /etc/modules-load.d/drivetemp.conf
 ## Галерея скриншотов
 
 <details>
-<summary>Нажмите, чтобы развернуть все скриншоты (11 шт.)</summary>
+<summary>Нажмите, чтобы развернуть все скриншоты (12 шт.)</summary>
 <br>
 
 | | |
@@ -141,7 +141,7 @@ echo "drivetemp" | sudo tee /etc/modules-load.d/drivetemp.conf
 | ![5](screenshots/2026-10-17_23-17-04.png) | ![6](screenshots/2026-10-17_23-17-40.png) |
 | ![7](screenshots/2026-10-17_23-20-23.png) | ![8](screenshots/screenshot.png) |
 | ![9](screenshots/2026-10-17_17-56-38.png) | ![10](screenshots/2026-10-17_17-56-43.png) |
-| ![11](screenshots/2026-10-17_23-14-51.png) | |
+| ![11](screenshots/2026-10-17_23-14-51.png) | | ![12](screenshots/2026-10-18_00-25-35.png) |
 
 </details>
 
