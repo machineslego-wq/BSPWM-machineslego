@@ -1,0 +1,1 @@
+/home/nikita/.config/polybar/scripts/power-profile-laptop.sh

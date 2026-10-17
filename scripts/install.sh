@@ -1,22 +1,39 @@
 #!/bin/bash
 # ==========================================================
-# install.sh — полная установка BSPWM-machineslego
+# install.sh — Автоматическая установка BSPWM-machineslego
 # ==========================================================
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKUP="/etc/dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
 
-echo "=== Установка BSPWM-machineslego ==="
-echo "Репозиторий: $DOTFILES"
-echo ""
-
-# 0. Проверка прав sudo (запрашиваем пароль один раз в начале)
-if ! sudo -v; then
-    echo "Ошибка: требуются права sudo для установки пакетов и системных конфигов."
-    exit 1
+# Определяем реального пользователя (если скрипт запущен через sudo)
+if [ -n "$SUDO_USER" ]; then
+    REAL_USER=$SUDO_USER
+else
+    REAL_USER=$USER
 fi
 
-# 1. Установка пакетов
+echo "=== Установка BSPWM-machineslego ==="
+echo "Репозиторий: $DOTFILES"
+echo "Пользователь: $REAL_USER"
+echo ""
+
+# Запрашиваем пароль sudo один раз в начале
+sudo -v || { echo "Ошибка: требуются права sudo."; exit 1; }
+
+# 1. Выбор типа устройства
+echo "Выберите тип устройства:"
+echo "  1) Ноутбук (установит TLP)"
+echo "  2) ПК (установит cpupower)"
+read -p "Введите 1 или 2: " DEVICE_TYPE
+
+if [ "$DEVICE_TYPE" != "1" ] && [ "$DEVICE_TYPE" != "2" ]; then
+    echo "Неверный выбор. Выход."
+    exit 1
+fi
+echo ""
+
+# 2. Установка пакетов
 echo "[1/4] Установка базовых пакетов..."
 sudo apt update
 sudo apt install -y \
@@ -32,23 +49,41 @@ sudo apt install -y \
   blueman \
   thunar alacritty \
   i3lock-fancy libnotify-bin \
-  fish \
-  qt6ct
+  fish
 
-echo "  Пакеты установлены."
+# 3. Установка пакетов питания и настройка sudoers
+echo "[2/4] Настройка управления питанием..."
+if [ "$DEVICE_TYPE" = "1" ]; then
+    echo "  -> Выбран ноутбук. Устанавливаем TLP..."
+    sudo apt install -y tlp tlp-rdw
+    sudo systemctl enable --now tlp
+    
+    # Настраиваем sudoers для TLP (без пароля)
+    echo "$REAL_USER ALL=(ALL) NOPASSWD: /usr/sbin/tlp, /usr/bin/tlp-stat" | sudo tee /etc/sudoers.d/tlp > /dev/null
+    sudo chmod 440 /etc/sudoers.d/tlp
+    echo "  -> Добавлено правило в /etc/sudoers.d/tlp"
+else
+    echo "  -> Выбран ПК. Устанавливаем cpupower..."
+    sudo apt install -y linux-cpupower
+    
+    # Настраиваем sudoers для cpupower (без пароля)
+    echo "$REAL_USER ALL=(ALL) NOPASSWD: /usr/bin/cpupower" | sudo tee /etc/sudoers.d/cpupower > /dev/null
+    sudo chmod 440 /etc/sudoers.d/cpupower
+    echo "  -> Добавлено правило в /etc/sudoers.d/cpupower"
+fi
 echo ""
 
-# 2. Линковка пользовательских конфигов
-echo "[2/4] Линковка конфигов в ~/ и ~/.config/"
-bash "$DOTFILES/scripts/link.sh"
+# 4. Линковка пользовательских конфигов
+echo "[3/4] Линковка конфигов..."
+# Запускаем линковщик от имени реального пользователя, чтобы права на файлы не стали root'овскими
+sudo -u "$REAL_USER" bash "$DOTFILES/scripts/link.sh"
 echo ""
 
-# 3. Установка системных конфигов (требует sudo)
-echo "[3/4] Установка системных конфигов в /etc/"
+# 5. Установка системных конфигов
+echo "[4/4] Установка системных конфигов в /etc/..."
 if [ -d "$DOTFILES/system" ]; then
     sudo mkdir -p "$BACKUP"
     
-    # Копируем файлы с сохранением структуры папок
     find "$DOTFILES/system" -type f | while read -r src_file; do
         rel_path="${src_file#$DOTFILES/system/}"
         dst_file="/$rel_path"
@@ -56,30 +91,21 @@ if [ -d "$DOTFILES/system" ]; then
 
         echo "  -> $dst_file"
         
+        # Делаем бэкап старого файла
         if [ -f "$dst_file" ]; then
             sudo mkdir -p "$BACKUP/$dst_dir"
             sudo cp "$dst_file" "$BACKUP/$dst_file"
         fi
 
+        # Копируем новый
         sudo mkdir -p "$dst_dir"
         sudo cp "$src_file" "$dst_file"
     done
-    echo "  Бэкап системных файлов: $BACKUP"
-else
-    echo "  Папка system/ пуста, пропускаем."
-fi
-echo ""
-
-# 4. Проверка NetworkManager и wpa_supplicant
-echo "[4/4] Проверка системных настроек"
-if systemctl is-enabled wpa_supplicant &>/dev/null; then
-    echo "  Внимание: системный wpa_supplicant включен."
-    echo "  Для работы NetworkManager выполните:"
-    echo "    sudo systemctl disable --now wpa_supplicant"
-else
-    echo "  wpa_supplicant отключен, NetworkManager готов к работе."
+    echo "  Бэкап старых системных файлов: $BACKUP"
 fi
 
 echo ""
 echo "=== Установка завершена! ==="
-echo "Перезагрузите систему или перезайдите в сессию (startx)."
+echo "Для запуска графической сессии введите: startx"
+echo "Не забудьте отключить wpa_supplicant, если Wi-Fi не работает:"
+echo "  sudo systemctl disable --now wpa_supplicant"

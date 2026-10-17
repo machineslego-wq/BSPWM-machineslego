@@ -1,9 +1,9 @@
 #!/bin/sh
 # =========================================================
-# link.sh — симлинкует config/ и home/ в систему
+# link.sh — умная линковка config/ и home/ в систему
 # =========================================================
 
-DOTFILES="${DOTFILES:-$HOME/bspwm-machineslego}"
+DOTFILES="${DOTFILES:-$HOME/BSPWM-machineslego}"
 BACKUP="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
 
 if [ ! -d "$DOTFILES" ]; then
@@ -18,8 +18,10 @@ link_item() {
     local src="$1"
     local dst="$2"
 
+    # Если симлинк уже есть — удаляем
     if [ -L "$dst" ]; then
         rm "$dst"
+    # Если есть реальная папка/файл — бэкапим
     elif [ -e "$dst" ]; then
         mkdir -p "$(dirname "$BACKUP/$dst")"
         mv "$dst" "$BACKUP/$dst"
@@ -47,14 +49,30 @@ if [ -d "$DOTFILES/home" ]; then
     for file in "$DOTFILES/home"/*; do
         [ -e "$file" ] || continue
         file_name=$(basename "$file")
+        # Наш xinitrc превратится в .xinitrc
         link_item "$file" "$HOME/.$file_name"
     done
 fi
 
-# 3. Права на скрипты
+# 3. Автовыбор скрипта питания (TLP для ноутбуков, cpupower для ПК)
+echo "--- Настройка профиля питания ---"
+SCRIPTS_DIR="$HOME/.config/polybar/scripts"
+if [ -d "$SCRIPTS_DIR" ]; then
+    if ls /sys/class/power_supply/BAT* >/dev/null 2>&1; then
+        # Нашли батарею — значит это ноутбук
+        ln -sf "$SCRIPTS_DIR/power-profile-laptop.sh" "$SCRIPTS_DIR/power-profile.sh"
+        echo "  link: power-profile.sh -> power-profile-laptop.sh (Обнаружен ноутбук)"
+    else
+        # Батареи нет — значит это ПК
+        ln -sf "$SCRIPTS_DIR/power-profile-pc.sh" "$SCRIPTS_DIR/power-profile.sh"
+        echo "  link: power-profile.sh -> power-profile-pc.sh (Обнаружен ПК)"
+    fi
+fi
+
+# 4. Права на скрипты (чтобы Polybar мог их запускать)
 echo "--- Выставление прав (+x) ---"
+chmod +x "$SCRIPTS_DIR/"*.sh 2>/dev/null
 chmod +x "$HOME/.config/polybar/launch.sh" 2>/dev/null
-chmod +x "$HOME/.config/polybar/scripts/"*.sh 2>/dev/null
 chmod +x "$HOME/.config/bspwm/bspwmrc" 2>/dev/null
 
-echo "Готово."
+echo "Симлинки успешно созданы."

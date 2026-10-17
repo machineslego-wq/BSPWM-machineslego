@@ -1,10 +1,9 @@
 #!/bin/sh
 # =========================================================
-# unlink.sh — удаляет симлинки, созданные link.sh
-# Реальные папки и файлы не трогает.
+# unlink.sh — Безопасное удаление симлинков, созданных link.sh
 # =========================================================
 
-DOTFILES="${DOTFILES:-$HOME/bspwm-machineslego}"
+DOTFILES="${DOTFILES:-$HOME/BSPWM-machineslego}"
 
 if [ ! -d "$DOTFILES" ]; then
     echo "Ошибка: репозиторий не найден: $DOTFILES"
@@ -23,8 +22,9 @@ check_and_remove() {
     local link_path="$1"
     
     if [ -L "$link_path" ]; then
-        # Проверяем, куда ведет симлинк
-        local target=$(readlink "$link_path")
+        # Читаем, куда ведет симлинк
+        local target
+        target=$(readlink "$link_path")
         
         # Если симлинк ведет в наш репозиторий — удаляем
         case "$target" in
@@ -52,9 +52,14 @@ if [ -d "$HOME/.config" ]; then
     done
 fi
 
-# 2. Чистим ~/ (только скрытые файлы, которые мы линковали)
-# Мы знаем, что link.sh создает .xinitrc и .Xresources
-# Проверим их точечно, чтобы не сканировать всю домашнюю папку
+# 2. Чистим скрипты Polybar (на случай, если ~/.config/polybar не была симлинком)
+if [ -d "$HOME/.config/polybar/scripts" ]; then
+    for script in "$HOME/.config/polybar/scripts"/*; do
+        check_and_remove "$script"
+    done
+fi
+
+# 3. Чистим файлы в ~/ (только те, что мы линковали)
 for file in ".xinitrc" ".Xresources"; do
     check_and_remove "$HOME/$file"
 done
@@ -62,8 +67,8 @@ done
 echo ""
 echo "Удалено симлинков: $removed"
 if [ "$skipped" -gt 0 ]; then
-    echo "Пропущено (не симлинки или ведут не в репо): $skipped"
+    echo "Пропущено (реальные файлы или ссылки не в репо): $skipped"
 fi
 
 echo ""
-echo "Готово."
+echo "Готово. Если хочешь вернуть свои конфиги, они лежат в ~/.dotfiles-backup-*"
