@@ -51,15 +51,15 @@ XF86MonBrightnessUp
 XF86MonBrightnessDown
     brightnessctl set 5%-
 
-# --- Громкость (универсально: PipeWire или PulseAudio) ---
+# --- Громкость ---
 XF86AudioRaiseVolume
-    if command -v wpctl >/dev/null 2>&1; then wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+; else pactl set-sink-volume @DEFAULT_SINK@ +5%; fi
+    ~/.config/polybar/scripts/volume.sh up
 
 XF86AudioLowerVolume
-    if command -v wpctl >/dev/null 2>&1; then wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-; else pactl set-sink-volume @DEFAULT_SINK@ -5%; fi
+    ~/.config/polybar/scripts/volume.sh down
 
 XF86AudioMute
-    if command -v wpctl >/dev/null 2>&1; then wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle; else pactl set-sink-mute @DEFAULT_SINK@ toggle; fi
+    ~/.config/polybar/scripts/volume.sh mute
 
 # terminal emulator
 super + Return
