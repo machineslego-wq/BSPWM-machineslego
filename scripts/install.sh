@@ -9,8 +9,10 @@ BACKUP="/etc/dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
 # Определяем реального пользователя (если скрипт запущен через sudo)
 if [ -n "$SUDO_USER" ]; then
     REAL_USER=$SUDO_USER
+    REAL_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
 else
     REAL_USER=$USER
+    REAL_HOME=$HOME
 fi
 
 echo "=== Установка BSPWM-machineslego ==="
@@ -21,8 +23,8 @@ echo ""
 # Запрашиваем пароль sudo один раз в начале
 sudo -v || { echo "Ошибка: требуются права sudo."; exit 1; }
 
-# 1. Установка БАЗОВЫХ пакетов (всегда, без условий)
-echo "[1/4] Установка базовых пакетов..."
+# 1. Установка пакетов
+echo "[1/5] Установка базовых пакетов..."
 sudo apt update
 sudo apt install -y \
   xorg xinit \
@@ -37,47 +39,59 @@ sudo apt install -y \
   blueman \
   thunar alacritty \
   i3lock-fancy libnotify-bin \
-  fish
+  fish \
+  wget unzip
 echo "  Базовые пакеты установлены."
 echo ""
 
-# 2. Настройка питания (TLP / cpupower / PPD)
-echo "[2/4] Настройка управления питанием..."
+# 2. Установка шрифта JetBrainsMono Nerd Font
+echo "[2/5] Установка шрифта JetBrainsMono Nerd Font..."
+FONT_DIR="$REAL_HOME/.local/share/fonts"
+FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.zip"
+TMP_ZIP="/tmp/JetBrainsMono.zip"
 
-if command -v powerprofilesctl &>/dev/null; then
-    echo "  -> Обнаружен power-profiles-daemon. Пропускаем установку TLP/cpupower."
-    echo "  -> В Polybar будет использоваться профиль PPD (power-profile-ppd.sh)."
+if sudo -u "$REAL_USER" fc-list | grep -qi "JetBrainsMono Nerd Font"; then
+    echo "  Шрифт JetBrainsMono Nerd Font уже установлен. Пропускаем."
 else
-    echo "Выберите тип устройства для настройки питания:"
-    echo "  1) Ноутбук (установит TLP)"
-    echo "  2) ПК (установит cpupower)"
-    read -p "Введите 1 или 2: " DEVICE_TYPE
-    echo ""
-
-    if [ "$DEVICE_TYPE" = "1" ]; then
-        echo "  -> Устанавливаем TLP..."
-        sudo apt install -y tlp tlp-rdw
-        sudo systemctl enable --now tlp
-        echo "$REAL_USER ALL=(ALL) NOPASSWD: /usr/sbin/tlp, /usr/bin/tlp-stat" | sudo tee /etc/sudoers.d/tlp > /dev/null
-        sudo chmod 440 /etc/sudoers.d/tlp
-    elif [ "$DEVICE_TYPE" = "2" ]; then
-        echo "  -> Устанавливаем cpupower..."
-        sudo apt install -y linux-cpupower
-        echo "$REAL_USER ALL=(ALL) NOPASSWD: /usr/bin/cpupower" | sudo tee /etc/sudoers.d/cpupower > /dev/null
-        sudo chmod 440 /etc/sudoers.d/cpupower
-    else
-        echo "  ! Неверный выбор. Пропускаем настройку питания."
-    fi
+    echo "  Скачиваем JetBrainsMono.zip..."
+    sudo -u "$REAL_USER" mkdir -p "$FONT_DIR"
+    sudo -u "$REAL_USER" wget -q --show-progress "$FONT_URL" -O "$TMP_ZIP"
+    
+    echo "  Распаковываем..."
+    sudo -u "$REAL_USER" unzip -q "$TMP_ZIP" -d "$FONT_DIR"
+    rm -f "$TMP_ZIP"
+    
+    echo "  Обновляем кэш шрифтов..."
+    sudo -u "$REAL_USER" fc-cache -f "$FONT_DIR" >/dev/null
+    echo "  Шрифт успешно установлен."
 fi
 echo ""
 
-# 3. Линковка пользовательских конфигов
-echo "[3/4] Линковка конфигов..."
+# 3. Настройка питания (автоопределение)
+echo "[3/5] Настройка управления питанием..."
+if command -v powerprofilesctl &>/dev/null; then
+    echo "  -> Обнаружен power-profiles-daemon. Оставляем как есть."
+elif ls /sys/class/power_supply/BAT* &>/dev/null; then
+    echo "  -> Обнаружен ноутбук. Устанавливаем TLP..."
+    sudo apt install -y tlp tlp-rdw
+    sudo systemctl enable --now tlp
+    echo "$REAL_USER ALL=(ALL) NOPASSWD: /usr/sbin/tlp, /usr/bin/tlp-stat" | sudo tee /etc/sudoers.d/tlp > /dev/null
+    sudo chmod 440 /etc/sudoers.d/tlp
+else
+    echo "  -> Обнаружен ПК. Устанавливаем cpupower..."
+    sudo apt install -y linux-cpupower
+    echo "$REAL_USER ALL=(ALL) NOPASSWD: /usr/bin/cpupower" | sudo tee /etc/sudoers.d/cpupower > /dev/null
+    sudo chmod 440 /etc/sudoers.d/cpupower
+fi
+echo ""
+
+# 4. Линковка пользовательских конфигов
+echo "[4/5] Линковка конфигов..."
 sudo -u "$REAL_USER" bash "$DOTFILES/scripts/link.sh"
 echo ""
 
-# 4. Установка системных конфигов
-echo "[4/4] Установка системных конфигов в /etc/..."
+# 5. Установка системных конфигов
+echo "[5/5] Установка системных конфигов в /etc/..."
 if [ -d "$DOTFILES/system" ]; then
     sudo mkdir -p "$BACKUP"
     
