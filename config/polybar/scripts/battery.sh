@@ -8,7 +8,8 @@ if [ "$1" = "--menu" ]; then
     done
 
     if [ -z "$BAT" ]; then
-        echo "Батарея не найдена" | rofi -dmenu -p "Питание"
+        # Если батареи нет (ПК)
+        echo -e "󰚥 Питание:    От сети (AC)\n󰐸 Устройство:  Стационарный ПК\n󰁹 Батарея:     Отсутствует" | rofi -dmenu -p "󰚥 Питание" -theme-str 'window {width: 28%;} listview {lines: 3;}'
         exit 0
     fi
 
@@ -76,7 +77,23 @@ if [ "$1" = "--menu" ]; then
     [ -n "$health_str" ] && OUT+="${health_str}\n"
 
     # Выводим в Rofi
-    echo -e "$OUT" | rofi -dmenu -p "󰁹 Батарея" -theme-str 'window {width: 25%;} listview {lines: 4;}'
+    # Выбираем иконку для статуса
+    if [ "$status" = "Charging" ]; then
+        ICON_STATUS="󰂄"
+    elif [ "$status" = "Full" ]; then
+        ICON_STATUS="󰁹"
+    else
+        ICON_STATUS="󰂃"
+    fi
+
+    # Формируем красивый вывод с иконками
+    OUT="󰁹 Заряд:        ${capacity}%\n"
+    OUT+="${ICON_STATUS} Статус:       ${STATUS_RU}\n"
+    [ -n "$time_str" ] && OUT+="󰅐 ${time_str}\n"
+    [ -n "$health_str" ] && OUT+="󰓅 ${health_str}\n"
+
+    # Выводим в Rofi
+    echo -e "$OUT" | rofi -dmenu -p "󰁹 Батарея" -theme-str 'window {width: 28%;} listview {lines: 4;}'
     exit 0
 fi
 
@@ -89,7 +106,8 @@ while true; do
     done
 
     if [ -z "$BAT" ]; then
-        out="N/A"
+        # Если батареи нет — выводим иконку розетки (голубой цвет info)
+        out="%{F#7dcfff}󰚥 PC%{F-}"
     else
         capacity=$(cat "$BAT/capacity" 2>/dev/null)
         status=$(cat "$BAT/status" 2>/dev/null)
@@ -108,8 +126,9 @@ while true; do
             fi
         fi
 
-                if [ -z "$capacity" ]; then
-            out="N/A"
+        if [ -z "$capacity" ]; then
+            # Если батарея есть, но данные не читаются — тоже показываем розетку
+            out="%{F#7dcfff}󰚥 PC%{F-}"
         else
             # 1. Выбираем иконку (как было)
             if [ "$status" = "Charging" ]; then
@@ -131,7 +150,7 @@ while true; do
             fi
 
             # 2. Выбираем цвет (Tokyo Night)
-            if [ "$status" = "Charging" ]; then
+            if [ "$status" = "Charging" ] || [ "$status" = "Full" ]; then
                 color="#9ece6a"   # Зеленый (success) при зарядке
             elif [ "$capacity" -le 40 ]; then
                 color="#f7768e"   # Красный (alert) при критическом заряде
