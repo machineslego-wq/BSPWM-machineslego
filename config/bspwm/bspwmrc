@@ -21,8 +21,8 @@ pkill -x gsd-media-keys &
 # Фикс для курсора крестика на рабочем столе
 xsetroot -cursor_name left_ptr &
 
-# Принудительная установка раскладки для BSPWM
-setxkbmap -layout "us,ru" -option "grp:caps_toggle" &
+# Принудительная установка раскладки с задержкой 1 сек (чтобы GDM не перебил)
+(sleep 3 && setxkbmap -layout "us,ru" -option "grp:caps_toggle") &
 
 # Обои
 feh --bg-fill ~/BSPWM-machineslego/wallpapers/anime-girl-with-big-blue-eyes-and-blue-hair-wallpaper-1920x1080.jpg &
