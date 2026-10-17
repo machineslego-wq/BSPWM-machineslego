@@ -217,8 +217,8 @@ bspc config top_padding 36 # заменить на 44
 ## Скриншот
 
 ![Screenshot](screenshots/screenshot.png)
-![2026-10-16_21-32-07.png](screenshots/2026-10-16_21-32-07.png)
-![2026-10-16_22-27-15.png](screenshots/2026-10-16_22-27-15.png)
+![2026-10-17_17-56-38.png](screenshots/2026-10-17_17-56-38.png)
+![2026-10-16_22-27-15.png](screenshots/2026-10-17_17-56-43.png)
 
 ## Лицензия
 
