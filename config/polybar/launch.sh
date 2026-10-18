@@ -1,38 +1,24 @@
 #!/bin/bash
 # ============================================================
-# Старый запуск без подсчета ширины экрана, далее новый с под-
-# счетом ширины экрана и записи их в переменные для polybar
+#     Скрипт для запуска Polybar с параметрами для баттареи
 # ============================================================
 
-# ------------------------------------------------------------
-# pkill -x polybar
-# while pgrep -u $UID -x polybar > /dev/null; do sleep 1; done
-# polybar main &
-# ------------------------------------------------------------
+# Автоопределение батареи и адаптера для Polybar
+for bat in /sys/class/power_supply/BAT*; do
+    if [ -d "$bat" ]; then
+        export POLYBAR_BAT=$(basename "$bat")
+        break
+    fi
+done
 
-# Запуск Polybar с расчётом отступов под разрешение
+for ac in /sys/class/power_supply/*; do
+    if [ -f "$ac/online" ]; then
+        export POLYBAR_AC=$(basename "$ac")
+        break
+    fi
+done
 
-# Убиваем старый Polybar
+# Убиваем существующие процессы и запускаем новый экземпляр Polybar
 pkill -x polybar
-while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
-
-# Определяем ширину первого монитора
-MONITOR_WIDTH=$(xrandr --current | grep " connected" | head -1 | grep -oP '\d+(?=x\d+)')
-[ -z "$MONITOR_WIDTH" ] && MONITOR_WIDTH=1366  # fallback
-
-# Зазор вокруг панели (по краям и сверху)
-GAP=4
-
-# Считаем ширину панели и отступ слева
-PANEL_WIDTH=$((MONITOR_WIDTH - GAP * 2))
-PANEL_OFFSET_X=$GAP
-
-# Экспортируем переменные для Polybar
-export PANEL_WIDTH
-export PANEL_OFFSET_X
-export PANEL_OFFSET_Y=$GAP
-
-echo "Панель: ${PANEL_WIDTH}px, отступы: ${GAP}px"
-
-# Запускаем
+while pgrep -u $UID -x polybar > /dev/null; do sleep 1; done
 polybar main &

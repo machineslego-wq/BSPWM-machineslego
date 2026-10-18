@@ -1,17 +1,23 @@
-#! /bin/sh
+#!/bin/sh
 
+# =====================================================================
+#                        --- Автозапуск ---
+# =====================================================================
+
+# Запуск демона клавиш SXHKD
 pgrep -x sxhkd > /dev/null || sxhkd &
 
 # Уведомление-подсказка при запуске (задержка 3 сек, чтобы Dunst успел загрузиться)
 (sleep 3 && notify-send -u low -t 8000 -i input-keyboard "Подсказка" "Нажмите Super + /, чтобы открыть меню горячих клавиш") &
 
-# =====================================================================
-#                          --- Апплеты ---
-# =====================================================================
+# Композитор
+picom --config ~/.config/picom/picom.conf &
 
-picom &
+# Аплет блютуза (невозможно ничем заменить без геморроя)
 blueman-applet &
 
+# Запуск polybar
+~/.config/polybar/launch.sh &
 
 # =====================================================================
 #                          --- Фиксы ---
@@ -29,29 +35,9 @@ pkill -x gsd-media-keys &
 # Принудительная установка раскладки с задержкой 1 сек (чтобы GDM не перебил)
 (sleep 3 && setxkbmap -layout "us,ru" -option "grp:caps_toggle") &
 
-# Автоопределение батареи и адаптера для Polybar
-# Можно сказать даже фикс
-for bat in /sys/class/power_supply/BAT*; do
-    if [ -d "$bat" ]; then
-        export POLYBAR_BAT=$(basename "$bat")
-        break
-    fi
-done
-
-for ac in /sys/class/power_supply/*; do
-    if [ -f "$ac/online" ]; then
-        export POLYBAR_AC=$(basename "$ac")
-        break
-    fi
-done
-
-# Запуск polybar
-~/.config/polybar/launch.sh &
-
 # =====================================================================
 #                      --- Остальной конфиг ---
 # =====================================================================
-
 
 # Обои
 feh --bg-fill ~/BSPWM-machineslego/wallpapers/anime-girl-with-big-blue-eyes-and-blue-hair-wallpaper-1920x1080.jpg &
@@ -63,11 +49,15 @@ bspc config focus_follows_pointer true
 bspc config top_padding    34
 bspc config bottom_padding 0
 
+# При необходимости дописать: VIII IX X
+# для добавления раб. пространтств 
 bspc monitor -d I II III IV V VI VII
+
 # Автоматически добавлять столы на новые мониторы при подключении
 bspc config remove_disabled_monitors true
 bspc config remove_unplugged_monitors true
 
+# Рамки и отступы и прочие конфигурации
 bspc config border_width         2
 bspc config window_gap          4
 
@@ -75,11 +65,12 @@ bspc config split_ratio          0.52
 bspc config borderless_monocle   true
 bspc config gapless_monocle      true
 
-bspc rule -a Gimp desktop='^8' state=floating follow=on
-bspc rule -a Chromium desktop='^2'
-bspc rule -a mplayer2 state=floating
-bspc rule -a Kupfer.py focus=on
-bspc rule -a Screenkey manage=off
+# Правила для приложений
+# bspc rule -a Gimp desktop='^8' state=floating follow=on
+# bspc rule -a Chromium desktop='^2'
+# bspc rule -a mplayer2 state=floating
+# bspc rule -a Kupfer.py focus=on
+# bspc rule -a Screenkey manage=off
 
 # Цвет рамки неактивного окна (приглушённый серо-синий из Tokyo Night)
 bspc config normal_border_color "#414868"
