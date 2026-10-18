@@ -2,9 +2,6 @@
 
 pgrep -x sxhkd > /dev/null || sxhkd &
 
-# Запуск polybar
-~/.config/polybar/launch.sh &
-
 # Уведомление-подсказка при запуске (задержка 3 сек, чтобы Dunst успел загрузиться)
 (sleep 3 && notify-send -u low -t 8000 -i input-keyboard "Подсказка" "Нажмите Super + /, чтобы открыть меню горячих клавиш") &
 
@@ -49,6 +46,9 @@ for ac in /sys/class/power_supply/*; do
         break
     fi
 done
+
+# Запуск polybar только после определения баттареи
+~/.config/polybar/launch.sh &
 
 # -------------------------------------------------------------------
 
