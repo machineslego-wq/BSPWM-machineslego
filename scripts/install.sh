@@ -27,7 +27,7 @@ sudo -v || { echo "Ошибка: требуются права sudo."; exit 1; }
 echo "[1/5] Установка базовых пакетов..."
 sudo apt update
 sudo apt install -y \
-  xorg xinit \
+  xorg xinit xserver-xorg-input-libinput \
   bspwm sxhkd \
   polybar rofi dunst picom feh \
   lxappearance \
@@ -40,35 +40,74 @@ sudo apt install -y \
   thunar alacritty \
   i3lock-fancy libnotify-bin \
   fish fontconfig \
-  wget unzip xclip lm-sensors
+  wget curl unzip xclip lm-sensors \
+  imagemagick xdg-utils xdotool
+
 echo "  Базовые пакеты установлены."
 sudo -u "$REAL_USER" mkdir -p "$REAL_HOME/Изображения/Screenshots"
 echo "  Создана папка для скриншотов."
 
-echo ""
-
-# 2. Установка шрифта JetBrainsMono Nerd Font
-echo "[2/5] Установка шрифта JetBrainsMono Nerd Font..."
-FONT_DIR="$REAL_HOME/.local/share/fonts"
-FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.zip"
-TMP_ZIP="/tmp/JetBrainsMono.zip"
-
-if sudo -u "$REAL_USER" fc-list | grep -qi "JetBrainsMono Nerd Font"; then
-    echo "  Шрифт JetBrainsMono Nerd Font уже установлен. Пропускаем."
+# Умная настройка звука
+if command -v wpctl &>/dev/null; then
+    echo "  -> Обнаружен PipeWire. Устанавливаем дополнения."
+    sudo apt install -y pipewire pipewire-audio wireplumber libspa-0.2-bluetooth
+elif command -v pactl &>/dev/null; then
+    echo "  -> Обнаружен PulseAudio. Устанавливаем утилиты."
+    sudo apt install -y pulseaudio-utils
 else
-    echo "  Скачиваем JetBrainsMono.zip..."
-    sudo -u "$REAL_USER" mkdir -p "$FONT_DIR"
-    sudo -u "$REAL_USER" wget -q --show-progress "$FONT_URL" -O "$TMP_ZIP"
-    
-    echo "  Распаковываем..."
-    sudo -u "$REAL_USER" unzip -q "$TMP_ZIP" -d "$FONT_DIR"
-    rm -f "$TMP_ZIP"
-    
-    echo "  Обновляем кэш шрифтов..."
-    sudo -u "$REAL_USER" fc-cache -f "$FONT_DIR" >/dev/null
-    echo "  Шрифт успешно установлен."
+    echo "  -> Звуковой сервер не обнаружен. Пропускаем."
 fi
 echo ""
+
+
+# 2. Установка шрифта JetBrainsMono Nerd Font
+# ... (этот блок у тебя написан правильно, не трогаем) ...
+
+
+# =========================================================
+# Настройка GTK (для GTK3 и GTK4/libadwaita приложений)
+# =========================================================
+echo "[2.5/5] Настройка тем GTK и иконок..."
+
+# 1. Записываем настройки для GTK3 от имени обычного пользователя
+sudo -u "$REAL_USER" mkdir -p "$REAL_HOME/.config/gtk-3.0"
+sudo -u "$REAL_USER" tee "$REAL_HOME/.config/gtk-3.0/settings.ini" > /dev/null <<EOF
+[Settings]
+gtk-theme-name=Adwaita-dark
+gtk-icon-theme-name=Papirus-Dark
+EOF
+
+# 2. Записываем настройки для GTK4 от имени обычного пользователя
+sudo -u "$REAL_USER" mkdir -p "$REAL_HOME/.config/gtk-4.0"
+sudo -u "$REAL_USER" tee "$REAL_HOME/.config/gtk-4.0/settings.ini" > /dev/null <<EOF
+[Settings]
+gtk-theme-name=Adwaita-dark
+gtk-icon-theme-name=Papirus-Dark
+EOF
+
+# 3. Добавляем переменную окружения GTK_THEME в .xprofile
+if ! grep -q "GTK_THEME" "$REAL_HOME/.xprofile" 2>/dev/null; then
+    echo 'export GTK_THEME=Adwaita-dark' | sudo -u "$REAL_USER" tee -a "$REAL_HOME/.xprofile" > /dev/null
+fi
+
+echo "  Настройка GTK завершена. Для полного применения перезагрузите систему."
+echo ""
+
+# 3. Создаем конфиг для GTK4, чтобы он подхватывал тему
+mkdir -p "$REAL_HOME/.config/gtk-4.0"
+cat > "$REAL_HOME/.config/gtk-4.0/settings.ini" <<EOF
+[Settings]
+gtk-theme-name=Adwaita-dark
+gtk-icon-theme-name=Papirus-Dark
+EOF
+
+# 4. Добавляем переменную окружения GTK_THEME в .xprofile для принудительного применения
+# (это заставит GTK4 приложения использовать темную тему)
+if ! grep -q "GTK_THEME" "$REAL_HOME/.xprofile" 2>/dev/null; then
+    echo 'export GTK_THEME=Adwaita-dark' >> "$REAL_HOME/.xprofile"
+fi
+
+echo "  Настройка GTK завершена. Для полного применения可能需要 перезагрузка."
 
 # 3. Настройка питания (автоопределение)
 echo "[3/5] Настройка управления питанием..."
