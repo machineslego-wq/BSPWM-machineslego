@@ -1,1 +1,0 @@
-/home/nikita/.config/polybar/scripts/power-profile-ppd.sh
