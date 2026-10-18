@@ -99,21 +99,33 @@ if [ -d "$DOTFILES/system" ]; then
     sudo mkdir -p "$BACKUP"
     
     find "$DOTFILES/system" -type f | while read -r src_file; do
+        # Получаем путь внутри папки system (например, X11/xorg.conf.d/...)
         rel_path="${src_file#$DOTFILES/system/}"
+        
+        # Если папка etc отсутствует в пути, принудительно добавляем её
+        if [[ "$rel_path" != etc/* ]]; then
+            rel_path="etc/$rel_path"
+        fi
+        
+        # Итоговый путь в системе
         dst_file="/$rel_path"
         dst_dir="$(dirname "$dst_file")"
-
+        
         echo "  -> $dst_file"
         
+        # Бэкапим файл, если он уже существует
         if [ -f "$dst_file" ]; then
-            sudo mkdir -p "$BACKUP/$dst_dir"
-            sudo cp "$dst_file" "$BACKUP/$dst_file"
+            # Создаем структуру папок для бэкапа внутри /etc/dotfiles-backup-...
+            sudo mkdir -p "$BACKUP$dst_dir"
+            sudo cp "$dst_file" "$BACKUP$dst_file"
+            echo "     (оригинал сохранен в бэкап)"
         fi
 
+        # Создаем папку назначения (если ее нет) и копируем файл
         sudo mkdir -p "$dst_dir"
         sudo cp "$src_file" "$dst_file"
     done
-    echo "  Бэкап старых системных файлов: $BACKUP"
+    echo "  Бэкап старых системных файлов находится здесь: $BACKUP"
 fi
 
 echo ""

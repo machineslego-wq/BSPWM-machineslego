@@ -32,26 +32,25 @@ xsetroot -cursor_name left_ptr &
 # Сбрасываем статус хотспота при старте сессии
 echo "0" > ~/.cache/wifi_hotspot_state &
 
-# Автоопределение батареи и адаптера для Polybar
-for bat in /sys/class/power_supply/BAT*; do
-    if [ -d "$bat" ]; then
-        export POLYBAR_BAT=$(basename "$bat")
-        break
-    fi
-done
+# # Автоопределение батареи и адаптера для Polybar
+# for bat in /sys/class/power_supply/BAT*; do
+#     if [ -d "$bat" ]; then
+#         export POLYBAR_BAT=$(basename "$bat")
+#         break
+#     fi
+# done
 
-for ac in /sys/class/power_supply/*; do
-    if [ -f "$ac/online" ]; then
-        export POLYBAR_AC=$(basename "$ac")
-        break
-    fi
-done
-
-# Запуск polybar только после определения баттареи
-~/.config/polybar/launch.sh &
+# for ac in /sys/class/power_supply/*; do
+#     if [ -f "$ac/online" ]; then
+#         export POLYBAR_AC=$(basename "$ac")
+#         break
+#     fi
+# done
 
 # -------------------------------------------------------------------
 
+# Запуск polybar
+~/.config/polybar/launch.sh &
 
 # Обои
 feh --bg-fill ~/BSPWM-machineslego/wallpapers/anime-girl-with-big-blue-eyes-and-blue-hair-wallpaper-1920x1080.jpg &
