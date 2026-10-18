@@ -2,47 +2,47 @@
 # СИСТЕМНЫЕ И НЕЗАВИСИМЫЕ ОТ WM
 # ==========================================
 
-# Показать шпаргалку (Помощь) по клавишам
+# Помощь (Super + /)
 super + slash
     ~/.config/sxhkd/scripts/autocheatsheet.sh
 
-# BSPWM: перезапустить SXHKD и WM (полный рестарт)
+# Перезапуск SXHKD + BSPWM (Super + Alt + Shift + R)
 super + alt + shift + r
     pkill -USR1 -x sxhkd; bspc wm -r
 
-# Выход из аккаунта (Logout) с подтверждением
+# Выйти из аккаунта (Super + Shift + L)
 super + shift + l
     ~/.config/sxhkd/scripts/powermenu.sh logout
 
-# Выключение компьютера (Shutdown) с подтверждением
+# Выключить компьютер (Super + Shift + P)
 super + shift + p
     ~/.config/sxhkd/scripts/powermenu.sh poweroff
 
-# Перезагрузка компьютера (Reboot) с подтверждением
+# Перезагрузить компьютер (Super + Shift + R)
 super + shift + r
     ~/.config/sxhkd/scripts/powermenu.sh reboot
 
-# Заблокировать экран (Lockscreen)
+# Заблокировать экран (Super + L)
 super + l
     i3lock-fancy -p
 
-# SXHKD: перезагрузить конфиг (без рестарта WM)
+# Перезагрузить конфиг SXHKD (Super + Escape)
 super + Escape
     pkill -USR1 -x sxhkd
 
-# Запустить терминал (Alacritty)
+# Терминал Alacritty (Super + Return)
 super + Return
     alacritty
 
-# Запустить лаунчер приложений (Rofi)
+# Лаунчер Rofi (Super + D)
 super + d
     rofi -show drun -show-icons
 
-# Микшер звука (Pavucontrol) для смены наушников/колонок
+# Микшер звука (Super + A)
 super + a
     pavucontrol
 
-# Мониторинг температур (CPU/GPU/Диски) в Rofi
+# Температуры (Super + X)
 super + x
     ~/.config/sxhkd/scripts/sensors.sh
 
@@ -50,39 +50,39 @@ super + x
 # МУЛЬТИМЕДИА И СКРИНШОТЫ
 # ==========================================
 
-# Скриншот: весь экран (с копированием в буфер)
+# Скриншот: весь экран + буфер (Print)
 Print
     scrot -e 'xclip -selection clipboard -t image/png -i $f' ~/Изображения/Screenshots/%Y-%m-%d_%H-%M-%S.png
 
-# Скриншот: активное окно (с копированием в буфер)
+# Скриншот: активное окно + буфер (Shift + Print)
 shift + Print
     scrot -u -e 'xclip -selection clipboard -t image/png -i $f' ~/Изображения/Screenshots/%Y-%m-%d_%H-%M-%S.png
 
-# Скриншот: выделенная область (с копированием в буфер)
+# Скриншот: выделенная область + буфер (Super + Shift + S)
 super + shift + s
     scrot -s -e 'xclip -selection clipboard -t image/png -i $f' ~/Изображения/Screenshots/%Y-%m-%d_%H-%M-%S.png
 
-# Скриншот: весь экран с задержкой 3с (для меню)
+# Скриншот: весь экран с задержкой 3с (Super + Print)
 super + Print
     scrot -d 3 -e 'xclip -selection clipboard -t image/png -i $f' ~/Изображения/Screenshots/%Y-%m-%d_%H-%M-%S.png
 
-# Яркость экрана: увеличить (+5%)
+# Яркость: +5% (Fn + Brightness Up)
 XF86MonBrightnessUp
     brightnessctl set +5%
 
-# Яркость экрана: уменьшить (-5%)
+# Яркость: -5% (Fn + Brightness Down)
 XF86MonBrightnessDown
     brightnessctl set 5%-
 
-# Громкость звука: увеличить (+5%)
+# Громкость: +5% (Fn + Vol Up)
 XF86AudioRaiseVolume
     ~/.config/sxhkd/scripts/volume.sh up
 
-# Громкость звука: уменьшить (-5%)
+# Громкость: -5% (Fn + Vol Down)
 XF86AudioLowerVolume
     ~/.config/sxhkd/scripts/volume.sh down
 
-# Громкость звука: Mute (выключить/включить)
+# Громкость: Mute (Fn + Vol Mute)
 XF86AudioMute
     ~/.config/sxhkd/scripts/volume.sh mute
 
@@ -90,41 +90,41 @@ XF86AudioMute
 # БАЗОВОЕ УПРАВЛЕНИЕ ОКНАМИ И ФОКУС
 # ==========================================
 
-# Окно: смена фокуса (стрелки)
+# Фокус на окно (Super + Стрелки)
 super + {Left,Down,Up,Right}
     bspc node -f {west,south,north,east}
 
-# Окно: смена фокуса и перемещение (Shift + стрелки)
+# Фокус и перемещение окон (Super + _ / Super + Shift + Стрелки)
 super + {_,shift + }{Left,Down,Up,Right}
     bspc node -{f,s} {west,south,north,east}
 
-# Окно плавающее: переместить (стрелки)
+# Перемещение плавающего окна (Super + Стрелки)
 super + {Left,Down,Up,Right}
     bspc node -v {-20 0,0 20,0 -20,20 0}
 
-# Окно: переключиться на предыдущее (аналог Alt+Tab)
+# Предыдущее окно (Super + Tab / Super + `)
 super + {grave,Tab}
     bspc {node,desktop} -f last
 
-# Окно: следующее/предыдущее на рабочем столе
+# Следующее/Предыдущее окно (Super + C / Super + Shift + C)
 super + {_,shift + }c
     bspc node -f {next,prev}.local.!hidden.window
 
-# Рабочий стол: следующий/предыдущий
+# Следующий/Предыдущий стол (Super + [ / Super + ])
 super + bracket{left,right}
     bspc desktop -f {prev,next}.local
 
-# Фокус: история переходов (назад/вперед)
+# История фокуса: назад/вперед (Super + O / Super + I)
 super + {o,i}
     bspc wm -h off; \
     bspc node {older,newer} -f; \
     bspc wm -h on
 
-# Фокус: переход по дереву (Родитель/Сосед/Первый/Второй)
+# Переход по дереву: Родитель/Сосед/1-й/2-й (Super + P/B/,/.)
 super + {p,b,comma,period}
     bspc node -f @{parent,brother,first,second}
 
-# Рабочий стол: переключить / перенести окно (1-9, 0)
+# Переключить стол / Перенести окно (Super + 1..0 / Super + Shift + 1..0)
 super + {_,shift + }{1-9,0}
     bspc {desktop -f,node -d} '^{1-9,10}'
 
@@ -132,31 +132,31 @@ super + {_,shift + }{1-9,0}
 # РЕЖИМЫ, СОСТОЯНИЯ И ТАЙЛИНГ
 # ==========================================
 
-# Окно: закрыть / убить процесс (w / Shift+w)
+# Закрыть / Убить процесс (Super + W / Super + Shift + W)
 super + {_,shift + }w
     bspc node -{c,k}
 
-# Окно: режим (Тайл / Псевдо / Плавающее / Fullscreen)
+# Режим: Тайл/Псевдо/Флоат/Фулскрин (Super + T/Shift+T/S/F)
 super + {t,shift + t,s,f}
     bspc node -t {tiled,pseudo_tiled,floating,fullscreen}
 
-# Раскладка: переключить на Monocle (стопка)
+# Режим Monocle (Super + M)
 super + m
     bspc desktop -l next
 
-# Окно: отправить помеченное в preselected (y)
+# Отправить помеченное в Preselect (Super + Y)
 super + y
     bspc node newest.marked.local -n newest.!automatic.local
 
-# Окно: поменять местами с самым большим (g)
+# Поменять с самым большим окном (Super + G)
 super + g
     bspc node -s biggest.window
 
-# Окно: флаги (Marked / Locked / Sticky / Private)
+# Флаги: Marked/Locked/Sticky/Private (Super + Ctrl + M/X/Y/Z)
 super + ctrl + {m,x,y,z}
     bspc node -g {marked,locked,sticky,private}
 
-# BSPWM: выход (Quit) / перезапуск (Restart)
+# Выход / Перезапуск BSPWM (Super + Alt + Q / R)
 super + alt + {q,r}
     bspc {quit,wm -r}
 
@@ -164,26 +164,26 @@ super + alt + {q,r}
 # РАЗМЕРЫ, PRESELECT И RESIZE
 # ==========================================
 
-# Preselect: задать направление (куда откроется новое окно)
+# Preselect: направление (Super + Ctrl + Стрелки)
 super + ctrl + {Left,Down,Up,Right}
     bspc node -p {west,south,north,east}
 
-# Preselect: задать пропорцию (Ctrl + 1-9)
+# Preselect: пропорция (Super + Ctrl + 1..9)
 super + ctrl + {1-9}
     bspc node -o 0.{1-9}
 
-# Preselect: отменить для текущего окна (Space)
+# Preselect: отменить для окна (Super + Ctrl + Space)
 super + ctrl + space
     bspc node -p cancel
 
-# Preselect: отменить для всего стола (Ctrl+Shift+Space)
+# Preselect: отменить для стола (Super + Ctrl + Shift + Space)
 super + ctrl + shift + space
     bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel
 
-# Размер окна: растянуть (Alt + стрелки)
+# Изменить размер: растянуть (Super + Alt + Стрелки)
 super + alt + {Left,Down,Up,Right}
     bspc node -z {left -20 0,bottom 0 20,top 0 -20,right 20 0}
 
-# Размер окна: сжать (Alt+Shift + стрелки)
+# Изменить размер: сжать (Super + Alt + Shift + Стрелки)
 super + alt + shift + {Left,Down,Up,Right}
     bspc node -z {right -20 0,top 0 20,bottom 0 -20,left 20 0}
