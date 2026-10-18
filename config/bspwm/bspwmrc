@@ -40,7 +40,8 @@ pkill -x gsd-media-keys &
 # =====================================================================
 
 # Обои
-feh --bg-fill ~/BSPWM-machineslego/wallpapers/anime-girl-with-big-blue-eyes-and-blue-hair-wallpaper-1920x1080.jpg &
+# feh --bg-fill ~/BSPWM-machineslego/wallpapers/anime-girl-with-big-blue-eyes-and-blue-hair-wallpaper-1920x1080.jpg &
+feh --bg-fill ~/BSPWM-machineslego/wallpapers/tokyo-night-girl.jpg &
 
 # Фокус следует за указателем мыши
 bspc config focus_follows_pointer true

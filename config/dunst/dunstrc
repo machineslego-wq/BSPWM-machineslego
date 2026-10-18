@@ -49,7 +49,7 @@
     mouse_right_click = close_all
 
     ### Transparency — КЛЮЧЕВОЕ ###
-    transparency = 15
+    transparency = 0
     frame_width = 2
     gap_size = 8
     separator_color = frame
