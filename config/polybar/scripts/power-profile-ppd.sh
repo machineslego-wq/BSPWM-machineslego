@@ -7,7 +7,7 @@ get_status() {
     case "$PROFILE" in
         performance) echo "󰓅 PERF" ;;
         balanced)    echo "󰒓 BAL"  ;;
-        power-saver) echo "󰾆 SAVE" ;;
+        power-saver) echo "󰾆 ECO" ;;
         *)           echo "󰒓 $PROFILE" ;;
     esac
 }

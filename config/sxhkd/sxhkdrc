@@ -76,15 +76,15 @@ XF86MonBrightnessDown
 
 # Громкость: увеличить
 XF86AudioRaiseVolume
-    ~/.config/polybar/scripts/volume.sh up
+    ~/.config/sxhkd/scripts/volume.sh up
 
 # Громкость: уменьшить
 XF86AudioLowerVolume
-    ~/.config/polybar/scripts/volume.sh down
+    ~/.config/sxhkd/scripts/volume.sh down
 
 # Громкость: выключить/включить
 XF86AudioMute
-    ~/.config/polybar/scripts/volume.sh mute
+    ~/.config/sxhkd/scripts/volume.sh mute
 
 # ==========================================
 # БАЗОВОЕ УПРАВЛЕНИЕ ОКНАМИ И ФОКУС
