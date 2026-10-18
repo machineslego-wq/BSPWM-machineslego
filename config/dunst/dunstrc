@@ -5,8 +5,8 @@
     width = 360
     height = (0, 140)
     origin = top-right
-    offset = 12, 48
-    notification_limit = 5
+    offset = (10, 44)
+    notification_limit = 7
 
     ### Progress Bar ###
     progress_bar = true
@@ -31,8 +31,7 @@
     icon_position = left
     min_icon_size = 32
     max_icon_size = 64
-    icon_path = /usr/share/icons/Papirus-Dark/24x24/actions/:/usr/share/icons/Papirus-Dark/24x24/panel/:/usr/share/icons/Papirus-Dark/24x24/devices/
-    enable_recursive_icon_lookup = true
+    icon_path = /usr/share/icons/Papirus-Dark/24x24/actions/:/usr/share/icons/Papirus-Dark/24x24/panel/:/usr/share/icons/Papirus-Dark/24x24/devices/:/usr/share/icons/Papirus-Dark/24x24/status/
 
     ### History ###
     sticky_history = yes
