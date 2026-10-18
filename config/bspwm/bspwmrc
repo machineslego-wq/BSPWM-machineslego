@@ -52,7 +52,7 @@ bspc config bottom_padding 0
 
 # При необходимости дописать: VIII IX X
 # для добавления раб. пространтств 
-bspc monitor -d I II III IV V VI VII
+bspc monitor -d I II III IV V VI VII VIII IX X
 
 # Автоматически добавлять столы на новые мониторы при подключении
 bspc config remove_disabled_monitors true
