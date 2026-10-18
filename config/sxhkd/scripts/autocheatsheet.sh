@@ -4,7 +4,7 @@
 cat <<EOF | rofi -dmenu -i -markup-rows -p "󰌌 Горячие клавиши" -theme-str 'window {width: 50%; height: 80%;} listview {lines: 20; scrollbar: true;}'
 <b>󰒓 СИСТЕМА И ЗАПУСК</b>
 󰌌 Super + /                    Шпаргалка <span foreground="#1a1b26">[помощь, хелп, help, клавиши]</span>
-󰆍 Super + Return               Терминал (Alacritty) <span foreground="#1a1b26">[консоль, cmd, shell]</span>
+󰆍 Super + Return               Терминал (Alacritty) <span foreground="#1a1b26">[консоль, cmd, shell, terminal]</span>
 󰀻 Super + D                    Лаунчер (Rofi) <span foreground="#1a1b26">[меню, пуск, запуск, search]</span>
 󰕾 Super + A                    Микшер звука <span foreground="#1a1b26">[звук, громкость, audio, наушники]</span>
 󰔏 Super + X                    Температуры <span foreground="#1a1b26">[датчики, сенсоры, нагрев, sensors]</span>
@@ -25,11 +25,11 @@ cat <<EOF | rofi -dmenu -i -markup-rows -p "󰌌 Горячие клавиши" 
 
 <b>󰖯 УПРАВЛЕНИЕ ОКНАМИ</b>
 󰁔 Super + Стрелки              Смена фокуса <span foreground="#1a1b26">[окно, window, фокус, focus]</span>
-󰁍 Super + Shift + Стрелки      Поменять окна местами <span foreground="#1a1b26">[окно, window, свап, swap]</span>
+ Super + Shift + Стрелки      Поменять окна местами <span foreground="#1a1b26">[окно, window, свап, swap]</span>
 󰩨 Super + Alt + Стрелки        Изменить размер (растянуть) <span foreground="#1a1b26">[окно, window, ресайз, resize]</span>
 󰩨 Super + Alt + Shift + Стрелки Сжать размер <span foreground="#1a1b26">[окно, window, ресайз, resize]</span>
 󰍹 Super + 1..7                 Переключить стол <span foreground="#1a1b26">[стол, workspace, десктоп]</span>
-󰍹 Super + Shift + 1..7         Перенести окно на стол <span foreground="#1a1b26">[окно, window, стол, workspace]</span>
+󰧨 Super + Shift + 1..7         Перенести окно на стол <span foreground="#1a1b26">[окно, window, стол, workspace]</span>
 󰓾 Super + Tab                  Предыдущее окно <span foreground="#1a1b26">[окно, window, назад, alt-tab]</span>
 󰅖 Super + W                    Закрыть окно <span foreground="#1a1b26">[окно, window, close, quit, выход]</span>
 󰅚 Super + Shift + W            Убить процесс <span foreground="#1a1b26">[окно, window, kill, force, зависло]</span>
