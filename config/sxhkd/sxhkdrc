@@ -24,7 +24,7 @@ super + shift + r
 
 # Заблокировать экран
 super + l
-    i3lock-fancy -p -g
+    i3lock-fancy -p
 
 # Перезагрузить конфиг SXHKD
 super + Escape
