@@ -39,8 +39,8 @@ while true; do
         percent=$(( current * 100 / max ))
 
         # --- Иконка по уровню яркости ---
-        if   [ "$percent" -le 39 ]; then icon="󰃞"
-        elif [ "$percent" -le 80 ]; then icon="󰃟"
+        if   [ "$percent" -le 49 ]; then icon="󰃞"
+        elif [ "$percent" -le 90 ]; then icon="󰃟"
         else                             icon="󰃠"
         fi
 

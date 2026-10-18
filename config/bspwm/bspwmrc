@@ -5,32 +5,29 @@ pgrep -x sxhkd > /dev/null || sxhkd &
 # Уведомление-подсказка при запуске (задержка 3 сек, чтобы Dunst успел загрузиться)
 (sleep 3 && notify-send -u low -t 8000 -i input-keyboard "Подсказка" "Нажмите Super + /, чтобы открыть меню горячих клавиш") &
 
-# Апплеты
+# =====================================================================
+#                          --- Апплеты ---
+# =====================================================================
+
 picom &
-# nm-applet --indicator &
 blueman-applet &
-# pkill -x pasystray
-# pasystray &
-
-# Убиваем демоны GNOME, которые могут перехватывать клавиши
-pkill -x gsd-media-keys &
-
-# Фикс для курсора крестика на рабочем столе
-xsetroot -cursor_name left_ptr &
 
 
 # =====================================================================
 #                          --- Фиксы ---
 # =====================================================================
 
-# Убрать IBUS
+# Фикс для курсора крестика на рабочем столе
+xsetroot -cursor_name left_ptr &
+
+# Убить IBUS
 (sleep 3 && pkill -x ibus-x11) &
+
+# Убиваем демоны GNOME, которые могут перехватывать клавиши
+pkill -x gsd-media-keys &
 
 # Принудительная установка раскладки с задержкой 1 сек (чтобы GDM не перебил)
 (sleep 3 && setxkbmap -layout "us,ru" -option "grp:caps_toggle") &
-
-# Сбрасываем статус хотспота при старте сессии
-echo "0" > ~/.cache/wifi_hotspot_state &
 
 # Автоопределение батареи и адаптера для Polybar
 # Можно сказать даже фикс
@@ -51,7 +48,9 @@ done
 # Запуск polybar
 ~/.config/polybar/launch.sh &
 
-# -------------------------------------------------------------------
+# =====================================================================
+#                      --- Остальной конфиг ---
+# =====================================================================
 
 
 # Обои
@@ -65,6 +64,9 @@ bspc config top_padding    36
 bspc config bottom_padding 0
 
 bspc monitor -d I II III IV V VI VII
+# Автоматически добавлять столы на новые мониторы при подключении
+bspc config remove_disabled_monitors true
+bspc config remove_unplugged_monitors true
 
 bspc config border_width         2
 bspc config window_gap          4

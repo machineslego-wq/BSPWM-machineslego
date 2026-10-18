@@ -81,10 +81,8 @@ elif ls /sys/class/power_supply/BAT* &>/dev/null; then
     echo "$REAL_USER ALL=(ALL) NOPASSWD: /usr/sbin/tlp, /usr/bin/tlp-stat" | sudo tee /etc/sudoers.d/tlp > /dev/null
     sudo chmod 440 /etc/sudoers.d/tlp
 else
-    echo "  -> Обнаружен ПК. Устанавливаем cpupower..."
-    sudo apt install -y linux-cpupower
-    echo "$REAL_USER ALL=(ALL) NOPASSWD: /usr/bin/cpupower" | sudo tee /etc/sudoers.d/cpupower > /dev/null
-    sudo chmod 440 /etc/sudoers.d/cpupower
+    echo "  -> Обнаружен ПК. Управление питанием через Polybar не настраивается."
+    echo "     (Для десктопа рекомендуется использовать CoreCtrl или BIOS)."
 fi
 echo ""
 

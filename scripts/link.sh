@@ -58,24 +58,30 @@ fi
 echo "--- Настройка профиля питания ---"
 SCRIPTS_DIR="$HOME/.config/polybar/scripts"
 if [ -d "$SCRIPTS_DIR" ]; then
+    # Удаляем старый симлинк, чтобы не было конфликтов
+    rm -f "$SCRIPTS_DIR/power-profile.sh"
+
     if command -v powerprofilesctl &>/dev/null; then
         # Нашли power-profiles-daemon
         ln -sf "$SCRIPTS_DIR/power-profile-ppd.sh" "$SCRIPTS_DIR/power-profile.sh"
-        echo "  link: power-profile.sh -> power-profile-ppd.sh (Обнаружен power-profiles-daemon)"
+        echo "  link: power-profile.sh -> power-profile-ppd.sh (Обнаружен PPD)"
     elif ls /sys/class/power_supply/BAT* >/dev/null 2>&1; then
-        # Есть батарея — значит это ноутбук
-        ln -sf "$SCRIPTS_DIR/power-profile-laptop.sh" "$SCRIPTS_DIR/power-profile.sh"
-        echo "  link: power-profile.sh -> power-profile-laptop.sh (Обнаружен ноутбук)"
+        # Есть батарея — значит это ноутбук (используем TLP)
+        ln -sf "$SCRIPTS_DIR/power-profile-tlp.sh" "$SCRIPTS_DIR/power-profile.sh"
+        echo "  link: power-profile.sh -> power-profile-tlp.sh (Обнаружен ноутбук)"
     else
         # Батареи нет — значит это ПК
-        ln -sf "$SCRIPTS_DIR/power-profile-pc.sh" "$SCRIPTS_DIR/power-profile.sh"
-        echo "  link: power-profile.sh -> power-profile-pc.sh (Обнаружен ПК)"
+        echo "  info: Обнаружен ПК. Скрипт управления питанием не создается."
     fi
 fi
 
-# 4. Права на скрипты (чтобы Polybar мог их запускать)
+# 4. Права на скрипты (чтобы Polybar и SXHKD могли их запускать)
 echo "--- Выставление прав (+x) ---"
-chmod +x "$SCRIPTS_DIR/"*.sh 2>/dev/null
+# Выдаем права для Polybar
+chmod +x "$HOME/.config/polybar/scripts/"*.sh 2>/dev/null
+# Выдаем права для SXHKD
+chmod +x "$HOME/.config/sxhkd/scripts/"*.sh 2>/dev/null
+# Главные файлы
 chmod +x "$HOME/.config/polybar/launch.sh" 2>/dev/null
 chmod +x "$HOME/.config/bspwm/bspwmrc" 2>/dev/null
 

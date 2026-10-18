@@ -4,23 +4,23 @@
 
 # Показать шпаргалку по клавишам
 super + slash
-    ~/.config/polybar/scripts/autocheatsheet.sh
+    ~/.config/sxhkd/scripts/autocheatsheet.sh
 
 # Перезапустить SXHKD и BSPWM
 super + alt + shift + r
     pkill -USR1 -x sxhkd; bspc wm -r
 
-# Выйти из аккаунта
+# Выйти из аккаунта (Rofi)
 super + shift + l
-    ~/.config/polybar/scripts/powermenu.sh logout
+    ~/.config/sxhkd/scripts/powermenu.sh logout
 
-# Выключить компьютер
+# Выключить компьютер (Rofi)
 super + shift + p
-    ~/.config/polybar/scripts/powermenu.sh poweroff
+    ~/.config/sxhkd/scripts/powermenu.sh poweroff
 
-# Перезагрузить компьютер
+# Перезагрузить компьютер (Rofi)
 super + shift + r
-    ~/.config/polybar/scripts/powermenu.sh reboot
+    ~/.config/sxhkd/scripts/powermenu.sh reboot
 
 # Заблокировать экран
 super + l
@@ -38,9 +38,13 @@ super + Return
 super + d
     rofi -show drun -show-icons
 
+# Открыть микшер звука (для переключения наушников/колонок)
+super + a
+    pavucontrol
+
 # Показать температуры (Rofi)
 super + x
-    ~/.config/polybar/scripts/sensors.sh
+    ~/.config/sxhkd/scripts/sensors.sh
 
 # ==========================================
 # МУЛЬТИМЕДИА И СКРИНШОТЫ
