@@ -31,7 +31,7 @@ sudo apt install -y \
   bspwm sxhkd \
   polybar rofi dunst picom feh \
   lxappearance \
-  papirus-icon-theme \
+  papirus-icon-theme bibata-cursor-theme \
   fonts-jetbrains-mono fonts-font-awesome \
   fonts-noto-color-emoji \
   brightnessctl scrot \
@@ -59,58 +59,28 @@ else
 fi
 echo ""
 
-
 # 2. Установка шрифта JetBrainsMono Nerd Font
-# ... (этот блок у тебя написан правильно, не трогаем) ...
+echo "[2/5] Установка шрифта JetBrainsMono Nerd Font..."
+FONT_DIR="$REAL_HOME/.local/share/fonts"
+FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.zip"
+TMP_ZIP="/tmp/JetBrainsMono.zip"
 
-
-# =========================================================
-# Настройка GTK (для GTK3 и GTK4/libadwaita приложений)
-# =========================================================
-echo "[2.5/5] Настройка тем GTK и иконок..."
-# =========================================================
-# СЮДА ПРАВКИ И УСТАНОВКУ КУРСОРА НАДО, А ЖЕЛАТЕЛЬНО 
-# КОНФИГИ ВЫНЕСТИ В РЕПОЗИТОРИИ В /home И ОТСЮДА УЖЕ РЕДАЧИТЬ
-# =========================================================
-# 1. Записываем настройки для GTK3 от имени обычного пользователя
-sudo -u "$REAL_USER" mkdir -p "$REAL_HOME/.config/gtk-3.0"
-sudo -u "$REAL_USER" tee "$REAL_HOME/.config/gtk-3.0/settings.ini" > /dev/null <<EOF
-[Settings]
-gtk-theme-name=Adwaita-dark
-gtk-icon-theme-name=Papirus-Dark
-EOF
-
-# 2. Записываем настройки для GTK4 от имени обычного пользователя
-sudo -u "$REAL_USER" mkdir -p "$REAL_HOME/.config/gtk-4.0"
-sudo -u "$REAL_USER" tee "$REAL_HOME/.config/gtk-4.0/settings.ini" > /dev/null <<EOF
-[Settings]
-gtk-theme-name=Adwaita-dark
-gtk-icon-theme-name=Papirus-Dark
-EOF
-
-# 3. Добавляем переменную окружения GTK_THEME в .xprofile
-if ! grep -q "GTK_THEME" "$REAL_HOME/.xprofile" 2>/dev/null; then
-    echo 'export GTK_THEME=Adwaita-dark' | sudo -u "$REAL_USER" tee -a "$REAL_HOME/.xprofile" > /dev/null
+if sudo -u "$REAL_USER" fc-list | grep -qi "JetBrainsMono Nerd Font"; then
+    echo "  Шрифт JetBrainsMono Nerd Font уже установлен. Пропускаем."
+else
+    echo "  Скачиваем JetBrainsMono.zip..."
+    sudo -u "$REAL_USER" mkdir -p "$FONT_DIR"
+    sudo -u "$REAL_USER" wget -q --show-progress "$FONT_URL" -O "$TMP_ZIP"
+    
+    echo "  Распаковываем..."
+    sudo -u "$REAL_USER" unzip -q "$TMP_ZIP" -d "$FONT_DIR"
+    rm -f "$TMP_ZIP"
+    
+    echo "  Обновляем кэш шрифтов..."
+    sudo -u "$REAL_USER" fc-cache -f "$FONT_DIR" >/dev/null
+    echo "  Шрифт успешно установлен."
 fi
-
-echo "  Настройка GTK завершена. Для полного применения перезагрузите систему."
 echo ""
-
-# 3. Создаем конфиг для GTK4, чтобы он подхватывал тему
-mkdir -p "$REAL_HOME/.config/gtk-4.0"
-cat > "$REAL_HOME/.config/gtk-4.0/settings.ini" <<EOF
-[Settings]
-gtk-theme-name=Adwaita-dark
-gtk-icon-theme-name=Papirus-Dark
-EOF
-
-# 4. Добавляем переменную окружения GTK_THEME в .xprofile для принудительного применения
-# (это заставит GTK4 приложения использовать темную тему)
-if ! grep -q "GTK_THEME" "$REAL_HOME/.xprofile" 2>/dev/null; then
-    echo 'export GTK_THEME=Adwaita-dark' >> "$REAL_HOME/.xprofile"
-fi
-
-echo "  Настройка GTK завершена. Для полного применения可能需要 перезагрузка."
 
 # 3. Настройка питания (автоопределение)
 echo "[3/5] Настройка управления питанием..."
@@ -129,6 +99,7 @@ fi
 echo ""
 
 # 4. Линковка пользовательских конфигов
+# На этом этапе линкуются все конфиги из папки config/ (включая gtk-3.0, gtk-4.0 и прочее)
 echo "[4/5] Линковка конфигов..."
 sudo -u "$REAL_USER" bash "$DOTFILES/scripts/link.sh"
 echo ""
@@ -139,29 +110,24 @@ if [ -d "$DOTFILES/system" ]; then
     sudo mkdir -p "$BACKUP"
     
     find "$DOTFILES/system" -type f | while read -r src_file; do
-        # Получаем путь внутри папки system (например, X11/xorg.conf.d/...)
         rel_path="${src_file#$DOTFILES/system/}"
         
-        # Если папка etc отсутствует в пути, принудительно добавляем её
+        # Принудительно добавляем etc, если его нет в пути
         if [[ "$rel_path" != etc/* ]]; then
             rel_path="etc/$rel_path"
         fi
         
-        # Итоговый путь в системе
         dst_file="/$rel_path"
         dst_dir="$(dirname "$dst_file")"
         
         echo "  -> $dst_file"
         
-        # Бэкапим файл, если он уже существует
         if [ -f "$dst_file" ]; then
-            # Создаем структуру папок для бэкапа внутри /etc/dotfiles-backup-...
             sudo mkdir -p "$BACKUP$dst_dir"
             sudo cp "$dst_file" "$BACKUP$dst_file"
             echo "     (оригинал сохранен в бэкап)"
         fi
 
-        # Создаем папку назначения (если ее нет) и копируем файл
         sudo mkdir -p "$dst_dir"
         sudo cp "$src_file" "$dst_file"
     done

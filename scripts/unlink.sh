@@ -7,7 +7,6 @@ DOTFILES="${DOTFILES:-$HOME/BSPWM-machineslego}"
 
 if [ ! -d "$DOTFILES" ]; then
     echo "Ошибка: репозиторий не найден: $DOTFILES"
-    echo "Укажи путь: DOTFILES=/путь/к/репо $0"
     exit 1
 fi
 
@@ -17,16 +16,14 @@ echo ""
 removed=0
 skipped=0
 
-# Функция проверки и удаления
 check_and_remove() {
     local link_path="$1"
     
     if [ -L "$link_path" ]; then
-        # Читаем, куда ведет симлинк
         local target
         target=$(readlink "$link_path")
         
-        # Если симлинк ведет в наш репозиторий — удаляем
+        # Удаляем только если ссылка ведет в наш репозиторий
         case "$target" in
             "$DOTFILES"*)
                 rm "$link_path"
@@ -34,12 +31,10 @@ check_and_remove() {
                 removed=$((removed + 1))
                 ;;
             *)
-                # Симлинк ведет куда-то еще, не трогаем
                 skipped=$((skipped + 1))
                 ;;
         esac
     elif [ -e "$link_path" ]; then
-        # Это реальная папка или файл — не трогаем
         skipped=$((skipped + 1))
     fi
 }
@@ -52,17 +47,14 @@ if [ -d "$HOME/.config" ]; then
     done
 fi
 
-# 2. Чистим скрипты Polybar (на случай, если ~/.config/polybar не была симлинком)
-if [ -d "$HOME/.config/polybar/scripts" ]; then
-    for script in "$HOME/.config/polybar/scripts"/*; do
-        check_and_remove "$script"
+# 2. Чистим файлы в ~/ (автоматически берем список из папки home репозитория)
+if [ -d "$DOTFILES/home" ]; then
+    for file in "$DOTFILES/home"/*; do
+        [ -e "$file" ] || continue
+        file_name=$(basename "$file")
+        check_and_remove "$HOME/.$file_name"
     done
 fi
-
-# 3. Чистим файлы в ~/ (только те, что мы линковали)
-for file in ".xinitrc" ".Xresources"; do
-    check_and_remove "$HOME/$file"
-done
 
 echo ""
 echo "Удалено симлинков: $removed"

@@ -18,10 +18,8 @@ link_item() {
     local src="$1"
     local dst="$2"
 
-    # Если симлинк уже есть — удаляем
     if [ -L "$dst" ]; then
         rm "$dst"
-    # Если есть реальная папка/файл — бэкапим
     elif [ -e "$dst" ]; then
         mkdir -p "$(dirname "$BACKUP/$dst")"
         mv "$dst" "$BACKUP/$dst"
@@ -49,7 +47,6 @@ if [ -d "$DOTFILES/home" ]; then
     for file in "$DOTFILES/home"/*; do
         [ -e "$file" ] || continue
         file_name=$(basename "$file")
-        # Наш xinitrc превратится в .xinitrc
         link_item "$file" "$HOME/.$file_name"
     done
 fi
@@ -58,31 +55,24 @@ fi
 echo "--- Настройка профиля питания ---"
 SCRIPTS_DIR="$HOME/.config/polybar/scripts"
 if [ -d "$SCRIPTS_DIR" ]; then
-    # Удаляем старый симлинк, чтобы не было конфликтов
     rm -f "$SCRIPTS_DIR/power-profile.sh"
 
     if command -v powerprofilesctl &>/dev/null; then
-        # Нашли power-profiles-daemon
         ln -sf "$SCRIPTS_DIR/power-profile-ppd.sh" "$SCRIPTS_DIR/power-profile.sh"
-        echo "  link: power-profile.sh -> power-profile-ppd.sh (Обнаружен PPD)"
+        echo "  link: power-profile.sh -> power-profile-ppd.sh"
     elif ls /sys/class/power_supply/BAT* >/dev/null 2>&1; then
-        # Есть батарея — значит это ноутбук (используем TLP)
         ln -sf "$SCRIPTS_DIR/power-profile-tlp.sh" "$SCRIPTS_DIR/power-profile.sh"
-        echo "  link: power-profile.sh -> power-profile-tlp.sh (Обнаружен ноутбук)"
+        echo "  link: power-profile.sh -> power-profile-tlp.sh"
     else
-        # Батареи нет — значит это ПК
-        echo "  info: Обнаружен ПК. Скрипт управления питанием не создается."
+        echo "  info: ПК обнаружен. Скрипт питания не создается."
     fi
 fi
 
-# 4. Права на скрипты (чтобы Polybar и SXHKD могли их запускать)
+# 4. Права на скрипты
 echo "--- Выставление прав (+x) ---"
-# Выдаем права для Polybar
 chmod +x "$HOME/.config/polybar/scripts/"*.sh 2>/dev/null
-# Выдаем права для SXHKD
 chmod +x "$HOME/.config/sxhkd/scripts/"*.sh 2>/dev/null
-# Главные файлы
 chmod +x "$HOME/.config/polybar/launch.sh" 2>/dev/null
 chmod +x "$HOME/.config/bspwm/bspwmrc" 2>/dev/null
 
-echo "Симлинки успешно созданы."
+echo "Готово."
