@@ -1,9 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 # =========================================================
 # link.sh — умная линковка config/ и home/ в систему
 # =========================================================
 
-DOTFILES="${DOTFILES:-$HOME/BSPWM-machineslego}"
+# Динамически определяем корень репозитория, если переменная не задана извне
+DOTFILES="${DOTFILES:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 BACKUP="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
 
 if [ ! -d "$DOTFILES" ]; then

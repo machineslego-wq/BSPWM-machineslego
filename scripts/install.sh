@@ -6,7 +6,6 @@
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKUP="/etc/dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
 
-# Определяем реального пользователя (если скрипт запущен через sudo)
 if [ -n "$SUDO_USER" ]; then
     REAL_USER=$SUDO_USER
     REAL_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
@@ -20,12 +19,11 @@ echo "Репозиторий: $DOTFILES"
 echo "Пользователь: $REAL_USER"
 echo ""
 
-# Запрашиваем пароль sudo один раз в начале
 sudo -v || { echo "Ошибка: требуются права sudo."; exit 1; }
 
-# 1. Установка пакетов
 echo "[1/5] Установка базовых пакетов..."
 sudo apt update
+# Убрал blueman (апплет) и network-manager-gnome (хватит network-manager для nmtui)
 sudo apt install -y \
   xorg xinit xserver-xorg-input-libinput \
   bspwm sxhkd \
@@ -35,8 +33,7 @@ sudo apt install -y \
   fonts-jetbrains-mono fonts-font-awesome \
   fonts-noto-color-emoji \
   brightnessctl scrot \
-  network-manager-gnome pavucontrol \
-  blueman \
+  network-manager pavucontrol \
   thunar alacritty \
   i3lock-fancy libnotify-bin \
   fish fontconfig \
@@ -44,10 +41,15 @@ sudo apt install -y \
   imagemagick xdg-utils xdotool
 
 echo "  Базовые пакеты установлены."
-sudo -u "$REAL_USER" mkdir -p "$REAL_HOME/Изображения/Screenshots"
-echo "  Создана папка для скриншотов."
 
-# Умная настройка звука
+# ИСПРАВЛЕНО: Безопасное определение папки для картинок
+PICTURES_DIR=$(sudo -u "$REAL_USER" xdg-user-dir PICTURES 2>/dev/null)
+if [ -z "$PICTURES_DIR" ] || [ "$PICTURES_DIR" = "$REAL_HOME" ]; then
+    PICTURES_DIR="$REAL_HOME/Pictures"
+fi
+sudo -u "$REAL_USER" mkdir -p "$PICTURES_DIR/Screenshots"
+echo "  Создана папка для скриншотов: $PICTURES_DIR/Screenshots"
+
 if command -v wpctl &>/dev/null; then
     echo "  -> Обнаружен PipeWire. Устанавливаем дополнения."
     sudo apt install -y pipewire pipewire-audio wireplumber libspa-0.2-bluetooth
@@ -59,14 +61,15 @@ else
 fi
 echo ""
 
-# 2. Установка шрифта JetBrainsMono Nerd Font
 echo "[2/5] Установка шрифта JetBrainsMono Nerd Font..."
 FONT_DIR="$REAL_HOME/.local/share/fonts"
 FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.zip"
-TMP_ZIP="/tmp/JetBrainsMono.zip"
+# ИСПРАВЛЕНО: Безопасный временный файл
+TMP_ZIP=$(mktemp /tmp/JetBrainsMono-XXXXXX.zip)
 
 if sudo -u "$REAL_USER" fc-list | grep -qi "JetBrainsMono Nerd Font"; then
     echo "  Шрифт JetBrainsMono Nerd Font уже установлен. Пропускаем."
+    rm -f "$TMP_ZIP" # Удаляем пустой tmp файл, если он создался
 else
     echo "  Скачиваем JetBrainsMono.zip..."
     sudo -u "$REAL_USER" mkdir -p "$FONT_DIR"
@@ -82,7 +85,6 @@ else
 fi
 echo ""
 
-# 3. Настройка питания (автоопределение)
 echo "[3/5] Настройка управления питанием..."
 if command -v powerprofilesctl &>/dev/null; then
     echo "  -> Обнаружен power-profiles-daemon. Оставляем как есть."
@@ -90,21 +92,22 @@ elif ls /sys/class/power_supply/BAT* &>/dev/null; then
     echo "  -> Обнаружен ноутбук. Устанавливаем TLP..."
     sudo apt install -y tlp tlp-rdw
     sudo systemctl enable --now tlp
-    echo "$REAL_USER ALL=(ALL) NOPASSWD: /usr/sbin/tlp, /usr/bin/tlp-stat" | sudo tee /etc/sudoers.d/tlp > /dev/null
+    
+    # Проверяем реальный путь к tlp
+    TLP_PATH=$(command -v tlp || echo "/usr/sbin/tlp")
+    echo "$REAL_USER ALL=(ALL) NOPASSWD: $TLP_PATH, /usr/bin/tlp-stat" | sudo tee /etc/sudoers.d/tlp > /dev/null
     sudo chmod 440 /etc/sudoers.d/tlp
 else
     echo "  -> Обнаружен ПК. Управление питанием через Polybar не настраивается."
-    echo "     (Для десктопа рекомендуется использовать CoreCtrl или BIOS)."
 fi
 echo ""
 
-# 4. Линковка пользовательских конфигов
-# На этом этапе линкуются все конфиги из папки config/ (включая gtk-3.0, gtk-4.0 и прочее)
 echo "[4/5] Линковка конфигов..."
-sudo -u "$REAL_USER" bash "$DOTFILES/scripts/link.sh"
+export DOTFILES
+# ИСПРАВЛЕНО: Явная передача HOME и DOTFILES
+sudo -u "$REAL_USER" env HOME="$REAL_HOME" DOTFILES="$DOTFILES" bash "$DOTFILES/scripts/link.sh"
 echo ""
 
-# 5. Установка системных конфигов
 echo "[5/5] Установка системных конфигов в /etc/..."
 if [ -d "$DOTFILES/system" ]; then
     sudo mkdir -p "$BACKUP"
@@ -112,7 +115,6 @@ if [ -d "$DOTFILES/system" ]; then
     find "$DOTFILES/system" -type f | while read -r src_file; do
         rel_path="${src_file#$DOTFILES/system/}"
         
-        # Принудительно добавляем etc, если его нет в пути
         if [[ "$rel_path" != etc/* ]]; then
             rel_path="etc/$rel_path"
         fi

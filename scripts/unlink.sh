@@ -1,9 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 # =========================================================
 # unlink.sh — Безопасное удаление симлинков, созданных link.sh
 # =========================================================
 
-DOTFILES="${DOTFILES:-$HOME/BSPWM-machineslego}"
+# Динамически определяем корень репозитория (так же, как в link.sh)
+DOTFILES="${DOTFILES:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
 if [ ! -d "$DOTFILES" ]; then
     echo "Ошибка: репозиторий не найден: $DOTFILES"
@@ -12,6 +13,13 @@ fi
 
 echo "Удаляю симлинки, ведущие в $DOTFILES"
 echo ""
+
+# 0. Удаляем сгенерированный файл профиля питания (если он есть)
+# Делаем это до удаления симлинка на polybar, чтобы не оставлять мусор в репозитории
+if [ -L "$DOTFILES/config/polybar/scripts/power-profile.sh" ] || [ -f "$DOTFILES/config/polybar/scripts/power-profile.sh" ]; then
+    rm -f "$DOTFILES/config/polybar/scripts/power-profile.sh"
+    echo "  removed: сгенерированный power-profile.sh"
+fi
 
 removed=0
 skipped=0
