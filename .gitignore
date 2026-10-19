@@ -19,7 +19,6 @@
 !/README.md
 !/readme.md
 !/LICENSE*
-!/screenshots/  # Дублирование не повредит, но главное — разрешить саму папку
 !/.gitignore
 
 # ==========================================================
@@ -43,7 +42,6 @@
 # ==========================================================
 config/rofi/history
 config/alacritty/history
-config/fish/fish_history
 config/gtk-3.0/bookmarks
 
 # Игнорируем автогенерируемый симлинк профиля питания

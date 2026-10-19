@@ -9,11 +9,18 @@
 
 ![Desktop](screenshots/Desktop.png)
 ![Code](screenshots/Code.png)
+
+<details>
+<summary><b>Показать остальные скриншоты</b></summary>
+<br>
+
 ![Cheatsheet](screenshots/Cheatsheet.png)
 ![Rofi](screenshots/Rofi.png)
 ![Powerdialog](screenshots/Powerdialog.png)
 ![Dunst](screenshots/Dunst.png)
 ![Alacritty](screenshots/Alacritty.png)
+
+</details>
 
 ## Особенности
 
@@ -22,7 +29,8 @@
 - **Затемненные обои:** Оригинальные обои затемняются через ImageMagick и подкрашиваются в цвет фона панели (`#1a1b26`), чтобы глаза не уставали, а интерфейс выглядел монолитно.
 - **Статичная шпаргалка:** Меню `Super + /` — это красивый статичный список с иконками и скрытыми тегами для мгновенного поиска (работает через Rofi).
 - **Универсальное железо:** Переменные окружения в `launch.sh` (автоопределение `BAT0`/`BAT1`, `AC`/`ADP1`) позволяют конфигурации работать на разных ноутбуках без правок.
-- **Управление без апплетов:** Отказались от `nm-applet` и `pasystray`. Wi-Fi — через `nmtui`, звук — через `pavucontrol`.
+- **Управление без лишних апплетов:** Отказались от `nm-applet` и `pasystray`. Wi-Fi — через `nmtui`, звук — через `pavucontrol`. Исключение — `blueman` для Bluetooth (в трее), так как полноценной замены без потери функциональности нет.
+- **Фикс сетевых интерфейсов:** Установщик копирует исправленный `/etc/network/interfaces` и настройки NetworkManager. Это решает проблемы с определением сети (особенно Wi-Fi), которые часто возникают при чистой установке.
 
 ## 📦 Структура репозитория
 
@@ -42,7 +50,7 @@ BSPWM-machineslego/
 │       ├── sxhkdrc         # Горячие клавиши
 │       └── scripts/        # autocheatsheet, powermenu, sensors, volume
 ├── home/                   # Симлинки в ~/*
-├── system/                 # Копируется в /etc (тачпад, NetworkManager)
+├── system/                 # Копируется в /etc (тачпад, NetworkManager, фикс сети)
 ├── scripts/                # install.sh, link.sh, unlink.sh
 ├── screenshots/
 └── wallpapers/
@@ -75,7 +83,7 @@ chmod +x scripts/*.sh
 - настраивает `sudoers` для управления профилем питания;
 - создаёт симлинки `~/.config/*` и `~/*`.
 
-**Что именно копируется в `/etc`:** только конфиг тачпада (`/etc/X11/xorg.conf.d/`) и настройки NetworkManager. Если менять системные файлы не нужно — используйте `./scripts/link.sh` (он создаёт только симлинки, без правок в `/etc`).
+**Что именно копируется в `/etc`:** конфиг тачпада (`/etc/X11/xorg.conf.d/`), настройки NetworkManager и фикс для `/etc/network/interfaces` (решает проблемы с сетью). Если менять системные файлы не нужно — используйте `./scripts/link.sh` (он создаёт только симлинки, без правок в `/etc`).
 
 **Откат изменений:** `./scripts/unlink.sh` удаляет созданные симлинки. Системные файлы в `/etc`, установленные пакеты и шрифты автоматически **не** удаляются — это делается вручную, чтобы не задеть чужие настройки.
 
@@ -137,6 +145,7 @@ convert /path/to/original_wallpaper.jpg -fill "#1a1b26" -colorize 50% -modulate 
 - **Не работает звук или яркость** → проверьте наличие `pavucontrol` и `brightnessctl`; для яркости нужен доступ к `/sys/class/backlight/*`.
 - **Polybar не стартует** → проверьте, что `~/.config/polybar` — симлинк на репозиторий, а `~/.config/polybar/launch.sh` исполняемый (`chmod +x`).
 - **Конфликт профилей питания (TLP vs PPD)** → одновременно должен быть активен только один. Проверьте `systemctl status tlp` и `systemctl status power-profiles-daemon`.
+- **Пропал Wi-Fi/Интернет** → проверьте, что `install.sh` успешно скопировал фикс в `/etc/network/interfaces`, и перезапустите NetworkManager: `sudo systemctl restart NetworkManager`.
 
 ## 📄 Лицензия
 

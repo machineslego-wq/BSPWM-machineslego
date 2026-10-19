@@ -23,7 +23,7 @@ sudo -v || { echo "Ошибка: требуются права sudo."; exit 1; }
 
 echo "[1/5] Установка базовых пакетов..."
 sudo apt update
-# Убрал blueman (апплет) и network-manager-gnome (хватит network-manager для nmtui)
+
 sudo apt install -y \
   xorg xinit xserver-xorg-input-libinput \
   bspwm sxhkd \
@@ -34,11 +34,13 @@ sudo apt install -y \
   fonts-noto-color-emoji \
   brightnessctl scrot \
   network-manager pavucontrol \
+  blueman \
   thunar alacritty \
   i3lock-fancy libnotify-bin \
   fish fontconfig \
   wget curl unzip xclip lm-sensors \
-  imagemagick xdg-utils xdotool
+  imagemagick xdg-utils xdotool \
+  fastfetch
 
 echo "  Базовые пакеты установлены."
 
