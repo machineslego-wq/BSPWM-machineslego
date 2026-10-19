@@ -30,6 +30,7 @@
 BSPWM-machineslego/
 ├── config/                 # Симлинки в ~/.config/*
 │   ├── alacritty, bspwm, dunst, fastfetch, picom, rofi
+│   ├── gtk-3.0, gtk-4.0    # Настройки тем GTK
 │   ├── polybar/
 │   │   ├── config.ini      # Стоковые модули + кастомная яркость
 │   │   └── scripts/
@@ -52,7 +53,7 @@ BSPWM-machineslego/
 - **ОС:** Debian 13 Trixie (или совместимый дистрибутив на базе Debian).
 - **Графическая подсистема:** **X11 (Xorg)**. BSPWM не работает под Wayland — установка через `startx`.
 - **Базовые утилиты:** `git`, `sudo`, `curl`/`wget`, доступ в интернет (для загрузки пакетов и шрифтов).
-- **Nerd Font обязателен** для корректного отображения иконок в Polybar и Rofi. Устанавливается автоматически из релиза проекта; при ручной установке проверьте наличие через `fc-list | grep -i "nerd"`.
+- **Nerd Font обязателен** для корректного отображения иконок в Polybar и Rofi. Устанавливается автоматически с официального релиза Nerd Fonts; при ручной установке проверьте наличие через `fc-list | grep -i "nerd"`.
 - **Права sudo** понадобятся для установки пакетов `apt` и копирования файлов в `/etc`.
 
 Всё остальное (BSPWM, Polybar, Rofi, Dunst, Alacritty, Picom, ImageMagick, xclip и т.д.) установщик ставит сам.
@@ -70,7 +71,7 @@ chmod +x scripts/*.sh
 
 Установщик:
 - ставит пакеты из `apt`;
-- скачивает **Nerd Font из релиза этого репозитория** (при недоступности — с официального зеркала Nerd Fonts) и кладёт его в `~/.local/share/fonts`;
+- скачивает **Nerd Font с официального релиза Nerd Fonts** и кладёт его в `~/.local/share/fonts`;
 - настраивает `sudoers` для управления профилем питания;
 - создаёт симлинки `~/.config/*` и `~/*`.
 
@@ -83,6 +84,7 @@ chmod +x scripts/*.sh
 ```bash
 startx
 ```
+Или можете поставить LightDM и входить через него.
 
 ## 🖼️ Обои и тема
 
@@ -125,11 +127,11 @@ convert /path/to/original_wallpaper.jpg -fill "#1a1b26" -colorize 50% -modulate 
 - **ПК:** управление через Polybar не настраивается.
 
 **3. Скриншоты**
-Снимки (`Print`, `Shift+Print`, `Super+Shift+S`) сохраняются в `~/Изображения/Screenshots/` и **сразу копируются в буфер обмена** (через `xclip`).
+Снимки (`Print`, `Shift+Print`, `Super+Shift+S`) сохраняются в системную папку изображений (автоопределение через `xdg-user-dir PICTURES`, например `~/Изображения/Screenshots/`) и **сразу копируются в буфер обмена** (через `xclip`).
 
 ## 🔧 Устранение неполадок
 
-- **Квадратики вместо иконок в Polybar/Rofi** → не установлен Nerd Font. Проверьте: `fc-list | grep -i "nerd"`. Если пусто — переустановите шрифт: `./scripts/install.sh` (или вручную из релиза проекта).
+- **Квадратики вместо иконок в Polybar/Rofi** → не установлен Nerd Font. Проверьте: `fc-list | grep -i "nerd"`. Если пусто — переустановите шрифт: `./scripts/install.sh`.
 - **`startx` не запускается / чёрный экран** → убедитесь, что в `~/.xinitrc` есть строка `exec bspwm`, и что `xorg` установлен (`sudo apt install xorg`).
 - **Не работают горячие клавиши** → проверьте, что `sxhkd` запущен (`pgrep sxhkd`); перезапустите через `launch.sh` из конфига BSPWM.
 - **Не работает звук или яркость** → проверьте наличие `pavucontrol` и `brightnessctl`; для яркости нужен доступ к `/sys/class/backlight/*`.
@@ -139,4 +141,4 @@ convert /path/to/original_wallpaper.jpg -fill "#1a1b26" -colorize 50% -modulate 
 ## 📄 Лицензия
 
 - Конфигурации и скрипты в этом репозитории распространяются по лицензии **MIT**.
-- Шрифты (JetBrains Mono Nerd Font) распространяются по своим лицензиям — **SIL Open Font License 1.1**. При использовании и распространении шрифтов из релизов проекта соблюдайте условия OFL.
+- Шрифты (JetBrains Mono Nerd Font) распространяются по своим лицензиям — **SIL Open Font License 1.1**.
