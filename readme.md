@@ -102,13 +102,13 @@ convert /path/to/original_wallpaper.jpg -fill "#1a1b26" -colorize 50% -modulate 
 |---|---|
 | `Super + Enter` | Терминал (Alacritty) |
 | `Super + /` | Шпаргалка (Rofi) |
-| `Super + Shift + Q` | Закрыть окно |
+| `Super + W` | Закрыть окно |
 | `Super + 1…9` | Переключение рабочих столов |
 | `Super + Shift + 1…9` | Переместить окно на рабочий стол |
 | `Super + D` | Запуск Rofi (drun) |
 | `Print` | Скриншот всего экрана |
-| `Shift + Print` | Скриншот области |
-| `Super + Shift + S` | Скриншот окна |
+| `Shift + Print` | Скриншот окна |
+| `Super + Shift + S` | Скриншот области |
 
 > Точный список — в `config/sxhkd/sxhkdrc` и в шпаргалке `Super + /`.
 
