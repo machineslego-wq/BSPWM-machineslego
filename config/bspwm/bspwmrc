@@ -47,7 +47,7 @@ feh --bg-fill ~/BSPWM-machineslego/wallpapers/tokyo-night-girl.jpg &
 bspc config focus_follows_pointer true
 
 # Отступ под Polybar
-bspc config top_padding    34
+bspc config top_padding    36
 bspc config bottom_padding 0
 
 # При необходимости дописать: VIII IX X
