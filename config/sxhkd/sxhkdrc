@@ -46,6 +46,10 @@ super + a
 super + x
     ~/.config/sxhkd/scripts/sensors.sh
 
+# Выбор режима питания (только ноутбуки с TLP / PPD)
+super + alt + p
+    ~/.config/polybar/scripts/power-profile.sh --menu &
+
 # ==========================================
 # МУЛЬТИМЕДИА И СКРИНШОТЫ
 # ==========================================

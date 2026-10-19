@@ -21,8 +21,11 @@ COLOR_BG="%{F#565f89}"      # пустая часть — приглушённы
 COLOR_RESET="%{F-}"
 
 # --- Символы полосы ---
-CHAR_FILL="▓"
-CHAR_EMPTY="▒"
+CHAR_FILL="•"
+CHAR_EMPTY="◦"
+# --- Символы полосы (большие) ---
+# CHAR_FILL="●"
+# CHAR_EMPTY="○"
 
 # =========================================================
 # Логика
@@ -48,11 +51,15 @@ while true; do
         filled=$(( percent * BAR_WIDTH / 100 ))
         empty=$(( BAR_WIDTH - filled ))
 
-        bar="${COLOR_BAR}"
+        # Включаем font-2 для полоски
+        bar="%{T2}${COLOR_BAR}"
         for ((i=0; i<filled; i++)); do bar="${bar}${CHAR_FILL}"; done
+        
         bar="${bar}${COLOR_BG}"
         for ((i=0; i<empty; i++));  do bar="${bar}${CHAR_EMPTY}"; done
-        bar="${bar}${COLOR_RESET}"
+        
+        # Сбрасываем цвет и возвращаем font-0 для текста
+        bar="${bar}${COLOR_RESET}%{T-}"
 
         # --- Сборка строки в зависимости от STYLE ---
         case "$STYLE" in

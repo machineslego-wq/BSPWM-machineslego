@@ -15,6 +15,7 @@ cat <<EOF | rofi -dmenu -i -markup-rows -p "󰌌 Горячие клавиши" 
 󰐥 Super + Shift + P            Выключить компьютер <span foreground="#1a1b26">[poweroff, shutdown, выкл, питание]</span>
 󰜉 Super + Shift + R            Перезагрузить компьютер <span foreground="#1a1b26">[reboot, restart, перезагр]</span>
 󰍃 Super + Shift + L            Выйти из аккаунта <span foreground="#1a1b26">[logout, выход, сессия]</span>
+󰓅 Super + Alt + P              Выбор режима питания <span foreground="#1a1b26">[питание, tlp, энергосбережение, баттарея]</span>
 󰌾 Super + L                    Заблокировать экран <span foreground="#1a1b26">[lock, блокировка, пароль]</span>
 
 <b>󰄄 СКРИНШОТЫ (В БУФЕР)</b>
