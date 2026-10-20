@@ -7,18 +7,18 @@
 DOTFILES="${DOTFILES:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
 if [ ! -d "$DOTFILES" ]; then
-    echo "Ошибка: репозиторий не найден: $DOTFILES"
+    echo "Error: repository not found (Ошибка: репозиторий не найден): $DOTFILES"
     exit 1
 fi
 
-echo "Удаляю симлинки, ведущие в $DOTFILES"
+echo "Removing symlinks pointing to (Удаляю симлинки, ведущие в) $DOTFILES"
 echo ""
 
 # 0. Удаляем сгенерированный файл профиля питания (если он есть)
 # Делаем это до удаления симлинка на polybar, чтобы не оставлять мусор в репозитории
 if [ -L "$DOTFILES/config/polybar/scripts/power-profile.sh" ] || [ -f "$DOTFILES/config/polybar/scripts/power-profile.sh" ]; then
     rm -f "$DOTFILES/config/polybar/scripts/power-profile.sh"
-    echo "  removed: сгенерированный power-profile.sh"
+    echo "  removed (удален): generated power-profile.sh (сгенерированный power-profile.sh)"
 fi
 
 removed=0
@@ -35,7 +35,7 @@ check_and_remove() {
         case "$target" in
             "$DOTFILES"*)
                 rm "$link_path"
-                echo "  unlink: $link_path"
+                echo "  unlink (удалена ссылка): $link_path"
                 removed=$((removed + 1))
                 ;;
             *)
@@ -65,10 +65,10 @@ if [ -d "$DOTFILES/home" ]; then
 fi
 
 echo ""
-echo "Удалено симлинков: $removed"
+echo "Symlinks removed (Удалено симлинков): $removed"
 if [ "$skipped" -gt 0 ]; then
-    echo "Пропущено (реальные файлы или ссылки не в репо): $skipped"
+    echo "Skipped (Пропущено) (real files or links not in repo / реальные файлы или ссылки не в репо): $skipped"
 fi
 
 echo ""
-echo "Готово. Если хочешь вернуть свои конфиги, они лежат в ~/.dotfiles-backup-*"
+echo "Done. (Готово.) If you want to restore your configs, they are in (Если хочешь вернуть свои конфиги, они лежат в) ~/.dotfiles-backup-*"

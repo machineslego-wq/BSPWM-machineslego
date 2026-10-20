@@ -14,14 +14,14 @@ else
     REAL_HOME=$HOME
 fi
 
-echo "=== Установка BSPWM-machineslego ==="
-echo "Репозиторий: $DOTFILES"
-echo "Пользователь: $REAL_USER"
+echo "=== BSPWM-machineslego Installation (Установка BSPWM-machineslego) ==="
+echo "Repository (Репозиторий): $DOTFILES"
+echo "User (Пользователь): $REAL_USER"
 echo ""
 
-sudo -v || { echo "Ошибка: требуются права sudo."; exit 1; }
+sudo -v || { echo "Error: sudo privileges required (Ошибка: требуются права sudo)."; exit 1; }
 
-echo "[1/5] Установка базовых пакетов..."
+echo "[1/5] Installing base packages... (Установка базовых пакетов...)"
 sudo apt update
 
 sudo apt install -y \
@@ -40,7 +40,7 @@ sudo apt install -y \
   wget curl unzip xclip lm-sensors \
   imagemagick xdg-utils xdotool fastfetch
 
-echo "  Базовые пакеты установлены."
+echo "  Base packages installed. (Базовые пакеты установлены.)"
 
 # ИСПРАВЛЕНО: Безопасное определение папки для картинок
 PICTURES_DIR=$(sudo -u "$REAL_USER" xdg-user-dir PICTURES 2>/dev/null)
@@ -48,48 +48,48 @@ if [ -z "$PICTURES_DIR" ] || [ "$PICTURES_DIR" = "$REAL_HOME" ]; then
     PICTURES_DIR="$REAL_HOME/Pictures"
 fi
 sudo -u "$REAL_USER" mkdir -p "$PICTURES_DIR/Screenshots"
-echo "  Создана папка для скриншотов: $PICTURES_DIR/Screenshots"
+echo "  Screenshots folder created (Создана папка для скриншотов): $PICTURES_DIR/Screenshots"
 
 if command -v wpctl &>/dev/null; then
-    echo "  -> Обнаружен PipeWire. Устанавливаем дополнения."
+    echo "  -> PipeWire detected. Installing add-ons. (Обнаружен PipeWire. Устанавливаем дополнения.)"
     sudo apt install -y pipewire pipewire-audio wireplumber libspa-0.2-bluetooth
 elif command -v pactl &>/dev/null; then
-    echo "  -> Обнаружен PulseAudio. Устанавливаем утилиты."
+    echo "  -> PulseAudio detected. Installing utilities. (Обнаружен PulseAudio. Устанавливаем утилиты.)"
     sudo apt install -y pulseaudio-utils
 else
-    echo "  -> Звуковой сервер не обнаружен. Пропускаем."
+    echo "  -> Audio server not detected. Skipping. (Звуковой сервер не обнаружен. Пропускаем.)"
 fi
 echo ""
 
-echo "[2/5] Установка шрифта JetBrainsMono Nerd Font..."
+echo "[2/5] Installing JetBrainsMono Nerd Font... (Установка шрифта JetBrainsMono Nerd Font...)"
 FONT_DIR="$REAL_HOME/.local/share/fonts"
 FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.zip"
 # ИСПРАВЛЕНО: Безопасный временный файл
 TMP_ZIP=$(mktemp /tmp/JetBrainsMono-XXXXXX.zip)
 
 if sudo -u "$REAL_USER" fc-list | grep -qi "JetBrainsMono Nerd Font"; then
-    echo "  Шрифт JetBrainsMono Nerd Font уже установлен. Пропускаем."
+    echo "  JetBrainsMono Nerd Font already installed. Skipping. (Шрифт уже установлен. Пропускаем.)"
     rm -f "$TMP_ZIP" # Удаляем пустой tmp файл, если он создался
 else
-    echo "  Скачиваем JetBrainsMono.zip..."
+    echo "  Downloading JetBrainsMono.zip... (Скачиваем JetBrainsMono.zip...)"
     sudo -u "$REAL_USER" mkdir -p "$FONT_DIR"
     sudo -u "$REAL_USER" wget -q --show-progress "$FONT_URL" -O "$TMP_ZIP"
     
-    echo "  Распаковываем..."
+    echo "  Extracting... (Распаковываем...)"
     sudo -u "$REAL_USER" unzip -q "$TMP_ZIP" -d "$FONT_DIR"
     rm -f "$TMP_ZIP"
     
-    echo "  Обновляем кэш шрифтов..."
+    echo "  Updating font cache... (Обновляем кэш шрифтов...)"
     sudo -u "$REAL_USER" fc-cache -f "$FONT_DIR" >/dev/null
-    echo "  Шрифт успешно установлен."
+    echo "  Font installed successfully. (Шрифт успешно установлен.)"
 fi
 echo ""
 
-echo "[3/5] Настройка управления питанием..."
+echo "[3/5] Configuring power management... (Настройка управления питанием...)"
 if command -v powerprofilesctl &>/dev/null; then
-    echo "  -> Обнаружен power-profiles-daemon. Оставляем как есть."
+    echo "  -> power-profiles-daemon detected. Leaving as is. (Обнаружен power-profiles-daemon. Оставляем как есть.)"
 elif ls /sys/class/power_supply/BAT* &>/dev/null; then
-    echo "  -> Обнаружен ноутбук. Устанавливаем TLP..."
+    echo "  -> Laptop detected. Installing TLP... (Обнаружен ноутбук. Устанавливаем TLP...)"
     sudo apt install -y tlp tlp-rdw
     sudo systemctl enable --now tlp
     
@@ -98,17 +98,17 @@ elif ls /sys/class/power_supply/BAT* &>/dev/null; then
     echo "$REAL_USER ALL=(ALL) NOPASSWD: $TLP_PATH, /usr/bin/tlp-stat" | sudo tee /etc/sudoers.d/tlp > /dev/null
     sudo chmod 440 /etc/sudoers.d/tlp
 else
-    echo "  -> Обнаружен ПК. Управление питанием через Polybar не настраивается."
+    echo "  -> Desktop PC detected. Power management via Polybar is not configured. (Обнаружен ПК. Управление питанием через Polybar не настраивается.)"
 fi
 echo ""
 
-echo "[4/5] Линковка конфигов..."
+echo "[4/5] Linking configs... (Линковка конфигов...)"
 export DOTFILES
 # ИСПРАВЛЕНО: Явная передача HOME и DOTFILES
 sudo -u "$REAL_USER" env HOME="$REAL_HOME" DOTFILES="$DOTFILES" bash "$DOTFILES/scripts/link.sh"
 echo ""
 
-echo "[5/5] Установка системных конфигов в /etc/..."
+echo "[5/5] Installing system configs to /etc/... (Установка системных конфигов в /etc/...)"
 if [ -d "$DOTFILES/system" ]; then
     sudo mkdir -p "$BACKUP"
     
@@ -127,15 +127,15 @@ if [ -d "$DOTFILES/system" ]; then
         if [ -f "$dst_file" ]; then
             sudo mkdir -p "$BACKUP$dst_dir"
             sudo cp "$dst_file" "$BACKUP$dst_file"
-            echo "     (оригинал сохранен в бэкап)"
+            echo "     (original backed up / оригинал сохранен в бэкап)"
         fi
 
         sudo mkdir -p "$dst_dir"
         sudo cp "$src_file" "$dst_file"
     done
-    echo "  Бэкап старых системных файлов находится здесь: $BACKUP"
+    echo "  Backup of old system files is located here (Бэкап старых системных файлов): $BACKUP"
 fi
 
 echo ""
-echo "=== Установка завершена! ==="
-echo "Перезагрузите систему или запустите startx."
+echo "=== Installation complete! (Установка завершена!) ==="
+echo "Please reboot or run startx. (Перезагрузите систему или запустите startx.)"
