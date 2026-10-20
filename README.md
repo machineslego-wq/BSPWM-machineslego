@@ -29,7 +29,8 @@ Configuration of a desktop environment based on BSPWM for Debian 13 Trixie, styl
 - **Universal hardware:** Auto-detection of batteries (`BAT0`/`BAT1`) and power adapters. Brightness control is available out-of-the-box for laptops.
 - **Management without unnecessary applets:** Wi-Fi via `nmtui`, audio via `pavucontrol`. Exception: `blueman` for Bluetooth.
 - **Network fix:** The installer copies a fixed `/etc/network/interfaces` and NetworkManager settings, solving Wi-Fi issues on a clean install.
-- **Advanced Multi-monitor Support:** Customizable `bspwmrc` block for dual-monitor PCs with 144Hz refresh rate support, portrait rotation, specific workspace distribution, and dual wallpapers.
+- **Advanced Multi-monitor Support:** Customizable `bspwmrc` block for dual-monitor PCs with 144Hz refresh rate support, custom monitor positioning (offset alignment), portrait rotation, specific workspace distribution, and dual wallpapers.
+- **Refined Dunst Notifications:** Polished notification design with custom progress bar styling, extended icon paths, and OSD (On-Screen Display) for volume and brightness.
 
 ## 📦 Structure
 
@@ -91,10 +92,18 @@ chmod +x scripts/*.sh
 **Monitor Setup (Desktop PC)**
 If you use a desktop PC with multiple monitors, customize them in `~/.config/bspwm/bspwmrc`. Find the `--- НАСТРОЙКА МОНИТОРОВ ---` block.
 1. Change `"lamer-deb"` to your actual `hostname`.
-2. Adjust `xrandr` outputs (`DisplayPort-1`, `HDMI-A-3`), refresh rate (`--rate 144.00`), and rotation (`--rotate right`).
+2. Adjust `xrandr` outputs (`DisplayPort-1`, `HDMI-A-3`), refresh rate (`--rate 144.00`), rotation (`--rotate right`), and **position alignment** (`--pos`).
 3. Set different wallpapers for each monitor using `feh --output`.
 4. Distribute workspaces (e.g., `I..IX` on primary, `X` on secondary).
 *If the hostname doesn't match, the script falls back to the default single-monitor layout.*
+
+**Notification Design (Dunst)**
+The notification theme is defined in `~/.config/dunst/dunstrc`. You can tweak the progress bar, icons, and colors there. To test all notification urgency levels with a progress bar, run:
+```bash
+notify-send -u low -i dialog-information "Low Priority" "This is a test." -h int:value:30 & \
+sleep 0.5 && notify-send -u normal -i dialog-information "Normal Priority" "This is a test." -h int:value:60 & \
+sleep 0.5 && notify-send -u critical -i dialog-error "Critical Priority" "This is a test." -h int:value:90
+```
 
 ## 🖼️ Wallpapers and Theme
 
