@@ -7,22 +7,26 @@
 ![BSPWM](https://img.shields.io/badge/WM-BSPWM-black)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-Конфигурация рабочего окружения на базе BSPWM для Debian 13 Trixie с оформлением в палитре Tokyo Night.
+Конфигурация рабочего окружения на базе BSPWM для Debian 13 Trixie в палитре Tokyo Night.
 
 ![Desktop](screenshots/desktop-actual.png)
 ![Workspace](screenshots/workspace-example-actual.png)
 ![Rofi](screenshots/rofi-actual.png)
 
-Развернутое правая часть Polybar
+<details>
+<summary><b>Показать остальные скриншоты (Развернутая Polybar)</b></summary>
+<br>
 
 ![Unfolded-right-modules](screenshots/unfolded-polybar-actual.png)
+
+</details>
 
 ## Особенности
 
 - **Native Modules First:** Стоковые модули Polybar для батареи, сети и звука.
 - **Без прозрачности и блюра:** Отключено в Alacritty, Polybar и Picom. Только строгие цвета Tokyo Night.
 - **Статичная шпаргалка:** Меню `Super + /` с иконками и скрытыми тегами для поиска через Rofi.
-- **Универсальное железо:** Автоопределение батарей (`BAT0`/`BAT1`) и адаптеров питания.
+- **Универсальное железо:** Автоопределение батарей (`BAT0`/`BAT1`) и адаптеров питания. Регулировка яркости доступна из коробки для ноутбуков (через `brightnessctl`).
 - **Управление без лишних апплетов:** Wi-Fi через `nmtui`, звук через `pavucontrol`. Исключение — `blueman` для Bluetooth (в трее).
 - **Фикс сети:** Установщик копирует исправленный `/etc/network/interfaces` и настройки NetworkManager, решая проблемы с Wi-Fi при чистой установке.
 
@@ -59,8 +63,20 @@ BSPWM-machineslego/
 
 ## 🛠 Установка
 
+**Способ 1: Через Git (Рекомендуемый)**
 ```bash
 git clone https://github.com/machineslego-wq/BSPWM-machineslego ~/BSPWM-machineslego
+cd ~/BSPWM-machineslego
+chmod +x scripts/*.sh
+./scripts/install.sh
+```
+
+**Способ 2: Через ZIP-архив**
+Если вы скачали `.zip` архив, GitHub распакует его в папку с названием `BSPWM-machineslego-1.0.1` (или похожим). 
+⚠️ **Важно:** Вы должны переименовать распакованную папку ровно в `BSPWM-machineslego` и переместить её в домашнюю директорию (`~/`). Иначе обои и жестко заданные пути не будут работать.
+```bash
+# Пример после распаковки архива:
+mv ~/Downloads/BSPWM-machineslego* ~/BSPWM-machineslego
 cd ~/BSPWM-machineslego
 chmod +x scripts/*.sh
 ./scripts/install.sh
@@ -105,10 +121,10 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 
 ## 🔧 Устранение неполадок
 
-- **Нет иконок в Polybar/Rofi** → Проверьте: `fc-list | grep -i "nerd"`. Переустановите: `./scripts/install.sh`.
+- **Нет иконок в Polybar/Rofi** → Не установлен Nerd Font. Проверьте: `fc-list | grep -i "nerd"`. Переустановите: `./scripts/install.sh`.
 - **`startx` не запускается** → Проверьте наличие `exec bspwm` в `~/.xinitrc` и пакет `xorg`.
 - **Не работают горячие клавиши** → Проверьте `pgrep sxhkd`. Перезапустите: `pkill -USR1 -x sxhkd`.
-- **Не работает звук/яркость** → Установите `pavucontrol` и `brightnessctl`.
+- **Нет модуля яркости на стационарном ПК** → Это сделано намеренно. Модуль яркости использует `brightnessctl`, который работает только со встроенными экранами ноутбуков/моноблоков. На ПК с внешними мониторами используйте физические кнопки на самом мониторе.
 - **Polybar не стартует** → Проверьте симлинк `~/.config/polybar` и права на `launch.sh` (`chmod +x`).
 - **Конфликт TLP и PPD** → Одновременно должен быть активен только один (`systemctl status tlp` / `power-profiles-daemon`).
 - **Пропал Wi-Fi** → Перезапустите NetworkManager: `sudo systemctl restart NetworkManager` (убедитесь, что фикс `/etc/network/interfaces` скопирован).

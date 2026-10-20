@@ -13,16 +13,20 @@ Configuration of a desktop environment based on BSPWM for Debian 13 Trixie, styl
 ![Workspace](screenshots/workspace-example-actual.png)
 ![Rofi](screenshots/rofi-actual.png)
 
-Unfolded right modules of Polybar
+<details>
+<summary><b>Show more screenshots (Unfolded Polybar)</b></summary>
+<br>
 
 ![Unfolded-right-modules](screenshots/unfolded-polybar-actual.png)
+
+</details>
 
 ## Features
 
 - **Native Modules First:** Stock Polybar modules for battery, network, and audio.
 - **No transparency or blur:** Disabled in Alacritty, Polybar, and Picom. Only strict Tokyo Night colors.
 - **Static cheatsheet:** `Super + /` menu with icons and hidden tags for Rofi search. *(Note: Since the cheatsheet is a static script, its content inside `autocheatsheet.sh` is currently in Russian and requires manual translation for English users).*
-- **Universal hardware:** Auto-detection of batteries (`BAT0`/`BAT1`) and power adapters.
+- **Universal hardware:** Auto-detection of batteries (`BAT0`/`BAT1`) and power adapters. Brightness control is available out-of-the-box for laptops (via `brightnessctl`).
 - **Management without unnecessary applets:** Wi-Fi via `nmtui`, audio via `pavucontrol`. Exception: `blueman` for Bluetooth (in the system tray).
 - **Network fix:** The installer copies a fixed `/etc/network/interfaces` and NetworkManager settings, solving Wi-Fi issues on a clean install.
 
@@ -59,8 +63,20 @@ BSPWM-machineslego/
 
 ## 🛠 Installation
 
+**Option 1: Via Git (Recommended)**
 ```bash
 git clone https://github.com/machineslego-wq/BSPWM-machineslego ~/BSPWM-machineslego
+cd ~/BSPWM-machineslego
+chmod +x scripts/*.sh
+./scripts/install.sh
+```
+
+**Option 2: Via ZIP archive**
+If you downloaded the `.zip` archive, GitHub extracts it into a folder named `BSPWM-machineslego-1.0.1` (or similar). 
+⚠️ **Important:** You must rename the extracted folder to exactly `BSPWM-machineslego` and place it in your home directory (`~/`). Otherwise, wallpapers and hardcoded paths will break.
+```bash
+# Example after extracting the ZIP:
+mv ~/Downloads/BSPWM-machineslego* ~/BSPWM-machineslego
 cd ~/BSPWM-machineslego
 chmod +x scripts/*.sh
 ./scripts/install.sh
@@ -108,7 +124,7 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 - **No icons in Polybar/Rofi** → Nerd Font is not installed. Check: `fc-list | grep -i "nerd"`. Reinstall: `./scripts/install.sh`.
 - **`startx` doesn't start** → Check for `exec bspwm` in `~/.xinitrc` and the `xorg` package.
 - **Keybindings don't work** → Check `pgrep sxhkd`. Restart: `pkill -USR1 -x sxhkd`.
-- **Audio/brightness doesn't work** → Install `pavucontrol` and `brightnessctl`.
+- **No brightness module on a desktop PC** → This is intentional. The brightness module uses `brightnessctl`, which only works with built-in laptop/monoblock panels. On desktop PCs with external monitors, use your monitor's physical buttons.
 - **Polybar doesn't start** → Check the `~/.config/polybar` symlink and `launch.sh` permissions (`chmod +x`).
 - **TLP and PPD conflict** → Only one should be active at a time (`systemctl status tlp` / `power-profiles-daemon`).
 - **Wi-Fi lost** → Restart NetworkManager: `sudo systemctl restart NetworkManager` (ensure the `/etc/network/interfaces` fix is copied).
