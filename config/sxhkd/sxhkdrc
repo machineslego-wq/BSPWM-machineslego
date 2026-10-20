@@ -142,7 +142,7 @@ super + {p,b,comma,period}
 
 # Переключить стол / Перенести окно (Super + 1..0 / Super + Shift + 1..0)
 super + {_,shift + }{1-9,0}
-    bspc {desktop -f,node -d} '^{1-9,10}'
+    bspc {desktop -f,node -d} {I,II,III,IV,V,VI,VII,VIII,IX,X}
 
 
 # ==============================================================================

@@ -29,6 +29,7 @@ Configuration of a desktop environment based on BSPWM for Debian 13 Trixie, styl
 - **Universal hardware:** Auto-detection of batteries (`BAT0`/`BAT1`) and power adapters. Brightness control is available out-of-the-box for laptops (via `brightnessctl`).
 - **Management without unnecessary applets:** Wi-Fi via `nmtui`, audio via `pavucontrol`. Exception: `blueman` for Bluetooth (in the system tray).
 - **Network fix:** The installer copies a fixed `/etc/network/interfaces` and NetworkManager settings, solving Wi-Fi issues on a clean install.
+- **Multi-monitor Support:** Smart fallback for laptops and a customizable block in `bspwmrc` for custom dual-monitor PC setups (rotation, specific workspace distribution).
 
 ## 📦 Structure
 
@@ -72,7 +73,7 @@ chmod +x scripts/*.sh
 ```
 
 **Option 2: Via ZIP archive**
-If you downloaded the `.zip` archive, GitHub extracts it into a folder named `BSPWM-machineslego-1.0.1` (or similar). 
+If you downloaded the `.zip` archive, GitHub extracts it into a folder named `BSPWM-machineslego-X.X.X`. 
 ⚠️ **Important:** You must rename the extracted folder to exactly `BSPWM-machineslego` and place it in your home directory (`~/`). Otherwise, wallpapers and hardcoded paths will break.
 ```bash
 # Example after extracting the ZIP:
@@ -91,8 +92,16 @@ chmod +x scripts/*.sh
 
 **If you don't want to touch `/etc`:** use `./scripts/link.sh`.
 **Rollback:** `./scripts/unlink.sh` (removes only symlinks; packages and files in `/etc` remain).
-
 **Launch:** `startx` (or via LightDM).
+
+### ⚙️ Customization
+
+**Monitor Setup (Desktop PC)**
+If you use a desktop PC with multiple monitors, you can customize their layout in `~/.config/bspwm/bspwmrc`. Find the `--- НАСТРОЙКА МОНИТОРОВ ---` block.
+1. Change `"lamer-deb"` to your actual `hostname`.
+2. Adjust `xrandr` outputs (`DisplayPort-1`, `HDMI-A-3`) and rotation (`--rotate right`).
+3. Distribute workspaces as you prefer (e.g., `I..IX` on primary, `X` on secondary).
+*If the hostname doesn't match, the script falls back to the default single-monitor layout.*
 
 ## 🖼️ Wallpapers and Theme
 
@@ -124,7 +133,7 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 - **No icons in Polybar/Rofi** → Nerd Font is not installed. Check: `fc-list | grep -i "nerd"`. Reinstall: `./scripts/install.sh`.
 - **`startx` doesn't start** → Check for `exec bspwm` in `~/.xinitrc` and the `xorg` package.
 - **Keybindings don't work** → Check `pgrep sxhkd`. Restart: `pkill -USR1 -x sxhkd`.
-- **No brightness module on a desktop PC** → This is intentional. The brightness module uses `brightnessctl`, which only works with built-in laptop/monoblock panels. On desktop PCs with external monitors, use your monitor's physical buttons.
+- **No brightness module on a desktop PC** → This is intentional. The brightness module uses `brightnessctl`, which only works with built-in laptop panels. On desktop PCs, use your monitor's physical buttons.
 - **Polybar doesn't start** → Check the `~/.config/polybar` symlink and `launch.sh` permissions (`chmod +x`).
 - **TLP and PPD conflict** → Only one should be active at a time (`systemctl status tlp` / `power-profiles-daemon`).
 - **Wi-Fi lost** → Restart NetworkManager: `sudo systemctl restart NetworkManager` (ensure the `/etc/network/interfaces` fix is copied).
