@@ -1,6 +1,6 @@
 # BSPWM-machineslego
 
-**English** | [Русский](./README.md)
+**English** | [Русский](./README.ru.md)
 
 ![Debian](https://img.shields.io/badge/Debian-13%20Trixie-A81D33?logo=debian&logoColor=white)
 ![X11](https://img.shields.io/badge/X11-only-blue)
