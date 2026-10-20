@@ -64,7 +64,7 @@ fi
 bspc config focus_follows_pointer true
 
 # Отступы под панель Polybar (сверху).
-bspc config top_padding    36
+bspc config top_padding    34
 bspc config bottom_padding 0
 
 # =====================================================================
@@ -73,8 +73,9 @@ bspc config bottom_padding 0
 # ПК: DP-1 (основной, столы I-IX), HDMI (слева, стол X).
 # Ноутбуки: фолбэк — все 10 столов на одном экране.
 if [ "$(hostname)" = "lamer-deb" ]; then
-    xrandr --output DisplayPort-1 --primary --mode 1920x1080 --rate 144.00
-    xrandr --output HDMI-A-3 --auto --rotate right --left-of DisplayPort-1
+    xrandr --fb 3000x1920 \
+           --output HDMI-A-3 --auto --rotate right --pos 0x0 \
+           --output DisplayPort-1 --primary --mode 1920x1080 --rate 144.00 --pos 1080x250
     sleep 0.5
     bspc wm -O HDMI-A-3 DisplayPort-1
     bspc monitor DisplayPort-1 -d I II III IV V VI VII VIII IX

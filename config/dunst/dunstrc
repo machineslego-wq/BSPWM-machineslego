@@ -22,10 +22,18 @@
     # --- Полоса прогресса (таймер закрытия) ---
     # ------------------------------------------------------
     progress_bar = true
-    progress_bar_height = 8
-    progress_bar_frame_width = 1
+    # Высота полосы (6px выглядит аккуратнее)
+    progress_bar_height = 6
+    # Убираем рамку вокруг полосы (0 = без рамки)
+    progress_bar_frame_width = 0
     progress_bar_min_width = 200
     progress_bar_max_width = 340
+    # Цвет самой полосы (синий акцент Tokyo Night)
+    highlight = "#7aa2f7"
+    # Скругление углов самой полосы
+    progress_bar_corner_radius = 3
+    # Выравнивание полосы по центру
+    progress_bar_horizontal_alignment = center
 
     # ------------------------------------------------------
     # --- Внешний вид ---
@@ -42,6 +50,11 @@
     ellipsize = middle
     ignore_newline = no
 
+    # Переносить длинный текст (чтобы не обрезался)
+    word_wrap = yes
+    # Не показывать системное уведомление при старте Dunst
+    startup_notification = false
+
     # Группировка одинаковых уведомлений в стопку
     stack_duplicates = true
     hide_duplicate_count = false
@@ -51,7 +64,8 @@
     icon_position = left
     min_icon_size = 32
     max_icon_size = 64
-    icon_path = /usr/share/icons/Papirus-Dark/24x24/actions/:/usr/share/icons/Papirus-Dark/24x24/panel/:/usr/share/icons/Papirus-Dark/24x24/devices/:/usr/share/icons/Papirus-Dark/24x24/status/
+    # Добавлены apps/ и legacy/ для системных иконок (например, обновления)
+    icon_path = /usr/share/icons/Papirus-Dark/24x24/actions/:/usr/share/icons/Papirus-Dark/24x24/panel/:/usr/share/icons/Papirus-Dark/24x24/devices/:/usr/share/icons/Papirus-Dark/24x24/status/:/usr/share/icons/Papirus-Dark/24x24/apps/:/usr/share/icons/Papirus-Dark/24x24/legacy/
 
     # ------------------------------------------------------
     # --- История уведомлений ---
