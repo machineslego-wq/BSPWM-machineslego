@@ -33,14 +33,12 @@ sudo apt install -y \
   fonts-jetbrains-mono fonts-font-awesome \
   fonts-noto-color-emoji \
   brightnessctl scrot \
-  network-manager pavucontrol \
-  blueman \
+  network-manager pavucontrol blueman \
   thunar alacritty \
   i3lock-fancy libnotify-bin \
   fish fontconfig \
   wget curl unzip xclip lm-sensors \
-  imagemagick xdg-utils xdotool \
-  fastfetch
+  imagemagick xdg-utils xdotool fastfetch
 
 echo "  Базовые пакеты установлены."
 
