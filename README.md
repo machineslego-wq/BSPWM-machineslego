@@ -1,6 +1,6 @@
 # BSPWM-machineslego
 
-**English** | [Русский](./README.ru.md)
+**English** | [Русский](./README.md)
 
 ![Debian](https://img.shields.io/badge/Debian-13%20Trixie-A81D33?logo=debian&logoColor=white)
 ![X11](https://img.shields.io/badge/X11-only-blue)
@@ -21,7 +21,7 @@ Unfolded right modules of Polybar
 
 - **Native Modules First:** Stock Polybar modules for battery, network, and audio.
 - **No transparency or blur:** Disabled in Alacritty, Polybar, and Picom. Only strict Tokyo Night colors.
-- **Static cheatsheet:** `Super + /` menu with icons and hidden tags for Rofi search.
+- **Static cheatsheet:** `Super + /` menu with icons and hidden tags for Rofi search. *(Note: Since the cheatsheet is a static script, its content inside `autocheatsheet.sh` is currently in Russian and requires manual translation for English users).*
 - **Universal hardware:** Auto-detection of batteries (`BAT0`/`BAT1`) and power adapters.
 - **Management without unnecessary applets:** Wi-Fi via `nmtui`, audio via `pavucontrol`. Exception: `blueman` for Bluetooth (in the system tray).
 - **Network fix:** The installer copies a fixed `/etc/network/interfaces` and NetworkManager settings, solving Wi-Fi issues on a clean install.
