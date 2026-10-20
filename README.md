@@ -22,6 +22,10 @@
 
 </details>
 
+## Todo
+- **Поменять дизайн вывода индикации капс лока**
+- ...
+
 ## Особенности
 
 - **Native Modules First:** Для батареи, сети и звука используются стоковые модули `internal/battery`, `internal/network`, `internal/pulseaudio`.
