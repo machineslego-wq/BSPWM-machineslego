@@ -128,6 +128,12 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 | `Shift + Print` | Screenshot window |
 | `Super + Shift + S` | Screenshot area |
 
+## 🎨 Ecosystem
+
+If you want your notes to match the strict, flat aesthetic of this desktop setup, check out the companion theme for Obsidian:
+
+**[Tokyo Night Flat Theme for Obsidian](https://github.com/machineslego-wq/tokyo-night-by-machineslego-wq)**
+
 ## 🔧 Troubleshooting
 
 - **No icons in Polybar/Rofi** → Nerd Font is not installed. Check: `fc-list | grep -i "nerd"`. Reinstall: `./scripts/install.sh`.

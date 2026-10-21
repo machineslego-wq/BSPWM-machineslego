@@ -128,6 +128,12 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 | `Shift + Print` | Скриншот окна |
 | `Super + Shift + S` | Скриншот области |
 
+## 🎨 Экосистема
+
+Если вы хотите, чтобы ваши заметки в Obsidian выглядели так же строго и минималистично, как это рабочее окружение, обратите внимание на сопутствующую тему:
+
+**[Tokyo Night Flat Theme для Obsidian](https://github.com/machineslego-wq/tokyo-night-by-machineslego-wq)**
+
 ## 🔧 Устранение неполадок
 
 - **Нет иконок в Polybar/Rofi** → Не установлен Nerd Font. Проверьте: `fc-list | grep -i "nerd"`.
