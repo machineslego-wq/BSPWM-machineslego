@@ -11,7 +11,7 @@ configuration {
     show-icons: true;
     icon-theme: "Papirus-Dark";
     terminal: "alacritty";
-    font: "JetBrains Mono 11";
+    font: "JetBrainsMono Nerd Font 11";
     drun-display-format: "{name}";
 }
 
@@ -26,7 +26,7 @@ configuration {
     fg:         #c0caf5;   /* Основной текст */
     fg-dim:     #565f89;   /* Приглушённый текст (placeholder) */
     accent:     #7aa2f7;   /* Акцент — синий */
-    accent-2:   #bb9af7;   /* Второй акцент — фиолетовый */
+    accent-2:   #bb9af7;   /* Второй акцент — фиолетовый (secondary) */
     urgent:     #f7768e;   /* Красный для срочного */
 }
 
@@ -55,6 +55,7 @@ inputbar {
     padding: 10px 12px;
     background-color: @bg-alt;
     border-radius: 8px;
+    border: 0px; /* ИСПРАВЛЕНО: Убираем зеленую рамку */
     children: [ prompt, entry ];
 }
 
@@ -79,7 +80,17 @@ listview {
     background-color: @bg;
     padding: 10px 0 0 0;
     columns: 1;
-    fixed-height: false;   /* отключаем зебру */
+    fixed-height: false;
+    border: 0px;
+}
+
+scrollbar {
+    background-color: transparent;
+    border: 0px;
+    handle-color: @accent-2;
+    handle-width: 6px;
+    handle-rounded-corners: true;
+    border-radius: 3px;
 }
 
 
@@ -92,12 +103,10 @@ element {
     background-color: @bg;
     text-color: @fg;
     spacing: 10px;
+    border: 0px; /* Убираем рамки у элементов */
 }
 
-/* --- Обычное (невыделенное) состояние ---
-   Фон всегда @bg — чтобы строки не подсвечивались зеброй.
-   Меняется только цвет текста в зависимости от состояния. */
-
+/* --- Обычное (невыделенное) состояние --- */
 element normal.normal,
 element alternate.normal {
     background-color: @bg;
@@ -116,9 +125,7 @@ element alternate.active {
     text-color: @accent-2;
 }
 
-/* --- Выделенное (курсор) состояние ---
-   Текст становится тёмным (@bg), чтобы читаться на ярком фоне. */
-
+/* --- Выделенное (курсор) состояние --- */
 element selected.normal {
     background-color: @accent;
     text-color: @bg;
@@ -140,7 +147,7 @@ element selected.active {
    ========================================================== */
 element-text {
     background-color: transparent;
-    text-color: inherit;   /* наследует цвет от element */
+    text-color: inherit;
     vertical-align: 0.5;
 }
 
@@ -149,8 +156,6 @@ element-icon {
     background-color: transparent;
 }
 
-/* Страховка: если text-color: inherit не сработает в какой-то версии Rofi,
-   явно задаём тёмный текст для выделенного элемента. */
 element selected element-text {
     text-color: @bg;
 }

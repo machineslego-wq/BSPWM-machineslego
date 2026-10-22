@@ -16,6 +16,7 @@ cat <<EOF | rofi -dmenu -i -markup-rows -p "󰌌 Горячие клавиши" 
 󰆍 Super + Return                   Терминал (Alacritty)           <span foreground="#1a1b26">[консоль, cmd, shell, terminal]</span>
 󰀻 Super + D                        Лаунчер (Rofi)                 <span foreground="#1a1b26">[меню, пуск, запуск, search]</span>
 󰕾 Super + A                        Микшер звука                   <span foreground="#1a1b26">[звук, громкость, audio, наушники]</span>
+󰖩 Super + Alt + N                  Управление Wi-Fi               <span foreground="#1a1b26">[сеть, wifi, интернет, хотспот, nmcli, точка, доступа]</span>
 󰔏 Super + X                        Датчики (терминал)             <span foreground="#1a1b26">[датчики, сенсоры, нагрев, sensors, watch]</span>
 󰑓 Super + Escape                   Перезагрузить SXHKD            <span foreground="#1a1b26">[рестарт, конфиг, reload]</span>
 󰜉 Super + Alt + Shift + R          Перезапуск BSPWM               <span foreground="#1a1b26">[рестарт, окна, wm]</span>
@@ -35,6 +36,7 @@ cat <<EOF | rofi -dmenu -i -markup-rows -p "󰌌 Горячие клавиши" 
 
 <b>󰖯 УПРАВЛЕНИЕ ОКНАМИ</b>
 󰁔 Super + Стрелки                  Смена фокуса                   <span foreground="#1a1b26">[окно, window, фокус, focus]</span>
+󰩨 Super + H/J/U/K                  Двигать плавающее окно         <span foreground="#1a1b26">[окно, window, move, двигать, floating]</span>
  Super + Shift + Стрелки          Поменять окна местами          <span foreground="#1a1b26">[окно, window, свап, swap]</span>
 󰩨 Super + Alt + Стрелки            Изменить размер (растянуть)    <span foreground="#1a1b26">[окно, window, ресайз, resize]</span>
 󰩨 Super + Alt + Shift + Стрелки    Сжать размер                   <span foreground="#1a1b26">[окно, window, ресайз, resize]</span>

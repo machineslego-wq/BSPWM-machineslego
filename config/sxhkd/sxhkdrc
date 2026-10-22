@@ -60,6 +60,11 @@ super + x
 super + alt + p
     ~/.config/polybar/scripts/power-profile.sh --menu &
 
+# Управление Wi-Fi через nmcli и wifi.sh в обертке Rofi 
+# (делал под себя чисто для удобства)
+super + alt + n
+    ~/.config/sxhkd/scripts/wifi.sh
+
 
 # ==============================================================================
 # МУЛЬТИМЕДИА И СКРИНШОТЫ
@@ -114,8 +119,8 @@ super + {Left,Down,Up,Right}
 super + {_,shift + }{Left,Down,Up,Right}
     bspc node -{f,s} {west,south,north,east}
 
-# Перемещение плавающего окна (Super + Стрелки)
-super + {Left,Down,Up,Right}
+# Перемещение плавающего окна (Super + H (влево), J (вниз), U(вверх), K(вправо))
+super  + {h,j,u,k}
     bspc node -v {-20 0,0 20,0 -20,20 0}
 
 # Предыдущее окно (Super + Tab / Super + `)
