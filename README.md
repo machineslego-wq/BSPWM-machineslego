@@ -27,7 +27,7 @@ Configuration of a desktop environment based on BSPWM for Debian 13 Trixie, styl
 - **No transparency or blur:** Disabled in Alacritty, Polybar, and Picom. Only strict Tokyo Night colors.
 - **Static cheatsheet:** `Super + /` menu with icons and hidden tags for Rofi search.
 - **Universal hardware:** Auto-detection of batteries and power adapters. Brightness control works out-of-the-box for laptops.
-- **Custom Wi-Fi Manager:** A lightweight `wifi.sh` script (using Rofi and `nmcli`) to connect to networks, toggle the adapter, and launch a hotspot.
+- **Custom Wi-Fi Manager:** A lightweight `wifi.sh` script (using Rofi and `nmcli`) to connect to networks, toggle the adapter, and launch a hotspot. **Requires manual interface configuration.**
 - **Management without unnecessary applets:** Audio via `pavucontrol`. Exception: `blueman` for Bluetooth.
 - **Network fix:** The installer copies a fixed `/etc/network/interfaces` and NetworkManager settings.
 - **Advanced Multi-monitor Support:** Customizable `bspwmrc` block for dual-monitor PCs with 144Hz support, offset alignment, portrait rotation, and dual wallpapers.
@@ -96,8 +96,10 @@ If you use a desktop PC with multiple monitors, customize them in `~/.config/bsp
 2. Adjust `xrandr` outputs, refresh rate (`--rate 144.00`), rotation, and position.
 3. Set different wallpapers for each monitor using `feh --output`.
 
-**Wi-Fi & Hotspot**
-The `wifi.sh` script is pre-configured for my devices. Change the `HOTSPOT_SSID` and `HOTSPOT_PASSWORD` variables at the top of `~/.config/sxhkd/scripts/wifi.sh`. Ensure your Wi-Fi interface name (`wlan0`, `wlo1`, etc.) matches the `if/elif` block.
+**Wi-Fi & Hotspot (Manual Setup Required)**
+The `wifi.sh` script is pre-configured for my devices (e.g., `wlo1`, `wlp3s0`). **You must manually add your own device's interface name** to the `if/elif` block. 
+You can find your interface name by running `ip a` or `nmcli device`. On some machines, it might be `wlan0`, while on others (like a PC with a PCIe card), it could be something like `wlp7s0`.
+Also, change the `HOTSPOT_SSID` and `HOTSPOT_PASSWORD` variables at the top of `~/.config/sxhkd/scripts/wifi.sh`.
 
 ## 🖼️ Wallpapers and Theme
 
@@ -133,12 +135,12 @@ If you want your notes to match the strict, flat aesthetic of this desktop setup
 
 ## 🔧 Troubleshooting
 
+- **Wi-Fi script doesn't work / Error in `wifi.sh`** → The script has hardcoded interface names for my devices. You must open `~/.config/sxhkd/scripts/wifi.sh` and manually add your interface name to the `if/elif` block. Run `ip a` to find it (e.g., `wlan0`, `wlo1`, `wlp7s0`).
 - **No icons in Polybar/Rofi** → Nerd Font is not installed. Check: `fc-list | grep -i "nerd"`.
 - **`startx` doesn't start** → Check for `exec bspwm` in `~/.xinitrc`.
 - **Keybindings don't work** → Check `pgrep sxhkd`. Restart: `pkill -USR1 -x sxhkd`.
 - **No brightness module on a desktop PC** → This is intentional. Use monitor buttons.
 - **Polybar doesn't start** → Check the `~/.config/polybar` symlink and `launch.sh` permissions.
-- **Wi-Fi lost** → Use the `wifi.sh` script or restart NetworkManager.
 
 ## 📄 License
 
