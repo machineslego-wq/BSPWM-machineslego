@@ -9,15 +9,29 @@
 
 Конфигурация рабочего окружения на базе BSPWM для Debian 13 Trixie в палитре Tokyo Night.
 
-![Desktop](screenshots/desktop-actual.png)
-![Workspace](screenshots/workspace-example-actual.png)
-![Rofi](screenshots/rofi-actual.png)
+![Рабочий стол](screenshots/desktop.png)
+![Рабочее пространство](screenshots/workspace+notify.png)
 
 <details>
-<summary><b>Показать остальные скриншоты (Развернутая Polybar)</b></summary>
+<summary><b>Показать больше скриншотов (Rofi, Polybar, Питание, Wi-Fi, Шпаргалка)</b></summary>
 <br>
 
-![Unfolded-right-modules](screenshots/unfolded-polybar-actual.png)
+**Rofi**
+![Rofi](screenshots/rofi-showcase.png)
+![Пример Alt+X](screenshots/alt+x-example.png)
+
+**Polybar (правая часть, все модули включены)**
+![Правая часть Polybar со всеми включёнными модулями](screenshots/polybar-right-expanded.png)
+
+**Профили питания**
+![Профили питания](screenshots/power-profiles.png)
+
+**Wi-Fi**
+![Менеджер Wi-Fi](screenshots/wifi-manager.png)
+![Меню Wi-Fi](screenshots/wifi-manager-menu.png)
+
+**Шпаргалка**
+![Шпаргалка](screenshots/cheatsheet.png)
 
 </details>
 

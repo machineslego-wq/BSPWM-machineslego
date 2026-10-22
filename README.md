@@ -9,15 +9,29 @@
 
 Configuration of a desktop environment based on BSPWM for Debian 13 Trixie, styled in the Tokyo Night color palette.
 
-![Desktop](screenshots/desktop-actual.png)
-![Workspace](screenshots/workspace-example-actual.png)
-![Rofi](screenshots/rofi-actual.png)
+![Desktop](screenshots/desktop.png)
+![Workspace](screenshots/workspace+notify.png)
 
 <details>
-<summary><b>Show more screenshots (Unfolded Polybar)</b></summary>
+<summary><b>Show more screenshots (Rofi, Polybar, Power, Wi-Fi, Cheatsheet)</b></summary>
 <br>
 
-![Unfolded-right-modules](screenshots/unfolded-polybar-actual.png)
+**Rofi**
+![Rofi](screenshots/rofi-showcase.png)
+![Alt+X example](screenshots/alt+x-example.png)
+
+**Polybar (right modules, all enabled)**
+![Right side of Polybar with all modules enabled](screenshots/polybar-right-expanded.png)
+
+**Power profiles**
+![Power profiles](screenshots/power-profiles.png)
+
+**Wi-Fi**
+![Wi-Fi manager](screenshots/wifi-manager.png)
+![Wi-Fi menu](screenshots/wifi-manager-menu.png)
+
+**Cheatsheet**
+![Cheatsheet](screenshots/cheatsheet.png)
 
 </details>
 
