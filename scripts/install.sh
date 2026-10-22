@@ -32,7 +32,7 @@ sudo apt install -y \
   papirus-icon-theme bibata-cursor-theme \
   fonts-jetbrains-mono fonts-font-awesome \
   fonts-noto-color-emoji \
-  brightnessctl scrot \
+  brightnessctl maim slop \
   network-manager pavucontrol blueman \
   thunar alacritty \
   i3lock-fancy libnotify-bin \
@@ -42,13 +42,8 @@ sudo apt install -y \
 
 echo "  Base packages installed. (Базовые пакеты установлены.)"
 
-# ИСПРАВЛЕНО: Безопасное определение папки для картинок
-PICTURES_DIR=$(sudo -u "$REAL_USER" xdg-user-dir PICTURES 2>/dev/null)
-if [ -z "$PICTURES_DIR" ] || [ "$PICTURES_DIR" = "$REAL_HOME" ]; then
-    PICTURES_DIR="$REAL_HOME/Pictures"
-fi
-sudo -u "$REAL_USER" mkdir -p "$PICTURES_DIR/Screenshots"
-echo "  Screenshots folder created (Создана папка для скриншотов): $PICTURES_DIR/Screenshots"
+sudo -u "$REAL_USER" mkdir -p "$REAL_HOME/Screenshots"
+echo "  Screenshots folder created (Создана папка для скриншотов): ~/Screenshots"
 
 if command -v wpctl &>/dev/null; then
     echo "  -> PipeWire detected. Installing add-ons. (Обнаружен PipeWire. Устанавливаем дополнения.)"
