@@ -15,11 +15,15 @@ cat <<EOF | rofi -dmenu -i -markup-rows -p "󰌌 Горячие клавиши" 
 󰌌 Super + /                        Шпаргалка                      <span foreground="#1a1b26">[помощь, хелп, help, клавиши]</span>
 󰆍 Super + Return                   Терминал (Alacritty)           <span foreground="#1a1b26">[консоль, cmd, shell, terminal]</span>
 󰀻 Super + D                        Лаунчер (Rofi)                 <span foreground="#1a1b26">[меню, пуск, запуск, search]</span>
+󰈹 Super + B                        Браузер (Firefox)              <span foreground="#1a1b26">[браузер, интернет, web, firefox]</span>
+󰨞 Super + V                        Редактор (VS Code)             <span foreground="#1a1b26">[код, редактор, vscode, ide]</span>
+󰉋 Super + E                        Файлы (Thunar)                 <span foreground="#1a1b26">[файлы, проводник, папки, explorer]</span>
+ Super + Alt + T                  Telegram + Proxy               <span foreground="#1a1b26">[телеграм, чат, messenger, прокси, proxy]</span>
 󰕾 Super + A                        Микшер звука                   <span foreground="#1a1b26">[звук, громкость, audio, наушники]</span>
-󰖩 Super + Alt + N                  Управление Wi-Fi               <span foreground="#1a1b26">[сеть, wifi, интернет, хотспот, nmcli, точка, доступа]</span>
+󰖩 Super + Alt + N                  Управление Wi-Fi               <span foreground="#1a1b26">[сеть, wifi, интернет, хотспот, nmcli]</span>
 󰔏 Super + X                        Датчики (терминал)             <span foreground="#1a1b26">[датчики, сенсоры, нагрев, sensors, watch]</span>
 󰑓 Super + Escape                   Перезагрузить SXHKD            <span foreground="#1a1b26">[рестарт, конфиг, reload]</span>
-󰜉 Super + Alt + Shift + R          Перезапуск BSPWM               <span foreground="#1a1b26">[рестарт, окна, wm]</span>
+󰜉 Super + Alt + Shift + R          Перезапуск всего (Reload)      <span foreground="#1a1b26">[рестарт, окна, wm, polybar, dunst]</span>
 
 <b>󰐥 ПИТАНИЕ И БЛОКИРОВКА</b>
 󰐥 Super + Shift + P                Выключить компьютер            <span foreground="#1a1b26">[poweroff, shutdown, выкл, питание]</span>
@@ -29,20 +33,20 @@ cat <<EOF | rofi -dmenu -i -markup-rows -p "󰌌 Горячие клавиши" 
 󰌾 Super + L                        Заблокировать экран            <span foreground="#1a1b26">[lock, блокировка, пароль]</span>
 
 <b>󰄄 СКРИНШОТЫ (В БУФЕР)</b>
-󰹑 Print                            Весь экран                     <span foreground="#1a1b26">[скриншот, screenshot, снять, экран, capture]</span>
-󰖲 Shift + Print                    Активное окно                  <span foreground="#1a1b26">[скриншот, screenshot, окно, window]</span>
+󰹑 Super + F1                       Весь экран                     <span foreground="#1a1b26">[скриншот, screenshot, снять, экран, capture]</span>
+󰖲 Super + F2                       Активное окно                  <span foreground="#1a1b26">[скриншот, screenshot, окно, window]</span>
 󰩭 Super + Shift + S                Выделенная область             <span foreground="#1a1b26">[скриншот, screenshot, регион, зона]</span>
-󰔛 Super + Print                    Экран (задержка 3с)            <span foreground="#1a1b26">[скриншот, screenshot, таймер, delay]</span>
+󰔛 Super + F3                       Экран (задержка 3с)            <span foreground="#1a1b26">[скриншот, screenshot, таймер, delay]</span>
 
 <b>󰖯 УПРАВЛЕНИЕ ОКНАМИ</b>
 󰁔 Super + Стрелки                  Смена фокуса                   <span foreground="#1a1b26">[окно, window, фокус, focus]</span>
-󰩨 Super + H/J/U/K                  Двигать плавающее окно         <span foreground="#1a1b26">[окно, window, move, двигать, floating]</span>
  Super + Shift + Стрелки          Поменять окна местами          <span foreground="#1a1b26">[окно, window, свап, swap]</span>
 󰩨 Super + Alt + Стрелки            Изменить размер (растянуть)    <span foreground="#1a1b26">[окно, window, ресайз, resize]</span>
 󰩨 Super + Alt + Shift + Стрелки    Сжать размер                   <span foreground="#1a1b26">[окно, window, ресайз, resize]</span>
 󰍹 Super + 1..9, 0                  Переключить стол               <span foreground="#1a1b26">[стол, workspace, десктоп]</span>
 󰧨 Super + Shift + 1..9, 0          Перенести окно на стол         <span foreground="#1a1b26">[окно, window, стол, workspace]</span>
 󰓾 Super + Tab                      Предыдущее окно                <span foreground="#1a1b26">[окно, window, назад, alt-tab]</span>
+󰖯 Alt + Tab                        Поиск по открытым окнам        <span foreground="#1a1b26">[окно, window, поиск, switch, rofi, alt-tab]</span>
 󰅖 Super + W                        Закрыть окно                   <span foreground="#1a1b26">[окно, window, close, quit, выход]</span>
 󰅚 Super + Shift + W                Убить процесс                  <span foreground="#1a1b26">[окно, window, kill, force, зависло]</span>
 󰕰 Super + M                        Режим Monocle (стопка)         <span foreground="#1a1b26">[окно, window, layout, стопка]</span>

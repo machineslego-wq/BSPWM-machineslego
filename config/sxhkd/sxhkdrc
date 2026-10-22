@@ -16,9 +16,11 @@
 super + slash
     ~/.config/sxhkd/scripts/cheatsheet.sh
 
-# Перезапуск SXHKD + BSPWM (Super + Alt + Shift + R)
+# Перезапуск ВСЕГО (SXHKD + BSPWM + Polybar + Dunst + Picom) (Super + Alt + Shift + R)
 super + alt + shift + r
-    pkill -USR1 -x sxhkd; bspc wm -r
+    pkill -USR1 -x sxhkd; \
+    pkill -x polybar; pkill -x dunst; pkill -x picom; \
+    bspc wm -r
 
 # Выйти из аккаунта (Super + Shift + L)
 super + shift + l
@@ -40,50 +42,71 @@ super + l
 super + Escape
     pkill -USR1 -x sxhkd
 
+# Датчики через терминал (Super + X)
+super + x
+    alacritty -e watch -n 1 sensors
+
+# Выбор режима питания (Super + Alt + P)
+super + alt + p
+    ~/.config/polybar/scripts/power-profile.sh --menu &
+
+# Управление Wi-Fi (Super + Alt + N)
+super + alt + n
+    ~/.config/sxhkd/scripts/wifi.sh
+
+
+# ==============================================================================
+# ЗАПУСК ПРИЛОЖЕНИЙ (Быстрый доступ)
+# ==============================================================================
+
 # Терминал Alacritty (Super + Return)
 super + Return
     alacritty
 
-# Лаунчер Rofi (Super + D)
-super + d
-    rofi -show drun -show-icons
+# Файловый менеджер Thunar (Super + E)
+super + e
+    thunar
+
+# Браузер Firefox (Super + B)
+super + b
+    firefox
+
+# Редактор VS Code (Super + V) 
+# (Внимание: Super + C занят переключением окон!)
+super + v
+    code
 
 # Микшер звука (Super + A)
 super + a
     pavucontrol
 
-# Датчики через терминал
-super + x
-    alacritty -e watch -n 1 sensors
+# Лаунчер Rofi (Super + D)
+super + d
+    rofi -show drun -show-icons
 
-# Выбор режима питания (только ноутбуки с TLP / PPD)
-super + alt + p
-    ~/.config/polybar/scripts/power-profile.sh --menu &
-
-# Управление Wi-Fi через nmcli и wifi.sh в обертке Rofi 
-# (делал под себя чисто для удобства)
-super + alt + n
-    ~/.config/sxhkd/scripts/wifi.sh
+# TG WS Proxy + Telegram (Super + Alt + T)
+super + alt + t
+    tg-ws-proxy & sleep 1 && flatpak run org.telegram.desktop &
 
 
 # ==============================================================================
 # МУЛЬТИМЕДИА И СКРИНШОТЫ
 # ==============================================================================
 
-# Скриншот: весь экран + буфер (Print)
-Print
+# Скриншот: весь экран + буфер (Super + F1)
+super + F1
     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim "$FILE" && xclip -selection clipboard -t image/png -i "$FILE"'
 
-# Скриншот: активное окно + буфер (Shift + Print)
-shift + Print
+# Скриншот: активное окно + буфер (Super + F2)
+super + F2
     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -i $(xdotool getactivewindow) "$FILE" && xclip -selection clipboard -t image/png -i "$FILE"'
 
 # Скриншот: выделенная область + буфер (Super + Shift + S)
 super + shift + s
     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -s "$FILE" && xclip -selection clipboard -t image/png -i "$FILE"'
 
-# Скриншот: весь экран с задержкой 3с (Super + Print)
-super + Print
+# Скриншот: весь экран с задержкой 3с (Super + F3)
+super + F3
     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -d 3 "$FILE" && xclip -selection clipboard -t image/png -i "$FILE"'
 
 # Яркость: +5% (Fn + Brightness Up)
@@ -120,12 +143,16 @@ super + {_,shift + }{Left,Down,Up,Right}
     bspc node -{f,s} {west,south,north,east}
 
 # Перемещение плавающего окна (Super + H (влево), J (вниз), U(вверх), K(вправо))
-super  + {h,j,u,k}
+super + {h,j,u,k}
     bspc node -v {-20 0,0 20,0 -20,20 0}
 
 # Предыдущее окно (Super + Tab / Super + `)
 super + {grave,Tab}
     bspc {node,desktop} -f last
+
+# Поиск по всем открытым окнам (Alt + Tab)
+alt + Tab
+    rofi -show window -show-icons
 
 # Следующее/Предыдущее окно (Super + C / Super + Shift + C)
 super + {_,shift + }c
