@@ -32,7 +32,7 @@ sudo apt install -y \
   papirus-icon-theme bibata-cursor-theme \
   fonts-jetbrains-mono fonts-font-awesome \
   fonts-noto-color-emoji \
-  brightnessctl maim slop \
+  brightnessctl maim slop scrot \
   network-manager pavucontrol blueman \
   thunar alacritty \
   i3lock-fancy libnotify-bin \
