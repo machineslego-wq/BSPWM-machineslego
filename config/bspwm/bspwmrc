@@ -48,18 +48,6 @@ pkill -x gsd-media-keys &
 #                      --- КОНФИГУРАЦИЯ ---
 # =====================================================================
 
-# =====================================================================
-#                          --- ОБОИ ---
-# =====================================================================
-if [ "$(hostname)" = "lamer-deb" ]; then
-    # На ПК: горизонтальные обои на основной монитор, вертикальные — на второй
-    feh --output DisplayPort-1 --bg-fill "$HOME/BSPWM-machineslego/wallpapers/tokyo-night-girl-landscape.jpg" \
-        --output HDMI-A-3 --bg-fill "$HOME/BSPWM-machineslego/wallpapers/tokyo-night-girl-portrait.jpg" &
-else
-    # На ноутбуках: только горизонтальные на весь экран
-    feh --bg-fill "$HOME/BSPWM-machineslego/wallpapers/tokyo-night-girl-landscape.jpg" &
-fi
-
 # Фокус окна следует за указателем мыши.
 bspc config focus_follows_pointer true
 
@@ -84,7 +72,18 @@ if [ "$(hostname)" = "lamer-deb" ]; then
 else
     bspc monitor -d I II III IV V VI VII VIII IX X
 fi
+
 # =====================================================================
+#                          --- ОБОИ ---
+# =====================================================================
+if [ "$(hostname)" = "lamer-deb" ]; then
+    # На ПК: горизонтальные обои на основной монитор, вертикальные — на второй
+    feh --output DisplayPort-1 --bg-fill "$HOME/BSPWM-machineslego/wallpapers/tokyo-night-girl-landscape.jpg" \
+        --output HDMI-A-3 --bg-fill "$HOME/BSPWM-machineslego/wallpapers/tokyo-night-girl-portrait.jpg" &
+else
+    # На ноутбуках: только горизонтальные на весь экран
+    feh --bg-fill "$HOME/BSPWM-machineslego/wallpapers/tokyo-night-girl-landscape.jpg" &
+fi
 
 # Автоматическое удаление отключенных мониторов и столов на них.
 bspc config remove_disabled_monitors true
