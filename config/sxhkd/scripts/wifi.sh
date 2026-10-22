@@ -21,7 +21,7 @@ if [ "$HOSTNAME" = "travelmate" ]; then
 elif [ "$HOSTNAME" = "lx15pro" ] || [ "$HOSTNAME" = "lx15pro-deb" ]; then
     WIFI_IFACE="wlo1"
 elif [ "$HOSTNAME" = "lamer-deb" ]; then
-    WIFI_IFACE="wlan0"
+    WIFI_IFACE="wlp7s0"
 else
     WIFI_IFACE="wlan0"
 fi
