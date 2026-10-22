@@ -14,7 +14,7 @@
 
 # Помощь (Super + /)
 super + slash
-    ~/.config/sxhkd/scripts/autocheatsheet.sh
+    ~/.config/sxhkd/scripts/cheatsheet.sh
 
 # Перезапуск SXHKD + BSPWM (Super + Alt + Shift + R)
 super + alt + shift + r
@@ -52,9 +52,9 @@ super + d
 super + a
     pavucontrol
 
-# Температуры (Super + X)
+# Датчики через терминал
 super + x
-    ~/.config/sxhkd/scripts/sensors.sh
+    alacritty -e watch -n 1 sensors
 
 # Выбор режима питания (только ноутбуки с TLP / PPD)
 super + alt + p
