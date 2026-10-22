@@ -10,7 +10,7 @@
 Configuration of a desktop environment based on BSPWM for Debian 13 Trixie, styled in the Tokyo Night color palette.
 
 ![Desktop](screenshots/desktop.png)
-![Workspace](screenshots/workspace+notify.png)
+![Workspace & Notifications](screenshots/workspace+notify.png)
 
 <details>
 <summary><b>Show more screenshots (Rofi, Polybar, Power, Wi-Fi, Cheatsheet)</b></summary>
@@ -18,17 +18,17 @@ Configuration of a desktop environment based on BSPWM for Debian 13 Trixie, styl
 
 **Rofi**
 ![Rofi](screenshots/rofi-showcase.png)
-![Alt+X example](screenshots/alt+x-example.png)
+![Alt+Tab Example](screenshots/alt+x-example.png)
 
-**Polybar (right modules, all enabled)**
-![Right side of Polybar with all modules enabled](screenshots/polybar-right-expanded.png)
+**Polybar (Right side, all modules expanded)**
+![Polybar right side expanded](screenshots/polybar-right-expanded.png)
 
-**Power profiles**
-![Power profiles](screenshots/power-profiles.png)
+**Power Profiles**
+![Power Profiles](screenshots/power-profiles.png)
 
 **Wi-Fi**
-![Wi-Fi manager](screenshots/wifi-manager.png)
-![Wi-Fi menu](screenshots/wifi-manager-menu.png)
+![Wi-Fi Manager](screenshots/wifi-manager.png)
+![Wi-Fi Menu](screenshots/wifi-manager-menu.png)
 
 **Cheatsheet**
 ![Cheatsheet](screenshots/cheatsheet.png)
@@ -40,12 +40,14 @@ Configuration of a desktop environment based on BSPWM for Debian 13 Trixie, styl
 - **Native Modules First:** Stock Polybar modules for battery, network, and audio.
 - **No transparency or blur:** Disabled in Alacritty, Polybar, and Picom. Only strict Tokyo Night colors.
 - **Static cheatsheet:** `Super + /` menu with icons and hidden tags for Rofi search.
+- **Ergonomic Keybindings:** Quick app launching (`Super+B` for Firefox, `Super+V` for VS Code), Rofi window switcher (`Alt+Tab`), and laptop-friendly screenshots (`Super+F1`/`F2`/`F3`).
+- **One-Key Reload:** `Super+Alt+Shift+R` instantly restarts SXHKD, BSPWM, Polybar, Dunst, and Picom.
 - **Universal hardware:** Auto-detection of batteries and power adapters. Brightness control works out-of-the-box for laptops.
 - **Custom Wi-Fi Manager:** A lightweight `wifi.sh` script (using Rofi and `nmcli`) to connect to networks, toggle the adapter, and launch a hotspot. **Requires manual interface configuration.**
 - **Management without unnecessary applets:** Audio via `pavucontrol`. Exception: `blueman` for Bluetooth.
 - **Network fix:** The installer copies a fixed `/etc/network/interfaces` and NetworkManager settings.
 - **Advanced Multi-monitor Support:** Customizable `bspwmrc` block for dual-monitor PCs with 144Hz support, offset alignment, portrait rotation, and dual wallpapers.
-- **Refined Dunst Notifications:** Polished design with custom progress bars, extended icons, and OSD (On-Screen Display) for volume and brightness.
+- **Refined Dunst Notifications:** Polished design with custom progress bars, extended icons, and OSD for volume and brightness.
 
 ## 📦 Structure
 
@@ -128,18 +130,23 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 
 | Keybinding | Action |
 |---|---|
-| `Super + Enter` | Terminal (Alacritty) |
+| `Super + Return` | Terminal (Alacritty) |
 | `Super + /` | Cheatsheet (Rofi) |
+| `Super + D` | Launcher (Rofi drun) |
+| `Super + B` | Browser (Firefox) |
+| `Super + V` | Editor (VS Code) |
+| `Super + E` | File Manager (Thunar) |
+| `Alt + Tab` | Window Switcher (Rofi) |
 | `Super + W` | Close window |
 | `Super + 1…0` | Switch workspaces |
 | `Super + Shift + 1…0` | Move window to workspace |
-| `Super + D` | Launcher (Rofi drun) |
-| `Super + Alt + N` | Wi-Fi Manager (Rofi) |
+| `Super + F1` | Screenshot (full screen) |
+| `Super + F2` | Screenshot (active window) |
+| `Super + Shift + S` | Screenshot (area) |
+| `Super + F3` | Screenshot (3s delay) |
+| `Super + Alt + N` | Wi-Fi Manager |
 | `Super + Alt + P` | Power Profile Menu |
-| `Super + X` | Sensors (`watch` in terminal) |
-| `Print` | Screenshot (maim) |
-| `Shift + Print` | Screenshot window (maim) |
-| `Super + Shift + S` | Screenshot area (maim) |
+| `Super + Alt + Shift + R` | Reload Entire System |
 
 ## 🎨 Ecosystem
 
