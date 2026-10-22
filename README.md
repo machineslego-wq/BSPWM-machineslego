@@ -25,12 +25,13 @@ Configuration of a desktop environment based on BSPWM for Debian 13 Trixie, styl
 
 - **Native Modules First:** Stock Polybar modules for battery, network, and audio.
 - **No transparency or blur:** Disabled in Alacritty, Polybar, and Picom. Only strict Tokyo Night colors.
-- **Static cheatsheet:** `Super + /` menu with icons and hidden tags for Rofi search. *(Note: Since the cheatsheet is a static script, its content inside `autocheatsheet.sh` is currently in Russian and requires manual translation for English users).*
-- **Universal hardware:** Auto-detection of batteries (`BAT0`/`BAT1`) and power adapters. Brightness control is available out-of-the-box for laptops.
-- **Management without unnecessary applets:** Wi-Fi via `nmtui`, audio via `pavucontrol`. Exception: `blueman` for Bluetooth.
-- **Network fix:** The installer copies a fixed `/etc/network/interfaces` and NetworkManager settings, solving Wi-Fi issues on a clean install.
-- **Advanced Multi-monitor Support:** Customizable `bspwmrc` block for dual-monitor PCs with 144Hz refresh rate support, custom monitor positioning (offset alignment), portrait rotation, specific workspace distribution, and dual wallpapers.
-- **Refined Dunst Notifications:** Polished notification design with custom progress bar styling, extended icon paths, and OSD (On-Screen Display) for volume and brightness.
+- **Static cheatsheet:** `Super + /` menu with icons and hidden tags for Rofi search.
+- **Universal hardware:** Auto-detection of batteries and power adapters. Brightness control works out-of-the-box for laptops.
+- **Custom Wi-Fi Manager:** A lightweight `wifi.sh` script (using Rofi and `nmcli`) to connect to networks, toggle the adapter, and launch a hotspot.
+- **Management without unnecessary applets:** Audio via `pavucontrol`. Exception: `blueman` for Bluetooth.
+- **Network fix:** The installer copies a fixed `/etc/network/interfaces` and NetworkManager settings.
+- **Advanced Multi-monitor Support:** Customizable `bspwmrc` block for dual-monitor PCs with 144Hz support, offset alignment, portrait rotation, and dual wallpapers.
+- **Refined Dunst Notifications:** Polished design with custom progress bars, extended icons, and OSD (On-Screen Display) for volume and brightness.
 
 ## 📦 Structure
 
@@ -43,14 +44,14 @@ BSPWM-machineslego/
 │   │   ├── config.ini      # Stock modules + custom brightness
 │   │   └── scripts/
 │   │       ├── battery.sh          # Battery fallback script
-│   │       ├── brightness.sh       # Brightness script (with dot indicator)
+│   │       ├── brightness.sh       # Brightness script
 │   │       ├── power-profile-ppd.sh # Power profile for PPD
 │   │       └── power-profile-tlp.sh # Power profile for TLP
 │   └── sxhkd/
 │       ├── sxhkdrc         # Keybindings
-│       └── scripts/        # autocheatsheet, powermenu, sensors, volume
+│       └── scripts/        # cheatsheet, powermenu, volume, wifi
 ├── home/                   # Symlinks to ~/*
-├── system/                 # Copied to /etc (touchpad, NetworkManager, network fix)
+├── system/                 # Copied to /etc
 ├── scripts/                # install.sh, link.sh, unlink.sh
 ├── screenshots/
 └── wallpapers/
@@ -75,7 +76,7 @@ chmod +x scripts/*.sh
 
 **Option 2: Via ZIP archive**
 If you downloaded the `.zip` archive, GitHub extracts it into a folder named `BSPWM-machineslego-X.X.X`. 
-⚠️ **Important:** You must rename the extracted folder to exactly `BSPWM-machineslego` and place it in your home directory (`~/`).
+⚠️ **Important:** Rename the extracted folder to exactly `BSPWM-machineslego` and place it in your home directory (`~/`).
 ```bash
 mv ~/Downloads/BSPWM-machineslego* ~/BSPWM-machineslego
 cd ~/BSPWM-machineslego
@@ -92,18 +93,11 @@ chmod +x scripts/*.sh
 **Monitor Setup (Desktop PC)**
 If you use a desktop PC with multiple monitors, customize them in `~/.config/bspwm/bspwmrc`. Find the `--- НАСТРОЙКА МОНИТОРОВ ---` block.
 1. Change `"lamer-deb"` to your actual `hostname`.
-2. Adjust `xrandr` outputs (`DisplayPort-1`, `HDMI-A-3`), refresh rate (`--rate 144.00`), rotation (`--rotate right`), and **position alignment** (`--pos`).
+2. Adjust `xrandr` outputs, refresh rate (`--rate 144.00`), rotation, and position.
 3. Set different wallpapers for each monitor using `feh --output`.
-4. Distribute workspaces (e.g., `I..IX` on primary, `X` on secondary).
-*If the hostname doesn't match, the script falls back to the default single-monitor layout.*
 
-**Notification Design (Dunst)**
-The notification theme is defined in `~/.config/dunst/dunstrc`. You can tweak the progress bar, icons, and colors there. To test all notification urgency levels with a progress bar, run:
-```bash
-notify-send -u low -i dialog-information "Low Priority" "This is a test." -h int:value:30 & \
-sleep 0.5 && notify-send -u normal -i dialog-information "Normal Priority" "This is a test." -h int:value:60 & \
-sleep 0.5 && notify-send -u critical -i dialog-error "Critical Priority" "This is a test." -h int:value:90
-```
+**Wi-Fi & Hotspot**
+The `wifi.sh` script is pre-configured for my devices. Change the `HOTSPOT_SSID` and `HOTSPOT_PASSWORD` variables at the top of `~/.config/sxhkd/scripts/wifi.sh`. Ensure your Wi-Fi interface name (`wlan0`, `wlo1`, etc.) matches the `if/elif` block.
 
 ## 🖼️ Wallpapers and Theme
 
@@ -121,12 +115,15 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 | `Super + Enter` | Terminal (Alacritty) |
 | `Super + /` | Cheatsheet (Rofi) |
 | `Super + W` | Close window |
-| `Super + 1…9` | Switch workspaces |
-| `Super + Shift + 1…9` | Move window to workspace |
+| `Super + 1…0` | Switch workspaces |
+| `Super + Shift + 1…0` | Move window to workspace |
 | `Super + D` | Launcher (Rofi drun) |
-| `Print` | Screenshot full screen |
-| `Shift + Print` | Screenshot window |
-| `Super + Shift + S` | Screenshot area |
+| `Super + Alt + N` | Wi-Fi Manager (Rofi) |
+| `Super + Alt + P` | Power Profile Menu |
+| `Super + X` | Sensors (`watch` in terminal) |
+| `Print` | Screenshot (maim) |
+| `Shift + Print` | Screenshot window (maim) |
+| `Super + Shift + S` | Screenshot area (maim) |
 
 ## 🎨 Ecosystem
 
@@ -136,12 +133,12 @@ If you want your notes to match the strict, flat aesthetic of this desktop setup
 
 ## 🔧 Troubleshooting
 
-- **No icons in Polybar/Rofi** → Nerd Font is not installed. Check: `fc-list | grep -i "nerd"`. Reinstall: `./scripts/install.sh`.
-- **`startx` doesn't start** → Check for `exec bspwm` in `~/.xinitrc` and the `xorg` package.
+- **No icons in Polybar/Rofi** → Nerd Font is not installed. Check: `fc-list | grep -i "nerd"`.
+- **`startx` doesn't start** → Check for `exec bspwm` in `~/.xinitrc`.
 - **Keybindings don't work** → Check `pgrep sxhkd`. Restart: `pkill -USR1 -x sxhkd`.
-- **No brightness module on a desktop PC** → This is intentional. On desktop PCs, use your monitor's physical buttons.
+- **No brightness module on a desktop PC** → This is intentional. Use monitor buttons.
 - **Polybar doesn't start** → Check the `~/.config/polybar` symlink and `launch.sh` permissions.
-- **Wi-Fi lost** → Restart NetworkManager: `sudo systemctl restart NetworkManager`.
+- **Wi-Fi lost** → Use the `wifi.sh` script or restart NetworkManager.
 
 ## 📄 License
 
