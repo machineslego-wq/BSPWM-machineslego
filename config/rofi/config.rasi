@@ -87,7 +87,7 @@ listview {
 scrollbar {
     background-color: transparent;
     border: 0px;
-    handle-color: @accent-2;
+    handle-color: @accent;
     handle-width: 6px;
     handle-rounded-corners: true;
     border-radius: 3px;
