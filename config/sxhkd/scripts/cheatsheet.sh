@@ -20,7 +20,7 @@ cat <<EOF | rofi -dmenu -i -markup-rows -p "󰌌 Горячие клавиши" 
 󰉋 Super + E                        Файлы (Thunar)                 <span foreground="#1a1b26">[файлы, проводник, папки, explorer]</span>
 󰕾 Super + A                        Микшер звука                   <span foreground="#1a1b26">[звук, громкость, audio, наушники]</span>
 󰖩 Super + Alt + N                  Управление Wi-Fi               <span foreground="#1a1b26">[сеть, wifi, интернет, хотспот, nmcli]</span>
-󰙯 Super + Alt + T                  Telegram + Proxy               <span foreground="#1a1b26">[телеграм, чат, messenger, прокси, proxy]</span>
+ Super + Alt + T                  Telegram (flatpak) + Proxy     <span foreground="#1a1b26">[телеграм, чат, messenger, прокси, proxy]</span>
 󰔏 Super + X                        Датчики (терминал)             <span foreground="#1a1b26">[датчики, сенсоры, нагрев, sensors, watch]</span>
 󰑓 Super + Escape                   Перезагрузить SXHKD            <span foreground="#1a1b26">[рестарт, конфиг, reload]</span>
 󰜉 Super + Alt + Shift + R          Перезапуск всего (Reload)      <span foreground="#1a1b26">[рестарт, окна, wm, polybar, dunst]</span>
