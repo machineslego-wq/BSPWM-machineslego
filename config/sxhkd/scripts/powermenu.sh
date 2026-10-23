@@ -22,15 +22,15 @@ WIDTH=20
 # ==========================================================
 case "$ACTION" in
     logout)
-        CONFIRM=$(printf '󰍃 Да\n󰅖 Нет\n' | rofi -dmenu -no-custom -p "󰍃 Выйти?" -theme-str "window {width: ${WIDTH}%;}")
+        CONFIRM=$(printf 'Да\nНет\n' | rofi -dmenu -no-custom -p "󰍃 Выйти?" -theme-str "window {width: ${WIDTH}%;}")
         [[ "$CONFIRM" == *"Да"* ]] && loginctl terminate-user "$USER"
         ;;
     reboot)
-        CONFIRM=$(printf '󰜉 Да\n󰅖 Нет\n' | rofi -dmenu -no-custom -p "󰜉 Перезагрузка?" -theme-str "window {width: ${WIDTH}%;}")
+        CONFIRM=$(printf 'Да\nНет\n' | rofi -dmenu -no-custom -p "󰜉 Перезагрузка?" -theme-str "window {width: ${WIDTH}%;}")
         [[ "$CONFIRM" == *"Да"* ]] && systemctl reboot
         ;;
     poweroff)
-        CONFIRM=$(printf '󰐥 Да\n󰅖 Нет\n' | rofi -dmenu -no-custom -p "󰐥 Выключить?" -theme-str "window {width: ${WIDTH}%;}")
+        CONFIRM=$(printf 'Да\nНет\n' | rofi -dmenu -no-custom -p "󰐥 Выключить?" -theme-str "window {width: ${WIDTH}%;}")
         [[ "$CONFIRM" == *"Да"* ]] && systemctl poweroff
         ;;
 esac

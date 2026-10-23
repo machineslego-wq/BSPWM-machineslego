@@ -72,7 +72,6 @@ super + b
     firefox
 
 # Редактор VS Code (Super + V) 
-# (Внимание: Super + C занят переключением окон!)
 super + v
     code
 
