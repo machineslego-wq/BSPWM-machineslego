@@ -84,7 +84,7 @@ super + a
 super + d
     rofi -show drun -show-icons
 
-# TG WS Proxy + Telegram (Super + Alt + T)
+# TG WS Proxy + Telegram-flatpak (Super + Alt + T)
 super + alt + t
     tg-ws-proxy & sleep 1 && flatpak run org.telegram.desktop &
 

@@ -18,7 +18,7 @@ cat <<EOF | rofi -dmenu -i -markup-rows -p "󰌌 Горячие клавиши" 
 󰈹 Super + B                        Браузер (Firefox)              <span foreground="#1a1b26">[браузер, интернет, web, firefox]</span>
 󰨞 Super + V                        Редактор (VS Code)             <span foreground="#1a1b26">[код, редактор, vscode, ide]</span>
 󰉋 Super + E                        Файлы (Thunar)                 <span foreground="#1a1b26">[файлы, проводник, папки, explorer]</span>
- Super + Alt + T                  Telegram + Proxy               <span foreground="#1a1b26">[телеграм, чат, messenger, прокси, proxy]</span>
+ Super + Alt + T                  Telegram (flatpak) + Proxy     <span foreground="#1a1b26">[телеграм, чат, messenger, прокси, proxy]</span>
 󰕾 Super + A                        Микшер звука                   <span foreground="#1a1b26">[звук, громкость, audio, наушники]</span>
 󰖩 Super + Alt + N                  Управление Wi-Fi               <span foreground="#1a1b26">[сеть, wifi, интернет, хотспот, nmcli]</span>
 󰔏 Super + X                        Датчики (терминал)             <span foreground="#1a1b26">[датчики, сенсоры, нагрев, sensors, watch]</span>
