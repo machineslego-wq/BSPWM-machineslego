@@ -22,17 +22,9 @@ super + alt + shift + r
     pkill -x polybar; pkill -x dunst; pkill -x picom; \
     bspc wm -r
 
-# Выйти из аккаунта (Super + Shift + L)
-super + shift + l
-    ~/.config/sxhkd/scripts/powermenu.sh logout
-
-# Выключить компьютер (Super + Shift + P)
-super + shift + p
-    ~/.config/sxhkd/scripts/powermenu.sh poweroff
-
-# Перезагрузить компьютер (Super + Shift + R)
-super + shift + r
-    ~/.config/sxhkd/scripts/powermenu.sh reboot
+# Меню питания (Super + Shift + Q)
+super + shift + q
+    ~/.config/sxhkd/scripts/powermenu.sh
 
 # Заблокировать экран (Super + L)
 super + l

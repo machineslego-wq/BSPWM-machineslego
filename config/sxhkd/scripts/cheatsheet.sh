@@ -10,7 +10,7 @@
 #   что и фон, поэтому не видны, но работают в поиске Rofi).
 # ==========================================================
 
-cat <<EOF | rofi -dmenu -i -markup-rows -p "󰌌 Горячие клавиши" -theme-str 'window {width: 50%; height: 80%;} listview {lines: 20; scrollbar: true;}'
+cat <<EOF | rofi -dmenu -i -markup-rows -p "󰌌 Горячие клавиши" -theme-str 'window {width: 50%; height: 70%;} listview {lines: 20; scrollbar: true;}'
 <b>󰒓 СИСТЕМА И ЗАПУСК</b>
 󰌌 Super + /                        Шпаргалка                      <span foreground="#1a1b26">[помощь, хелп, help, клавиши]</span>
 󰆍 Super + Return                   Терминал (Alacritty)           <span foreground="#1a1b26">[консоль, cmd, shell, terminal]</span>
@@ -18,17 +18,15 @@ cat <<EOF | rofi -dmenu -i -markup-rows -p "󰌌 Горячие клавиши" 
 󰈹 Super + B                        Браузер (Firefox)              <span foreground="#1a1b26">[браузер, интернет, web, firefox]</span>
 󰨞 Super + V                        Редактор (VS Code)             <span foreground="#1a1b26">[код, редактор, vscode, ide]</span>
 󰉋 Super + E                        Файлы (Thunar)                 <span foreground="#1a1b26">[файлы, проводник, папки, explorer]</span>
- Super + Alt + T                  Telegram (flatpak) + Proxy     <span foreground="#1a1b26">[телеграм, чат, messenger, прокси, proxy]</span>
 󰕾 Super + A                        Микшер звука                   <span foreground="#1a1b26">[звук, громкость, audio, наушники]</span>
 󰖩 Super + Alt + N                  Управление Wi-Fi               <span foreground="#1a1b26">[сеть, wifi, интернет, хотспот, nmcli]</span>
+󰙯 Super + Alt + T                  Telegram + Proxy               <span foreground="#1a1b26">[телеграм, чат, messenger, прокси, proxy]</span>
 󰔏 Super + X                        Датчики (терминал)             <span foreground="#1a1b26">[датчики, сенсоры, нагрев, sensors, watch]</span>
 󰑓 Super + Escape                   Перезагрузить SXHKD            <span foreground="#1a1b26">[рестарт, конфиг, reload]</span>
 󰜉 Super + Alt + Shift + R          Перезапуск всего (Reload)      <span foreground="#1a1b26">[рестарт, окна, wm, polybar, dunst]</span>
 
 <b>󰐥 ПИТАНИЕ И БЛОКИРОВКА</b>
-󰐥 Super + Shift + P                Выключить компьютер            <span foreground="#1a1b26">[poweroff, shutdown, выкл, питание]</span>
-󰜉 Super + Shift + R                Перезагрузить компьютер        <span foreground="#1a1b26">[reboot, restart, перезагр]</span>
-󰍃 Super + Shift + L                Выйти из аккаунта              <span foreground="#1a1b26">[logout, выход, сессия]</span>
+󰤆 Super + Shift + Q                Меню питания (Rofi)            <span foreground="#1a1b26">[poweroff, reboot, logout, питание]</span>
 󰓅 Super + Alt + P                  Выбор режима питания           <span foreground="#1a1b26">[питание, tlp, энергосбережение, батарея]</span>
 󰌾 Super + L                        Заблокировать экран            <span foreground="#1a1b26">[lock, блокировка, пароль]</span>
 
@@ -41,6 +39,7 @@ cat <<EOF | rofi -dmenu -i -markup-rows -p "󰌌 Горячие клавиши" 
 <b>󰖯 УПРАВЛЕНИЕ ОКНАМИ</b>
 󰁔 Super + Стрелки                  Смена фокуса                   <span foreground="#1a1b26">[окно, window, фокус, focus]</span>
  Super + Shift + Стрелки          Поменять окна местами          <span foreground="#1a1b26">[окно, window, свап, swap]</span>
+󰩨 Super + H/J/U/K                  Двигать плавающее окно         <span foreground="#1a1b26">[окно, window, move, двигать, floating]</span>
 󰩨 Super + Alt + Стрелки            Изменить размер (растянуть)    <span foreground="#1a1b26">[окно, window, ресайз, resize]</span>
 󰩨 Super + Alt + Shift + Стрелки    Сжать размер                   <span foreground="#1a1b26">[окно, window, ресайз, resize]</span>
 󰍹 Super + 1..9, 0                  Переключить стол               <span foreground="#1a1b26">[стол, workspace, десктоп]</span>
