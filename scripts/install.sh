@@ -26,7 +26,7 @@ sudo apt update
 
 # Минимальный набор для работы оболочки. 
 # gvfs и xdg-user-dirs обязательны для быстрой работы Thunar.
-# Никаких порталов (xdg-desktop-portal-gtk), чтобы не ломать GNOME.
+# PipeWire и pipewire-pulse добавлены сразу для гарантии работы Polybar и volume.sh.
 sudo apt install -y \
   xorg xinit xserver-xorg-input-libinput \
   bspwm sxhkd \
@@ -43,7 +43,8 @@ sudo apt install -y \
   fish fontconfig \
   wget curl unzip xclip lm-sensors \
   imagemagick xdg-utils xdg-user-dirs xdotool fastfetch \
-  grabc
+  grabc \
+  pipewire pipewire-audio pipewire-pulse wireplumber libspa-0.2-bluetooth
 
 echo "  Base packages installed. (Базовые пакеты установлены.)"
 
@@ -57,18 +58,25 @@ sudo -u "$REAL_USER" mkdir -p "$REAL_HOME/Screenshots"
 echo "  Screenshots folder created (Создана папка для скриншотов): ~/Screenshots"
 
 # ==========================================================
-# Настройка аудио-сервера
+# Принудительный переход на PipeWire
 # ==========================================================
-if command -v wpctl &>/dev/null; then
-    echo "  -> PipeWire detected. Ensuring pipewire-pulse is installed. (Обнаружен PipeWire. Устанавливаем pipewire-pulse.)"
-    # Устанавливаем pipewire-pulse для совместимости со старыми приложениями (Polybar)
-    sudo apt install -y pipewire pipewire-audio pipewire-pulse wireplumber libspa-0.2-bluetooth
-elif command -v pactl &>/dev/null; then
-    echo "  -> Pure PulseAudio detected. Leaving as is. (Обнаружен чистый PulseAudio. Оставляем как есть.)"
-    sudo apt install -y pulseaudio-utils
-else
-    echo "  -> Audio server not detected. Skipping. (Звуковой сервер не обнаружен. Пропускаем.)"
+echo "  -> Configuring audio backend (Настройка аудио-бэкенда)..."
+# Если установлен чистый PulseAudio (и нет PipeWire), удаляем его во избежание конфликтов
+if dpkg -l | grep -q "^ii  pulseaudio " && ! command -v wpctl &>/dev/null; then
+    echo "  -> Pure PulseAudio detected. Removing to prevent conflicts. (Обнаружен чистый PulseAudio. Удаляем во избежание конфликтов.)"
+    
+    # Останавливаем и отключаем службы PulseAudio для текущего пользователя
+    systemctl --user stop pulseaudio.socket pulseaudio.service 2>/dev/null || true
+    systemctl --user disable pulseaudio.socket pulseaudio.service 2>/dev/null || true
+    
+    # Удаляем пакет PulseAudio
+    sudo apt purge -y pulseaudio
+    sudo apt autoremove -y
 fi
+
+# Перезагружаем systemd, чтобы он увидел новые аудио-сервисы
+systemctl --user daemon-reload
+echo "  -> PipeWire is ready. (PipeWire готов.)"
 echo ""
 
 echo "[2/5] Installing JetBrainsMono Nerd Font... (Установка шрифта JetBrainsMono Nerd Font...)"
