@@ -156,38 +156,44 @@ if [ -d "$DOTFILES/system" ]; then
 fi
 echo ""
 
-echo "[6/6] Configuring lid lock... (Настройка блокировки при закрытии крышки...)"
-# Настраиваем поведение при закрытии крышки ноутбука.
-# По умолчанию systemd-logind уходит в сон (suspend). Меняем на lock:
-# система не засыпает, но экран блокируется через xss-lock (i3lock-fancy).
-# Актуально только для ноутбуков (есть батарея).
+echo "[6/6] Configuring lid close behavior (suspend)... (Настройка поведения при закрытии крышки (сон)...)"
+# Настраиваем уход в сон при закрытии крышки ноутбука.
+# Это универсальная настройка для всех ноутбуков (наличие батареи),
+# так как проблемы с засыпанием распространены на AMD-платформах.
 if ls /sys/class/power_supply/BAT* &>/dev/null; then
-    LID_CONF="/etc/systemd/logind.conf.d/10-lid-lock.conf"
+    LID_CONF="/etc/systemd/logind.conf.d/10-lid-suspend.conf"
 
     # Бэкап существующего конфига (если пользователь уже настраивал вручную)
     if [ -f "$LID_CONF" ]; then
         sudo cp "$LID_CONF" "${LID_CONF}.bak-$(date +%Y%m%d-%H%M%S)"
-        echo "  -> Existing lid lock config backed up (Существующий конфиг сохранён в бэкап)."
+        echo "  -> Existing lid config backed up (Существующий конфиг сохранён в бэкап)."
     fi
 
     sudo mkdir -p /etc/systemd/logind.conf.d
+    # Удаляем старый конфиг блокировки из предыдущих версий (v1.1.0-dev)
+    if [ -f "/etc/systemd/logind.conf.d/10-lid-lock.conf" ]; then
+        sudo mv "/etc/systemd/logind.conf.d/10-lid-lock.conf" \
+                "/etc/systemd/logind.conf.d/10-lid-lock.conf.bak-$(date +%Y%m%d-%H%M%S)"
+        echo "  -> Old lid lock config moved aside (Старый конфиг блокировки отложен в бэкап)."
+    fi
     sudo tee "$LID_CONF" > /dev/null <<'EOF'
-# BSPWM-machineslego: блокировка экрана при закрытии крышки ноутбука.
-# Система НЕ уходит в сон — только блокируется экран (через xss-lock + i3lock-fancy).
-# Удалите этот файл и выполните `sudo systemctl restart systemd-logind`,
-# чтобы вернуть стандартное поведение (suspend при закрытии крышки).
+# BSPWM-machineslego: уход в сон при закрытии крышки ноутбука.
+# Система засыпает (suspend), а экран блокируется через xss-lock.
+# Чтобы вернуть блокировку без сна, замените suspend на lock
+# и выполните: sudo systemctl kill -s HUP systemd-logind
 
 [Login]
-HandleLidSwitch=lock
-HandleLidSwitchExternalPower=lock
+HandleLidSwitch=suspend
+HandleLidSwitchExternalPower=suspend
+HandleLidSwitchDocked=ignore
 EOF
 
     # Мягкая перезагрузка конфигурации logind через SIGHUP.
-    # НЕ перезапускает сервис и НЕ прерывает графическую сессию.
+    # Не прерывает графическую сессию, в отличие от restart.
     sudo systemctl kill -s HUP systemd-logind 2>/dev/null || true
-    echo "  -> Lid lock configured: closing the lid will lock the screen. (Блокировка по крышке настроена: закрытие крышки блокирует экран.)"
+    echo "  -> Lid close will now trigger suspend. (Закрытие крышки теперь будет отправлять систему в сон.)"
 else
-    echo "  -> Desktop PC detected. Skipping lid lock configuration. (Обнаружен ПК — пропускаем настройку блокировки по крышке.)"
+    echo "  -> Desktop PC detected. Skipping lid configuration. (Обнаружен ПК — пропускаем настройку крышки.)"
 fi
 echo ""
 
