@@ -56,11 +56,15 @@ echo "  XDG user directories updated (Стандартные папки обно
 sudo -u "$REAL_USER" mkdir -p "$REAL_HOME/Screenshots"
 echo "  Screenshots folder created (Создана папка для скриншотов): ~/Screenshots"
 
+# ==========================================================
+# Настройка аудио-сервера
+# ==========================================================
 if command -v wpctl &>/dev/null; then
-    echo "  -> PipeWire detected. Installing add-ons. (Обнаружен PipeWire. Устанавливаем дополнения.)"
-    sudo apt install -y pipewire pipewire-audio wireplumber libspa-0.2-bluetooth
+    echo "  -> PipeWire detected. Ensuring pipewire-pulse is installed. (Обнаружен PipeWire. Устанавливаем pipewire-pulse.)"
+    # Устанавливаем pipewire-pulse для совместимости со старыми приложениями (Polybar)
+    sudo apt install -y pipewire pipewire-audio pipewire-pulse wireplumber libspa-0.2-bluetooth
 elif command -v pactl &>/dev/null; then
-    echo "  -> PulseAudio detected. Installing utilities. (Обнаружен PulseAudio. Устанавливаем утилиты.)"
+    echo "  -> Pure PulseAudio detected. Leaving as is. (Обнаружен чистый PulseAudio. Оставляем как есть.)"
     sudo apt install -y pulseaudio-utils
 else
     echo "  -> Audio server not detected. Skipping. (Звуковой сервер не обнаружен. Пропускаем.)"

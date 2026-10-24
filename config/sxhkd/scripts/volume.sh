@@ -1,32 +1,22 @@
 #!/bin/bash
 # ==========================================================
-# volume.sh — Управление громкостью с OSD (Dunst)
+# volume.sh — Управление громкостью с OSD (Dunst) [PipeWire]
 # ==========================================================
 
 ACTION="$1"
 
-if pgrep -x pipewire >/dev/null; then
-    # --- PipeWire ---
-    case "$ACTION" in
-        up)   wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ ;;
-        down) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;;
-        mute) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
-    esac
-    
-    VOL=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | cut -d' ' -f2 | tr -d '.' | sed 's/^0*//')
-    [ -z "$VOL" ] && VOL=0
-    MUTED=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -o "MUTED")
-else
-    # --- PulseAudio ---
-    case "$ACTION" in
-        up)   pactl set-sink-volume @DEFAULT_SINK@ +5% ;;
-        down) pactl set-sink-volume @DEFAULT_SINK@ -5% ;;
-        mute) pactl set-sink-mute @DEFAULT_SINK@ toggle ;;
-    esac
-    
-    VOL=$(pactl get-sink-volume @DEFAULT_SINK@ | grep -oP '\d+(?=%)' | head -n 1)
-    MUTED=$(pactl get-sink-mute @DEFAULT_SINK@ | grep -o "yes")
-fi
+# --- Управление громкостью ---
+case "$ACTION" in
+    up)   wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ ;;
+    down) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;;
+    mute) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
+esac
+
+# --- Получение текущего состояния ---
+# awk {print int($2 * 100)} берет число (0.50) и делает из него 50
+VOL=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2 * 100)}')
+[ -z "$VOL" ] && VOL=0
+MUTED=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -o "MUTED")
 
 # --- Выбор цвета и текста в зависимости от громкости ---
 if [ -n "$MUTED" ]; then
@@ -56,8 +46,7 @@ else
     ICON="audio-volume-low"
 fi
 
-# --- Отправка уведомления ---
-# appname всегда "Volume" (для замены), а цвета передаются через хинты
+# --- Отправка уведомления в Dunst ---
 notify-send -h string:x-canonical-private-synchronous:volume \
             -h int:value:"${VOL}" \
             -h string:frcolor:"${FRAME_COLOR}" \

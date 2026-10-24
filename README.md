@@ -4,6 +4,7 @@
 
 ![Debian](https://img.shields.io/badge/Debian-13%20Trixie-A81D33?logo=debian&logoColor=white)
 ![X11](https://img.shields.io/badge/X11-only-blue)
+![PipeWire](https://img.shields.io/badge/PipeWire-Audio-blue?logo=pipewire&logoColor=white)
 ![BSPWM](https://img.shields.io/badge/WM-BSPWM-black)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -76,6 +77,7 @@ BSPWM-machineslego/
 - **Basic utilities:** `git`, `sudo`, internet access.
 - **Nerd Font** (installed automatically).
 - **Sudo privileges** for installing packages and copying files to `/etc`.
+- **Audio Backend:** This configuration is optimized for **PipeWire**. The `volume.sh` script uses `wpctl` and will only work with PipeWire. If you are using pure PulseAudio, the script will silently fail. The installer automatically adds `pipewire-pulse` for compatibility with Polybar's internal PulseAudio module.
 
 ## 🛠 Installation
 
