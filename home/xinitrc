@@ -5,7 +5,8 @@
 # Выполняется при старте Xorg (через `startx`).
 # Загружает ресурсы X11, задает курсор и запускает BSPWM.
 # ==========================================================
-
+# Передаем переменные X11 в systemd для корректной работы порталов (Flatpak, Thunar и др.) (это фикс)
+systemctl --user import-environment DISPLAY XAUTHORITY
 # 1. Применяем настройки X11 (шрифты, DPI, цвета из ~/.Xresources)
 xrdb -merge "$HOME/.Xresources"
 

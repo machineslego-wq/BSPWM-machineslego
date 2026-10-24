@@ -24,6 +24,9 @@ sudo -v || { echo "Error: sudo privileges required (Ошибка: требуют
 echo "[1/5] Installing base packages... (Установка базовых пакетов...)"
 sudo apt update
 
+# Минимальный набор для работы оболочки. 
+# gvfs и xdg-user-dirs обязательны для быстрой работы Thunar.
+# Никаких порталов (xdg-desktop-portal-gtk), чтобы не ломать GNOME.
 sudo apt install -y \
   xorg xinit xserver-xorg-input-libinput \
   bspwm sxhkd \
@@ -34,14 +37,22 @@ sudo apt install -y \
   fonts-noto-color-emoji \
   brightnessctl maim slop scrot \
   network-manager pavucontrol blueman \
-  thunar alacritty \
+  thunar gvfs gvfs-backends gvfs-fuse \
+  alacritty \
   i3lock-fancy libnotify-bin \
   fish fontconfig \
   wget curl unzip xclip lm-sensors \
-  imagemagick xdg-utils xdotool fastfetch
+  imagemagick xdg-utils xdg-user-dirs xdotool fastfetch \
+  grabc
 
 echo "  Base packages installed. (Базовые пакеты установлены.)"
 
+# Генерация стандартных папок XDG (Загрузки, Документы и т.д.)
+# Без этого Thunar будет виснуть при запуске.
+sudo -u "$REAL_USER" xdg-user-dirs-update
+echo "  XDG user directories updated (Стандартные папки обновлены)."
+
+# Создание папки для скриншотов
 sudo -u "$REAL_USER" mkdir -p "$REAL_HOME/Screenshots"
 echo "  Screenshots folder created (Создана папка для скриншотов): ~/Screenshots"
 
@@ -59,12 +70,11 @@ echo ""
 echo "[2/5] Installing JetBrainsMono Nerd Font... (Установка шрифта JetBrainsMono Nerd Font...)"
 FONT_DIR="$REAL_HOME/.local/share/fonts"
 FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.zip"
-# ИСПРАВЛЕНО: Безопасный временный файл
 TMP_ZIP=$(mktemp /tmp/JetBrainsMono-XXXXXX.zip)
 
 if sudo -u "$REAL_USER" fc-list | grep -qi "JetBrainsMono Nerd Font"; then
     echo "  JetBrainsMono Nerd Font already installed. Skipping. (Шрифт уже установлен. Пропускаем.)"
-    rm -f "$TMP_ZIP" # Удаляем пустой tmp файл, если он создался
+    rm -f "$TMP_ZIP"
 else
     echo "  Downloading JetBrainsMono.zip... (Скачиваем JetBrainsMono.zip...)"
     sudo -u "$REAL_USER" mkdir -p "$FONT_DIR"
@@ -88,7 +98,6 @@ elif ls /sys/class/power_supply/BAT* &>/dev/null; then
     sudo apt install -y tlp tlp-rdw
     sudo systemctl enable --now tlp
     
-    # Проверяем реальный путь к tlp
     TLP_PATH=$(command -v tlp || echo "/usr/sbin/tlp")
     echo "$REAL_USER ALL=(ALL) NOPASSWD: $TLP_PATH, /usr/bin/tlp-stat" | sudo tee /etc/sudoers.d/tlp > /dev/null
     sudo chmod 440 /etc/sudoers.d/tlp
@@ -99,11 +108,13 @@ echo ""
 
 echo "[4/5] Linking configs... (Линковка конфигов...)"
 export DOTFILES
-# ИСПРАВЛЕНО: Явная передача HOME и DOTFILES
 sudo -u "$REAL_USER" env HOME="$REAL_HOME" DOTFILES="$DOTFILES" bash "$DOTFILES/scripts/link.sh"
 echo ""
 
 echo "[5/5] Installing system configs to /etc/... (Установка системных конфигов в /etc/...)"
+# ВНИМАНИЕ: Этот блок копирует файлы в /etc. 
+# Если у тебя установлен GNOME, он может перезаписать настройки тачпада и сети. 
+# В случае проблем с GNOME, восстанови файлы из бэкапа.
 if [ -d "$DOTFILES/system" ]; then
     sudo mkdir -p "$BACKUP"
     
@@ -122,13 +133,13 @@ if [ -d "$DOTFILES/system" ]; then
         if [ -f "$dst_file" ]; then
             sudo mkdir -p "$BACKUP$dst_dir"
             sudo cp "$dst_file" "$BACKUP$dst_file"
-            echo "     (original backed up / оригинал сохранен в бэкап)"
+            echo "     (оригинал сохранен в бэкап)"
         fi
 
         sudo mkdir -p "$dst_dir"
         sudo cp "$src_file" "$dst_file"
     done
-    echo "  Backup of old system files is located here (Бэкап старых системных файлов): $BACKUP"
+    echo "  Бэкап старых системных файлов находится здесь: $BACKUP"
 fi
 
 echo ""
