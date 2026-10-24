@@ -43,7 +43,6 @@ sudo apt install -y \
   fish fontconfig \
   wget curl unzip xclip lm-sensors \
   imagemagick xdg-utils xdg-user-dirs xdotool fastfetch \
-  grabc \
   pipewire pipewire-audio pipewire-pulse wireplumber libspa-0.2-bluetooth
 
 echo "  Base packages installed. (Базовые пакеты установлены.)"
