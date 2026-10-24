@@ -45,7 +45,8 @@ sudo apt install -y \
   wget curl unzip xclip lm-sensors \
   imagemagick xdg-utils xdg-user-dirs xdotool fastfetch \
   pipewire pipewire-audio pipewire-pulse wireplumber libspa-0.2-bluetooth \
-  copyq xss-lock lxpolkit
+  copyq xss-lock lxpolkit \
+  ristretto mpv xarchiver
 
 echo "  Base packages installed. (Базовые пакеты установлены.)"
 
