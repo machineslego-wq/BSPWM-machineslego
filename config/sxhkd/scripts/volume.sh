@@ -1,22 +1,35 @@
 #!/bin/bash
 # ==========================================================
-# volume.sh — Управление громкостью с OSD (Dunst) [PipeWire]
+# volume.sh — Управление громкостью с OSD (Dunst)
 # ==========================================================
 
 ACTION="$1"
 
-# --- Управление громкостью ---
-case "$ACTION" in
-    up)   wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ ;;
-    down) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;;
-    mute) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
-esac
-
-# --- Получение текущего состояния ---
-# awk {print int($2 * 100)} берет число (0.50) и делает из него 50
-VOL=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2 * 100)}')
-[ -z "$VOL" ] && VOL=0
-MUTED=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -o "MUTED")
+if pgrep -x pipewire >/dev/null; then
+    # --- PipeWire ---
+    case "$ACTION" in
+        up)   wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ ;;
+        down) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;;
+        mute) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
+    esac
+    
+    # Заставляем awk использовать точку (C-локаль), чтобы 0.50 не превращалось в 0
+    VOL=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | LC_ALL=C awk '{print int($2 * 100)}')
+    [ -z "$VOL" ] && VOL=0
+    
+    MUTED=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -o "MUTED")
+else
+    # --- PulseAudio (фолбэк) ---
+    case "$ACTION" in
+        up)   pactl set-sink-volume @DEFAULT_SINK@ +5% ;;
+        down) pactl set-sink-volume @DEFAULT_SINK@ -5% ;;
+        mute) pactl set-sink-mute @DEFAULT_SINK@ toggle ;;
+    esac
+    
+    VOL=$(pactl get-sink-volume @DEFAULT_SINK@ | awk '{print $5}' | head -n 1 | tr -d '%')
+    [ -z "$VOL" ] && VOL=0
+    MUTED=$(pactl get-sink-mute @DEFAULT_SINK@ | awk '{print $2}')
+fi
 
 # --- Выбор цвета и текста в зависимости от громкости ---
 if [ -n "$MUTED" ]; then
@@ -46,7 +59,7 @@ else
     ICON="audio-volume-low"
 fi
 
-# --- Отправка уведомления в Dunst ---
+# --- Отправка уведомления ---
 notify-send -h string:x-canonical-private-synchronous:volume \
             -h int:value:"${VOL}" \
             -h string:frcolor:"${FRAME_COLOR}" \
