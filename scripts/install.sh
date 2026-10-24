@@ -21,12 +21,13 @@ echo ""
 
 sudo -v || { echo "Error: sudo privileges required (Ошибка: требуются права sudo)."; exit 1; }
 
-echo "[1/5] Installing base packages... (Установка базовых пакетов...)"
+echo "[1/6] Installing base packages... (Установка базовых пакетов...)"
 sudo apt update
 
 # Минимальный набор для работы оболочки. 
 # gvfs и xdg-user-dirs обязательны для быстрой работы Thunar.
 # PipeWire и pipewire-pulse добавлены сразу для гарантии работы Polybar и volume.sh.
+# copyq, xss-lock, lxpolkit — утилиты для комфорта (история буфера, автоблокировка, polkit).
 sudo apt install -y \
   xorg xinit xserver-xorg-input-libinput \
   bspwm sxhkd \
@@ -43,7 +44,8 @@ sudo apt install -y \
   fish fontconfig \
   wget curl unzip xclip lm-sensors \
   imagemagick xdg-utils xdg-user-dirs xdotool fastfetch \
-  pipewire pipewire-audio pipewire-pulse wireplumber libspa-0.2-bluetooth
+  pipewire pipewire-audio pipewire-pulse wireplumber libspa-0.2-bluetooth \
+  copyq xss-lock lxpolkit
 
 echo "  Base packages installed. (Базовые пакеты установлены.)"
 
@@ -78,7 +80,7 @@ systemctl --user daemon-reload
 echo "  -> PipeWire is ready. (PipeWire готов.)"
 echo ""
 
-echo "[2/5] Installing JetBrainsMono Nerd Font... (Установка шрифта JetBrainsMono Nerd Font...)"
+echo "[2/6] Installing JetBrainsMono Nerd Font... (Установка шрифта JetBrainsMono Nerd Font...)"
 FONT_DIR="$REAL_HOME/.local/share/fonts"
 FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.zip"
 TMP_ZIP=$(mktemp /tmp/JetBrainsMono-XXXXXX.zip)
@@ -101,7 +103,7 @@ else
 fi
 echo ""
 
-echo "[3/5] Configuring power management... (Настройка управления питанием...)"
+echo "[3/6] Configuring power management... (Настройка управления питанием...)"
 if command -v powerprofilesctl &>/dev/null; then
     echo "  -> power-profiles-daemon detected. Leaving as is. (Обнаружен power-profiles-daemon. Оставляем как есть.)"
 elif ls /sys/class/power_supply/BAT* &>/dev/null; then
@@ -117,12 +119,12 @@ else
 fi
 echo ""
 
-echo "[4/5] Linking configs... (Линковка конфигов...)"
+echo "[4/6] Linking configs... (Линковка конфигов...)"
 export DOTFILES
 sudo -u "$REAL_USER" env HOME="$REAL_HOME" DOTFILES="$DOTFILES" bash "$DOTFILES/scripts/link.sh"
 echo ""
 
-echo "[5/5] Installing system configs to /etc/... (Установка системных конфигов в /etc/...)"
+echo "[5/6] Installing system configs to /etc/... (Установка системных конфигов в /etc/...)"
 # ВНИМАНИЕ: Этот блок копирует файлы в /etc. 
 # Если у тебя установлен GNOME, он может перезаписать настройки тачпада и сети. 
 # В случае проблем с GNOME, восстанови файлы из бэкапа.
@@ -152,7 +154,42 @@ if [ -d "$DOTFILES/system" ]; then
     done
     echo "  Бэкап старых системных файлов находится здесь: $BACKUP"
 fi
-
 echo ""
+
+echo "[6/6] Configuring lid lock... (Настройка блокировки при закрытии крышки...)"
+# Настраиваем поведение при закрытии крышки ноутбука.
+# По умолчанию systemd-logind уходит в сон (suspend). Меняем на lock:
+# система не засыпает, но экран блокируется через xss-lock (i3lock-fancy).
+# Актуально только для ноутбуков (есть батарея).
+if ls /sys/class/power_supply/BAT* &>/dev/null; then
+    LID_CONF="/etc/systemd/logind.conf.d/10-lid-lock.conf"
+
+    # Бэкап существующего конфига (если пользователь уже настраивал вручную)
+    if [ -f "$LID_CONF" ]; then
+        sudo cp "$LID_CONF" "${LID_CONF}.bak-$(date +%Y%m%d-%H%M%S)"
+        echo "  -> Existing lid lock config backed up (Существующий конфиг сохранён в бэкап)."
+    fi
+
+    sudo mkdir -p /etc/systemd/logind.conf.d
+    sudo tee "$LID_CONF" > /dev/null <<'EOF'
+# BSPWM-machineslego: блокировка экрана при закрытии крышки ноутбука.
+# Система НЕ уходит в сон — только блокируется экран (через xss-lock + i3lock-fancy).
+# Удалите этот файл и выполните `sudo systemctl restart systemd-logind`,
+# чтобы вернуть стандартное поведение (suspend при закрытии крышки).
+
+[Login]
+HandleLidSwitch=lock
+HandleLidSwitchExternalPower=lock
+EOF
+
+    # Мягкая перезагрузка конфигурации logind через SIGHUP.
+    # НЕ перезапускает сервис и НЕ прерывает графическую сессию.
+    sudo systemctl kill -s HUP systemd-logind 2>/dev/null || true
+    echo "  -> Lid lock configured: closing the lid will lock the screen. (Блокировка по крышке настроена: закрытие крышки блокирует экран.)"
+else
+    echo "  -> Desktop PC detected. Skipping lid lock configuration. (Обнаружен ПК — пропускаем настройку блокировки по крышке.)"
+fi
+echo ""
+
 echo "=== Installation complete! (Установка завершена!) ==="
 echo "Please reboot or run startx. (Перезагрузите систему или запустите startx.)"

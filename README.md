@@ -45,6 +45,10 @@ Configuration of a desktop environment based on BSPWM for Debian 13 Trixie, styl
 - **Custom Wi-Fi Manager:** A lightweight `wifi.sh` script (using Rofi and `nmcli`) to connect to networks, toggle the adapter, and launch a hotspot. **Requires manual interface configuration.**
 - **Ergonomic Keybindings:** Quick app launching (`Super+B` for Firefox, `Super+V` for VS Code, `Super+Alt+T` for Telegram), Rofi window switcher (`Alt+Tab`), and laptop-friendly screenshots (`Super+F1`/`F2`/`F3`).
 - **One-Key Reload:** `Super+Alt+Shift+R` instantly restarts SXHKD, BSPWM, Polybar, Dunst, and Picom.
+- **Clipboard History (CopyQ):** Press `Super+Ctrl+V` to open a popup menu with your clipboard history. CopyQ auto-starts in `bspwmrc`.
+- **Auto-Lock (xss-lock):** The screen locks automatically after 10 minutes of inactivity and before sleep, using the same `i3lock-fancy -p` as the manual `Super+L`. **No second lockscreen.**
+- **Lid Lock:** Closing the laptop lid locks the screen without suspending the system (requires a one-time `logind` configuration — see Customization below).
+- **Polkit Agent (lxpolkit):** GUI password prompts for `gparted`, `synaptic`, and system updates — no terminal needed.
 - **Advanced Multi-monitor Support:** Customizable `bspwmrc` block for dual-monitor PCs with 144Hz support, offset alignment, portrait rotation, and dual wallpapers.
 
 ## 📦 Structure
@@ -70,6 +74,8 @@ BSPWM-machineslego/
 ├── screenshots/
 └── wallpapers/
 ```
+
+> Note: `copyq`, `xss-lock`, and `lxpolkit` are installed as Debian packages and configured via `bspwmrc` — they are not part of the repository.
 
 ## 📋 Requirements
 
@@ -116,6 +122,27 @@ The `wifi.sh` script is pre-configured for my devices (e.g., `wlo1`, `wlp3s0`). 
 You can find your interface name by running `ip a` or `nmcli device`. On some machines, it might be `wlan0`, while on others (like a PC with a PCIe card), it could be something like `wlp7s0`.
 Also, change the `HOTSPOT_SSID` and `HOTSPOT_PASSWORD` variables at the top of `~/.config/sxhkd/scripts/wifi.sh`.
 
+**Auto-Lock Timeout (xss-lock)**
+In `~/.config/bspwm/bspwmrc`, find the `--- АВТОБЛОКИРОВКА (xss-lock) ---` block. The default is 10 minutes:
+```bash
+xset s 600 600                    # 600 sec = 10 min
+xset +dpms dpms 600 600 600       # monitor off at the same time
+```
+To change the timeout, edit all `600` values (e.g., `300 300` for 5 minutes).
+
+**Lid Lock (Desktop Behavior)**
+By default, closing the lid suspends the system. To change it to **lock without suspend**, create a `logind` drop-in:
+```bash
+sudo mkdir -p /etc/systemd/logind.conf.d
+sudo tee /etc/systemd/logind.conf.d/10-lid-lock.conf > /dev/null <<'EOF'
+[Login]
+HandleLidSwitch=lock
+HandleLidSwitchExternalPower=lock
+EOF
+sudo systemctl restart systemd-logind
+```
+> ⚠️ Restarting `logind` may briefly interrupt your graphical session. Do it before closing the lid.
+
 ## 🖼️ Wallpapers and Theme
 
 Dimming wallpapers for the Tokyo Night palette via ImageMagick:
@@ -130,6 +157,7 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 | Keybinding | Action |
 |---|---|
 | `Super + Return` | Terminal (Alacritty) |
+| `Super + Ctrl + V` | Clipboard History (CopyQ) |
 | `Super + /` | Cheatsheet (Rofi) |
 | `Super + D` | Launcher (Rofi drun) |
 | `Super + B` | Browser (Firefox) |
@@ -141,6 +169,7 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 | `Super + 1…0` | Switch workspaces |
 | `Super + Shift + 1…0` | Move window to workspace |
 | `Super + Shift + Q` | Power Menu (Rofi) |
+| `Super + L` | Lock screen (i3lock-fancy) |
 | `Super + F1` | Screenshot (full screen) |
 | `Super + F2` | Screenshot (active window) |
 | `Super + Shift + S` | Screenshot (area) |
@@ -163,6 +192,10 @@ If you want your notes to match the strict, flat aesthetic of this desktop setup
 - **Keybindings don't work** → Check `pgrep sxhkd`. Restart: `pkill -USR1 -x sxhkd`.
 - **No brightness module on a desktop PC** → This is intentional. Use monitor buttons.
 - **Polybar doesn't start** → Check the `~/.config/polybar` symlink and `launch.sh` permissions.
+- **Screen doesn't lock after inactivity** → Check `pgrep -a xss-lock`. If empty, restart BSPWM (`Super+Alt+Shift+R`). Verify timers with `xset q | grep -A 2 "Screen Saver"`.
+- **Lid close suspends instead of locking** → Configure `/etc/systemd/logind.conf.d/10-lid-lock.conf` (see Customization). Restart `systemd-logind`.
+- **`Super+Ctrl+V` doesn't open CopyQ** → Make sure CopyQ is running: `pgrep -a copyq`. If not, launch it: `copyq --start-server &`. Check autostart in `bspwmrc`.
+- **Polkit password dialog doesn't appear** → Check `pgrep -a lxpolkit`. Restart BSPWM if needed.
 
 ## 📄 License
 
