@@ -36,7 +36,7 @@ configuration {
    ========================================================== */
 window {
     width: 42%;
-    border: 2px;
+    border: 0px;
     border-color: @accent;
     border-radius: 12px;
     background-color: @bg;
