@@ -23,7 +23,7 @@ case "$CHOICE" in
         systemctl poweroff
         ;;
     *"Выйти"*)
-        loginctl terminate-user "$USER"
+        bspc quit
         ;;
     *"Перезагрузить"*)
         systemctl reboot
