@@ -44,11 +44,13 @@ Configuration of a desktop environment based on BSPWM for Debian 13 Trixie, styl
 - **Smart Volume OSD:** The volume notification dynamically changes its frame and progress bar color based on the level (Blue < 50%, Yellow > 50%, Red > 80%, Bright Red > 100%).
 - **Custom Wi-Fi Manager:** A lightweight `wifi.sh` script (using Rofi and `nmcli`) to connect to networks, toggle the adapter, and launch a hotspot. **Requires manual interface configuration.**
 - **Ergonomic Keybindings:** Quick app launching (`Super+B` for Firefox, `Super+V` for VS Code, `Super+Alt+T` for Telegram), Rofi window switcher (`Alt+Tab`), and laptop-friendly screenshots (`Super+F1`/`F2`/`F3`).
+- **Vim-keys for Floating Windows:** `Super+H/J/K/L` moves floating windows (H=left, J=down, K=up, L=right). With `xset r rate 200 50` they move smoothly when held — the same technique works for volume and brightness keys.
 - **One-Key Reload:** `Super+Alt+Shift+R` instantly restarts SXHKD, BSPWM, Polybar, Dunst, and Picom.
 - **Clipboard History (CopyQ):** Press `Super+Ctrl+V` to open a popup menu with your clipboard history. CopyQ auto-starts in `bspwmrc`.
-- **Auto-Lock (xss-lock):** The screen locks automatically after 10 minutes of inactivity and before sleep, using the same `i3lock-fancy -p` as the manual `Super+L`. **No second lockscreen.**
-- **Lid Lock:** Closing the laptop lid locks the screen without suspending the system (requires a one-time `logind` configuration — see Customization below).
+- **Auto-Lock (xss-lock):** The screen locks automatically after 10 minutes of inactivity and before sleep, using the same `i3lock-fancy -p` as the manual `Super+Alt+L`. **No second lockscreen.**
+- **Lid Suspend:** Closing the laptop lid suspends the system (kernel powers off the panel), and `xss-lock --transfer-sleep-lock` locks the screen before sleep — no second lockscreen after wake.
 - **Polkit Agent (lxpolkit):** GUI password prompts for `gparted`, `synaptic`, and system updates — no terminal needed.
+- **Unified Power Management (PPD):** power-profiles-daemon is the only provider, on laptops and desktops alike. TLP is removed automatically by `install.sh` to avoid conflicts.
 - **Advanced Multi-monitor Support:** Customizable `bspwmrc` block for dual-monitor PCs with 144Hz support, offset alignment, portrait rotation, and dual wallpapers.
 
 ## 📦 Structure
@@ -63,8 +65,7 @@ BSPWM-machineslego/
 │   │   └── scripts/
 │   │       ├── battery.sh          # Battery fallback script
 │   │       ├── brightness.sh       # Brightness script
-│   │       ├── power-profile-ppd.sh # Power profile for PPD
-│   │       └── power-profile-tlp.sh # Power profile for TLP
+│   │       └── power-profile.sh    # Power profile via PPD
 │   └── sxhkd/
 │       ├── sxhkdrc         # Keybindings
 │       └── scripts/        # cheatsheet, powermenu, volume, wifi
@@ -130,18 +131,25 @@ xset +dpms dpms 600 600 600       # monitor off at the same time
 ```
 To change the timeout, edit all `600` values (e.g., `300 300` for 5 minutes).
 
-**Lid Lock (Desktop Behavior)**
-By default, closing the lid suspends the system. To change it to **lock without suspend**, create a `logind` drop-in:
+**Lid Behavior (Laptop)**
+By default, closing the lid **suspends** the system. `install.sh` creates `/etc/systemd/logind.conf.d/10-lid-suspend.conf`:
 ```bash
-sudo mkdir -p /etc/systemd/logind.conf.d
+[Login]
+HandleLidSwitch=suspend
+HandleLidSwitchExternalPower=suspend
+HandleLidSwitchDocked=ignore
+```
+To change it to **lock without suspend**:
+```bash
+sudo rm /etc/systemd/logind.conf.d/10-lid-suspend.conf
 sudo tee /etc/systemd/logind.conf.d/10-lid-lock.conf > /dev/null <<'EOF'
 [Login]
 HandleLidSwitch=lock
 HandleLidSwitchExternalPower=lock
 EOF
-sudo systemctl restart systemd-logind
+sudo systemctl kill -s HUP systemd-logind
 ```
-> ⚠️ Restarting `logind` may briefly interrupt your graphical session. Do it before closing the lid.
+> ⚠️ On some AMD laptops, "lock" does not power off the panel — the screen stays lit behind `i3lock-fancy`. That's why "suspend" is the default.
 
 ## 🖼️ Wallpapers and Theme
 
@@ -169,7 +177,7 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 | `Super + 1…0` | Switch workspaces |
 | `Super + Shift + 1…0` | Move window to workspace |
 | `Super + Shift + Q` | Power Menu (Rofi) |
-| `Super + L` | Lock screen (i3lock-fancy) |
+| `Super + Alt + L` | Lock screen (i3lock-fancy) |
 | `Super + F1` | Screenshot (full screen) |
 | `Super + F2` | Screenshot (active window) |
 | `Super + Shift + S` | Screenshot (area) |
@@ -177,6 +185,11 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 | `Super + Alt + N` | Wi-Fi Manager |
 | `Super + Alt + P` | Power Profile Menu |
 | `Super + Alt + Shift + R` | Reload Entire System |
+| `Super + Arrow keys` | Focus window |
+| `Super + Shift + Arrow keys` | Swap tiled windows |
+| `Super + H/J/K/L` | Move floating window (Vim-style) |
+| `Super + Alt + Arrow keys` | Resize (grow) |
+| `Super + Alt + Shift + Arrow keys` | Resize (shrink) |
 
 ## 🎨 Ecosystem
 
@@ -193,9 +206,12 @@ If you want your notes to match the strict, flat aesthetic of this desktop setup
 - **No brightness module on a desktop PC** → This is intentional. Use monitor buttons.
 - **Polybar doesn't start** → Check the `~/.config/polybar` symlink and `launch.sh` permissions.
 - **Screen doesn't lock after inactivity** → Check `pgrep -a xss-lock`. If empty, restart BSPWM (`Super+Alt+Shift+R`). Verify timers with `xset q | grep -A 2 "Screen Saver"`.
-- **Lid close suspends instead of locking** → Configure `/etc/systemd/logind.conf.d/10-lid-lock.conf` (see Customization). Restart `systemd-logind`.
+- **Lid close locks instead of suspending** → Remove `/etc/systemd/logind.conf.d/10-lid-lock.conf` if it exists, then `sudo systemctl kill -s HUP systemd-logind`.
+- **Lid close doesn't sleep (or shuts down instead)** → On AMD Ryzen 7000-series the kernel may fall back to `s2idle` or behave erratically with S3. Force `s2idle` by adding `mem_sleep_default=s2idle` to `GRUB_CMDLINE_LINUX_DEFAULT` in `/etc/default/grub`, then `sudo update-grub` and reboot. Check current mode: `cat /sys/power/mem_sleep`.
 - **`Super+Ctrl+V` doesn't open CopyQ** → Make sure CopyQ is running: `pgrep -a copyq`. If not, launch it: `copyq --start-server &`. Check autostart in `bspwmrc`.
 - **Polkit password dialog doesn't appear** → Check `pgrep -a lxpolkit`. Restart BSPWM if needed.
+- **`Super+L` moves window instead of locking** → This is intentional. Lock moved to `Super+Alt+L` in v1.3.0; `Super+L` is now vim-right for floating windows.
+- **TLP was removed after update** → Intentional. PPD is now the only power provider. If you need TLP back, install manually; but conflicts with PPD will return.
 
 ## 📄 License
 
