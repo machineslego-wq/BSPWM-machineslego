@@ -26,8 +26,8 @@ super + alt + shift + r
 super + shift + q
     ~/.config/sxhkd/scripts/powermenu.sh
 
-# Заблокировать экран (Super + L)
-super + l
+# Заблокировать экран (Super + Alt + L)
+super + alt + l
     i3lock-fancy -p
 
 # Перезагрузить конфиг SXHKD (Super + Escape)
@@ -132,12 +132,14 @@ XF86AudioMute
 super + {Left,Down,Up,Right}
     bspc node -f {west,south,north,east}
 
-# Фокус и перемещение окон (Super + _ / Super + Shift + Стрелки)
-super + {_,shift + }{Left,Down,Up,Right}
-    bspc node -{f,s} {west,south,north,east}
+# Перемещение окна (свап с соседом)
+super + shift + {Left,Down,Up,Right}
+    bspc node -s {west,south,north,east}
 
-# Перемещение плавающего окна (Super + H (влево), J (вниз), U(вверх), K(вправо))
-super + {h,j,u,k}
+# Перемещение плавающего окна — стандартные Vim-keys
+# H = влево, J = вниз, K = вверх, L = вправо
+# (для тайловых окон используй Super+Shift+Стрелки — свап)
+super + {h,j,k,l}
     bspc node -v {-20 0,0 20,0 -20,20 0}
 
 # Предыдущее окно (Super + Tab / Super + `)
