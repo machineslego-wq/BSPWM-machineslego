@@ -45,6 +45,7 @@ Configuration of a desktop environment based on BSPWM for Debian 13 Trixie, styl
 - **Custom Wi-Fi Manager:** A lightweight `wifi.sh` script (using Rofi and `nmcli`) to connect to networks, toggle the adapter, and launch a hotspot. **Requires manual interface configuration.**
 - **Ergonomic Keybindings:** Quick app launching (`Super+B` for Firefox, `Super+V` for VS Code, `Super+Alt+T` for Telegram), Rofi window switcher (`Alt+Tab`), and laptop-friendly screenshots (`Super+F1`/`F2`/`F3`).
 - **Vim-keys for Floating Windows:** `Super+H/J/K/L` moves floating windows (H=left, J=down, K=up, L=right). With `xset r rate 200 50` they move smoothly when held — the same technique works for volume and brightness keys.
+- **Animated Notifications (Dunst):** Notifications slide in from above with fade and slide back up on close. Notification stack shifts smoothly as new ones arrive. **Known limitation:** second and subsequent notifications in the stack appear without animation due to a Picom 12.5 conflict with Dunst's own stack positioning.
 - **One-Key Reload:** `Super+Alt+Shift+R` instantly restarts SXHKD, BSPWM, Polybar, Dunst, and Picom.
 - **Clipboard History (CopyQ):** Press `Super+Ctrl+V` to open a popup menu with your clipboard history. CopyQ auto-starts in `bspwmrc`.
 - **Auto-Lock (xss-lock):** The screen locks automatically after 10 minutes of inactivity and before sleep, using the same `i3lock-fancy -p` as the manual `Super+Alt+L`. **No second lockscreen.**
@@ -72,6 +73,7 @@ BSPWM-machineslego/
 ├── home/                   # Symlinks to ~/*
 ├── system/                 # Copied to /etc
 ├── scripts/                # install.sh, link.sh, unlink.sh
+├── TODO.md                 # Planned features (themes, transparency)
 ├── screenshots/
 └── wallpapers/
 ```
