@@ -8,8 +8,8 @@ ACTION="$1"
 if pgrep -x pipewire >/dev/null; then
     # --- PipeWire ---
     case "$ACTION" in
-        up)   wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ ;;
-        down) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;;
+        up)   wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+ ;;
+        down) wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%- ;;
         mute) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
     esac
     
