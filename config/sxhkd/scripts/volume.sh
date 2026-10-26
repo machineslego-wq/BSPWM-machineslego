@@ -21,8 +21,8 @@ if pgrep -x pipewire >/dev/null; then
 else
     # --- PulseAudio (фолбэк) ---
     case "$ACTION" in
-        up)   pactl set-sink-volume @DEFAULT_SINK@ +5% ;;
-        down) pactl set-sink-volume @DEFAULT_SINK@ -5% ;;
+        up)   pactl set-sink-volume @DEFAULT_SINK@ +2% ;;
+        down) pactl set-sink-volume @DEFAULT_SINK@ -2% ;;
         mute) pactl set-sink-mute @DEFAULT_SINK@ toggle ;;
     esac
     
