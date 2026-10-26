@@ -44,6 +44,3 @@
 config/rofi/history
 config/alacritty/history
 config/gtk-3.0/bookmarks
-
-# Игнорируем автогенерируемый симлинк профиля питания
-config/polybar/scripts/power-profile.sh

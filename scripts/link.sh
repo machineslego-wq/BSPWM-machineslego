@@ -52,24 +52,7 @@ if [ -d "$DOTFILES/home" ]; then
     done
 fi
 
-# 3. Автовыбор скрипта питания
-echo "--- Configuring power profile (Настройка профиля питания) ---"
-SCRIPTS_DIR="$HOME/.config/polybar/scripts"
-if [ -d "$SCRIPTS_DIR" ]; then
-    rm -f "$SCRIPTS_DIR/power-profile.sh"
-
-    if command -v powerprofilesctl &>/dev/null; then
-        ln -sf "$SCRIPTS_DIR/power-profile-ppd.sh" "$SCRIPTS_DIR/power-profile.sh"
-        echo "  link (ссылка): power-profile.sh -> power-profile-ppd.sh"
-    elif ls /sys/class/power_supply/BAT* >/dev/null 2>&1; then
-        ln -sf "$SCRIPTS_DIR/power-profile-tlp.sh" "$SCRIPTS_DIR/power-profile.sh"
-        echo "  link (ссылка): power-profile.sh -> power-profile-tlp.sh"
-    else
-        echo "  info: PC detected. Power profile script is not created. (ПК обнаружен. Скрипт питания не создается.)"
-    fi
-fi
-
-# 4. Права на скрипты
+# 3. Права на скрипты
 echo "--- Setting permissions (+x) (Выставление прав (+x)) ---"
 chmod +x "$HOME/.config/polybar/scripts/"*.sh 2>/dev/null
 chmod +x "$HOME/.config/sxhkd/scripts/"*.sh 2>/dev/null

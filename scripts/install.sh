@@ -104,19 +104,35 @@ fi
 echo ""
 
 echo "[3/6] Configuring power management... (Настройка управления питанием...)"
-if command -v powerprofilesctl &>/dev/null; then
-    echo "  -> power-profiles-daemon detected. Leaving as is. (Обнаружен power-profiles-daemon. Оставляем как есть.)"
-elif ls /sys/class/power_supply/BAT* &>/dev/null; then
-    echo "  -> Laptop detected. Installing TLP... (Обнаружен ноутбук. Устанавливаем TLP...)"
-    sudo apt install -y tlp tlp-rdw
-    sudo systemctl enable --now tlp
-    
-    TLP_PATH=$(command -v tlp || echo "/usr/sbin/tlp")
-    echo "$REAL_USER ALL=(ALL) NOPASSWD: $TLP_PATH, /usr/bin/tlp-stat" | sudo tee /etc/sudoers.d/tlp > /dev/null
-    sudo chmod 440 /etc/sudoers.d/tlp
-else
-    echo "  -> Desktop PC detected. Power management via Polybar is not configured. (Обнаружен ПК. Управление питанием через Polybar не настраивается.)"
+# Унифицируем управление питанием на power-profiles-daemon (PPD).
+# PPD работает и на ноутбуках, и на ПК. Это стандарт для десктопных
+# окружений (GNOME, KDE, Cinnamon) и рекомендация производителей
+# для AMD Ryzen 7000-й серии.
+
+# 1. Удаляем TLP, если он установлен — иначе apt откажется ставить PPD
+if dpkg -l 2>/dev/null | grep -q "^ii  tlp "; then
+    echo "  -> TLP detected. Removing to avoid conflict with PPD. (Обнаружен TLP. Удаляем во избежание конфликта с PPD.)"
+    sudo systemctl disable --now tlp 2>/dev/null || true
+    sudo apt purge -y tlp tlp-rdw
+    sudo apt autoremove -y
+    sudo rm -f /etc/sudoers.d/tlp
+    echo "  -> TLP removed. (TLP удалён.)"
 fi
+
+# 2. Устанавливаем PPD
+sudo apt install -y power-profiles-daemon
+
+# 3. Включаем и запускаем сервис
+if sudo systemctl enable --now power-profiles-daemon 2>/dev/null; then
+    CURRENT_PROFILE=$(powerprofilesctl get 2>/dev/null || echo "unknown")
+    echo "  -> PPD is running. Current profile: ${CURRENT_PROFILE} (PPD работает. Текущий профиль: ${CURRENT_PROFILE})"
+else
+    echo "  -> WARNING: PPD failed to start. Check: systemctl status power-profiles-daemon (ПРЕДУПРЕЖДЕНИЕ: PPD не запустился.)"
+fi
+
+# 4. Показываем текущий профиль
+CURRENT_PROFILE=$(powerprofilesctl get 2>/dev/null || echo "unknown")
+echo "  -> PPD is running. Current profile: ${CURRENT_PROFILE} (PPD работает. Текущий профиль: ${CURRENT_PROFILE})"
 echo ""
 
 echo "[4/6] Linking configs... (Линковка конфигов...)"

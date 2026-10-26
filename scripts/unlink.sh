@@ -14,13 +14,6 @@ fi
 echo "Removing symlinks pointing to (Удаляю симлинки, ведущие в) $DOTFILES"
 echo ""
 
-# 0. Удаляем сгенерированный файл профиля питания (если он есть)
-# Делаем это до удаления симлинка на polybar, чтобы не оставлять мусор в репозитории
-if [ -L "$DOTFILES/config/polybar/scripts/power-profile.sh" ] || [ -f "$DOTFILES/config/polybar/scripts/power-profile.sh" ]; then
-    rm -f "$DOTFILES/config/polybar/scripts/power-profile.sh"
-    echo "  removed (удален): generated power-profile.sh (сгенерированный power-profile.sh)"
-fi
-
 removed=0
 skipped=0
 
