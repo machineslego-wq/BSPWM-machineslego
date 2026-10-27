@@ -183,12 +183,7 @@ while true; do
         if [ -z "$capacity" ]; then
             out="%{F#7dcfff} PC%{F-}"
         else
-            # Иконка по уровню + стилю (horizontal/vertical).
-            # Состояние (зарядка/разрядка) передаётся цветом.
-            # зелёный = зарядка, foreground = норма, жёлтый/красный = разряд.
-            icon=$(get_icon "$capacity")
-
-                        # --- Уведомления о подключении/отключении зарядки ---
+            # --- Уведомления о подключении/отключении зарядки ---
             # (Срабатывает только при смене статуса, пропускает первый запуск)
             if [ -n "$last_status" ] && [ "$status" != "$last_status" ]; then
                 if [ "$last_status" = "Discharging" ] && { [ "$status" = "Charging" ] || [ "$status" = "Full" ]; }; then
