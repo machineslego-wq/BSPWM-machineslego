@@ -53,6 +53,7 @@ Configuration of a desktop environment based on BSPWM for Debian 13 Trixie, styl
 - **Polkit Agent (lxpolkit):** GUI password prompts for `gparted`, `synaptic`, and system updates — no terminal needed.
 - **Unified Power Management (PPD):** power-profiles-daemon is the only provider, on laptops and desktops alike. TLP is removed automatically by `install.sh` to avoid conflicts.
 - **Advanced Multi-monitor Support:** Customizable `bspwmrc` block for dual-monitor PCs with 144Hz support, offset alignment, portrait rotation, and dual wallpapers.
+- **Notification History (Rofi):** Press `Super+Alt+H` to open a Rofi menu with the last 20 notifications from `dunstctl history`. Selecting a notification copies its body to the clipboard.
 
 ## 📦 Structure
 
@@ -69,7 +70,7 @@ BSPWM-machineslego/
 │   │       └── power-profile.sh    # Power profile via PPD
 │   └── sxhkd/
 │       ├── sxhkdrc         # Keybindings
-│       └── scripts/        # cheatsheet, powermenu, volume, wifi
+│       └── scripts/        # cheatsheet, notify-history, powermenu, volume, wifi
 ├── home/                   # Symlinks to ~/*
 ├── system/                 # Copied to /etc
 ├── scripts/                # install.sh, link.sh, unlink.sh
@@ -174,6 +175,7 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 | `Super + V` | Editor (VS Code) |
 | `Super + E` | File Manager (Thunar) |
 | `Super + Alt + T` | Telegram + Proxy |
+| `Super + Alt + H` | Notification History (Rofi) |
 | `Alt + Tab` | Window Switcher (Rofi) |
 | `Super + W` | Close window |
 | `Super + 1…0` | Switch workspaces |

@@ -26,6 +26,7 @@ cat <<EOF | rofi -dmenu -i -markup-rows -scroll-method 1 -p "󰌌 Горячие
 󰑓 Super + Escape                   Перезагрузить SXHKD            <span foreground="#1a1b26">[рестарт, конфиг, reload]</span>
 󰜉 Super + Alt + Shift + R          Перезапуск всего (Reload)      <span foreground="#1a1b26">[рестарт, окна, wm, polybar, dunst]</span>
 󰅌 Super + Ctrl + V                 История буфера (CopyQ)         <span foreground="#1a1b26">[буфер, clipboard, вставка, copy, paste, история]</span>
+󰂚 Super + Alt + H                  История уведомлений            <span foreground="#1a1b26">[уведомления, notifications, dunst, история]</span>
 
 <b>󰐥 ПИТАНИЕ И БЛОКИРОВКА</b>
 󰤆 Super + Shift + Q                Меню питания (Rofi)            <span foreground="#1a1b26">[poweroff, reboot, logout, lock, питание]</span>

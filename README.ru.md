@@ -53,6 +53,7 @@
 - **Polkit-агент (lxpolkit):** Графические запросы пароля для `gparted`, `synaptic` и обновлений системы — без терминала.
 - **Унифицированное питание (PPD):** power-profiles-daemon — единственный провайдер, и на ноутбуках, и на ПК. TLP удаляется автоматически в `install.sh` во избежание конфликтов.
 - **Продвинутая поддержка мониторов:** Настраиваемый блок в `bspwmrc` для ПК с двумя экранами: 144 Гц, смещение, портретный режим и разные обои.
+- **История уведомлений (Rofi):** `Super+Alt+H` открывает Rofi-меню с последними 20 уведомлениями из `dunstctl history`. При выборе тело уведомления копируется в буфер обмена.
 
 ## 📦 Структура
 
@@ -69,7 +70,7 @@ BSPWM-machineslego/
 │   │       └── power-profile.sh    # Профиль питания через PPD
 │   └── sxhkd/
 │       ├── sxhkdrc         # Горячие клавиши
-│       └── scripts/        # cheatsheet, powermenu, volume, wifi
+│       └── scripts/        # cheatsheet, notify-history, powermenu, volume, wifi
 ├── home/                   # Симлинки в ~/*
 ├── system/                 # Копируется в /etc
 ├── scripts/                # install.sh, link.sh, unlink.sh
@@ -174,6 +175,7 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 | `Super + V` | Редактор (VS Code) |
 | `Super + E` | Файловый менеджер (Thunar) |
 | `Super + Alt + T` | Telegram + Proxy |
+| `Super + Alt + H` | История уведомлений (Rofi) |
 | `Alt + Tab` | Поиск по открытым окнам (Rofi) |
 | `Super + W` | Закрыть окно |
 | `Super + 1…0` | Переключение рабочих столов |

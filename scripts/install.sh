@@ -43,6 +43,7 @@ sudo apt install -y \
   i3lock-fancy libnotify-bin \
   fish fontconfig \
   wget curl unzip xclip lm-sensors \
+  jq \
   imagemagick xdg-utils xdg-user-dirs xdotool fastfetch \
   pipewire pipewire-audio pipewire-pulse wireplumber libspa-0.2-bluetooth \
   copyq xss-lock lxpolkit
