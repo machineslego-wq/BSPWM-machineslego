@@ -158,6 +158,7 @@ last=""
 warn60_sent=false
 warn30_sent=false
 warn_full_sent=false
+last_status=""
 
 while true; do
     if [ -z "$BAT" ]; then
@@ -187,6 +188,23 @@ while true; do
             # зелёный = зарядка, foreground = норма, жёлтый/красный = разряд.
             icon=$(get_icon "$capacity")
 
+                        # --- Уведомления о подключении/отключении зарядки ---
+            # (Срабатывает только при смене статуса, пропускает первый запуск)
+            if [ -n "$last_status" ] && [ "$status" != "$last_status" ]; then
+                if [ "$last_status" = "Discharging" ] && { [ "$status" = "Charging" ] || [ "$status" = "Full" ]; }; then
+                    notify-send -u low -t 3000 -a "Battery" -i battery-good-charging \
+                        "Питание" "Зарядное устройство подключено"
+                elif { [ "$last_status" = "Charging" ] || [ "$last_status" = "Full" ]; } && [ "$status" = "Discharging" ]; then
+                    notify-send -u low -t 3000 -a "Battery" -i battery-good \
+                        "Питание" "Зарядное устройство отключено"
+                fi
+            fi
+            last_status="$status"
+
+            # Иконка по уровню + стилю (horizontal/vertical).
+            # Состояние (зарядка/разрядка) передаётся цветом.
+            icon=$(get_icon "$capacity")
+
             if [ "$status" = "Charging" ] || [ "$status" = "Full" ]; then
                 color="#9ece6a"   # зелёный — зарядка/полный
             elif [ "$capacity" -le 30 ]; then
@@ -199,7 +217,7 @@ while true; do
 
             out="%{F$color}$icon $capacity%%{F-}"
 
-             # --- Предупреждения (только один раз на переход) ---
+            # --- Предупреждения (только один раз на переход) ---
             if [ "$status" = "Discharging" ]; then
                 # Сбрасываем флаг полной зарядки, чтобы при следующем подключении к сети он сработал снова
                 warn_full_sent=false
@@ -223,7 +241,7 @@ while true; do
                 [ "$capacity" -gt 60 ] && warn60_sent=false
                 [ "$capacity" -gt 30 ] && warn30_sent=false
 
-                # --- НОВОЕ: Предупреждение о полной зарядке ---
+                # --- Предупреждение о полной зарядке ---
                 if [ "$status" = "Full" ] || [ "$capacity" -ge 100 ]; then
                     if [ "$warn_full_sent" = false ]; then
                         notify-send -u normal -t 10000 \
@@ -233,11 +251,6 @@ while true; do
                         warn_full_sent=true
                     fi
                 fi
-            fi
-
-            if [ "$status" = "Charging" ] || [ "$status" = "Full" ]; then
-                [ "$capacity" -gt 60 ] && warn60_sent=false
-                [ "$capacity" -gt 30 ] && warn30_sent=false
             fi
         fi
     fi
