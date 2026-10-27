@@ -16,10 +16,15 @@
 super + slash
     ~/.config/sxhkd/scripts/cheatsheet.sh
 
-# Перезапуск ВСЕГО (SXHKD + BSPWM + Polybar + Dunst + Picom) (Super + Alt + Shift + R)
+# Перезапуск ВСЕГО (SXHKD + BSPWM + Polybar + Dunst + Picom + Аплеты) (Super + Alt + Shift + R)
 super + alt + shift + r
     pkill -USR1 -x sxhkd; \
-    pkill -x polybar; pkill -x dunst; pkill -x picom; \
+    pkill -x polybar; \
+    pkill -x picom; \
+    pkill -x dunst; \
+    pkill -x blueman-applet; \
+    pkill -x xss-lock; \
+    pkill -x lxpolkit; \
     bspc wm -r
 
 # Меню питания (Super + Shift + Q)
