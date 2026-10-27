@@ -38,7 +38,7 @@ Configuration of a desktop environment based on BSPWM for Debian 13 Trixie, styl
 
 ## Features
 
-- **Native Modules First:** Stock Polybar modules for battery, network, and audio.
+- **Native Modules First:** Stock Polybar modules for network and audio. Battery uses a custom script (see Custom Battery Widget below).
 - **Smooth & Flat:** No distracting blur, strict Tokyo Night colors, and subtle Hyprland-style window animations (Picom).
 - **Unified Power Menu:** Clicking the power button or using a hotkey opens a clean Rofi menu for power actions (immediate execution, no confirmation dialogs).
 - **Smart Volume OSD:** The volume notification dynamically changes its frame and progress bar color based on the level (Blue < 50%, Yellow > 50%, Red > 80%, Bright Red > 100%).
@@ -54,6 +54,7 @@ Configuration of a desktop environment based on BSPWM for Debian 13 Trixie, styl
 - **Unified Power Management (PPD):** power-profiles-daemon is the only provider, on laptops and desktops alike. TLP is removed automatically by `install.sh` to avoid conflicts.
 - **Advanced Multi-monitor Support:** Customizable `bspwmrc` block for dual-monitor PCs with 144Hz support, offset alignment, portrait rotation, and dual wallpapers.
 - **Notification History (Rofi):** Press `Super+Alt+H` to open a Rofi menu with the last 20 notifications from `dunstctl history`. Selecting a notification copies its body to the clipboard.
+- **Custom Battery Widget:** A `battery.sh` script replaces the stock `internal/battery` module. Click the battery icon to open a Rofi menu with capacity, status, power draw, time remaining, and battery health. Warns once at 60% (recommended to finish work or plug in) and 30% (critical — please connect the charger). Supports two icon styles via `ICON_STYLE`: **horizontal** (Font Awesome, 5 levels) and **vertical** (Material Design, 10 levels). Auto-detects `BAT0`/`BAT1`/`BAT*` on any laptop and hides on desktop PCs via `exec-if`. Stock module is kept commented out in `config.ini` — pick whichever you prefer.
 
 ## 📦 Structure
 
@@ -65,7 +66,7 @@ BSPWM-machineslego/
 │   ├── polybar/
 │   │   ├── config.ini      # Stock modules + custom brightness
 │   │   └── scripts/
-│   │       ├── battery.sh          # Battery fallback script
+│   │       ├── battery.sh          # Battery widget (custom script, Rofi details)
 │   │       ├── brightness.sh       # Brightness script
 │   │       └── power-profile.sh    # Power profile via PPD
 │   └── sxhkd/
@@ -154,6 +155,21 @@ sudo systemctl kill -s HUP systemd-logind
 ```
 > ⚠️ On some AMD laptops, "lock" does not power off the panel — the screen stays lit behind `i3lock-fancy`. That's why "suspend" is the default.
 
+**Battery Widget (Custom Script)**
+The stock `internal/battery` module is replaced by `battery.sh`. It auto-detects the battery (`BAT0`/`BAT1`/`BAT*`) on any laptop and is hidden on desktop PCs via `exec-if` in `~/.config/polybar/config.ini`.
+
+**Icon style** — edit `ICON_STYLE` at the top of `battery.sh`:
+- `"horizontal"` — Font Awesome (`    `), 5 levels (20% step)
+- `"vertical"` — Material Design (`󰂂 󰂁 󰂀 󰁿 󰁾 󰁽 󰁼 󰁻 󰁺 󰂃`), 10 levels (10% step)
+
+**Switch back to stock module:**
+1. Open `~/.config/polybar/config.ini`
+2. Find `[module/battery]` — the stock version is **commented out right above** the custom block
+3. Comment out the custom block, uncomment the stock block
+4. Restart Polybar: `pkill -x polybar && ~/.config/polybar/launch.sh &`
+
+**Change warning thresholds** — edit the `-le 30` and `-le 60` checks in `battery.sh` (the `notify-send` lines).
+
 ## 🖼️ Wallpapers and Theme
 
 Dimming wallpapers for the Tokyo Night palette via ImageMagick:
@@ -216,6 +232,7 @@ If you want your notes to match the strict, flat aesthetic of this desktop setup
 - **Polkit password dialog doesn't appear** → Check `pgrep -a lxpolkit`. Restart BSPWM if needed.
 - **`Super+L` moves window instead of locking** → This is intentional. Lock moved to `Super+Alt+L` in v1.3.0; `Super+L` is now vim-right for floating windows.
 - **TLP was removed after update** → Intentional. PPD is now the only power provider. If you need TLP back, install manually; but conflicts with PPD will return.
+- **Battery module doesn't appear on a desktop PC** → Intentional. `exec-if` hides it because there's no battery. If you want to see a "PC" placeholder, remove `exec-if` from `[module/battery]` in `config.ini`.
 
 ## 📄 License
 
