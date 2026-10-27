@@ -157,6 +157,7 @@ fi
 last=""
 warn60_sent=false
 warn30_sent=false
+warn_full_sent=false
 
 while true; do
     if [ -z "$BAT" ]; then
@@ -198,8 +199,11 @@ while true; do
 
             out="%{F$color}$icon $capacity%%{F-}"
 
-            # --- Предупреждения (только один раз на переход) ---
+             # --- Предупреждения (только один раз на переход) ---
             if [ "$status" = "Discharging" ]; then
+                # Сбрасываем флаг полной зарядки, чтобы при следующем подключении к сети он сработал снова
+                warn_full_sent=false
+
                 if [ "$capacity" -le 30 ] && [ "$warn30_sent" = false ]; then
                     notify-send -u critical -t 0 \
                         -a "Battery" -i battery-caution \
@@ -212,6 +216,22 @@ while true; do
                         "Батарея разряжена до ${capacity}%" \
                         "Рекомендуется завершить текущие задачи или подключить зарядное устройство — до разряда осталось не так много."
                     warn60_sent=true
+                fi
+            fi
+
+            if [ "$status" = "Charging" ] || [ "$status" = "Full" ]; then
+                [ "$capacity" -gt 60 ] && warn60_sent=false
+                [ "$capacity" -gt 30 ] && warn30_sent=false
+
+                # --- НОВОЕ: Предупреждение о полной зарядке ---
+                if [ "$status" = "Full" ] || [ "$capacity" -ge 100 ]; then
+                    if [ "$warn_full_sent" = false ]; then
+                        notify-send -u normal -t 10000 \
+                            -a "Battery" -i battery-full-charged \
+                            "Батарея полностью заряжена" \
+                            "Вы можете отключить зарядное устройство, чтобы сохранить ресурс аккумулятора."
+                        warn_full_sent=true
+                    fi
                 fi
             fi
 
