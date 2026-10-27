@@ -42,9 +42,9 @@ Configuration of a desktop environment based on BSPWM for Debian 13 Trixie, styl
 - **Smooth & Flat:** No distracting blur, strict Tokyo Night colors, and subtle Hyprland-style window animations (Picom).
 - **Unified Power Menu:** Clicking the power button or using a hotkey opens a clean Rofi menu for power actions (immediate execution, no confirmation dialogs).
 - **Smart Volume OSD:** The volume notification dynamically changes its frame and progress bar color based on the level (Blue < 50%, Yellow > 50%, Red > 80%, Bright Red > 100%).
-- **Custom Wi-Fi Manager:** A lightweight `wifi.sh` script (using Rofi and `nmcli`) to connect to networks, toggle the adapter, and launch a hotspot. **Requires manual interface configuration.**
+- **Custom Wi-Fi Manager:** A lightweight `wifi.sh` script (using Rofi and `nmcli`) to connect to networks, toggle the adapter, launch a hotspot, and connect to **hidden networks** (prompts for SSID, uses `hidden yes`). **Requires manual interface configuration.**
 - **Ergonomic Keybindings:** Quick app launching (`Super+B` for Firefox, `Super+V` for VS Code, `Super+Alt+T` for Telegram), Rofi window switcher (`Alt+Tab`), and laptop-friendly screenshots (`Super+F1`/`F2`/`F3`).
-- **Vim-keys for Floating Windows:** `Super+H/J/K/L` moves floating windows (H=left, J=down, K=up, L=right). With `xset r rate 200 50` they move smoothly when held — the same technique works for volume and brightness keys.
+- **Vim-keys for Floating Windows:** `Super+H/J/K/L` moves floating windows (H=left, J=down, K=up, L=right). With `xset r rate 250 30` they move smoothly when held — the same technique works for volume and brightness keys.
 - **Animated Notifications (Dunst):** Notifications slide in from above with fade and slide back up on close. Notification stack shifts smoothly as new ones arrive. **Known limitation:** second and subsequent notifications in the stack appear without animation due to a Picom 12.5 conflict with Dunst's own stack positioning.
 - **One-Key Reload:** `Super+Alt+Shift+R` instantly restarts SXHKD, BSPWM, Polybar, Dunst, and Picom.
 - **Clipboard History (CopyQ):** Press `Super+Ctrl+V` to open a popup menu with your clipboard history. CopyQ auto-starts in `bspwmrc`.
