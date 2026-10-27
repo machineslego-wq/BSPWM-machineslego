@@ -34,13 +34,13 @@ done
 # --- 3. Перезапуск Polybar ---
 # ---------------------------------------------------------
 
+# Убиваем все существующие процессы Polybar
+pkill -x polybar
+
 # Убить старые экземпляры модулей-скриптов (они не убиваются при pkill -x polybar)
 pkill -f "polybar/scripts/battery.sh" 2>/dev/null
 pkill -f "polybar/scripts/brightness.sh" 2>/dev/null
 pkill -f "polybar/scripts/power-profile.sh" 2>/dev/null
-
-# Убиваем все существующие процессы Polybar
-pkill -x polybar
 
 # Ждём, пока они полностью завершатся (чтобы избежать конфликтов)
 while pgrep -u "$(id -u)" -x polybar > /dev/null; do 
