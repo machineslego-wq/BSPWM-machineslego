@@ -14,12 +14,12 @@ pgrep -x sxhkd > /dev/null || sxhkd &
 # Задержка 3 секунды нужна, чтобы Dunst успел загрузиться и принять уведомление.
 (sleep 3 && notify-send -u low -t 8000 -i input-keyboard "Подсказка" "Нажмите Super + /, чтобы открыть меню горячих клавиш") &
 
-# Композитор (тени, скругления, размытие — если включено в конфиге)
-picom --config "$HOME/.config/picom/picom.conf" &
+# Композитор (тени, скругления, анимации)
+pgrep -x picom > /dev/null || picom --config "$HOME/.config/picom/picom.conf" &
 
 # Аплет Bluetooth.
 # Оставлен, так как полноценной замены для управления BT в трее без лишней боли нет.
-blueman-applet &
+pgrep -x blueman-applet > /dev/null || blueman-applet &
 
 # Запуск панели Polybar
 "$HOME/.config/polybar/launch.sh" &
@@ -34,7 +34,10 @@ fi
 pgrep -x copyq > /dev/null || copyq --start-server &
 
 # Агент аутентификации Polkit (для GParted, Synaptic, обновлений).
-pgrep -x lxpolkit > /dev/null || lxpolkit &
+# Убиваем старые зависшие экземпляры и запускаем один новый.
+# (Используем pkill, так как D-Bus может принудительно плодить эти процессы)
+pkill -x lxpolkit 2>/dev/null
+lxpolkit &
 
 # =====================================================================
 #               --- АВТОБЛОКИРОВКА (xss-lock) ---
@@ -55,7 +58,8 @@ xset +dpms dpms 600 600 600 &
 #    i3lock-fancy -p       : ваш стандартный блокировщик. Флаг -p означает
 #                            "не показывать индикатор ввода" (или другой смысл
 #                            в вашей версии i3lock-fancy — проверьте `man i3lock-fancy`).
-xss-lock --transfer-sleep-lock -- i3lock-fancy -p &
+#    (pgrep защищает от дублирования xss-lock при перезапусках bspwmrc)
+pgrep -x xss-lock > /dev/null || xss-lock --transfer-sleep-lock -- i3lock-fancy -p &
 
 # =====================================================================
 #                         --- ФИКСЫ ---
@@ -113,7 +117,6 @@ else
     # На ноутбуках: только горизонтальные на весь экран
     feh --bg-fill "$HOME/BSPWM-machineslego/wallpapers/tokyo-night-girl-landscape.jpg" &
 fi
-
 
 # Автоматическое удаление отключенных мониторов и столов на них.
 bspc config remove_disabled_monitors true
