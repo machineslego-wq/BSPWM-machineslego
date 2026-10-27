@@ -42,6 +42,7 @@ sudo apt install -y \
   alacritty \
   i3lock-fancy libnotify-bin \
   fish fontconfig \
+  zsh zsh-autosuggestions zsh-syntax-highlighting \
   wget curl unzip xclip lm-sensors \
   jq \
   imagemagick xdg-utils xdg-user-dirs xdotool fastfetch \
@@ -104,7 +105,18 @@ else
 fi
 echo ""
 
-echo "[3/6] Configuring power management... (Настройка управления питанием...)"
+echo "[3/7] Installing Powerlevel10k... (Установка Powerlevel10k...)"
+P10K_DIR="$REAL_HOME/.powerlevel10k"
+
+if [ ! -d "$P10K_DIR" ]; then
+    echo "  -> Cloning powerlevel10k... (Клонируем powerlevel10k...)"
+    sudo -u "$REAL_USER" git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$P10K_DIR"
+else
+    echo "  Powerlevel10k already installed. Skipping. (Уже установлен. Пропускаем.)"
+fi
+echo ""
+
+echo "[4/7] Configuring power management... (Настройка управления питанием...)"
 # Унифицируем управление питанием на power-profiles-daemon (PPD).
 # PPD работает и на ноутбуках, и на ПК. Это стандарт для десктопных
 # окружений (GNOME, KDE, Cinnamon) и рекомендация производителей
@@ -136,12 +148,12 @@ CURRENT_PROFILE=$(powerprofilesctl get 2>/dev/null || echo "unknown")
 echo "  -> PPD is running. Current profile: ${CURRENT_PROFILE} (PPD работает. Текущий профиль: ${CURRENT_PROFILE})"
 echo ""
 
-echo "[4/6] Linking configs... (Линковка конфигов...)"
+echo "[5/7] Linking configs... (Линковка конфигов...)"
 export DOTFILES
 sudo -u "$REAL_USER" env HOME="$REAL_HOME" DOTFILES="$DOTFILES" bash "$DOTFILES/scripts/link.sh"
 echo ""
 
-echo "[5/6] Installing system configs to /etc/... (Установка системных конфигов в /etc/...)"
+echo "[6/7] Installing system configs to /etc/... (Установка системных конфигов в /etc/...)"
 # ВНИМАНИЕ: Этот блок копирует файлы в /etc. 
 # Если у тебя установлен GNOME, он может перезаписать настройки тачпада и сети. 
 # В случае проблем с GNOME, восстанови файлы из бэкапа.
@@ -173,7 +185,7 @@ if [ -d "$DOTFILES/system" ]; then
 fi
 echo ""
 
-echo "[6/6] Configuring lid close behavior (suspend)... (Настройка поведения при закрытии крышки (сон)...)"
+echo "[7/7] Configuring lid close behavior (suspend)... (Настройка поведения при закрытии крышки (сон)...)"
 # Настраиваем уход в сон при закрытии крышки ноутбука.
 # Это универсальная настройка для всех ноутбуков (наличие батареи),
 # так как проблемы с засыпанием распространены на AMD-платформах.
