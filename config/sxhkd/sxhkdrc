@@ -94,19 +94,19 @@ super + alt + t
 
 # Скриншот: весь экран + буфер (Super + F1)
 super + F1
-    bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim "$FILE" && xclip -selection clipboard -t image/png -i "$FILE"'
+    bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Весь экран → буфер"'
 
 # Скриншот: активное окно + буфер (Super + F2)
 super + F2
-    bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -i $(xdotool getactivewindow) "$FILE" && xclip -selection clipboard -t image/png -i "$FILE"'
+    bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -i $(xdotool getactivewindow) "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Активное окно → буфер"'
 
 # Скриншот: выделенная область + буфер (Super + Shift + S)
 super + shift + s
-    bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -s "$FILE" && xclip -selection clipboard -t image/png -i "$FILE"'
+    bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -s "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Область → буфер"'
 
 # Скриншот: весь экран с задержкой 3с (Super + F3)
 super + F3
-    bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -d 3 "$FILE" && xclip -selection clipboard -t image/png -i "$FILE"'
+    bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -d 3 "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Экран (3с) → буфер"'
 
 # Яркость: +5% (Fn + Brightness Up)
 XF86MonBrightnessUp
