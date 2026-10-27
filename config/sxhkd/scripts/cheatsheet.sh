@@ -29,6 +29,7 @@ cat <<EOF | rofi -dmenu -i -markup-rows -scroll-method 1 -p "󰌌 Горячие
 󰂚 Super + Alt + H                  История уведомлений            <span foreground="#1a1b26">[уведомления, notifications, dunst, история]</span>
 
 <b>󰐥 ПИТАНИЕ И БЛОКИРОВКА</b>
+ Super + Alt + B                  Батарея (детали)               <span foreground="#1a1b26">[батарея, battery, заряд, аккумулятор]</span>
 󰤆 Super + Shift + Q                Меню питания (Rofi)            <span foreground="#1a1b26">[poweroff, reboot, logout, lock, питание]</span>
 󰓅 Super + Alt + P                  Выбор режима питания           <span foreground="#1a1b26">[питание, ppd, энергосбережение, батарея]</span>
 󰌾 Super + Alt + L                  Заблокировать экран            <span foreground="#1a1b26">[lock, блокировка, пароль]</span>

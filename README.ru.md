@@ -192,6 +192,7 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 | `Super + E` | Файловый менеджер (Thunar) |
 | `Super + Alt + T` | Telegram + Proxy |
 | `Super + Alt + H` | История уведомлений (Rofi) |
+| `Super + Alt + B` | Батарея (детали, Rofi) |
 | `Alt + Tab` | Поиск по открытым окнам (Rofi) |
 | `Super + W` | Закрыть окно |
 | `Super + 1…0` | Переключение рабочих столов |

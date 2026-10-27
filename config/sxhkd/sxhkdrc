@@ -87,6 +87,9 @@ super + d
 super + alt + t
     tg-ws-proxy & sleep 1 && flatpak run org.telegram.desktop &
 
+# Батарея: подробности в Rofi (Super + Alt + B)
+super + alt + b
+    ~/.config/polybar/scripts/battery.sh --details
 
 # ==============================================================================
 # МУЛЬТИМЕДИА И СКРИНШОТЫ
