@@ -41,6 +41,7 @@ cat <<EOF | rofi -dmenu -i -markup-rows -scroll-method 1 -p "󰌌 Горячие
 󰖲 Super + F2                       Активное окно                  <span foreground="#1a1b26">[скриншот, screenshot, окно, window]</span>
 󰩭 Super + Shift + S                Выделенная область             <span foreground="#1a1b26">[скриншот, screenshot, регион, зона]</span>
 󰔛 Super + F3                       Экран (задержка 3с)            <span foreground="#1a1b26">[скриншот, screenshot, таймер, delay]</span>
+󰍹 Super + F4                       Активный монитор               <span foreground="#1a1b26">[скриншот, screenshot, монитор, экран, monitor]</span>
 
 <b>󰖯 УПРАВЛЕНИЕ ОКНАМИ</b>
 󰁔 Super + Стрелки                  Смена фокуса                   <span foreground="#1a1b26">[окно, window, фокус, focus]</span>

@@ -116,6 +116,10 @@ super + shift + s
 super + F3
     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -d 3 "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Экран (3с) → буфер"'
 
+# Скриншот: активный монитор + буфер (Super + F4)
+super + F4
+    bash -c 'GEOM=$(bspc query -T -m focused | jq -r ".rectangle | \"\(.width)x\(.height)+\(.x)+\(.y)\""); FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -g "$GEOM" "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Активный монитор → буфер"'
+
 # Яркость: +5% (Fn + Brightness Up)
 XF86MonBrightnessUp
     brightnessctl set +5%
