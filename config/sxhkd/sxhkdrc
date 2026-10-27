@@ -94,7 +94,7 @@ super + alt + t
 
 # Батарея: подробности в Rofi (Super + Alt + B)
 super + alt + b
-    ~/.config/polybar/scripts/battery.sh --details
+    ~/.config/sxhkd/scripts/battery.sh
 
 # ==============================================================================
 # МУЛЬТИМЕДИА И СКРИНШОТЫ
