@@ -39,7 +39,7 @@ show_details() {
     esac
 
     local lines=""
-    lines+="󰋊 Батарея ${bat_name}"$'\n'
+    lines+=" Батарея ${bat_name}"$'\n'
     lines+="Уровень: ${cap}%"$'\n'
     lines+="Статус: ${status_ru}"$'\n'
 
@@ -95,7 +95,7 @@ show_details() {
 
     # Без -markup-rows: Rofi применит цвета из config.rasi
     echo "$lines" | \
-        rofi -dmenu -i -p "󰋊 Батарея" \
+        rofi -dmenu -i -p " Батарея" \
               -theme-str 'window {width: 30%;} listview {lines: 6;}'
 }
 
@@ -113,7 +113,7 @@ warn30_sent=false
 
 while true; do
     if [ -z "$BAT" ]; then
-        out="%{F#7dcfff}󰚥 PC%{F-}"
+        out="%{F#7dcfff} PC%{F-}"
     else
         capacity=$(cat "$BAT/capacity" 2>/dev/null)
         status=$(cat "$BAT/status" 2>/dev/null)
@@ -132,24 +132,17 @@ while true; do
         fi
 
         if [ -z "$capacity" ]; then
-            out="%{F#7dcfff}󰚥 PC%{F-}"
+            out="%{F#7dcfff} PC%{F-}"
         else
-            if [ "$status" = "Charging" ]; then
-                icon="󰂄"
-            elif [ "$status" = "Full" ]; then
-                icon="󰁹"
-            else
-                if   [ "$capacity" -ge 90 ]; then icon="󰂂"
-                elif [ "$capacity" -ge 80 ]; then icon="󰂁"
-                elif [ "$capacity" -ge 70 ]; then icon="󰂀"
-                elif [ "$capacity" -ge 60 ]; then icon="󰁿"
-                elif [ "$capacity" -ge 50 ]; then icon="󰁾"
-                elif [ "$capacity" -ge 40 ]; then icon="󰁽"
-                elif [ "$capacity" -ge 30 ]; then icon="󰁼"
-                elif [ "$capacity" -ge 20 ]; then icon="󰁻"
-                elif [ "$capacity" -ge 10 ]; then icon="󰁺"
-                else                              icon="󰂃"
-                fi
+            # Иконка зависит только от уровня.
+            # Состояние (зарядка/разрядка) передаётся цветом:
+            # зелёный = зарядка, foreground = норма, жёлтый/красный = разряд.
+            if   [ "$capacity" -ge 90 ]; then icon=""
+            elif [ "$capacity" -ge 70 ]; then icon=""
+            elif [ "$capacity" -ge 50 ]; then icon=""
+            elif [ "$capacity" -ge 30 ]; then icon=""
+            elif [ "$capacity" -ge 10 ]; then icon=""
+            else                              icon=""
             fi
 
             if [ "$status" = "Charging" ] || [ "$status" = "Full" ]; then
