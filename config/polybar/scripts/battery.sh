@@ -2,44 +2,128 @@
 # ==========================================================
 # battery.sh — Модуль батареи для Polybar
 # ==========================================================
-# Скрипт работает в режиме `tail = true`.
-# Он постоянно крутится в фоне, проверяет состояние батареи
-# и выводит строку ТОЛЬКО если состояние изменилось.
-# Это снижает нагрузку на Polybar и процессор.
+# Работает в режиме `tail = true`: постоянно крутится в фоне,
+# выводит только при изменении состояния.
+#
+# Использование:
+#   battery.sh             — цикл для Polybar (обычный режим)
+#   battery.sh --details   — показать подробности в Rofi (click-left)
 # ==========================================================
 
-# Переменная для хранения последнего выведенного состояния.
-# Нужна, чтобы не спамить Polybar одинаковыми строками каждые 3 секунды.
+BAT=""
+for b in /sys/class/power_supply/BAT*; do
+    [ -d "$b" ] && BAT="$b" && break
+done
+
+# ==========================================================
+# Режим подробностей (Rofi)
+# ==========================================================
+show_details() {
+    if [ -z "$BAT" ]; then
+        echo "Питание: стационарный ПК (батареи нет)" | \
+            rofi -dmenu -i -p "󰚥 Питание" -theme-str 'window {width: 30%;}'
+        return 0
+    fi
+
+    local bat_name=$(basename "$BAT")
+    local cap=$(cat "$BAT/capacity" 2>/dev/null || echo "?")
+    local status=$(cat "$BAT/status" 2>/dev/null || echo "Unknown")
+
+    local status_ru
+    case "$status" in
+        Charging)      status_ru="Заряжается" ;;
+        Discharging)   status_ru="Разряжается" ;;
+        Full)          status_ru="Полностью заряжена" ;;
+        Not\ charging) status_ru="Не заряжается" ;;
+        *)             status_ru="$status" ;;
+    esac
+
+    local lines=""
+    lines+="󰋊 Батарея ${bat_name}"$'\n'
+    lines+="Уровень: ${cap}%"$'\n'
+    lines+="Статус: ${status_ru}"$'\n'
+
+    local power_now=$(cat "$BAT/power_now" 2>/dev/null || echo 0)
+    local energy_now=$(cat "$BAT/energy_now" 2>/dev/null || echo 0)
+    local energy_full=$(cat "$BAT/energy_full" 2>/dev/null || echo 0)
+
+    if [ "$power_now" -gt 0 ] 2>/dev/null; then
+        local power_w=$(awk "BEGIN {printf \"%.1f\", $power_now / 1000000}")
+        lines+="Потребление: ${power_w} Вт"$'\n'
+
+        if [ "$status" = "Discharging" ] && [ "$energy_now" -gt 0 ] 2>/dev/null; then
+            local hours=$(awk "BEGIN {printf \"%.1f\", $energy_now / $power_now}")
+            lines+="Осталось: ~${hours} ч"$'\n'
+        elif [ "$status" = "Charging" ] && [ "$energy_full" -gt 0 ] 2>/dev/null; then
+            local left=$(awk "BEGIN {printf \"%.1f\", ($energy_full - $energy_now) / $power_now}")
+            lines+="До полной: ~${left} ч"$'\n'
+        fi
+    fi
+
+    # --- Здоровье батареи ---
+    # Приоритет 1: готовый файл health (если ядро отдаёт)
+    local health=$(cat "$BAT/health" 2>/dev/null)
+    local health_ru=""
+
+    if [ -n "$health" ]; then
+        case "$health" in
+            Good) health_ru="Хорошее" ;;
+            Fair) health_ru="Удовлетворительное" ;;
+            Poor) health_ru="Плохое" ;;
+            *)    health_ru="$health" ;;
+        esac
+    else
+        # Приоритет 2: вычислить из energy_full / energy_full_design
+        local design_energy=$(cat "$BAT/energy_full_design" 2>/dev/null || echo 0)
+        if [ "$design_energy" -gt 0 ] 2>/dev/null && [ "$energy_full" -gt 0 ] 2>/dev/null; then
+            local health_pct=$(awk "BEGIN {printf \"%d\", $energy_full * 100 / $design_energy}")
+            health_ru="${health_pct}%"
+        else
+            # Приоритет 3: вычислить из charge_full / charge_full_design
+            local charge_full=$(cat "$BAT/charge_full" 2>/dev/null || echo 0)
+            local design_charge=$(cat "$BAT/charge_full_design" 2>/dev/null || echo 0)
+            if [ "$design_charge" -gt 0 ] 2>/dev/null && [ "$charge_full" -gt 0 ] 2>/dev/null; then
+                local health_pct=$(awk "BEGIN {printf \"%d\", $charge_full * 100 / $design_charge}")
+                health_ru="${health_pct}%"
+            fi
+        fi
+    fi
+
+    if [ -n "$health_ru" ]; then
+        lines+="Здоровье: ${health_ru}"
+    fi
+
+    # Без -markup-rows: Rofi применит цвета из config.rasi
+    echo "$lines" | \
+        rofi -dmenu -i -p "󰋊 Батарея" \
+              -theme-str 'window {width: 30%;} listview {lines: 6;}'
+}
+
+if [ "$1" = "--details" ]; then
+    show_details
+    exit 0
+fi
+
+# ==========================================================
+# Основной цикл для Polybar
+# ==========================================================
 last=""
+warn60_sent=false
+warn30_sent=false
 
 while true; do
-    # ------------------------------------------------------
-    # 1. Поиск батареи
-    # ------------------------------------------------------
-    BAT=""
-    # Ищем первую попавшуюся батарею (BAT0, BAT1 и т.д.)
-    for b in /sys/class/power_supply/BAT*; do
-        [ -d "$b" ] && BAT="$b" && break
-    done
-
     if [ -z "$BAT" ]; then
-        # Батареи нет (стационарный ПК) — выводим иконку розетки
-        # Цвет info (голубой) из палитры Tokyo Night
         out="%{F#7dcfff}󰚥 PC%{F-}"
     else
-        # --------------------------------------------------
-        # 2. Чтение данных
-        # --------------------------------------------------
         capacity=$(cat "$BAT/capacity" 2>/dev/null)
         status=$(cat "$BAT/status" 2>/dev/null)
 
-        # Фолбэк для новых ноутбуков (если нет файла capacity)
         if [ -z "$capacity" ]; then
             energy_now=$(cat "$BAT/energy_now" 2>/dev/null)
             energy_full=$(cat "$BAT/energy_full" 2>/dev/null)
             charge_now=$(cat "$BAT/charge_now" 2>/dev/null)
             charge_full=$(cat "$BAT/charge_full" 2>/dev/null)
-            
+
             if [ -n "$energy_now" ] && [ -n "$energy_full" ] && [ "$energy_full" -gt 0 ]; then
                 capacity=$(( energy_now * 100 / energy_full ))
             elif [ -n "$charge_now" ] && [ -n "$charge_full" ] && [ "$charge_full" -gt 0 ]; then
@@ -48,18 +132,13 @@ while true; do
         fi
 
         if [ -z "$capacity" ]; then
-            # Батарея есть, но данные не читаются — показываем розетку
             out="%{F#7dcfff}󰚥 PC%{F-}"
         else
-            # --------------------------------------------------
-            # 3. Выбор иконки (Nerd Font / Material Design)
-            # --------------------------------------------------
             if [ "$status" = "Charging" ]; then
                 icon="󰂄"
             elif [ "$status" = "Full" ]; then
                 icon="󰁹"
             else
-                # Градация иконок при разряде (от 100% до 0%)
                 if   [ "$capacity" -ge 90 ]; then icon="󰂂"
                 elif [ "$capacity" -ge 80 ]; then icon="󰂁"
                 elif [ "$capacity" -ge 70 ]; then icon="󰂀"
@@ -73,36 +152,46 @@ while true; do
                 fi
             fi
 
-            # --------------------------------------------------
-            # 4. Выбор цвета (Tokyo Night)
-            # --------------------------------------------------
             if [ "$status" = "Charging" ] || [ "$status" = "Full" ]; then
-                color="#9ece6a"   # Зеленый (success) при зарядке
-            elif [ "$capacity" -le 40 ]; then
-                color="#f7768e"   # Красный (alert) при критическом заряде
+                color="#9ece6a"   # зелёный — зарядка/полный
+            elif [ "$capacity" -le 30 ]; then
+                color="#f7768e"   # красный — критично
             elif [ "$capacity" -le 60 ]; then
-                color="#e0af68"   # Желтый (warning) при низком заряде
+                color="#e0af68"   # жёлтый — предупреждение
             else
-                color="#7aa2f7"   # Синий (primary) в обычном режиме
+                color="#c0caf5"   # foreground — норма
             fi
 
-            # --------------------------------------------------
-            # 5. Формирование вывода для Polybar
-            # --------------------------------------------------
-            # Оборачиваем иконку и процент в теги цвета Polybar
             out="%{F$color}$icon $capacity%%{F-}"
+
+            # --- Предупреждения (только один раз на переход) ---
+            if [ "$status" = "Discharging" ]; then
+                if [ "$capacity" -le 30 ] && [ "$warn30_sent" = false ]; then
+                    notify-send -u critical -t 0 \
+                        -a "Battery" -i battery-caution \
+                        "Батарея разряжена до ${capacity}%" \
+                        "Пожалуйста, подключите зарядное устройство как можно скорее — заряда осталось совсем немного."
+                    warn30_sent=true
+                elif [ "$capacity" -le 60 ] && [ "$capacity" -gt 30 ] && [ "$warn60_sent" = false ]; then
+                    notify-send -u normal -t 10000 \
+                        -a "Battery" -i battery-low \
+                        "Батарея разряжена до ${capacity}%" \
+                        "Рекомендуется завершить текущие задачи или подключить зарядное устройство — до разряда осталось не так много."
+                    warn60_sent=true
+                fi
+            fi
+
+            if [ "$status" = "Charging" ] || [ "$status" = "Full" ]; then
+                [ "$capacity" -gt 60 ] && warn60_sent=false
+                [ "$capacity" -gt 30 ] && warn30_sent=false
+            fi
         fi
     fi
 
-    # ------------------------------------------------------
-    # 6. Отправка данных в Polybar
-    # ------------------------------------------------------
-    # Выводим только если состояние изменилось
     if [ "$out" != "$last" ]; then
         echo "$out"
         last="$out"
     fi
 
-    # Пауза перед следующей проверкой (3 секунды)
     sleep 3
 done
