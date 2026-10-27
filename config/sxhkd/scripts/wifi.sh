@@ -35,7 +35,7 @@ else
     TOGGLE_TEXT="󰖩 Включить Wi-Fi"
 fi
 
-CHOICE=$(printf "$TOGGLE_TEXT\n󰤨 Подключиться к сети\n󰀂 Включить хотспот\n󰅖 Выключить хотспот" | rofi -dmenu -p "󰖩 Wi-Fi" -theme-str 'window {width: 25%;}')
+CHOICE=$(printf "$TOGGLE_TEXT\n󰤨 Подключиться к сети\n󰈈 Скрытая сеть\n󰀂 Включить хотспот\n󰅖 Выключить хотспот" | rofi -dmenu -p "󰖩 Wi-Fi" -theme-str 'window {width: 25%;}')
 
 case "$CHOICE" in
     *"Включить Wi-Fi"*)
@@ -101,6 +101,26 @@ case "$CHOICE" in
                 # Если не удалось — открываем терминал для ввода пароля
                 alacritty --class wifi -e bash -c "echo 'Подключение к $SSID...'; nmcli device wifi connect '$SSID' --ask; echo -e '\nНажмите Enter для выхода...'; read" &
             fi
+        fi
+        ;;
+        *"Скрытая сеть"*)
+        if [ "$WIFI_STATE" = "disabled" ]; then
+            notify-send -h string:x-canonical-private-synchronous:wifi \
+                        -a "Wi-Fi" -i dialog-warning \
+                        "Wi-Fi выключен" "Сначала включите адаптер"
+            exit 1
+        fi
+
+        # Пустой stdin → rofi просто показывает поле ввода
+        HIDDEN_SSID=$(echo "" | rofi -dmenu -p "SSID скрытой сети" -theme-str 'window {width: 30%;}')
+
+        if [ -n "$HIDDEN_SSID" ]; then
+            notify-send -h string:x-canonical-private-synchronous:wifi \
+                        -a "Wi-Fi" -i network-wireless-acquiring \
+                        "Подождите..." "Подключение к скрытой сети..."
+
+            # Пароль вводится в терминале через --ask — как в остальном скрипте
+            alacritty --class wifi -e bash -c "echo 'Подключение к скрытой сети: $HIDDEN_SSID'; nmcli device wifi connect '$HIDDEN_SSID' hidden yes --ask; echo -e '\nНажмите Enter для выхода...'; read" &
         fi
         ;;
     *"Включить хотспот"*)
