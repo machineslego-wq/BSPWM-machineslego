@@ -9,6 +9,53 @@
 #   battery.sh             — цикл для Polybar (обычный режим)
 #   battery.sh --details   — показать подробности в Rofi (click-left)
 # ==========================================================
+#
+# ==========================================================
+# Настройки отображения
+# ==========================================================
+# ICON_STYLE — набор иконок батареи:
+#   "horizontal" — Font Awesome (    ) — горизонтальные
+#   "vertical"   — Material Design (󰂂 󰂁 󰂀 󰁿 󰁾 󰁽 󰁼 󰁻 󰁺 󰂃) — вертикальные
+ICON_STYLE="horizontal"
+
+# Функция: вернуть иконку батареи по уровню заряда
+get_icon() {
+    local cap="$1"
+
+    # Если capacity не число (например, "?") — вернуть «пустую»
+    if ! [[ "$cap" =~ ^[0-9]+$ ]]; then
+        if [ "$ICON_STYLE" = "vertical" ]; then
+            echo "󰂃"
+        else
+            echo ""
+        fi
+        return
+    fi
+
+    if [ "$ICON_STYLE" = "vertical" ]; then
+        # Material Design: 10 уровней (шаг 10%)
+        if   [ "$cap" -ge 90 ]; then echo "󰂂"
+        elif [ "$cap" -ge 80 ]; then echo "󰂁"
+        elif [ "$cap" -ge 70 ]; then echo "󰂀"
+        elif [ "$cap" -ge 60 ]; then echo "󰁿"
+        elif [ "$cap" -ge 50 ]; then echo "󰁾"
+        elif [ "$cap" -ge 40 ]; then echo "󰁽"
+        elif [ "$cap" -ge 30 ]; then echo "󰁼"
+        elif [ "$cap" -ge 20 ]; then echo "󰁻"
+        elif [ "$cap" -ge 10 ]; then echo "󰁺"
+        else                         echo "󰂃"
+        fi
+    else
+        # Font Awesome: 5 уровней (шаг 20%)
+        if   [ "$cap" -ge 90 ]; then echo ""
+        elif [ "$cap" -ge 70 ]; then echo ""
+        elif [ "$cap" -ge 50 ]; then echo ""
+        elif [ "$cap" -ge 30 ]; then echo ""
+        else                         echo ""
+        fi
+    fi
+}
+
 
 BAT=""
 for b in /sys/class/power_supply/BAT*; do
@@ -39,7 +86,7 @@ show_details() {
     esac
 
     local lines=""
-    lines+=" Батарея ${bat_name}"$'\n'
+    lines+="$(get_icon "$cap") Батарея ${bat_name}"$'\n'
     lines+="Уровень: ${cap}%"$'\n'
     lines+="Статус: ${status_ru}"$'\n'
 
@@ -93,9 +140,9 @@ show_details() {
         lines+="Здоровье: ${health_ru}"
     fi
 
-    # Без -markup-rows: Rofi применит цвета из config.rasi
+    # Prompt в Rofi тоже использует get_icon — консистентно с панелью
     echo "$lines" | \
-        rofi -dmenu -i -p " Батарея" \
+        rofi -dmenu -i -p "$(get_icon "$cap") Батарея" \
               -theme-str 'window {width: 30%;} listview {lines: 6;}'
 }
 
@@ -134,16 +181,10 @@ while true; do
         if [ -z "$capacity" ]; then
             out="%{F#7dcfff} PC%{F-}"
         else
-            # Иконка зависит только от уровня.
-            # Состояние (зарядка/разрядка) передаётся цветом:
+            # Иконка по уровню + стилю (horizontal/vertical).
+            # Состояние (зарядка/разрядка) передаётся цветом.
             # зелёный = зарядка, foreground = норма, жёлтый/красный = разряд.
-            if   [ "$capacity" -ge 90 ]; then icon=""
-            elif [ "$capacity" -ge 70 ]; then icon=""
-            elif [ "$capacity" -ge 50 ]; then icon=""
-            elif [ "$capacity" -ge 30 ]; then icon=""
-            elif [ "$capacity" -ge 10 ]; then icon=""
-            else                              icon=""
-            fi
+            icon=$(get_icon "$capacity")
 
             if [ "$status" = "Charging" ] || [ "$status" = "Full" ]; then
                 color="#9ece6a"   # зелёный — зарядка/полный
