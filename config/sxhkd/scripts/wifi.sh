@@ -99,7 +99,8 @@ case "$CHOICE" in
                             "Подключено" "SSID: $SSID"
             else
                 # Если не удалось — открываем терминал для ввода пароля
-                alacritty --class wifi -e bash -c "echo 'Подключение к $SSID...'; nmcli device wifi connect '$SSID' --ask; echo -e '\nНажмите Enter для выхода...'; read" &
+                # alacritty --class wifi -e bash -c "echo 'Подключение к $SSID...'; nmcli device wifi connect '$SSID' --ask; echo -e '\nНажмите Enter для выхода...'; read" &
+                SSID_ENV="$SSID" alacritty --class wifi -e bash -c 'echo "Подключение к $SSID_ENV..."; nmcli device wifi connect "$SSID_ENV" --ask; echo -e "\nНажмите Enter для выхода..."; read' &
             fi
         fi
         ;;
