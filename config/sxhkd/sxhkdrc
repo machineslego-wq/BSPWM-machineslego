@@ -25,6 +25,7 @@ super + alt + shift + r
     pkill -x blueman-applet; \
     pkill -x xss-lock; \
     pkill -x lxpolkit; \
+    pkill -x copyq; \
     bspc wm -r
 
 # Меню питания (Super + Shift + Q)
@@ -58,7 +59,6 @@ super + ctrl + v
 # История уведомлений Dunst (Super + Alt + H)
 super + alt + h
     ~/.config/sxhkd/scripts/notify-history.sh
-    
 
 # ==============================================================================
 # ЗАПУСК ПРИЛОЖЕНИЙ (Быстрый доступ)
