@@ -6,6 +6,7 @@
 ![X11](https://img.shields.io/badge/X11-only-blue)
 ![PipeWire](https://img.shields.io/badge/PipeWire-Audio-blue?logo=pipewire&logoColor=white)
 ![BSPWM](https://img.shields.io/badge/WM-BSPWM-black)
+![Fish](https://img.shields.io/badge/Shell-Fish-green)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 A strict, flat desktop environment based on BSPWM for Debian 13 Trixie, styled in the Tokyo Night palette.
@@ -26,6 +27,7 @@ A strict, flat desktop environment based on BSPWM for Debian 13 Trixie, styled i
 
 - **Native Modules First:** Polybar uses stock `internal/battery`, `internal/backlight`, `internal/network`, and `internal/pulseaudio`. Zero background bash loops.
 - **On-Demand Scripts:** Custom logic (Wi-Fi manager, Rofi menus, screenshots) runs only when triggered by a hotkey and exits immediately.
+- **Modern Shell:** Powered by **Fish** and **Tide** prompt. Fast, feature-rich autosuggestions, syntax highlighting, and Git status integration without background daemons.
 - **Smooth & Flat:** Hyprland-style window animations via Picom, no blur, strict Tokyo Night colors.
 - **Smart Volume OSD:** Volume notifications dynamically change color based on level.
 - **Workflow:** Clipboard history (CopyQ), Notification history (Rofi), quick screenshots to clipboard, and a comprehensive cheatsheet.
@@ -37,6 +39,9 @@ A strict, flat desktop environment based on BSPWM for Debian 13 Trixie, styled i
 BSPWM-machineslego/
 ├── config/                 # Symlinks to ~/.config/*
 │   ├── bspwm, dunst, picom, rofi, alacritty...
+│   ├── fish/               # Fish shell config
+│   │   ├── config.fish     # Aliases and base settings
+│   │   └── fish_plugins    # Tide prompt tracking (used by Fisher)
 │   ├── polybar/
 │   │   ├── config.ini      # Stock modules + native battery/backlight
 │   │   └── scripts/
@@ -71,6 +76,13 @@ chmod +x scripts/*.sh
 - **Launch:** `startx` (or via LightDM).
 
 ### ⚙️ Post-Install Customization
+
+**Fish & Tide Prompt:**
+`install.sh` automatically installs Fisher and the Tide prompt. After installation, open a terminal and run:
+```bash
+tide configure
+```
+This interactive wizard will help you set up the prompt's style, colors, and icons to match your preferences.
 
 **Wi-Fi Manager:**
 The `wifi.sh` script is pre-configured for my devices. Open `~/.config/sxhkd/scripts/wifi.sh` and add your interface name (e.g., `wlan0`, `wlp3s0`) to the `if/elif` block. Change `HOTSPOT_SSID` and `HOTSPOT_PASSWORD` at the top of the script.

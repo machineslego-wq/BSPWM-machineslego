@@ -6,6 +6,7 @@
 ![X11](https://img.shields.io/badge/X11-only-blue)
 ![PipeWire](https://img.shields.io/badge/PipeWire-Audio-blue?logo=pipewire&logoColor=white)
 ![BSPWM](https://img.shields.io/badge/WM-BSPWM-black)
+![Fish](https://img.shields.io/badge/Shell-Fish-green)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 Строгое, плоское рабочее окружение на базе BSPWM для Debian 13 Trixie в палитре Tokyo Night.
@@ -26,6 +27,7 @@
 
 - **Native Modules First:** Polybar использует стоковые `internal/battery`, `internal/backlight`, `internal/network` и `internal/pulseaudio`. Ноль фоновых bash-циклов.
 - **Скрипты по требованию:** Кастомная логика (Wi-Fi, Rofi-меню, скриншоты) запускается только по хоткею и сразу завершается.
+- **Современная оболочка:** Терминал на **Fish** с промптом **Tide**. Быстрые автодополнения, подсветка синтаксиса и интеграция с Git без фоновых демонов.
 - **Плавность и плоский дизайн:** Анимации окон в стиле Hyprland через Picom, никакого блюра, строгие цвета Tokyo Night.
 - **Умный OSD громкости:** Уведомления меняют цвет в зависимости от уровня звука.
 - **Workflow:** История буфера (CopyQ), история уведомлений (Rofi), быстрые скриншоты в буфер и подробная шпаргалка.
@@ -37,6 +39,9 @@
 BSPWM-machineslego/
 ├── config/                 # Симлинки в ~/.config/*
 │   ├── bspwm, dunst, picom, rofi, alacritty...
+│   ├── fish/               # Настройки Fish shell
+│   │   ├── config.fish     # Алиасы и базовые настройки
+│   │   └── fish_plugins    # Отслеживание плагинов Tide (через Fisher)
 │   ├── polybar/
 │   │   ├── config.ini      # Стоковые модули + нативные батарея/яркость
 │   │   └── scripts/
@@ -71,6 +76,13 @@ chmod +x scripts/*.sh
 - **Запуск:** `startx` (или через LightDM).
 
 ### ⚙️ Кастомизация после установки
+
+**Fish и Tide Prompt:**
+`install.sh` автоматически устанавливает Fisher и промпт Tide. После установки открой терминал и выполни:
+```bash
+tide configure
+```
+Этот интерактивный мастер поможет настроить стиль, цвета и иконки промпта под твои предпочтения.
 
 **Wi-Fi Менеджер:**
 Скрипт `wifi.sh` настроен под мои устройства. Открой `~/.config/sxhkd/scripts/wifi.sh` и добавь имя своего интерфейса (например, `wlan0`, `wlp3s0`) в блок `if/elif`. Задай свой `HOTSPOT_SSID` и `HOTSPOT_PASSWORD` в начале файла.
