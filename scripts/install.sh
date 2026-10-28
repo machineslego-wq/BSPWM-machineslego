@@ -21,7 +21,7 @@ echo ""
 
 sudo -v || { echo "Error: sudo privileges required (Ошибка: требуются права sudo)."; exit 1; }
 
-echo "[1/7] Installing base packages... (Установка базовых пакетов...)"
+echo "[1/8] Installing base packages... (Установка базовых пакетов...)"
 sudo apt update
 
 # Минимальный набор для работы оболочки. 
@@ -73,7 +73,7 @@ systemctl --user daemon-reload
 echo "  -> PipeWire is ready. (PipeWire готов.)"
 echo ""
 
-echo "[2/7] Installing JetBrainsMono Nerd Font... (Установка шрифта JetBrainsMono Nerd Font...)"
+echo "[2/8] Installing JetBrainsMono Nerd Font... (Установка шрифта JetBrainsMono Nerd Font...)"
 FONT_DIR="$REAL_HOME/.local/share/fonts"
 FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.zip"
 TMP_ZIP=$(mktemp /tmp/JetBrainsMono-XXXXXX.zip)
@@ -94,7 +94,7 @@ else
 fi
 echo ""
 
-echo "[3/7] Configuring power management... (Настройка управления питанием...)"
+echo "[3/8] Configuring power management... (Настройка управления питанием...)"
 if dpkg -l 2>/dev/null | grep -q "^ii  tlp "; then
     echo "  -> TLP detected. Removing to avoid conflict with PPD. (Обнаружен TLP. Удаляем во избежание конфликта с PPD.)"
     sudo systemctl disable --now tlp 2>/dev/null || true
@@ -115,12 +115,12 @@ fi
 echo ""
 
 # ВАЖНО: Линковка теперь идет ДО настройки Fish!
-echo "[4/7] Linking configs... (Линковка конфигов...)"
+echo "[4/8] Linking configs... (Линковка конфигов...)"
 export DOTFILES
 sudo -u "$REAL_USER" env HOME="$REAL_HOME" DOTFILES="$DOTFILES" bash "$DOTFILES/scripts/link.sh"
 echo ""
 
-echo "[5/7] Configuring Fish shell and Tide prompt... (Настройка Fish и промпта Tide...)"
+echo "[5/8] Configuring Fish shell and Tide prompt... (Настройка Fish и промпта Tide...)"
 # 1. Установка Fisher (менеджер плагинов для Fish)
 echo "  -> Installing Fisher (Fish plugin manager)..."
 sudo -u "$REAL_USER" fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
@@ -138,7 +138,7 @@ fi
 echo "  -> Tide installed. Run 'tide configure' later to customize your prompt."
 echo ""
 
-echo "[6/7] Installing system configs to /etc/... (Установка системных конфигов в /etc/...)"
+echo "[6/8] Installing system configs to /etc/... (Установка системных конфигов в /etc/...)"
 if [ -d "$DOTFILES/system" ]; then
     sudo mkdir -p "$BACKUP"
     find "$DOTFILES/system" -type f | while read -r src_file; do
@@ -161,7 +161,7 @@ if [ -d "$DOTFILES/system" ]; then
 fi
 echo ""
 
-echo "[7/7] Configuring lid close behavior (suspend)... (Настройка поведения при закрытии крышки (сон)...)"
+echo "[7/8] Configuring lid close behavior (suspend)... (Настройка поведения при закрытии крышки (сон)...)"
 if ls /sys/class/power_supply/BAT* &>/dev/null; then
     LID_CONF="/etc/systemd/logind.conf.d/10-lid-suspend.conf"
     if [ -f "$LID_CONF" ]; then
@@ -190,6 +190,27 @@ EOF
     echo "  -> Lid close will now trigger suspend. (Закрытие крышки теперь будет отправлять систему в сон.)"
 else
     echo "  -> Desktop PC detected. Skipping lid configuration. (Обнаружен ПК — пропускаем настройку крышки.)"
+fi
+echo ""
+
+echo "[8/8] Setting up Flatpak and optional software... (Настройка Flatpak и доп. софта...)"
+
+# 1. Flatpak ставим в любом случае
+sudo apt install -y flatpak
+sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+echo "  -> Flatpak and Flathub are ready. (Flatpak и Flathub готовы.)"
+
+# 2. Спрашиваем про доп. софт
+echo ""
+read -p "Do you want to install additional software (lazygit, media, etc.)? (Установить доп. софт?) [y/N]: " INSTALL_SOFTWARE
+
+if [[ "$INSTALL_SOFTWARE" =~ ^[Yy]$ ]]; then
+    echo "  -> Running software.sh... (Запускаем software.sh...)"
+    # Передаем права sudo и данные пользователя в дочерний скрипт
+    export SUDO_USER="$REAL_USER"
+    bash "$DOTFILES/scripts/software.sh"
+else
+    echo "  -> Skipping additional software. (Пропускаем установку доп. софта.)"
 fi
 echo ""
 
