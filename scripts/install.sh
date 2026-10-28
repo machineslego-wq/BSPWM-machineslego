@@ -21,13 +21,14 @@ echo ""
 
 sudo -v || { echo "Error: sudo privileges required (Ошибка: требуются права sudo)."; exit 1; }
 
-echo "[1/6] Installing base packages... (Установка базовых пакетов...)"
+echo "[1/7] Installing base packages... (Установка базовых пакетов...)"
 sudo apt update
 
 # Минимальный набор для работы оболочки. 
 # gvfs и xdg-user-dirs обязательны для быстрой работы Thunar.
 # PipeWire и pipewire-pulse добавлены сразу для гарантии работы Polybar и volume.sh.
 # copyq, xss-lock, lxpolkit — утилиты для комфорта (история буфера, автоблокировка, polkit).
+# fish и curl нужны для установки Tide.
 sudo apt install -y \
   xorg xinit xserver-xorg-input-libinput \
   bspwm sxhkd \
@@ -41,8 +42,8 @@ sudo apt install -y \
   thunar gvfs gvfs-backends gvfs-fuse \
   alacritty \
   i3lock-fancy libnotify-bin \
-  fish fontconfig \
-  wget curl unzip xclip lm-sensors \
+  fish curl fontconfig \
+  wget unzip xclip lm-sensors \
   jq \
   imagemagick xdg-utils xdg-user-dirs xdotool fastfetch \
   pipewire pipewire-audio pipewire-pulse wireplumber libspa-0.2-bluetooth \
@@ -51,11 +52,9 @@ sudo apt install -y \
 echo "  Base packages installed. (Базовые пакеты установлены.)"
 
 # Генерация стандартных папок XDG (Загрузки, Документы и т.д.)
-# Без этого Thunar будет виснуть при запуске.
 sudo -u "$REAL_USER" xdg-user-dirs-update
 echo "  XDG user directories updated (Стандартные папки обновлены)."
 
-# Создание папки для скриншотов
 sudo -u "$REAL_USER" mkdir -p "$REAL_HOME/Screenshots"
 echo "  Screenshots folder created (Создана папка для скриншотов): ~/Screenshots"
 
@@ -63,25 +62,18 @@ echo "  Screenshots folder created (Создана папка для скрин�
 # Принудительный переход на PipeWire
 # ==========================================================
 echo "  -> Configuring audio backend (Настройка аудио-бэкенда)..."
-# Если установлен чистый PulseAudio (и нет PipeWire), удаляем его во избежание конфликтов
 if dpkg -l | grep -q "^ii  pulseaudio " && ! command -v wpctl &>/dev/null; then
     echo "  -> Pure PulseAudio detected. Removing to prevent conflicts. (Обнаружен чистый PulseAudio. Удаляем во избежание конфликтов.)"
-    
-    # Останавливаем и отключаем службы PulseAudio для текущего пользователя
     systemctl --user stop pulseaudio.socket pulseaudio.service 2>/dev/null || true
     systemctl --user disable pulseaudio.socket pulseaudio.service 2>/dev/null || true
-    
-    # Удаляем пакет PulseAudio
     sudo apt purge -y pulseaudio
     sudo apt autoremove -y
 fi
-
-# Перезагружаем systemd, чтобы он увидел новые аудио-сервисы
 systemctl --user daemon-reload
 echo "  -> PipeWire is ready. (PipeWire готов.)"
 echo ""
 
-echo "[2/6] Installing JetBrainsMono Nerd Font... (Установка шрифта JetBrainsMono Nerd Font...)"
+echo "[2/7] Installing JetBrainsMono Nerd Font... (Установка шрифта JetBrainsMono Nerd Font...)"
 FONT_DIR="$REAL_HOME/.local/share/fonts"
 FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.zip"
 TMP_ZIP=$(mktemp /tmp/JetBrainsMono-XXXXXX.zip)
@@ -93,24 +85,16 @@ else
     echo "  Downloading JetBrainsMono.zip... (Скачиваем JetBrainsMono.zip...)"
     sudo -u "$REAL_USER" mkdir -p "$FONT_DIR"
     sudo -u "$REAL_USER" wget -q --show-progress "$FONT_URL" -O "$TMP_ZIP"
-    
     echo "  Extracting... (Распаковываем...)"
     sudo -u "$REAL_USER" unzip -q "$TMP_ZIP" -d "$FONT_DIR"
     rm -f "$TMP_ZIP"
-    
     echo "  Updating font cache... (Обновляем кэш шрифтов...)"
     sudo -u "$REAL_USER" fc-cache -f "$FONT_DIR" >/dev/null
     echo "  Font installed successfully. (Шрифт успешно установлен.)"
 fi
 echo ""
 
-echo "[3/6] Configuring power management... (Настройка управления питанием...)"
-# Унифицируем управление питанием на power-profiles-daemon (PPD).
-# PPD работает и на ноутбуках, и на ПК. Это стандарт для десктопных
-# окружений (GNOME, KDE, Cinnamon) и рекомендация производителей
-# для AMD Ryzen 7000-й серии.
-
-# 1. Удаляем TLP, если он установлен — иначе apt откажется ставить PPD
+echo "[3/7] Configuring power management... (Настройка управления питанием...)"
 if dpkg -l 2>/dev/null | grep -q "^ii  tlp "; then
     echo "  -> TLP detected. Removing to avoid conflict with PPD. (Обнаружен TLP. Удаляем во избежание конфликта с PPD.)"
     sudo systemctl disable --now tlp 2>/dev/null || true
@@ -120,52 +104,56 @@ if dpkg -l 2>/dev/null | grep -q "^ii  tlp "; then
     echo "  -> TLP removed. (TLP удалён.)"
 fi
 
-# 2. Устанавливаем PPD
 sudo apt install -y power-profiles-daemon
 
-# 3. Включаем и запускаем сервис
 if sudo systemctl enable --now power-profiles-daemon 2>/dev/null; then
     CURRENT_PROFILE=$(powerprofilesctl get 2>/dev/null || echo "unknown")
     echo "  -> PPD is running. Current profile: ${CURRENT_PROFILE} (PPD работает. Текущий профиль: ${CURRENT_PROFILE})"
 else
     echo "  -> WARNING: PPD failed to start. Check: systemctl status power-profiles-daemon (ПРЕДУПРЕЖДЕНИЕ: PPD не запустился.)"
 fi
-
-# 4. Показываем текущий профиль
-CURRENT_PROFILE=$(powerprofilesctl get 2>/dev/null || echo "unknown")
-echo "  -> PPD is running. Current profile: ${CURRENT_PROFILE} (PPD работает. Текущий профиль: ${CURRENT_PROFILE})"
 echo ""
 
-echo "[4/6] Linking configs... (Линковка конфигов...)"
+# ВАЖНО: Линковка теперь идет ДО настройки Fish!
+echo "[4/7] Linking configs... (Линковка конфигов...)"
 export DOTFILES
 sudo -u "$REAL_USER" env HOME="$REAL_HOME" DOTFILES="$DOTFILES" bash "$DOTFILES/scripts/link.sh"
 echo ""
 
-echo "[5/6] Installing system configs to /etc/... (Установка системных конфигов в /etc/...)"
-# ВНИМАНИЕ: Этот блок копирует файлы в /etc. 
-# Если у тебя установлен GNOME, он может перезаписать настройки тачпада и сети. 
-# В случае проблем с GNOME, восстанови файлы из бэкапа.
+echo "[5/7] Configuring Fish shell and Tide prompt... (Настройка Fish и промпта Tide...)"
+# 1. Установка Fisher (менеджер плагинов для Fish)
+echo "  -> Installing Fisher (Fish plugin manager)..."
+sudo -u "$REAL_USER" fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
+
+# 2. Установка Tide
+echo "  -> Installing Tide prompt..."
+sudo -u "$REAL_USER" fish -c "fisher install IlanCosman/tide@v6"
+
+# 3. Смена оболочки на Fish
+if command -v fish &>/dev/null; then
+    sudo chsh -s "$(which fish)" "$REAL_USER"
+    echo "  -> Default shell changed to Fish. (Оболочка по умолчанию изменена на Fish.)"
+fi
+
+echo "  -> Tide installed. Run 'tide configure' later to customize your prompt."
+echo ""
+
+echo "[6/7] Installing system configs to /etc/... (Установка системных конфигов в /etc/...)"
 if [ -d "$DOTFILES/system" ]; then
     sudo mkdir -p "$BACKUP"
-    
     find "$DOTFILES/system" -type f | while read -r src_file; do
         rel_path="${src_file#$DOTFILES/system/}"
-        
         if [[ "$rel_path" != etc/* ]]; then
             rel_path="etc/$rel_path"
         fi
-        
         dst_file="/$rel_path"
         dst_dir="$(dirname "$dst_file")"
-        
         echo "  -> $dst_file"
-        
         if [ -f "$dst_file" ]; then
             sudo mkdir -p "$BACKUP$dst_dir"
             sudo cp "$dst_file" "$BACKUP$dst_file"
             echo "     (оригинал сохранен в бэкап)"
         fi
-
         sudo mkdir -p "$dst_dir"
         sudo cp "$src_file" "$dst_file"
     done
@@ -173,21 +161,14 @@ if [ -d "$DOTFILES/system" ]; then
 fi
 echo ""
 
-echo "[6/6] Configuring lid close behavior (suspend)... (Настройка поведения при закрытии крышки (сон)...)"
-# Настраиваем уход в сон при закрытии крышки ноутбука.
-# Это универсальная настройка для всех ноутбуков (наличие батареи),
-# так как проблемы с засыпанием распространены на AMD-платформах.
+echo "[7/7] Configuring lid close behavior (suspend)... (Настройка поведения при закрытии крышки (сон)...)"
 if ls /sys/class/power_supply/BAT* &>/dev/null; then
     LID_CONF="/etc/systemd/logind.conf.d/10-lid-suspend.conf"
-
-    # Бэкап существующего конфига (если пользователь уже настраивал вручную)
     if [ -f "$LID_CONF" ]; then
         sudo cp "$LID_CONF" "${LID_CONF}.bak-$(date +%Y%m%d-%H%M%S)"
         echo "  -> Existing lid config backed up (Существующий конфиг сохранён в бэкап)."
     fi
-
     sudo mkdir -p /etc/systemd/logind.conf.d
-    # Удаляем старый конфиг блокировки из предыдущих версий (v1.1.0-dev)
     if [ -f "/etc/systemd/logind.conf.d/10-lid-lock.conf" ]; then
         sudo mv "/etc/systemd/logind.conf.d/10-lid-lock.conf" \
                 "/etc/systemd/logind.conf.d/10-lid-lock.conf.bak-$(date +%Y%m%d-%H%M%S)"
@@ -205,8 +186,6 @@ HandleLidSwitchExternalPower=suspend
 HandleLidSwitchDocked=ignore
 EOF
 
-    # Мягкая перезагрузка конфигурации logind через SIGHUP.
-    # Не прерывает графическую сессию, в отличие от restart.
     sudo systemctl kill -s HUP systemd-logind 2>/dev/null || true
     echo "  -> Lid close will now trigger suspend. (Закрытие крышки теперь будет отправлять систему в сон.)"
 else
@@ -216,3 +195,4 @@ echo ""
 
 echo "=== Installation complete! (Установка завершена!) ==="
 echo "Please reboot or run startx. (Перезагрузите систему или запустите startx.)"
+echo "Don't forget to run 'tide configure' in your terminal to set up the prompt!"
