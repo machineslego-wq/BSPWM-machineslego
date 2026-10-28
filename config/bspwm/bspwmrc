@@ -29,12 +29,12 @@ pgrep -x blueman-applet > /dev/null || blueman-applet &
 
 # Запуск профиля подсветки OpenRGB (только для ПК lamer-deb)
 if [ "$(hostname)" = "lamer-deb" ] && command -v openrgb &>/dev/null; then
-    (sleep 2 && openrgb --profile default) &
+    (sleep 3 && openrgb --profile default) &
 fi
 
 # Менеджер истории буфера обмена (CopyQ).
 # --start-server запускает только фоновый сервер + иконку в трее, без окна.
-pgrep -x copyq > /dev/null || copyq --start-server &
+(sleep 3 && pgrep -x copyq > /dev/null || copyq --start-server) &
 
 # Агент аутентификации Polkit (для GParted, Synaptic, обновлений).
 # Убиваем старые зависшие экземпляры и запускаем один новый.
