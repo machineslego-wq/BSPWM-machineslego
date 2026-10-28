@@ -100,26 +100,6 @@ super + alt + b
 # МУЛЬТИМЕДИА И СКРИНШОТЫ
 # ==============================================================================
 
-# # Скриншот: весь экран + буфер (Super + F1)
-# super + F1
-#     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Весь экран → буфер"'
-# 
-# # Скриншот: активное окно + буфер (Super + F2)
-# super + F2
-#     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -i $(xdotool getactivewindow) "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Активное окно → буфер"'
-# 
-# # Скриншот: выделенная область + буфер (Super + Shift + S)
-# super + shift + s
-#     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -s "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Область → буфер"'
-# 
-# # Скриншот: весь экран с задержкой 3с (Super + F3)
-# super + F3
-#     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -d 3 "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Экран (3с) → буфер"'
-# 
-# # Скриншот: активный монитор + буфер (Super + F4)
-# super + F4
-#     bash -c 'GEOM=$(bspc query -T -m focused | jq -r ".rectangle | \"\(.width)x\(.height)+\(.x)+\(.y)\""); FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -g "$GEOM" "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Активный монитор → буфер"'
-
 # Скриншот: весь экран + буфер (Super + F1)
 super + F1
     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim "$FILE" && copyq write image/png - < "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Весь экран → буфер"'
@@ -270,3 +250,32 @@ super + alt + {Left,Down,Up,Right}
 # Изменить размер: сжать (Super + Alt + Shift + Стрелки)
 super + alt + shift + {Left,Down,Up,Right}
     bspc node -z {right -20 0,top 0 20,bottom 0 -20,left 20 0}
+
+
+
+
+
+
+# ==============================================================================
+# МУЛЬТИМЕДИА И СКРИНШОТЫ (ОТКЛЮЧЕНО НО ОСТАВЛЕНО В КАЧЕСТВЕ FALLBACK)
+# ==============================================================================
+
+# # Скриншот: весь экран + буфер (Super + F1)
+# super + F1
+#     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Весь экран → буфер"'
+# 
+# # Скриншот: активное окно + буфер (Super + F2)
+# super + F2
+#     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -i $(xdotool getactivewindow) "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Активное окно → буфер"'
+# 
+# # Скриншот: выделенная область + буфер (Super + Shift + S)
+# super + shift + s
+#     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -s "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Область → буфер"'
+# 
+# # Скриншот: весь экран с задержкой 3с (Super + F3)
+# super + F3
+#     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -d 3 "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Экран (3с) → буфер"'
+# 
+# # Скриншот: активный монитор + буфер (Super + F4)
+# super + F4
+#     bash -c 'GEOM=$(bspc query -T -m focused | jq -r ".rectangle | \"\(.width)x\(.height)+\(.x)+\(.y)\""); FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -g "$GEOM" "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -i camera-photo -a "Screenshot" "Скриншот" "Активный монитор → буфер"'
