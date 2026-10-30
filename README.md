@@ -11,6 +11,18 @@
 
 A strict, flat desktop environment based on BSPWM for Debian 13 Trixie, styled in the Tokyo Night palette.
 
+---
+
+## 🧭 Rule of the repository
+
+> **If a stock module solves it, don't write a script.**
+> **If a script is needed, run it on-demand and exit immediately.**
+> **No background loops. No dead code.**
+
+Every line of code and every running process must justify its existence. This rule is the reason why some features are intentionally **not** implemented — and why others were removed after being tried (see [TODO.md](./TODO.md) for the list of rejected ideas).
+
+---
+
 ![Desktop](screenshots/desktop.png)
 
 <details>
@@ -27,6 +39,7 @@ A strict, flat desktop environment based on BSPWM for Debian 13 Trixie, styled i
 
 - **Native Modules First:** Polybar uses stock `internal/battery`, `internal/backlight`, `internal/network`, and `internal/pulseaudio`. Zero background bash loops.
 - **On-Demand Scripts:** Custom logic (Wi-Fi manager, Rofi menus, screenshots) runs only when triggered by a hotkey and exits immediately.
+- **Wallpapers — `feh` only:** No picker script, no state file, no ImageMagick previews. Two static `feh` calls in `bspwmrc` — landscape on the main monitor, portrait on the rotated one. To change a wallpaper, edit one line. This is intentional.
 - **Modern Shell:** Powered by **Fish** and **Tide** prompt. Fast, feature-rich autosuggestions, syntax highlighting, and Git status integration without background daemons.
 - **Smooth & Flat:** Hyprland-style window animations via Picom, no blur, strict Tokyo Night colors.
 - **Smart Volume OSD:** Volume notifications dynamically change color based on level.
@@ -51,8 +64,8 @@ BSPWM-machineslego/
 │       └── scripts/        # battery (Rofi details), wifi, powermenu, etc.
 ├── home/                   # Symlinks to ~/*
 ├── system/                 # Copied to /etc
-├── scripts/                # install.sh, link.sh, unlink.sh
-├── TODO.md                 # Planned features
+├── scripts/                # install.sh, link.sh, unlink.sh, software.sh
+├── TODO.md                 # Planned features (and rejected ones)
 └── wallpapers/
 ```
 
@@ -87,6 +100,9 @@ This interactive wizard will help you set up the prompt's style, colors, and ico
 **Wi-Fi Manager:**
 The `wifi.sh` script is pre-configured for my devices. Open `~/.config/sxhkd/scripts/wifi.sh` and add your interface name (e.g., `wlan0`, `wlp3s0`) to the `if/elif` block. Change `HOTSPOT_SSID` and `HOTSPOT_PASSWORD` at the top of the script.
 
+**Wallpapers:**
+There is no picker. Edit the two `feh` lines in `~/.config/bspwm/bspwmrc` — one for `DisplayPort-1`, one for `HDMI-A-3` (or the single `feh` line for laptops). Files live in `~/BSPWM-machineslego/wallpapers/`.
+
 **Laptop Lid Behavior:**
 By default, closing the lid suspends the system. To change it to **lock without suspend**:
 ```bash
@@ -114,6 +130,7 @@ sudo systemctl kill -s HUP systemd-logind
 | `Super + Alt + H` | Notification History |
 | `Super + Ctrl + V` | Clipboard History (CopyQ) |
 | `Super + F1/F2/F3` | Screenshots (Full/Window/Delay) |
+| `Super + F4` | Active Monitor Screenshot |
 | `Super + Shift + S` | Screenshot (Area) |
 | `Super + H/J/K/L` | Move floating window (Vim-style) |
 | `Super + 1…0` | Switch workspaces |
