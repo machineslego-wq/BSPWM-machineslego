@@ -8,35 +8,35 @@ set -g fish_greeting ""
 # --- Переменные окружения ---
 set -gx EDITOR nvim
 set -gx VISUAL nvim
-set -gx TERM xterm-256color
+# TERM выставляет сам терминал (alacritty, kitty, foot, wezterm).
+# Принудительный xterm-256color может отключить truecolor в TUI.
+# set -gx TERM xterm-256color
 
 # --- PATH: добавляем ~/.local/bin (для AppImage и pip --user) ---
 if test -d "$HOME/.local/bin"
     fish_add_path --prepend --global "$HOME/.local/bin"
 end
 
-# --- Алиасы (замена bash-алиасов) ---
+# --- Цветной вывод ---
+# GNU coreutils не включает цвет по умолчанию; флаг нужен явно.
 alias ls='ls --color=auto'
-alias ll='ls -lh'
-alias la='ls -lah'
-alias lt='ls -lht'
 alias grep='grep --color=auto'
-alias df='df -h'
-alias du='du -h'
 
-# Навигация
+# --- Навигация ---
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 
-# Пакеты Debian
-alias up='sudo apt update && sudo apt upgrade -y'
-alias in='sudo apt install'
-alias sr='sudo apt search'
-alias rm='sudo apt remove'
-
-# BSPWM: удобный рестарт
-alias bspwmreload='bspc wm -r'
+# --- Остальные алиасы намеренно убраны ---
+# Были: ll/la/lt, df, du, up, in, sr, rm, bspwmreload.
+# Полные команды короче и переносимее:
+#   sudo apt update && sudo apt upgrade -y
+#   sudo apt install <pkg>
+#   sudo apt remove  <pkg>
+#   bspc wm -r
+# `in` был багом (зарезервированное слово fish),
+# `rm='sudo apt remove'` — опасный футган.
+# При необходимости добавляйте точечно здесь.
 
 # --- Цвета Fish (Tokyo Night) ---
 set -g fish_color_normal c0caf5
