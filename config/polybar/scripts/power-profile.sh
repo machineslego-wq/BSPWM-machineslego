@@ -26,7 +26,7 @@ get_status() {
 
 # --- Режим меню (вызов: --menu) ---
 if [ "$1" = "--menu" ]; then
-    CHOICE=$(printf '󰓅 Performance\n󰒓 Balanced\n󰾆 Power Saver (No anin & shadows)' | \
+    CHOICE=$(printf '󰓅 Performance\n󰒓 Balanced\n󰾆 Power Saver (No anim & shadows)' | \
         rofi -dmenu -p "Профиль питания" -theme-str 'window {width: 22%;} listview {lines: 3;}')
     
     case "$CHOICE" in
