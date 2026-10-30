@@ -144,10 +144,15 @@ if [ "$(hostname)" = "lamer-deb" ]; then
     # На ПК: горизонтальные обои на основной монитор, вертикальные — на второй
     feh --output DisplayPort-1 --bg-fill "$HOME/BSPWM-machineslego/wallpapers/tokyo-night-girl-landscape.jpg" \
         --output HDMI-A-3 --bg-fill "$HOME/BSPWM-machineslego/wallpapers/tokyo-night-girl-portrait.jpg" &
+    # Оставшиеся идеи от задумки обоев, отказался по причине: СЛОЖНО
+    # "$HOME/.config/sxhkd/scripts/wallpaper.sh" --apply &
 else
     bspc monitor -d I II III IV V VI VII VIII IX X
     # На ноутбуках: только горизонтальные на весь экран
     feh --bg-fill "$HOME/BSPWM-machineslego/wallpapers/tokyo-night-girl-landscape.jpg" &
+    # Оставшиеся идеи от задумки обоев, отказался по причине: СЛОЖНО
+    # Обои: сохранённый выбор или fallback по ориентации
+    # "$HOME/.config/sxhkd/scripts/wallpaper.sh" --apply &
 fi
 
 # Автоматическое удаление отключенных мониторов и столов на них.
