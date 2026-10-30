@@ -1,14 +1,19 @@
 #!/bin/bash
-# =========================================================
+# ==========================================================
 # power-profile-ppd.sh — Управление профилями питания
-# для power-profiles-daemon (PPD)
-# =========================================================
+# ==========================================================
 
-# ---------------------------------------------------------
+# --- Функция для перезапуска Picom ---
+# $1 — путь к конфигу Picom
+restart_picom() {
+    local config="$1"
+    pkill -x picom
+    # Небольшая задержка, чтобы старый процесс завершился
+    sleep 0.2
+    picom --config "$config" &
+}
+
 # --- Получение текущего статуса ---
-# ---------------------------------------------------------
-# powerprofilesctl get возвращает: performance, balanced, power-saver
-# Функция переводит это в короткую строку с иконкой и аббревиатурой.
 get_status() {
     PROFILE=$(powerprofilesctl get 2>/dev/null)
     case "$PROFILE" in
@@ -19,23 +24,31 @@ get_status() {
     esac
 }
 
-# ---------------------------------------------------------
 # --- Режим меню (вызов: --menu) ---
-# ---------------------------------------------------------
-# Если скрипт вызван с флагом --menu (например, по клику на модуль в Polybar),
-# открываем Rofi с выбором профиля.
 if [ "$1" = "--menu" ]; then
-    CHOICE=$(printf '󰓅 Performance\n󰒓 Balanced\n󰾆 Power Saver\n' | rofi -dmenu -p "Профиль питания" -theme-str 'window {width: 22%;} listview {lines: 3;}')
+    CHOICE=$(printf '󰓅 Performance\n󰒓 Balanced\n󰾆 Power Saver (No anin & shadows)' | \
+        rofi -dmenu -p "Профиль питания" -theme-str 'window {width: 22%;} listview {lines: 3;}')
     
     case "$CHOICE" in
-        *"Performance"*) powerprofilesctl set performance ;;
-        *"Balanced"*)    powerprofilesctl set balanced    ;;
-        *"Power Saver"*) powerprofilesctl set power-saver ;;
+        *"Performance"*)
+            powerprofilesctl set performance
+            restart_picom "$HOME/.config/picom/picom.conf"
+            notify-send -u low -a "Power" "Режим Performance" "Максимальная производительность, анимации включены."
+            ;;
+        *"Balanced"*)
+            powerprofilesctl set balanced
+            restart_picom "$HOME/.config/picom/picom.conf"
+            notify-send -u low -a "Power" "Режим Balanced" "Сбалансированный режим, анимации включены."
+            ;;
+        *"Power Saver"*)
+            powerprofilesctl set power-saver
+            # В ЭКО-режиме всегда отключаем анимации
+            restart_picom "$HOME/.config/picom/picom-eco.conf"
+            notify-send -u low -a "Power" "Режим Eco" "Энергосбережение, анимации и тени отключены."
+            ;;
     esac
     exit 0
 fi
 
-# ---------------------------------------------------------
 # --- Обычный режим: только вывод статуса ---
-# ---------------------------------------------------------
 get_status

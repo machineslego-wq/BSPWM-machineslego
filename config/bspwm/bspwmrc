@@ -18,7 +18,21 @@ pgrep -x dunst > /dev/null || dunst &
 (sleep 3 && notify-send -u low -t 8000 -i input-keyboard "Подсказка" "Нажмите Super + /, чтобы открыть меню горячих клавиш") &
 
 # Композитор (тени, скругления, анимации)
-pgrep -x picom > /dev/null || picom --config "$HOME/.config/picom/picom.conf" &
+# pgrep -x picom > /dev/null || picom --config "$HOME/.config/picom/picom.conf" &
+
+# Композитор (тени, скругления, анимации) — с учётом профиля питания.
+# pgrep защищает от запуска дублей при перезагрузке BSPWM (Super+Alt+R).
+if ! pgrep -x picom > /dev/null; then
+    (
+        sleep 1
+        PROFILE=$(powerprofilesctl get 2>/dev/null)
+        if [ "$PROFILE" = "power-saver" ]; then
+            picom --config "$HOME/.config/picom/picom-eco.conf" &
+        else
+            picom --config "$HOME/.config/picom/picom.conf" &
+        fi
+    ) &
+fi
 
 # Аплет Bluetooth.
 # Оставлен, так как полноценной замены для управления BT в трее без лишней боли нет.
