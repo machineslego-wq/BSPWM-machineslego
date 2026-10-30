@@ -59,4 +59,5 @@ set -gx PAGER less
 set -gx LESS "-R"
 
 # Tide инициализируется автоматически через ~/.config/fish/conf.d/
-# отсюда ничего вызывать не нужно.
+
+fish_add_path ~/.npm-global/bin
