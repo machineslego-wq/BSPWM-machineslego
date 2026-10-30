@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==========================================================
-# power-profile-ppd.sh — Управление профилями питания
+# power-profile.sh — Управление профилями питания
 # ==========================================================
 
 # --- Функция для перезапуска Picom ---
@@ -28,23 +28,41 @@ get_status() {
 if [ "$1" = "--menu" ]; then
     CHOICE=$(printf '󰓅 Performance\n󰒓 Balanced\n󰾆 Power Saver (No anim & shadows)' | \
         rofi -dmenu -p "Профиль питания" -theme-str 'window {width: 22%;} listview {lines: 3;}')
-    
+
     case "$CHOICE" in
         *"Performance"*)
-            powerprofilesctl set performance
-            restart_picom "$HOME/.config/picom/picom.conf"
-            notify-send -u low -a "Power" "Режим Performance" "Максимальная производительность, анимации включены."
+            powerprofilesctl set performance 2>/dev/null
+            if [ $? -eq 0 ]; then
+                restart_picom "$HOME/.config/picom/picom.conf"
+                notify-send -u low -a "Power" "Режим Performance" \
+                    "Максимальная производительность, анимации включены."
+            else
+                notify-send -u critical -a "Power" "Ошибка" \
+                    "Профиль performance недоступен на этом железе"
+            fi
             ;;
         *"Balanced"*)
-            powerprofilesctl set balanced
-            restart_picom "$HOME/.config/picom/picom.conf"
-            notify-send -u low -a "Power" "Режим Balanced" "Сбалансированный режим, анимации включены."
+            powerprofilesctl set balanced 2>/dev/null
+            if [ $? -eq 0 ]; then
+                restart_picom "$HOME/.config/picom/picom.conf"
+                notify-send -u low -a "Power" "Режим Balanced" \
+                    "Сбалансированный режим, анимации включены."
+            else
+                notify-send -u critical -a "Power" "Ошибка" \
+                    "Профиль balanced недоступен"
+            fi
             ;;
         *"Power Saver"*)
-            powerprofilesctl set power-saver
-            # В ЭКО-режиме всегда отключаем анимации
-            restart_picom "$HOME/.config/picom/picom-eco.conf"
-            notify-send -u low -a "Power" "Режим Eco" "Энергосбережение, анимации и тени отключены."
+            powerprofilesctl set power-saver 2>/dev/null
+            if [ $? -eq 0 ]; then
+                # В ЭКО-режиме всегда отключаем анимации
+                restart_picom "$HOME/.config/picom/picom-eco.conf"
+                notify-send -u low -a "Power" "Режим Eco" \
+                    "Энергосбережение, анимации и тени отключены."
+            else
+                notify-send -u critical -a "Power" "Ошибка" \
+                    "Профиль power-saver недоступен"
+            fi
             ;;
     esac
     exit 0
