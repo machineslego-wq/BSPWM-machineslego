@@ -59,13 +59,10 @@
     stack_duplicates = true
     hide_duplicate_count = false
 
-    # Иконки
+    # Иконки отключены: только текст.
+    # Так уведомления не зависят от светлой/тёмной темы и Papirus.
     show_indicators = yes
-    icon_position = left
-    min_icon_size = 32
-    max_icon_size = 64
-    # Добавлены apps/ и legacy/ для системных иконок (например, обновления)
-    icon_path = /usr/share/icons/Papirus-Dark/24x24/actions/:/usr/share/icons/Papirus-Dark/24x24/panel/:/usr/share/icons/Papirus-Dark/24x24/devices/:/usr/share/icons/Papirus-Dark/24x24/status/:/usr/share/icons/Papirus-Dark/24x24/apps/:/usr/share/icons/Papirus-Dark/24x24/legacy/
+    icon_position = off
 
     # ------------------------------------------------------
     # --- История уведомлений ---

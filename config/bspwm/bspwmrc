@@ -15,7 +15,7 @@ pgrep -x dunst > /dev/null || dunst &
 
 # Уведомление-подсказка при старте.
 # Задержка 3 секунды нужна, чтобы Dunst успел загрузиться и принять уведомление.
-(sleep 3 && notify-send -u low -t 8000 -i input-keyboard "Подсказка" "Нажмите Super + /, чтобы открыть меню горячих клавиш") &
+(sleep 3 && notify-send -u low -t 8000 "Подсказка" "Нажмите Super + /, чтобы открыть меню горячих клавиш") &
 
 # Композитор (тени, скругления, анимации)
 # pgrep -x picom > /dev/null || picom --config "$HOME/.config/picom/picom.conf" &
@@ -111,7 +111,7 @@ pkill -x gsd-media-keys &
     sleep 5
     UPDATES=$(apt-get -s upgrade 2>/dev/null | grep -c "^Inst ")
     if [ "$UPDATES" -gt 0 ]; then
-        notify-send -u normal -t 16000 -i software-update-available \
+        notify-send -u normal -t 16000 \
             "Доступны обновления" "Для вашей системы доступно $UPDATES обновлений. Запустите 'sudo apt upgrade'."
     fi
 ) &
