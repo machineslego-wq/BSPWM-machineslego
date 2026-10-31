@@ -164,7 +164,7 @@ super + shift + {Left,Down,Up,Right}
 super + {h,j,k,l}
     bspc node -v {-20 0,0 20,0 -20,20 0}
 
-# Предыдущее окно (Super + Tab / Super + `)
+# Предыдущий стол (Super + Tab) / предыдущее окно (Super + `)
 super + {grave,Tab}
     bspc {node,desktop} -f last
 
