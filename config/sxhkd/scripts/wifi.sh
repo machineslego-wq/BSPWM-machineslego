@@ -5,8 +5,7 @@
 # ИНСТРУКЦИЯ ДЛЯ ПОЛЬЗОВАТЕЛЯ:
 # 1. Задайте имя и пароль для хотспота ниже.
 # 2. Убедитесь, что имя вашего Wi-Fi адаптера (wlan0, wlo1) верное.
-# 3. Убедитесь, что в ~/.config/rofi/config.rasi установлен 
-#    шрифт "JetBrainsMono Nerd Font" (иначе иконки не будет видно).
+# 3. Nerd Font не требуется: интерфейс полностью текстовый.
 # ==========================================================
 
 # --- НАСТРОЙКИ ХОТСПОТА ---
@@ -30,57 +29,57 @@ fi
 WIFI_STATE=$(nmcli radio wifi)
 
 if [ "$WIFI_STATE" = "enabled" ]; then
-    TOGGLE_TEXT="󰖪 Выключить Wi-Fi"
+    TOGGLE_TEXT="Выключить Wi-Fi"
 else
-    TOGGLE_TEXT="󰖩 Включить Wi-Fi"
+    TOGGLE_TEXT="Включить Wi-Fi"
 fi
 
-CHOICE=$(printf "$TOGGLE_TEXT\n󰤨 Подключиться к сети\n󰈈 Скрытая сеть\n󰀂 Включить хотспот\n󰅖 Выключить хотспот" | rofi -dmenu -p "󰖩 Wi-Fi" -theme-str 'window {width: 25%;}')
+CHOICE=$(printf "$TOGGLE_TEXT\nПодключиться к сети\nСкрытая сеть\nВключить хотспот\nВыключить хотспот" | rofi -dmenu -p "Wi-Fi" -theme-str 'window {width: 25%;}')
 
 case "$CHOICE" in
     *"Включить Wi-Fi"*)
         nmcli radio wifi on
         notify-send -h string:x-canonical-private-synchronous:wifi \
-                    -a "Wi-Fi" -i network-wireless \
+                    -a "Wi-Fi" \
                     "Адаптер включен"
         ;;
     *"Выключить Wi-Fi"*)
         nmcli radio wifi off
         notify-send -h string:x-canonical-private-synchronous:wifi \
-                    -a "Wi-Fi" -i network-wireless-disconnected \
+                    -a "Wi-Fi" \
                     "Адаптер выключен"
         ;;
     *"Подключиться к сети"*)
         notify-send -h string:x-canonical-private-synchronous:wifi \
-                    -a "Wi-Fi" -i network-wireless-acquiring \
+                    -a "Wi-Fi" \
                     "Подождите..." "Сканирование сетей..."
                     
         if [ "$WIFI_STATE" = "disabled" ]; then
             notify-send -h string:x-canonical-private-synchronous:wifi \
-                        -a "Wi-Fi" -i dialog-warning \
+                        -a "Wi-Fi" \
                         "Wi-Fi выключен" "Сначала включите адаптер"
             exit 1
         fi
         
-        # Собираем список с иконками: [замок] [иконка сигнала] [SSID]
+        # Собираем список: [замок] [сигнал] SSID
         NETWORKS=$(nmcli -t -f SSID,SIGNAL,SECURITY device wifi list | awk -F: '
             !seen[$1]++ && $1 != "" {
                 sig = $2 + 0;
-                if (sig >= 75) w_icon = "󰤨";
-                else if (sig >= 50) w_icon = "󰤥";
-                else if (sig >= 25) w_icon = "󰤢";
-                else if (sig > 0) w_icon = "󰤟";
-                else w_icon = "󰤯";
+                if (sig >= 75) w_icon = "[####]";
+                else if (sig >= 50) w_icon = "[###-]";
+                else if (sig >= 25) w_icon = "[##--]";
+                else if (sig > 0) w_icon = "[#---]";
+                else w_icon = "[----]";
 
-                if ($3 == "" || $3 == "--") l_icon = "󰌿";
-                else l_icon = "󰌾";
+                if ($3 == "" || $3 == "--") l_icon = "[O]";
+                else l_icon = "[L]";
 
                 print l_icon " " w_icon " " $1
             }')
         
         if [ -z "$NETWORKS" ]; then
             notify-send -h string:x-canonical-private-synchronous:wifi \
-                        -a "Wi-Fi" -i dialog-error \
+                        -a "Wi-Fi" \
                         "Сети не найдены" "Проверьте адаптер"
             exit 1
         fi
@@ -89,14 +88,14 @@ case "$CHOICE" in
         NET_CHOICE=$(echo "$NETWORKS" | rofi -dmenu -p "Выбор сети" -theme-str 'window {width: 30%;}')
         
         if [ -n "$NET_CHOICE" ]; then
-            # Отрезаем две иконки и два пробела, оставляя только SSID
+            # Отрезаем метки [замок] и [сигнал], оставляя только SSID
             # Используем cut с сохранением пробелов в SSID
             SSID=$(printf '%s' "$NET_CHOICE" | cut -d ' ' -f 3-)
             
             # Пытаемся подключиться тихо (если пароль уже сохранен)
             if nmcli device wifi connect "$SSID" > /dev/null 2>&1; then
                 notify-send -h string:x-canonical-private-synchronous:wifi \
-                            -a "Wi-Fi" -i network-wireless-connected \
+                            -a "Wi-Fi" \
                             "Подключено" "SSID: $SSID"
             else
                 # Если не удалось — открываем терминал для ввода пароля
@@ -108,7 +107,7 @@ case "$CHOICE" in
         *"Скрытая сеть"*)
         if [ "$WIFI_STATE" = "disabled" ]; then
             notify-send -h string:x-canonical-private-synchronous:wifi \
-                        -a "Wi-Fi" -i dialog-warning \
+                        -a "Wi-Fi" \
                         "Wi-Fi выключен" "Сначала включите адаптер"
             exit 1
         fi
@@ -118,7 +117,7 @@ case "$CHOICE" in
 
         if [ -n "$HIDDEN_SSID" ]; then
             notify-send -h string:x-canonical-private-synchronous:wifi \
-                        -a "Wi-Fi" -i network-wireless-acquiring \
+                        -a "Wi-Fi" \
                         "Подождите..." "Подключение к скрытой сети..."
 
             # Пароль вводится в терминале через --ask — как в остальном скрипте
@@ -130,12 +129,12 @@ case "$CHOICE" in
         if nmcli device wifi hotspot ifname "$WIFI_IFACE" ssid "$HOTSPOT_SSID" password "$HOTSPOT_PASSWORD" > /dev/null 2>&1; then
             notify-send -u critical -t 0 \
                         -h string:x-canonical-private-synchronous:hotspot \
-                        -a "Hotspot" -i network-wireless-hotspot \
+                        -a "Hotspot" \
                         "Хотспот включен" "SSID: $HOTSPOT_SSID\nПароль: <b>$HOTSPOT_PASSWORD</b>"
         else
             notify-send -u critical \
                         -h string:x-canonical-private-synchronous:hotspot \
-                        -a "Hotspot" -i network-error \
+                        -a "Hotspot" \
                         "Ошибка хотспота" "Проверьте поддержку AP-режима"
         fi
         ;;
@@ -145,7 +144,7 @@ case "$CHOICE" in
         nmcli radio wifi on
         sleep 1
         notify-send -h string:x-canonical-private-synchronous:hotspot \
-                    -a "Hotspot" -i network-wireless-disconnected \
+                    -a "Hotspot" \
                     "Хотспот выключен" "Попытка восстановить подключение..."
         ;;
 esac

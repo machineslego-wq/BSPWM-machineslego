@@ -56,7 +56,7 @@ lines="$(
 )"
 
 if [[ -z "$lines" ]]; then
-    notify-send -u low -i dialog-information -a "Notifications" "История" "Уведомлений пока нет"
+    notify-send -u low -a "Notifications" "История" "Уведомлений пока нет"
     exit 0
 fi
 
@@ -66,7 +66,7 @@ display="$(
 )"
 
 chosen="$(
-    printf '%s\n' "$display" | rofi -dmenu -i -p "󰂚 Уведомления" -format i || true
+    printf '%s\n' "$display" | rofi -dmenu -i -p "Уведомления" -format i || true
 )"
 
 # Esc или отмена (Rofi может вернуть -1 вместо пустой строки)
@@ -79,7 +79,7 @@ appname="$(printf '%s' "$selected" | cut -f4)"
 
 if [[ -n "$body" ]]; then
     printf '%s' "$body" | xclip -selection clipboard
-    notify-send -u low -t 2000 -i edit-paste -a "Notifications" "$appname" "Текст скопирован в буфер"
+    notify-send -u low -t 2000 -a "Notifications" "$appname" "Текст скопирован в буфер"
 else
     notify-send -u low -t 2000 -a "Notifications" "$appname" "Тело уведомления пустое"
 fi

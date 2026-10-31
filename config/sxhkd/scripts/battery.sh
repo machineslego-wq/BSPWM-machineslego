@@ -15,7 +15,7 @@ done
 # --- 2. Формирование меню и вывод ---
 if [ -z "$BAT" ]; then
     echo "Питание: стационарный ПК (батареи нет)" | \
-        rofi -dmenu -i -p "󰚥 Питание" -theme-str 'window {width: 30%;}'
+        rofi -dmenu -i -p "Питание" -theme-str 'window {width: 30%;}'
     exit 0
 fi
 
@@ -47,8 +47,8 @@ case "$status" in
     *)             status_ru="$status" ;;
 esac
 
-# Используем статичную иконку батареи
-lines=" Батарея ${bat_name}"$'\n'
+# Без иконок: только текст
+lines="Батарея ${bat_name}"$'\n'
 lines+="Уровень: ${cap}%"$'\n'
 lines+="Статус: ${status_ru}"$'\n'
 
@@ -101,5 +101,5 @@ fi
 
 # --- Вывод в Rofi ---
 echo "$lines" | \
-    rofi -dmenu -i -p " Батарея" \
+    rofi -dmenu -i -p "Батарея" \
           -theme-str 'window {width: 30%;} listview {lines: 6;}'

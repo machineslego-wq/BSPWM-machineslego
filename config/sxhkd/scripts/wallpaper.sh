@@ -140,7 +140,7 @@ show_rofi_picker() {
 
             printf '%s  %s\0icon\x1f%s\n' "$dims" "$wall" "$icon"
         done
-    } | rofi -dmenu -i -show-icons -format 'i' -p "󰸉 $monitor" \
+    } | rofi -dmenu -i -show-icons -format 'i' -p "$monitor" \
         -theme-str 'window {width: 50%;}
                     listview {columns: 2; lines: 2; fixed-height: false;}
                     element {orientation: vertical; padding: 10px; border-radius: 0px;}
