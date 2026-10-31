@@ -43,6 +43,11 @@ cat <<EOF | rofi -dmenu -i -markup-rows -scroll-method 1 -p "󰌌 Горячие
 󰔛 Super + F3                       Экран (задержка 3с)            <span foreground="#1a1b26">[скриншот, screenshot, таймер, delay]</span>
 󰍹 Super + F4                       Активный монитор               <span foreground="#1a1b26">[скриншот, screenshot, монитор, экран, monitor]</span>
 
+<b>󰃠 ЯРКОСТЬ И ЗВУК</b>
+󰃠 Fn + Яркость +/-                 Яркость +5% / -5%              <span foreground="#1a1b26">[яркость, brightness, экран]</span>
+󰕾 Fn + Громкость +/-               Громкость +5% / -5%            <span foreground="#1a1b26">[звук, громкость, volume]</span>
+󰕾 Fn + Mute                        Выключить/включить звук        <span foreground="#1a1b26">[mute, звук, тишина]</span>
+
 <b>󰖯 УПРАВЛЕНИЕ ОКНАМИ</b>
 󰁔 Super + Стрелки                  Смена фокуса                   <span foreground="#1a1b26">[окно, window, фокус, focus]</span>
 󰩨 Super + Shift + Стрелки          Свап с соседом (тайлы)         <span foreground="#1a1b26">[окно, window, свап, swap, tiled]</span>
@@ -53,7 +58,8 @@ cat <<EOF | rofi -dmenu -i -markup-rows -scroll-method 1 -p "󰌌 Горячие
 󰧨 Super + Shift + 1..9, 0          Перенести окно на стол         <span foreground="#1a1b26">[окно, window, стол, workspace]</span>
 󰁔 Super + [                        Предыдущий стол                <span foreground="#1a1b26">[стол, workspace, prev]</span>
 󰁔 Super + ]                        Следующий стол                 <span foreground="#1a1b26">[стол, workspace, next]</span>
-󰓾 Super + Tab                      Предыдущее окно/стол           <span foreground="#1a1b26">[окно, window, назад, alt-tab]</span>
+󰒆 Super + \`                       Предыдущее окно                <span foreground="#1a1b26">[окно, window, prev, cycle]</span>
+󰓾 Super + Tab                      Предыдущий стол                <span foreground="#1a1b26">[стол, workspace, prev, desktop]</span>
 󰖯 Alt + Tab                        Поиск по открытым окнам        <span foreground="#1a1b26">[окно, window, поиск, switch, rofi, alt-tab]</span>
 󰒆 Super + C                        Следующее окно                 <span foreground="#1a1b26">[окно, window, next, cycle]</span>
 󰒆 Super + Shift + C                Предыдущее окно                <span foreground="#1a1b26">[окно, window, prev, cycle]</span>
