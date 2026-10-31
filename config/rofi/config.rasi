@@ -73,7 +73,7 @@ window {
     width: 42%;                /* Ширина от ширины экрана. На 1366px = ~573px */
     border: 0px;               /* Толщина рамки. 0 = без рамки (чистый вид) */
     border-color: @accent;     /* Цвет рамки — не используется при border: 0 */
-    border-radius: 12px;       /* Скругление углов окна */
+    border-radius: 0px;        /* Квадратные углы (TUI-стиль) */
     background-color: @bg;     /* Основной фон */
 }
 
@@ -92,7 +92,7 @@ mainbox {
 inputbar {
     padding: 10px 12px;              /* Отступы: сверху/снизу 10, слева/справа 12 */
     background-color: @bg-alt;       /* Фон чуть светлее основного — выделяется */
-    border-radius: 8px;              /* Скругление поля ввода */
+    border-radius: 0px;              /* Квадратное поле ввода (TUI-стиль) */
     border: 0px;                     /* Без рамки */
     children: [ prompt, entry ];     /* Порядок элементов: сначала значок, потом текст */
 }
@@ -132,8 +132,8 @@ scrollbar {
     border: 0px;
     handle-color: @accent;           /* Ползунок — синий */
     handle-width: 0px;               /* Ширина ползунка (0 = невидим) */
-    handle-rounded-corners: true;
-    border-radius: 3px;
+    handle-rounded-corners: false;
+    border-radius: 0px;
 }
 
 
@@ -146,7 +146,7 @@ scrollbar {
    ========================================================== */
 element {
     padding: 8px 10px;             /* Отступы внутри строки */
-    border-radius: 8px;            /* Скругление строки */
+    border-radius: 0px;            /* Квадратная строка (TUI-стиль) */
     background-color: @bg;         /* Фон строки */
     text-color: @fg;               /* Цвет текста */
     spacing: 10px;                 /* Расстояние между иконкой и текстом */

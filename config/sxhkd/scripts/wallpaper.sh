@@ -143,7 +143,7 @@ show_rofi_picker() {
     } | rofi -dmenu -i -show-icons -format 'i' -p "󰸉 $monitor" \
         -theme-str 'window {width: 50%;}
                     listview {columns: 2; lines: 2; fixed-height: false;}
-                    element {orientation: vertical; padding: 10px; border-radius: 8px;}
+                    element {orientation: vertical; padding: 10px; border-radius: 0px;}
                     element-icon {size: 9em; padding: 0 0 8px 0;}
                     element-text {horizontal-align: 0.5; vertical-align: 0.5;}'
 }

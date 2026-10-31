@@ -30,8 +30,8 @@
     progress_bar_max_width = 340
     # Цвет самой полосы (синий акцент Tokyo Night)
     highlight = "#7aa2f7"
-    # Скругление углов самой полосы
-    progress_bar_corner_radius = 3
+    # Скругление углов (TUI-стиль: 0 = прямые углы)
+    progress_bar_corner_radius = 0
     # Выравнивание полосы по центру
     progress_bar_horizontal_alignment = center
 
@@ -82,8 +82,8 @@
     title = Dunst
     class = Dunst
 
-    # Скругление углов (в пикселях)
-    corner_radius = 10
+    # Скругление углов (TUI-стиль: 0 = прямые углы)
+    corner_radius = 0
 
     # Действия мыши на уведомлении
     mouse_left_click   = close_current
