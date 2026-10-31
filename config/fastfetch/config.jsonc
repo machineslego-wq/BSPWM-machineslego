@@ -10,14 +10,15 @@
   },
   "display": {
     "separator": " ",
+    "key": {
+      "type": "both",
+      "width": 16,
+      "paddingLeft": 1
+    },
     "color": {
       "keys": "38;2;122;162;247",
       "title": "38;2;187;154;247",
       "output": "38;2;192;202;245"
-    },
-    "key": {
-      "type": "both",
-      "width": 20
     },
     "bar": {
       "width": 10,
@@ -41,23 +42,75 @@
   "modules": [
     "title",
     "separator",
-    "os",
-    "host",
-    "kernel",
-    "uptime",
-    "packages",
-    "shell",
-    "display",
-    "wm",
-    "terminal",
-    "cpu",
-    "gpu",
-    "memory",
-    "disk",
-    "localip",
-    "battery",
-    "locale",
+
+    {
+      "type": "custom",
+      "format": "╭─ СИСТЕМА ────────────────────────────────────────╮",
+      "outputColor": "38;2;122;162;247"
+    },
+    { "type": "os",       "key": "│ OS" },
+    { "type": "host",     "key": "│ Хост" },
+    { "type": "kernel",   "key": "│ Ядро" },
+    { "type": "uptime",   "key": "│ Аптайм" },
+    { "type": "packages", "key": "│ Пакеты" },
+    { "type": "shell",    "key": "│ Оболочка" },
+    {
+      "type": "custom",
+      "format": "╰──────────────────────────────────────────────────╯",
+      "outputColor": "38;2;122;162;247"
+    },
+
     "break",
+
+    {
+      "type": "custom",
+      "format": "╭─ ОБОРУДОВАНИЕ ───────────────────────────────────╮",
+      "outputColor": "38;2;122;162;247"
+    },
+    { "type": "cpu",    "key": "│ CPU" },
+    { "type": "gpu",    "key": "│ GPU" },
+    { "type": "memory", "key": "│ Память" },
+    { "type": "disk",   "key": "│ Диск" },
+    { "type": "battery","key": "│ Батарея" },
+    {
+      "type": "custom",
+      "format": "╰──────────────────────────────────────────────────╯",
+      "outputColor": "38;2;122;162;247"
+    },
+
+    "break",
+
+    {
+      "type": "custom",
+      "format": "╭─ ОКРУЖЕНИЕ ──────────────────────────────────────╮",
+      "outputColor": "38;2;122;162;247"
+    },
+    { "type": "display", "key": "│ Дисплей" },
+    { "type": "wm",      "key": "│ WM" },
+    { "type": "terminal","key": "│ Терминал" },
+    { "type": "locale",  "key": "│ Локаль" },
+    {
+      "type": "custom",
+      "format": "╰──────────────────────────────────────────────────╯",
+      "outputColor": "38;2;122;162;247"
+    },
+
+    "break",
+
+    {
+      "type": "custom",
+      "format": "╭─ СЕТЬ ──────────────────────────────────────────╮",
+      "outputColor": "38;2;122;162;247"
+    },
+    { "type": "localip", "key": "│ IP" },
+    {
+      "type": "custom",
+      "format": "╰──────────────────────────────────────────────────╯",
+      "outputColor": "38;2;122;162;247"
+    },
+
+    "break",
+
     "colors"
   ]
 }
