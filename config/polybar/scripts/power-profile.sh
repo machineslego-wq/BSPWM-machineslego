@@ -17,9 +17,9 @@ restart_picom() {
 get_status() {
     PROFILE=$(powerprofilesctl get 2>/dev/null)
     case "$PROFILE" in
-        performance) echo "PERF" ;;
-        balanced)    echo "BAL"  ;;
-        power-saver) echo "ECO"  ;;
+        performance) echo "%{F#ff9e64}PERF%{F-}" ;;
+        balanced)    echo "%{F#7aa2f7}BAL%{F-}"  ;;
+        power-saver) echo "%{F#9ece6a}ECO%{F-}"  ;;
         *)           echo "$PROFILE" ;;
     esac
 }
