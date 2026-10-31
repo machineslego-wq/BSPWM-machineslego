@@ -90,7 +90,8 @@ case "$CHOICE" in
         
         if [ -n "$NET_CHOICE" ]; then
             # Отрезаем две иконки и два пробела, оставляя только SSID
-            SSID=$(echo "$NET_CHOICE" | sed 's/^[^ ]* [^ ]* //')
+            # Используем cut с сохранением пробелов в SSID
+            SSID=$(printf '%s' "$NET_CHOICE" | cut -d ' ' -f 3-)
             
             # Пытаемся подключиться тихо (если пароль уже сохранен)
             if nmcli device wifi connect "$SSID" > /dev/null 2>&1; then
@@ -99,8 +100,8 @@ case "$CHOICE" in
                             "Подключено" "SSID: $SSID"
             else
                 # Если не удалось — открываем терминал для ввода пароля
-                # alacritty --class wifi -e bash -c "echo 'Подключение к $SSID...'; nmcli device wifi connect '$SSID' --ask; echo -e '\nНажмите Enter для выхода...'; read" &
-                SSID_ENV="$SSID" alacritty --class wifi -e bash -c 'echo "Подключение к $SSID_ENV..."; nmcli device wifi connect "$SSID_ENV" --ask; echo -e "\nНажмите Enter для выхода..."; read' &
+                # Используем окружение для передачи SSID, избегаем экранирования
+                SSID_ENV="$SSID" alacritty --class wifi -e bash -c 'printf "%s\n" "Подключение к $SSID_ENV..."; nmcli device wifi connect "$SSID_ENV" --ask; printf "\n%s\n" "Нажмите Enter для выхода..."; read' &
             fi
         fi
         ;;
@@ -121,7 +122,8 @@ case "$CHOICE" in
                         "Подождите..." "Подключение к скрытой сети..."
 
             # Пароль вводится в терминале через --ask — как в остальном скрипте
-            alacritty --class wifi -e bash -c "echo 'Подключение к скрытой сети: $HIDDEN_SSID'; nmcli device wifi connect '$HIDDEN_SSID' hidden yes --ask; echo -e '\nНажмите Enter для выхода...'; read" &
+            # Используем окружение для передачи SSID, избегаем экранирования
+            HIDDEN_SSID_ENV="$HIDDEN_SSID" alacritty --class wifi -e bash -c 'printf "%s\n" "Подключение к скрытой сети: $HIDDEN_SSID_ENV"; nmcli device wifi connect "$HIDDEN_SSID_ENV" hidden yes --ask; printf "\n%s\n" "Нажмите Enter для выхода..."; read' &
         fi
         ;;
     *"Включить хотспот"*)

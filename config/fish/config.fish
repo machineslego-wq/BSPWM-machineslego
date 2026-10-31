@@ -60,4 +60,7 @@ set -gx LESS "-R"
 
 # Tide инициализируется автоматически через ~/.config/fish/conf.d/
 
-fish_add_path ~/.npm-global/bin
+# --- npm глобальные пакеты без sudo ---
+if test -d "$HOME/.npm-global/bin"
+    fish_add_path --prepend --global "$HOME/.npm-global/bin"
+end
