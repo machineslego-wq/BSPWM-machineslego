@@ -192,7 +192,7 @@ super + m
 
 # Отправить помеченное в Preselect (Super + Y)
 super + y
-    bspc node newest.marked.local -n newest.!automatic.local
+    ~/.config/sxhkd/scripts/to-preselect.sh
 
 # Поменять с самым большим окном (Super + G)
 super + g
@@ -200,7 +200,7 @@ super + g
 
 # Флаги: Marked/Locked/Sticky/Private (Super + Ctrl + M/X/Y/Z)
 super + ctrl + {m,x,y,z}
-    bspc node -g {marked,locked,sticky,private}
+    ~/.config/sxhkd/scripts/flag.sh {marked,locked,sticky,private}
 
 # ⚠ ОСТОРОЖНО: выход / перезапуск BSPWM (Super + Alt + Q / R)
 super + alt + {q,r}
