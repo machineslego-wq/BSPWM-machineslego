@@ -1,10 +1,18 @@
 # ==============================================================================
 # SXHKD — Горячие клавиши для BSPWM-machineslego
 # ==============================================================================
-# Формат: 
+# Формат:
 #   <сочетание клавиш>
 #       <команда для выполнения>
 # Отступ команды — 4 пробела.
+# ==============================================================================
+# Содержание:
+#   1. Системные и независимые от WM
+#   2. Запуск приложений (быстрый доступ)
+#   3. Мультимедиа и скриншоты
+#   4. Базовое управление окнами и фокус
+#   5. Режимы, состояния и тайлинг
+#   6. Размеры, preselect и resize
 # ==============================================================================
 
 
@@ -18,15 +26,7 @@ super + slash
 
 # Перезапуск ВСЕГО (SXHKD + BSPWM + Polybar + Dunst + Picom + Аплеты) (Super + Alt + Shift + R)
 super + alt + shift + r
-    pkill -USR1 -x sxhkd; \
-    pkill -x polybar; \
-    pkill -x picom; \
-    pkill -x dunst; \
-    pkill -x blueman-applet; \
-    pkill -x xss-lock; \
-    pkill -x lxpolkit; \
-    pkill -x copyq; \
-    bspc wm -r
+    ~/.config/sxhkd/scripts/session-restart.sh
 
 # Меню питания (Super + Shift + Q)
 super + shift + q
@@ -52,7 +52,7 @@ super + alt + p
 super + alt + n
     ~/.config/sxhkd/scripts/wifi.sh
 
-# История буфера обмена (CopyQ) — всплывающее меню у курсора
+# История буфера обмена (CopyQ) — всплывающее меню у курсора (Super + Ctrl + V)
 super + ctrl + v
     copyq menu
 
@@ -73,7 +73,7 @@ super + e
 super + b
     firefox
 
-# Редактор VS Code (Super + V) 
+# Редактор VS Code (Super + V)
 super + v
     code
 
@@ -87,35 +87,24 @@ super + d
 
 # TG WS Proxy + Telegram-flatpak (Super + Alt + T)
 super + alt + t
-    tg-ws-proxy & sleep 1 && flatpak run org.telegram.desktop &
+    ~/.config/sxhkd/scripts/telegram.sh
 
 # Батарея: подробности в Rofi (Super + Alt + B)
 super + alt + b
     ~/.config/sxhkd/scripts/battery.sh
 
+
 # ==============================================================================
 # МУЛЬТИМЕДИА И СКРИНШОТЫ
 # ==============================================================================
 
-# Скриншот: весь экран + буфер (Super + F1)
-super + F1
-    bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim "$FILE" && copyq write image/png - < "$FILE" && notify-send -u low -t 2000 -a "Screenshot" "Скриншот" "Весь экран → буфер"'
+# Скриншоты: весь экран / окно / задержка / монитор (Super + F1..F4)
+super + F{1,2,3,4}
+    ~/.config/sxhkd/scripts/screenshot.sh {full,window,delayed,monitor}
 
-# Скриншот: активное окно + буфер (Super + F2)
-super + F2
-    bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -i $(xdotool getactivewindow) "$FILE" && copyq write image/png - < "$FILE" && notify-send -u low -t 2000 -a "Screenshot" "Скриншот" "Активное окно → буфер"'
-
-# Скриншот: выделенная область + буфер (Super + Shift + S)
+# Скриншот: выделенная область (Super + Shift + S)
 super + shift + s
-    bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -s "$FILE" && copyq write image/png - < "$FILE" && notify-send -u low -t 2000 -a "Screenshot" "Скриншот" "Область → буфер"'
-
-# Скриншот: весь экран с задержкой 3с (Super + F3)
-super + F3
-    bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -d 3 "$FILE" && copyq write image/png - < "$FILE" && notify-send -u low -t 2000 -a "Screenshot" "Скриншот" "Экран (3с) → буфер"'
-
-# Скриншот: активный монитор + буфер (Super + F4)
-super + F4
-    bash -c 'GEOM=$(bspc query -T -m focused | jq -r ".rectangle | \"\(.width)x\(.height)+\(.x)+\(.y)\""); FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -g "$GEOM" "$FILE" && copyq write image/png - < "$FILE" && notify-send -u low -t 2000 -a "Screenshot" "Скриншот" "Активный монитор → буфер"'
+    ~/.config/sxhkd/scripts/screenshot.sh region
 
 # Яркость: +5% (Fn + Brightness Up)
 XF86MonBrightnessUp
@@ -146,11 +135,11 @@ XF86AudioMute
 super + {Left,Down,Up,Right}
     bspc node -f {west,south,north,east}
 
-# Перемещение окна (свап с соседом)
+# Перемещение окна (свап с соседом) (Super + Shift + Стрелки)
 super + shift + {Left,Down,Up,Right}
     bspc node -s {west,south,north,east}
 
-# Перемещение плавающего окна — стандартные Vim-keys
+# Перемещение плавающего окна — стандартные Vim-keys (Super + H/J/K/L)
 # H = влево, J = вниз, K = вверх, L = вправо
 # (для тайловых окон используй Super+Shift+Стрелки — свап)
 super + {h,j,k,l}
@@ -172,11 +161,9 @@ super + {_,shift + }c
 super + bracket{left,right}
     bspc desktop -f {prev,next}.local
 
-# История фокуса: назад/вперед (Super + O / Super + I)
+# История фокуса: назад/вперёд (Super + O / Super + I)
 super + {o,i}
-    bspc wm -h off; \
-    bspc node {older,newer} -f; \
-    bspc wm -h on
+    ~/.config/sxhkd/scripts/focus-history.sh {older,newer}
 
 # Переход по дереву: Родитель/Сосед/1-й/2-й (Super + P/B/,/.)
 super + {p,b,comma,period}
@@ -215,7 +202,7 @@ super + g
 super + ctrl + {m,x,y,z}
     bspc node -g {marked,locked,sticky,private}
 
-# Выход / Перезапуск BSPWM (Super + Alt + Q / R)
+# ⚠ ОСТОРОЖНО: выход / перезапуск BSPWM (Super + Alt + Q / R)
 super + alt + {q,r}
     bspc {quit,wm -r}
 
@@ -238,7 +225,7 @@ super + ctrl + space
 
 # Preselect: отменить для стола (Super + Ctrl + Shift + Space)
 super + ctrl + shift + space
-    bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel
+    ~/.config/sxhkd/scripts/preselect-cancel-all.sh
 
 # Изменить размер: растянуть (Super + Alt + Стрелки)
 super + alt + {Left,Down,Up,Right}
@@ -247,32 +234,3 @@ super + alt + {Left,Down,Up,Right}
 # Изменить размер: сжать (Super + Alt + Shift + Стрелки)
 super + alt + shift + {Left,Down,Up,Right}
     bspc node -z {right -20 0,top 0 20,bottom 0 -20,left 20 0}
-
-
-
-# ------------------------------------------------------------------------------
-
-
-# ==============================================================================
-# МУЛЬТИМЕДИА И СКРИНШОТЫ (ОТКЛЮЧЕНО НО ОСТАВЛЕНО В КАЧЕСТВЕ FALLBACK)
-# ==============================================================================
-
-# # Скриншот: весь экран + буфер (Super + F1)
-# super + F1
-#     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -a "Screenshot" "Скриншот" "Весь экран → буфер"'
-# 
-# # Скриншот: активное окно + буфер (Super + F2)
-# super + F2
-#     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -i $(xdotool getactivewindow) "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -a "Screenshot" "Скриншот" "Активное окно → буфер"'
-# 
-# # Скриншот: выделенная область + буфер (Super + Shift + S)
-# super + shift + s
-#     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -s "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -a "Screenshot" "Скриншот" "Область → буфер"'
-# 
-# # Скриншот: весь экран с задержкой 3с (Super + F3)
-# super + F3
-#     bash -c 'FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -d 3 "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -a "Screenshot" "Скриншот" "Экран (3с) → буфер"'
-# 
-# # Скриншот: активный монитор + буфер (Super + F4)
-# super + F4
-#     bash -c 'GEOM=$(bspc query -T -m focused | jq -r ".rectangle | \"\(.width)x\(.height)+\(.x)+\(.y)\""); FILE="$HOME/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"; maim -g "$GEOM" "$FILE" && xclip -selection clipboard -t image/png -i "$FILE" && notify-send -u low -t 2000 -a "Screenshot" "Скриншот" "Активный монитор → буфер"'

@@ -39,12 +39,12 @@ if [ -n "$MUTED" ]; then
 elif [ "$VOL" -gt 100 ]; then
     FRAME_COLOR="#ff0000"
     HIGHLIGHT_COLOR="#ff0000"
-    MSG="Громкость: ${VOL}% (Максимум!)"
-elif [ "$VOL" -gt 80 ]; then
+    MSG="Громкость: ${VOL}% (OVERFLOW!)"
+elif [ "$VOL" -gt 85 ]; then
     FRAME_COLOR="#f7768e"
     HIGHLIGHT_COLOR="#f7768e"
     MSG="Громкость: ${VOL}%"
-elif [ "$VOL" -gt 50 ]; then
+elif [ "$VOL" -gt 55 ]; then
     FRAME_COLOR="#e0af68"
     HIGHLIGHT_COLOR="#e0af68"
     MSG="Громкость: ${VOL}%"

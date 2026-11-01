@@ -1,0 +1,45 @@
+#!/bin/bash
+# ==========================================================
+# screenshot.sh — Скриншоты с копированием в буфер (CopyQ)
+# Использование: screenshot.sh {full|window|region|delayed|monitor}
+# ==========================================================
+
+set -u
+
+MODE="${1:-}"
+case "$MODE" in
+    full|window|region|delayed|monitor) ;;
+    *) echo "usage: $0 {full|window|region|delayed|monitor}" >&2; exit 1 ;;
+esac
+
+DIR="$HOME/Screenshots"
+mkdir -p "$DIR"
+FILE="$DIR/$(date +%Y-%m-%d_%H-%M-%S).png"
+
+# --- Захват ---
+case "$MODE" in
+    full)    maim "$FILE" ;;
+    window)  maim -i "$(xdotool getactivewindow)" "$FILE" ;;
+    region)  maim -s "$FILE" ;;
+    delayed) maim -d 3 "$FILE" ;;
+    monitor)
+        GEOM=$(bspc query -T -m focused | jq -r '.rectangle | "\(.width)x\(.height)+\(.x)+\(.y)"')
+        maim -g "$GEOM" "$FILE"
+        ;;
+esac
+
+# --- Буфер обмена ---
+copyq write image/png - < "$FILE"
+
+# --- OSD ---
+case "$MODE" in
+    full)    LABEL="Весь экран" ;;
+    window)  LABEL="Активное окно" ;;
+    region)  LABEL="Область" ;;
+    delayed) LABEL="Экран (3с)" ;;
+    monitor) LABEL="Активный монитор" ;;
+esac
+
+notify-send -a "Screenshot" -u low -t 2000 \
+            -h string:x-canonical-private-synchronous:screenshot \
+            "Скриншот" "$LABEL → буфер"
