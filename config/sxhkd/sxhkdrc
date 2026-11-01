@@ -87,7 +87,7 @@ super + d
 
 # TG WS Proxy + Telegram-flatpak (Super + Alt + T)
 super + alt + t
-    ~/.config/sxhkd/scripts/telegram.sh
+    tg-ws-proxy & sleep 1 && flatpak run org.telegram.desktop &
 
 # Батарея: подробности в Rofi (Super + Alt + B)
 super + alt + b
@@ -163,7 +163,9 @@ super + bracket{left,right}
 
 # История фокуса: назад/вперёд (Super + O / Super + I)
 super + {o,i}
-    ~/.config/sxhkd/scripts/focus-history.sh {older,newer}
+    bspc wm -h off; \
+    bspc node {older,newer} -f; \
+    bspc wm -h on
 
 # Переход по дереву: Родитель/Сосед/1-й/2-й (Super + P/B/,/.)
 super + {p,b,comma,period}
