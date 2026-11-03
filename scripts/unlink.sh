@@ -19,14 +19,14 @@ skipped=0
 
 check_and_remove() {
     local link_path="$1"
-    
+
     if [ -L "$link_path" ]; then
         local target
-        target=$(readlink "$link_path")
-        
+        target=$(readlink -m -- "$link_path" 2>/dev/null) || target=$(readlink -- "$link_path")
+
         # Удаляем только если ссылка ведет в наш репозиторий
         case "$target" in
-            "$DOTFILES"*)
+            "$DOTFILES"/*)
                 rm "$link_path"
                 echo "  unlink (удалена ссылка): $link_path"
                 removed=$((removed + 1))
