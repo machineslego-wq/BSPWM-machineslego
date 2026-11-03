@@ -120,10 +120,10 @@ pkill -x gsd-media-keys &
 # =====================================================================
 
 # Фокус окна следует за указателем мыши.
-bspc config focus_follows_pointer true
+bspc config focus_follows_pointer false
 
 # Указатель мыши следует за фокусом окна
-bspc config pointer_follows_focus true
+bspc config pointer_follows_focus false
 
 # Отступы под панель Polybar (сверху).
 bspc config top_padding    34
