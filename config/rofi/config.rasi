@@ -42,6 +42,10 @@ configuration {
        {name} — только название. Альтернативы: {generic_name},
        {categories}, {comment}. Для минимализма — {name}. */
     drun-display-format: "{name}";
+    
+    /* 1 - плавная прокрутка (по одной строке)
+       0 - постраничная прокрутка (PageDown перескакивает на 20 строк) */
+    scroll-method: 1;
 }
 
 
