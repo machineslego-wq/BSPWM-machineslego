@@ -28,7 +28,8 @@ sudo apt install -y \
   btop \
   micro \
   tty-clock \
-  tmux
+  tmux \
+  mousepad
 
 # ==========================================================
 # 2. Neovim (AppImage)
@@ -111,32 +112,9 @@ sudo apt install -y \
 echo "-> Installing LibreOffice..."
 sudo apt install -y libreoffice
 
-# ==========================================================
-# 11. Менеджер буфера обмена (выберите один вариант)
-# ==========================================================
-# --- Вариант А: Clyp (современный GUI на GTK4, превью картинок) ---
-# echo "-> Installing Clyp (clipboard manager)..."
-# CLYP_URL="https://github.com/murat-cileli/clyp/releases/download/0.9.6/clyp_0.9.6_amd64.deb"
-# wget -q "$CLYP_URL" -O /tmp/clyp.deb
-# sudo apt install -y /tmp/clyp.deb
-# rm -f /tmp/clyp.deb
-# echo "  -> Clyp installed. Bind to a hotkey (e.g., Super+V)."
-
-# --- Вариант Б: Clipcat (Rust, минимализм, интеграция с rofi) ---
-# echo "-> Installing Clipcat (clipboard manager)..."
-# CLIPCAT_VER="0.26.0"
-# CLIPCAT_URL="https://github.com/xrelkd/clipcat/releases/download/v${CLIPCAT_VER}/clipcat_${CLIPCAT_VER}_amd64.deb"
-# wget -q "$CLIPCAT_URL" -O /tmp/clipcat.deb
-# sudo apt install -y /tmp/clipcat.deb
-# rm -f /tmp/clipcat.deb
-# echo "  -> Clipcat installed. Use 'clipcat-menu' for hotkey."
-
-# --- Вариант В: из официального репозитория Debian ---
-# sudo apt install -y copyq    # мощный, кроссплатформенный
-# sudo apt install -y diodon   # лёгкий, Vala/GTK
 
 # ==========================================================
-# 12. Flatpak приложения (опционально)
+# 11. Flatpak приложения (опционально)
 # ==========================================================
 # Если нужна свежая версия OBS (32.x) или других приложений:
 # sudo -u "$REAL_USER" flatpak install -y flathub com.obsproject.Studio
