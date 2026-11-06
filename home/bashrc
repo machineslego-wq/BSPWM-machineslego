@@ -46,17 +46,54 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
-# Nerd Icons for prompt
+# Nerd Icons
+PROMPT_NF_DEBIAN=""
+PROMPT_NF_DIR=""
 PROMPT_NF_GIT=""
+PROMPT_NF_SEPARATOR="│"
 
-# Color prompt with git (Tokyo Night style)
-if [ "$color_prompt" = yes ]; then
-    # debian icon, path, git
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[38;2;125;207;255m\] debian\[\033[0m\] \[\033[38;2;122;162;247m\]\w\[\033[0m\]\[\033[38;2;187;154;247m\] ${PROMPT_NF_GIT} $(git branch --show-current 2>/dev/null)\[\033[0m\]\$ '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
-unset color_prompt force_color_prompt
+# Build prompt dynamically
+prompt_command() {
+    local exit_code=$?
+    local reset="\[\033[0m\]"
+    local c_debian="\[\033[38;2;125;207;255m\]"    # #7dcfff
+    local c_dir="\[\033[38;2;122;162;247m\]"      # #7aa2f7
+    local c_git="\[\033[38;2;187;154;247m\]"      # #bb9af7
+    local c_arrow="\[\033[38;2;158;206;106m\]"    # #9ece6a
+    [ $exit_code -ne 0 ] && c_arrow="\[\033[38;2;247;118;142m\]"  # red on error
+
+    # Debian icon
+    local debian="${c_debian}${PROMPT_NF_DEBIAN}${reset}"
+
+    # Path with icon
+    local pwd_short="$PWD"
+    local home_len=${#HOME}
+    if [[ "$PWD" == "$HOME"* ]]; then
+        pwd_short="~${PWD:$home_len}"
+    fi
+    local path_part="${c_dir}${PROMPT_NF_DIR} ${pwd_short}${reset}"
+
+    # Git - only show if in git repo
+    local git_part=""
+    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        local branch=$(git branch --show-current 2>/dev/null)
+        if [ -z "$branch" ]; then
+            branch=$(git rev-parse --short HEAD 2>/dev/null)
+        fi
+        local dirty=""
+        [ -n "$(git status --porcelain 2>/dev/null)" ] && dirty="*"
+        git_part="${c_git}${PROMPT_NF_GIT} ${branch}${dirty}${reset}"
+    fi
+
+    # Arrow
+    local arrow="${c_arrow}❯${reset}"
+
+    PS1="${debian} ${PROMPT_NF_SEPARATOR} ${path_part}"
+    [ -n "$git_part" ] && PS1="${PS1} ${PROMPT_NF_SEPARATOR} ${git_part}"
+    PS1="${PS1} ${arrow} "
+}
+
+PROMPT_COMMAND=prompt_command
 
 # If this is an xterm set the title
 case "$TERM" in
