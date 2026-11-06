@@ -23,10 +23,6 @@ HISTFILESIZE=2000
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
 
-# If set, the pattern "**" used in a pathname expansion context will
-# match all files and zero or more directories and subdirectories.
-#shopt -s globstar
-
 # make less more friendly for non-text input files, see lesspipe(1)
 #[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
@@ -35,33 +31,136 @@ if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
-# set a fancy prompt (non-color, unless we know we "want" color)
-case "$TERM" in
-    xterm-color|*-256color) color_prompt=yes;;
-esac
+# ==========================================================
+# --- POWERLINE-STYLE PROMPT (одна строка, как в p10k) ---
+# ==========================================================
 
-# uncomment for a colored prompt, if the terminal has the capability; turned
-# off by default to not distract the user: the focus in a terminal window
-# should be on the output of commands, not on the prompt
-#force_color_prompt=yes
+# Цвета Tokyo Night
+readonly PN_FG='\[\033[38;5;252m\]'      # #c0caf5
+readonly PN_PRIMARY='\[\033[38;5;75m\]'  # #7aa2f7 (синий)
+readonly PN_SECONDARY='\[\033[38;5;183m\]' # #bb9af7 (фиолетовый)
+readonly PN_ALERT='\[\033[38;5;203m\]'   # #f7768e (красный)
+readonly PN_WARNING='\[\033[38;5;214m\]' # #e0af68 (жёлтый)
+readonly PN_SUCCESS='\[\033[38;5;113m\]' # #9ece6a (зелёный)
+readonly PN_RESET='\[\033[0m\]'
 
-if [ -n "$force_color_prompt" ]; then
-    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
-    else
-	color_prompt=
+# Время начала команды для подсчёта длительности
+preexec() {
+    CMD_START_TIME=$(date +%s%N)
+}
+preexec_invoke_exec() {
+    [ -n "$COMP_LINE" ] && return
+    [ "$BASH_COMMAND" = "$PROMPT_COMMAND" ] && return
+    local this_command=$(HISTTIMEFORMAT= history 1 | sed -e "s/^[ ]*[0-9]*[ ]*//")
+    preexec "$this_command"
+}
+trap 'preexec_invoke_exec' DEBUG
+
+__build_prompt() {
+    local LAST_EXIT=$?
+    local LAST_CMD_TIME=${CMD_START_TIME:-}
+    local ELAPSED=""
+    
+    if [ -n "$LAST_CMD_TIME" ]; then
+        local NOW=$(date +%s%N)
+        local DIFF=$((($NOW - $LAST_CMD_TIME) / 1000000))
+        if [ $DIFF -gt 100 ]; then
+            ELAPSED="${DIFF}ms "
+        fi
     fi
-fi
 
-if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
-unset color_prompt force_color_prompt
+    # Среда программирования
+    local ENV=""
+    if [ -n "$CONDA_DEFAULT_ENV" ] && [ "$CONDA_DEFAULT_ENV" != "base" ]; then
+        ENV="${PN_SECONDARY} ${CONDA_DEFAULT_ENV}${PN_RESET}"
+    elif [ -n "$PYENV_VERSION" ]; then
+        ENV="${PN_SECONDARY} ${PYENV_VERSION}${PN_RESET}"
+    elif [ -f "package.json" ]; then
+        ENV="${PN_WARNING} node${PN_RESET}"
+    elif [ -f "requirements.txt" ]; then
+        ENV="${PN_FG} python${PN_RESET}"
+    elif [ -f "Cargo.toml" ]; then
+        ENV="${PN_PRIMARY} rust${PN_RESET}"
+    elif [ -f "go.mod" ]; then
+        ENV="${PN_PRIMARY} go${PN_RESET}"
+    elif [ -f "Gemfile" ]; then
+        ENV="${PN_ALERT} ruby${PN_RESET}"
+    fi
+
+    # Git branch
+    local GIT_BRANCH=""
+    if command -v git &>/dev/null; then
+        GIT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
+        if [ -n "$GIT_BRANCH" ]; then
+            local GIT_DIRTY=""
+            if ! git diff-index --quiet HEAD -- 2>/dev/null; then
+                GIT_DIRTY="${PN_ALERT}*${PN_RESET}"
+            fi
+            GIT_BRANCH="${PN_PRIMARY} ${GIT_BRANCH}${GIT_DIRTY}${PN_RESET}"
+        fi
+    fi
+
+    # Рабочий каталог
+    local PWD_SHORT="$PWD"
+    local HOME_LEN=${#HOME}
+    if [[ "$PWD" == "$HOME"* ]]; then
+        PWD_SHORT="~${PWD:$HOME_LEN}"
+    fi
+
+    # Логотип дистрибутива
+    local DISTRO="${PN_SUCCESS} debian${PN_RESET}"
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        case "$ID" in
+            ubuntu)  DISTRO="${PN_FG} ubuntu${PN_RESET}" ;;
+            arch)    DISTRO="${PN_ALERT} arch${PN_RESET}" ;;
+            fedora)  DISTRO="${PN_FG} fedora${PN_RESET}" ;;
+            opensuse) DISTRO="${PN_SUCCESS} opensuse${PN_RESET}" ;;
+        esac
+    fi
+
+    # Путь
+    local PATH_PART="${PN_FG} ${PWD_SHORT}${PN_RESET}"
+
+    # Время справа
+    local TIME_RIGHT="${PN_FG} $(date +%H:%M)${PN_RESET}"
+
+    # Общая длина для выравнивания
+    local TERM_WIDTH=$(tput cols)
+    
+    # Собираем левую часть
+    local LEFT_PART="${DISTRO}${PATH_PART}${GIT_BRANCH}${ENV} ${ELAPSED}"
+    
+    # Вычисляем ширину без escape-кодов
+    local LEFT_PLAIN=$(echo -e "${DISTRO}${PATH_PART}${GIT_BRANCH}${ENV}" | sed 's/\x1b\[[0-9;]*m//g')
+    local LEFT_LEN=${#LEFT_PLAIN}
+    local TIME_LEN=${#TIME_RIGHT}
+    
+    local SPACES=$((TERM_WIDTH - LEFT_LEN - TIME_LEN - 2))
+    if [ $SPACES -lt 0 ]; then
+        SPACES=0
+    fi
+    
+    # Генерируем пробелы
+    local SPACES_STR=""
+    for ((i=0; i<SPACES; i++)); do
+        SPACES_STR="${SPACES_STR} "
+    done
+    
+    # Финальная строка: левая часть + пробелы + время
+    # Используем \r чтобы перерисовать строку (как в p10k)
+    local FULL_PROMPT="\r${LEFT_PART}${SPACES_STR}${TIME_RIGHT}\n\$ "
+    
+    # Проверка на ошибку — подсветить путь красным если ошибка
+    if [ $LAST_EXIT -ne 0 ]; then
+        FULL_PROMPT="\r${DISTRO}${PN_ALERT} ${PWD_SHORT}${PN_RESET}${GIT_BRANCH}${ENV} ${PN_ALERT}${LAST_EXIT}${PN_RESET} ${ELAPSED}${SPACES_STR}${TIME_RIGHT}\n\$ "
+    fi
+    
+    # Устанавливаем промпт
+    PS1="${FULL_PROMPT}"
+}
+
+PROMPT_COMMAND=__build_prompt
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
@@ -76,16 +175,7 @@ esac
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
-
-    #alias grep='grep --color=auto'
-    #alias fgrep='fgrep --color=auto'
-    #alias egrep='egrep --color=auto'
 fi
-
-# colored GCC warnings and errors
-#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 # some more ls aliases
 #alias ll='ls -l'
@@ -93,17 +183,11 @@ fi
 #alias l='ls -CF'
 
 # Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
-
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
-# enable programmable completion features (you don't need to enable
-# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
-# sources /etc/bash.bashrc).
+# enable programmable completion features
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
     . /usr/share/bash-completion/bash_completion
