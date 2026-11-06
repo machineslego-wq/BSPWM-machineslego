@@ -46,11 +46,14 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
-# Check if Nerd Fonts are available
+# Check if we're in TTY (no color support) or fonts don't have icons
 have_nerd_fonts=false
-if [ -x "$(command -v fc-list)" ]; then
-    if fc-list | grep -qi "nerd\|JetBrainsMono" 2>/dev/null; then
-        have_nerd_fonts=true
+# If TERM is not tty*, try to check for Nerd Fonts
+if [[ "$TERM" != *tty* ]]; then
+    if [ -x "$(command -v fc-list)" ]; then
+        if fc-list | grep -qi "nerd\|JetBrainsMono" 2>/dev/null; then
+            have_nerd_fonts=true
+        fi
     fi
 fi
 
@@ -81,8 +84,8 @@ prompt_command() {
     local c_arrow="\[\033[38;2;158;206;106m\]"    # #9ece6a
     [ $exit_code -ne 0 ] && c_arrow="\[\033[38;2;247;118;142m\]"  # red on error
 
-    # Debian icon
-    local debian="${c_debian}${PROMPT_NF_DEBIAN}${reset}"
+    # Debian icon (space before)
+    local debian=" ${c_debian}${PROMPT_NF_DEBIAN}${reset}"
 
     # Path with icon
     local pwd_short="$PWD"
