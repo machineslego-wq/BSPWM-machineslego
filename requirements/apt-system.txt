@@ -1,0 +1,3 @@
+# Системные пакеты (требуют sudo, устанавливаются через apt)
+power-profiles-daemon
+flatpak

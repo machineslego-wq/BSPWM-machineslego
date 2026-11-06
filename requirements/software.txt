@@ -1,0 +1,30 @@
+# Пользовательский софт (устанавливается через AppImage/скрипты, без sudo)
+# Neovim (AppImage)
+https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
+
+# Основной софт (требуют sudo apt install)
+lazygit
+htop
+ranger
+btop
+micro
+tty-clock
+tmux
+mousepad
+udiskie
+lxrandr
+redshift
+gnome-disk-utility
+strawberry
+mpv
+vlc
+obs-studio
+nsxiv
+7zip
+xarchiver
+zathura
+zathura-pdf-poppler
+mupdf
+gimp
+inkscape
+libreoffice

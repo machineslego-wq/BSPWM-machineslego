@@ -19,137 +19,106 @@ echo "Repository (Репозиторий): $DOTFILES"
 echo "User (Пользователь): $REAL_USER"
 echo ""
 
-sudo -v || { echo "Error: sudo privileges required (Ошибка: требуются права sudo)."; exit 1; }
-
-echo "[1/8] Installing base packages... (Установка базовых пакетов...)"
-sudo apt update
-
-# Минимальный набор для работы оболочки. 
-# gvfs и xdg-user-dirs обязательны для быстрой работы Thunar.
-# PipeWire и pipewire-pulse добавлены сразу для гарантии работы Polybar и volume.sh.
-# copyq, xss-lock, lxpolkit — утилиты для комфорта (история буфера, автоблокировка, polkit).
-# fish и curl нужны для установки Tide.
-sudo apt install -y \
-  xorg xinit xserver-xorg-input-libinput \
-  bspwm sxhkd \
-  polybar rofi dunst picom feh \
-  lxappearance \
-  papirus-icon-theme bibata-cursor-theme \
-  fonts-jetbrains-mono fonts-font-awesome \
-  fonts-noto-color-emoji \
-  brightnessctl maim slop scrot \
-  network-manager pavucontrol blueman \
-  thunar gvfs gvfs-backends gvfs-fuse \
-  alacritty \
-  i3lock-fancy libnotify-bin \
-  fish curl fontconfig \
-  wget unzip xclip lm-sensors \
-  jq \
-  imagemagick xdg-utils xdg-user-dirs xdotool fastfetch \
-  pipewire pipewire-audio pipewire-pulse wireplumber libspa-0.2-bluetooth \
-  copyq xss-lock lxpolkit \
-  mc
-
-echo "  Base packages installed. (Базовые пакеты установлены.)"
-
-# Генерация стандартных папок XDG (Загрузки, Документы и т.д.)
-sudo -u "$REAL_USER" xdg-user-dirs-update
-echo "  XDG user directories updated (Стандартные папки обновлены)."
-
-sudo -u "$REAL_USER" mkdir -p "$REAL_HOME/Screenshots"
-echo "  Screenshots folder created (Создана папка для скриншотов): ~/Screenshots"
-
 # ==========================================================
-# Принудительный переход на PipeWire
+# ФАЗА 1: Установка без sudo (проги, шрифты, линковка)
 # ==========================================================
-echo "  -> Configuring audio backend (Настройка аудио-бэкенда)..."
-if dpkg -l | grep -q "^ii  pulseaudio " && ! command -v wpctl &>/dev/null; then
-    echo "  -> Pure PulseAudio detected. Removing to prevent conflicts. (Обнаружен чистый PulseAudio. Удаляем во избежание конфликтов.)"
-    systemctl --user stop pulseaudio.socket pulseaudio.service 2>/dev/null || true
-    systemctl --user disable pulseaudio.socket pulseaudio.service 2>/dev/null || true
-    sudo apt purge -y pulseaudio
-    sudo apt autoremove -y
+echo "[1/4] Installing user-level software... (Установка пользовательского софта без sudo)..."
+
+# 1.1. Установка Neovim (AppImage)
+echo "  -> Installing Neovim (AppImage)..."
+NVIM_BIN="$REAL_HOME/.local/bin/nvim"
+NVIM_URL="https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage"
+
+mkdir -p "$REAL_HOME/.local/bin"
+if [ ! -f "$NVIM_BIN" ]; then
+    wget -q --show-progress "$NVIM_URL" -O "$NVIM_BIN"
+    chmod +x "$NVIM_BIN"
+    echo "  -> Neovim AppImage installed to ~/.local/bin/nvim"
+else
+    echo "  -> Neovim already installed. Skipping."
 fi
-systemctl --user daemon-reload
-echo "  -> PipeWire is ready. (PipeWire готов.)"
-echo ""
 
-echo "[2/8] Installing JetBrainsMono Nerd Font... (Установка шрифта JetBrainsMono Nerd Font...)"
+# 1.2. Установка JetBrainsMono Nerd Font
+echo "  -> Installing JetBrainsMono Nerd Font..."
 FONT_DIR="$REAL_HOME/.local/share/fonts"
 FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.zip"
 TMP_ZIP=$(mktemp /tmp/JetBrainsMono-XXXXXX.zip)
 
-if sudo -u "$REAL_USER" fc-list | grep -qi "JetBrainsMono Nerd Font"; then
-    echo "  JetBrainsMono Nerd Font already installed. Skipping. (Шрифт уже установлен. Пропускаем.)"
+if fc-list | grep -qi "JetBrainsMono Nerd Font"; then
+    echo "  -> JetBrainsMono Nerd Font already installed. Skipping."
     rm -f "$TMP_ZIP"
 else
-    echo "  Downloading JetBrainsMono.zip... (Скачиваем JetBrainsMono.zip...)"
-    sudo -u "$REAL_USER" mkdir -p "$FONT_DIR"
-    sudo -u "$REAL_USER" wget -q --show-progress "$FONT_URL" -O "$TMP_ZIP"
-    echo "  Extracting... (Распаковываем...)"
-    sudo -u "$REAL_USER" unzip -q "$TMP_ZIP" -d "$FONT_DIR"
+    mkdir -p "$FONT_DIR"
+    wget -q --show-progress "$FONT_URL" -O "$TMP_ZIP"
+    unzip -q "$TMP_ZIP" -d "$FONT_DIR"
     rm -f "$TMP_ZIP"
-    echo "  Updating font cache... (Обновляем кэш шрифтов...)"
-    sudo -u "$REAL_USER" fc-cache -f "$FONT_DIR" >/dev/null
-    echo "  Font installed successfully. (Шрифт успешно установлен.)"
+    fc-cache -f "$FONT_DIR" >/dev/null
+    echo "  -> Font installed successfully."
 fi
+
+# 1.3. Линковка конфигов (без sudo)
+echo "  -> Linking configs..."
+export DOTFILES
+env HOME="$REAL_HOME" DOTFILES="$DOTFILES" bash "$DOTFILES/scripts/link.sh"
+
+# 1.4. Установка Fish и Tide (без sudo)
+echo "  -> Installing Fisher and Tide..."
+fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher" 2>/dev/null
+fish -c "fisher install IlanCosman/tide@v6" 2>/dev/null
+
+echo ""
+echo "[1/4] User-level software installed. (Пользовательский софт установлен.)"
 echo ""
 
-echo "[3/8] Configuring power management... (Настройка управления питанием...)"
+# ==========================================================
+# ФАЗА 2: Установка с sudo (системные пакеты, конфиги)
+# ==========================================================
+sudo -v || { echo "Error: sudo privileges required (Ошибка: требуются права sudo)."; exit 1; }
+
+echo "[2/4] Installing system packages... (Установка системных пакетов)..."
+
+# 2.1. Основные пакеты
+echo "  -> Installing base packages..."
+sudo apt update
+
+# Считываем пакеты из requirements/apt.txt (игнорируем комментарии и пустые строки)
+while IFS= read -r pkg || [ -n "$pkg" ]; do
+    [[ -z "$pkg" || "$pkg" =~ ^# ]] && continue
+    if ! dpkg -l | grep -q "^ii  $pkg "; then
+        echo "    Installing: $pkg"
+        sudo apt install -y "$pkg"
+    else
+        echo "    Already installed: $pkg"
+    fi
+done < "$DOTFILES/requirements/apt.txt"
+
+echo "  -> Base packages installed."
+
+# 2.2. Системные пакеты (TLP -> PPD, Flatpak)
+echo "  -> Configuring power management..."
 if dpkg -l 2>/dev/null | grep -q "^ii  tlp "; then
-    echo "  -> TLP detected. Removing to avoid conflict with PPD. (Обнаружен TLP. Удаляем во избежание конфликта с PPD.)"
+    echo "  -> TLP detected. Removing to avoid conflict with PPD."
     sudo systemctl disable --now tlp 2>/dev/null || true
     sudo apt purge -y tlp tlp-rdw
     sudo apt autoremove -y
     sudo rm -f /etc/sudoers.d/tlp
-    echo "  -> TLP removed. (TLP удалён.)"
 fi
 
-sudo apt install -y power-profiles-daemon
+sudo apt install -y power-profiles-daemon flatpak
+sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
 if sudo systemctl enable --now power-profiles-daemon 2>/dev/null; then
     CURRENT_PROFILE=$(powerprofilesctl get 2>/dev/null || echo "unknown")
-    echo "  -> PPD is running. Current profile: ${CURRENT_PROFILE} (PPD работает. Текущий профиль: ${CURRENT_PROFILE})"
+    echo "  -> PPD is running. Current profile: ${CURRENT_PROFILE}"
 else
-    echo "  -> WARNING: PPD failed to start. Check: systemctl status power-profiles-daemon (ПРЕДУПРЕЖДЕНИЕ: PPD не запустился.)"
-fi
-echo ""
-
-# ВАЖНО: Линковка теперь идет ДО настройки Fish!
-echo "[4/8] Linking configs... (Линковка конфигов...)"
-export DOTFILES
-sudo -u "$REAL_USER" env HOME="$REAL_HOME" DOTFILES="$DOTFILES" bash "$DOTFILES/scripts/link.sh"
-echo ""
-
-echo "[4.5/8] Configuring Midnight Commander skin... (Настройка скина Midnight Commander...)"
-sudo -u "$REAL_USER" mkdir -p "$REAL_HOME/.config/mc/skins"
-if [ -f "$DOTFILES/config/mc/tokyo-night.ini" ]; then
-    sudo -u "$REAL_USER" cp "$DOTFILES/config/mc/tokyo-night.ini" "$REAL_HOME/.config/mc/skins/tokyo-night"
-    echo "  -> Tokyo Night skin installed. (Скин Tokyo Night установлен.)"
-else
-    echo "  -> Warning: tokyo-night.ini not found. (Предупреждение: tokyo-night.ini не найден.)"
-fi
-echo ""
-
-echo "[5/8] Configuring Fish shell and Tide prompt... (Настройка Fish и промпта Tide...)"
-# 1. Установка Fisher (менеджер плагинов для Fish)
-echo "  -> Installing Fisher (Fish plugin manager)..."
-sudo -u "$REAL_USER" fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
-
-# 2. Установка Tide
-echo "  -> Installing Tide prompt..."
-sudo -u "$REAL_USER" fish -c "fisher install IlanCosman/tide@v6"
-
-# 3. Смена оболочки на Fish
-if command -v fish &>/dev/null; then
-    sudo chsh -s "$(which fish)" "$REAL_USER"
-    echo "  -> Default shell changed to Fish. (Оболочка по умолчанию изменена на Fish.)"
+    echo "  -> WARNING: PPD failed to start."
 fi
 
-echo "  -> Tide installed. Run 'tide configure' later to customize your prompt."
+echo "  -> System packages installed."
 echo ""
 
-echo "[6/8] Installing system configs to /etc/... (Установка системных конфигов в /etc/...)"
+# 2.3. Системные конфиги
+echo "[3/4] Installing system configs to /etc/..."
 if [ -d "$DOTFILES/system" ]; then
     sudo mkdir -p "$BACKUP"
     find "$DOTFILES/system" -type f | while read -r src_file; do
@@ -163,27 +132,28 @@ if [ -d "$DOTFILES/system" ]; then
         if [ -f "$dst_file" ]; then
             sudo mkdir -p "$BACKUP$dst_dir"
             sudo cp "$dst_file" "$BACKUP$dst_file"
-            echo "     (оригинал сохранен в бэкап)"
+            echo "     (original saved to backup)"
         fi
         sudo mkdir -p "$dst_dir"
         sudo cp "$src_file" "$dst_file"
     done
-    echo "  Бэкап старых системных файлов находится здесь: $BACKUP"
+    echo "  Backup of old system files: $BACKUP"
 fi
 echo ""
 
-echo "[7/8] Configuring lid close behavior (suspend)... (Настройка поведения при закрытии крышки (сон)...)"
+# 2.4. Настройка поведения при закрытии крышки
+echo "[4/4] Configuring lid close behavior (suspend)..."
 if ls /sys/class/power_supply/BAT* &>/dev/null; then
     LID_CONF="/etc/systemd/logind.conf.d/10-lid-suspend.conf"
     if [ -f "$LID_CONF" ]; then
         sudo cp "$LID_CONF" "${LID_CONF}.bak-$(date +%Y%m%d-%H%M%S)"
-        echo "  -> Existing lid config backed up (Существующий конфиг сохранён в бэкап)."
+        echo "  -> Existing lid config backed up."
     fi
     sudo mkdir -p /etc/systemd/logind.conf.d
     if [ -f "/etc/systemd/logind.conf.d/10-lid-lock.conf" ]; then
         sudo mv "/etc/systemd/logind.conf.d/10-lid-lock.conf" \
                 "/etc/systemd/logind.conf.d/10-lid-lock.conf.bak-$(date +%Y%m%d-%H%M%S)"
-        echo "  -> Old lid lock config moved aside (Старый конфиг блокировки отложен в бэкап)."
+        echo "  -> Old lid lock config moved aside."
     fi
     sudo tee "$LID_CONF" > /dev/null <<'EOF'
 # BSPWM-machineslego: уход в сон при закрытии крышки ноутбука.
@@ -196,35 +166,18 @@ HandleLidSwitch=suspend
 HandleLidSwitchExternalPower=suspend
 HandleLidSwitchDocked=ignore
 EOF
-
     sudo systemctl kill -s HUP systemd-logind 2>/dev/null || true
-    echo "  -> Lid close will now trigger suspend. (Закрытие крышки теперь будет отправлять систему в сон.)"
+    echo "  -> Lid close will now trigger suspend."
 else
-    echo "  -> Desktop PC detected. Skipping lid configuration. (Обнаружен ПК — пропускаем настройку крышки.)"
+    echo "  -> Desktop PC detected. Skipping lid configuration."
 fi
 echo ""
 
-echo "[8/8] Setting up Flatpak and optional software... (Настройка Flatpak и доп. софта...)"
-
-# 1. Flatpak ставим в любом случае
-sudo apt install -y flatpak
-sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-echo "  -> Flatpak and Flathub are ready. (Flatpak и Flathub готовы.)"
-
-# 2. Спрашиваем про доп. софт
-echo ""
-read -p "Do you want to install additional software (lazygit, media, etc.)? (Установить доп. софт?) [y/N]: " INSTALL_SOFTWARE
-
-if [[ "$INSTALL_SOFTWARE" =~ ^[Yy]$ ]]; then
-    echo "  -> Running software.sh... (Запускаем software.sh...)"
-    # Передаем права sudo и данные пользователя в дочерний скрипт
-    export SUDO_USER="$REAL_USER"
-    bash "$DOTFILES/scripts/software.sh"
-else
-    echo "  -> Skipping additional software. (Пропускаем установку доп. софта.)"
-fi
-echo ""
-
+# ==========================================================
+# ФАЗА 3: Дополнительный софт (по запросу)
+# ==========================================================
 echo "=== Installation complete! (Установка завершена!) ==="
 echo "Please reboot or run startx. (Перезагрузите систему или запустите startx.)"
-echo "Don't forget to run 'tide configure' in your terminal to set up the prompt!"
+echo ""
+echo "Additional software can be installed later with: bash $DOTFILES/scripts/software.sh"
+echo ""
