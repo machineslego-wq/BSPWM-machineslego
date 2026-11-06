@@ -46,11 +46,30 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
-# Nerd Icons
-PROMPT_NF_DEBIAN=""
-PROMPT_NF_DIR=""
-PROMPT_NF_GIT=""
-PROMPT_NF_SEPARATOR="│"
+# Check if Nerd Fonts are available
+have_nerd_fonts=false
+if [ -x "$(command -v fc-list)" ]; then
+    if fc-list | grep -qi "nerd\|JetBrainsMono" 2>/dev/null; then
+        have_nerd_fonts=true
+    fi
+fi
+
+# Icons based on environment
+if [ "$have_nerd_fonts" = true ]; then
+    # Nerd Fonts
+    PROMPT_NF_DEBIAN=""
+    PROMPT_NF_DIR=""
+    PROMPT_NF_GIT=""
+    PROMPT_NF_SEPARATOR="│"
+    PROMPT_ARROW="❯"
+else
+    # Fallback for TTY
+    PROMPT_NF_DEBIAN="d"
+    PROMPT_NF_DIR="d"
+    PROMPT_NF_GIT="g"
+    PROMPT_NF_SEPARATOR="|"
+    PROMPT_ARROW=">"
+fi
 
 # Build prompt dynamically
 prompt_command() {
@@ -85,8 +104,8 @@ prompt_command() {
         git_part="${c_git}${PROMPT_NF_GIT} ${branch}${dirty}${reset}"
     fi
 
-    # Arrow
-    local arrow="${c_arrow}❯${reset}"
+    # Arrow - change color on error
+    local arrow="${c_arrow}${PROMPT_ARROW}${reset}"
 
     PS1="${debian} ${PROMPT_NF_SEPARATOR} ${path_part}"
     [ -n "$git_part" ] && PS1="${PS1} ${PROMPT_NF_SEPARATOR} ${git_part}"
