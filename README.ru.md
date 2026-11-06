@@ -41,10 +41,12 @@
 - **Скрипты по требованию:** Кастомная логика (Wi-Fi, Rofi-меню, скриншоты) запускается только по хоткею и сразу завершается.
 - **Обои — только `feh`:** Никакого скрипта-выборщика, никакого state-файла, никаких превью через ImageMagick. Два статичных вызова `feh` в `bspwmrc` — landscape на основной монитор, portrait на повёрнутый. Чтобы сменить обои — правишь одну строку. Это осознанно.
 - **Современная оболочка:** Терминал на **Fish** с промптом **Tide**. Быстрые автодополнения, подсветка синтаксиса и интеграция с Git без фоновых демонов.
-- **Плавность и плоский дизайн:** Анимации окон в стиле Hyprland через Picom, никакого блюра, строгие цвета Tokyo Night.
+- **Плавность и плоский дизайн:** Анимации окон в стиле Hyprland через Picom с эффектом затемнения неактивных окон, никакого блюра, строгие цвета Tokyo Night.
 - **Умный OSD громкости:** Уведомления меняют цвет в зависимости от уровня звука.
 - **Workflow:** История буфера (CopyQ), история уведомлений (Rofi), быстрые скриншоты в буфер и подробная шпаргалка.
 - **Стабильность:** Все демоны (`picom`, `dunst`, `lxpolkit` и др.) защищены от дублирования через `pgrep` и `pkill` в `bspwmrc`.
+- **Профили питания:** Переключение Performance/Balanced/Power Saver с автоматической сменой профиля Picom (анимации выключены в power-saver).
+- **Midnight Commander:** Скин Tokyo Night в `local/share/mc/skins/`.
 
 ## 📦 Структура
 
@@ -63,8 +65,14 @@ BSPWM-machineslego/
 │       ├── sxhkdrc         # Горячие клавиши
 │       └── scripts/        # battery (детали в Rofi), wifi, powermenu и др.
 ├── home/                   # Симлинки в ~/*
+├── local/                  # Симлинки в ~/.local/*
+│   └── share/mc/skins/     # Скины Midnight Commander
 ├── system/                 # Копируется в /etc
 ├── scripts/                # install.sh, link.sh, unlink.sh, software.sh
+├── requirements/           # Списки пакетов для install.sh
+│   ├── apt.txt             # Базовые пакеты BSPWM
+│   ├── apt-system.txt      # Системные пакеты (PPD, Flatpak)
+│   └── software.txt        # Дополнительный пользовательский софт
 ├── TODO.md                 # Планы (и отвергнутые идеи)
 └── wallpapers/
 ```
@@ -103,6 +111,9 @@ tide configure
 **Обои:**
 Выборщика нет. Правишь две строки `feh` в `~/.config/bspwm/bspwmrc` — одна для `DisplayPort-1`, одна для `HDMI-A-3` (или одна строка `feh` для ноутбуков). Файлы лежат в `~/BSPWM-machineslego/wallpapers/`.
 
+**Скин Midnight Commander:**
+Скин Tokyo Night установлен в `~/.local/share/mc/skins/tokyo-night.ini`. Чтобы переключиться на него — запусти `mc`, затем `F9` → `Setup` → `Colors` → выбери `tokyo-night`.
+
 **Поведение крышки ноутбука:**
 По умолчанию закрытие крышки отправляет в сон. Чтобы **блокировать без сна**:
 ```bash
@@ -114,6 +125,9 @@ HandleLidSwitchExternalPower=lock
 EOF
 sudo systemctl kill -s HUP systemd-logind
 ```
+
+**Профили питания:**
+Переключение между Performance/Balanced/Power Saver через `Super + Alt + P` (меню в Polybar). Система автоматически меняет профиль Picom (анимации выключены в power-saver).
 
 ## ⌨️ Горячие клавиши
 
@@ -136,6 +150,7 @@ sudo systemctl kill -s HUP systemd-logind
 | `Super + 1…0` | Переключение столов |
 | `Super + Shift + 1…0` | Перенос окна на стол |
 | `Super + Alt + Shift + R` | Перезапуск всей системы |
+| `Super + Alt + P` | Выбор профиля питания |
 
 ## 🐛 Известные проблемы (Picom и UI)
 
