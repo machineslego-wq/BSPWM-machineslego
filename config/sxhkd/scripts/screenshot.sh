@@ -35,7 +35,14 @@ if [ ! -s "$FILE" ]; then
 fi
 
 # --- Буфер обмена ---
-copyq write image/png - < "$FILE"
+# Нужны обе операции:
+#   write  — кладёт скриншот в историю CopyQ;
+#   select — делает свежую запись системным буфером (Ctrl+V).
+# copyq copy выставляет только буфер и историю не пополняет.
+if ! { copyq write image/png - < "$FILE" && copyq select 0; } >/dev/null 2>&1; then
+    # Фолбэк, если CopyQ не запущен/недоступен
+    xclip -selection clipboard -t image/png -i "$FILE"
+fi
 
 # --- OSD ---
 case "$MODE" in
