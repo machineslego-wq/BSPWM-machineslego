@@ -47,7 +47,8 @@ sudo apt install -y \
   jq \
   imagemagick xdg-utils xdg-user-dirs xdotool fastfetch \
   pipewire pipewire-audio pipewire-pulse wireplumber libspa-0.2-bluetooth \
-  copyq xss-lock lxpolkit
+  copyq xss-lock lxpolkit \
+  mc
 
 echo "  Base packages installed. (Базовые пакеты установлены.)"
 
@@ -118,6 +119,16 @@ echo ""
 echo "[4/8] Linking configs... (Линковка конфигов...)"
 export DOTFILES
 sudo -u "$REAL_USER" env HOME="$REAL_HOME" DOTFILES="$DOTFILES" bash "$DOTFILES/scripts/link.sh"
+echo ""
+
+echo "[4.5/8] Configuring Midnight Commander skin... (Настройка скина Midnight Commander...)"
+sudo -u "$REAL_USER" mkdir -p "$REAL_HOME/.config/mc/skins"
+if [ -f "$DOTFILES/config/mc/tokyo-night.ini" ]; then
+    sudo -u "$REAL_USER" cp "$DOTFILES/config/mc/tokyo-night.ini" "$REAL_HOME/.config/mc/skins/tokyo-night"
+    echo "  -> Tokyo Night skin installed. (Скин Tokyo Night установлен.)"
+else
+    echo "  -> Warning: tokyo-night.ini not found. (Предупреждение: tokyo-night.ini не найден.)"
+fi
 echo ""
 
 echo "[5/8] Configuring Fish shell and Tide prompt... (Настройка Fish и промпта Tide...)"

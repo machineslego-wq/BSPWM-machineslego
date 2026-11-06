@@ -39,8 +39,9 @@ if [ -d "$DOTFILES/config" ]; then
         [ -d "$pkg" ] || continue
         pkg_name=$(basename "$pkg")
         # Исключаем qt6ct из линковки — он управляется системой
-        if [ "$pkg_name" = "qt6ct" ]; then
-            echo "  skip qt6ct (system-managed)"
+        # Исключаем mc из линковки — он управляется черезskin
+        if [ "$pkg_name" = "qt6ct" ] || [ "$pkg_name" = "mc" ]; then
+            echo "  skip $pkg_name (system-managed)"
             continue
         fi
         link_item "$pkg" "$HOME/.config/$pkg_name"
@@ -57,7 +58,17 @@ if [ -d "$DOTFILES/home" ]; then
     done
 fi
 
-# 3. Права на скрипты
+# 3. Линкуем local/share/mc/skins/ -> ~/.local/share/mc/skins/
+echo "--- Installing mc skins to ~/.local/share/mc/skins/ (Установка скинов MC) ---"
+if [ -d "$DOTFILES/local/share/mc/skins" ]; then
+    for skin in "$DOTFILES/local/share/mc/skins"/*.ini; do
+        [ -e "$skin" ] || continue
+        skin_name=$(basename "$skin")
+        link_item "$skin" "$HOME/.local/share/mc/skins/$skin_name"
+    done
+fi
+
+# 4. Права на скрипты
 echo "--- Setting permissions (+x) (Выставление прав (+x)) ---"
 chmod +x "$HOME/.config/polybar/scripts/"*.sh 2>/dev/null
 chmod +x "$HOME/.config/sxhkd/scripts/"*.sh 2>/dev/null

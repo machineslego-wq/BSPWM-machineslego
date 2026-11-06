@@ -9,7 +9,7 @@ Dotfiles + установщик BSPWM-окружения для Debian 13 Trixie
 - Перед новой фичей сверься с разделом «Отвергнуто» в `TODO.md` (темы, прозрачность, выборщик обоев, авто-темы). Не возвращай их без явной просьбы.
 
 ## Как устроены «живые» конфиги
-- `config/<pkg>` → симлинк `~/.config/<pkg>`; `home/<file>` → `~/.<file>`; `system/**` → копируется в `/etc/**` с бэкапом.
+- `config/<pkg>` → симлинк `~/.config/<pkg>`; `home/<file>` → `~/.<file>`; `local/<dir>` → симлинк `~/.local/<dir>`; `system/**` → копируется в `/etc/**` с бэкапом.
 - Правка файла в репозитории сразу меняет живую систему (симлинк), отдельного шага синхронизации нет.
 - Не запускай `scripts/install.sh` и `scripts/unlink.sh` без явной просьбы: первый ставит apt-пакеты, перезаписывает `/etc`, меняет shell и чужие конфиги; второй удаляет симлинки из `~/.config`.
 - `scripts/link.sh` — идемпотентный линковщик, реальные файлы уносит в `~/.dotfiles-backup-*`.
@@ -27,8 +27,9 @@ Dotfiles + установщик BSPWM-окружения для Debian 13 Trixie
 - Picom не парсит унарный минус: писать `"0 - window-height"`, а не `"-window-height"`.
 - Polybar использует `internal/*` модули; `launch.sh` экспортирует `POLYBAR_BAT` / `POLYBAR_AC` / `POLYBAR_BACKLIGHT`. Не хардкодь имена батареи/подсветки.
 - Иконки в Polybar/Rofi/скриптах требуют JetBrainsMono Nerd Font.
-- `.gitignore` — whitelist: отслеживаются только `config/ home/ system/ scripts/ screenshots/ wallpapers/` и корневые `*.md`. Новые файлы/папки в корне молча игнорируются, пока не добавлены в `.gitignore`.
+- `.gitignore` — whitelist: отслеживаются только `config/ home/ local/ system/ scripts/ screenshots/ wallpapers/` и корневые `*.md`. Новые файлы/папки в корне молча игнорируются, пока не добавлены в `.gitignore`.
 - Сгенерированные Fish/Tide файлы (`fish_variables`, `conf.d/_tide_*.fish`, `functions/`, `completions/`) в git не коммитить.
+- `local/share/mc/skins/` — скины Midnight Commander, линкуются в `~/.local/share/mc/skins/`.
 
 ## Персонализация — не обобщать молча
 - `bspwmrc` и `wifi.sh` ветвятся по hostname (`lamer-deb`, `travelmate`, `lx15pro`, `lx15pro-deb`), жёстко заданным мониторам (`DisplayPort-1`, `HDMI-A-3`) и именам Wi-Fi интерфейсов.
