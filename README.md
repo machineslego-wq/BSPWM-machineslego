@@ -41,10 +41,12 @@ Every line of code and every running process must justify its existence. This ru
 - **On-Demand Scripts:** Custom logic (Wi-Fi manager, Rofi menus, screenshots) runs only when triggered by a hotkey and exits immediately.
 - **Wallpapers — `feh` only:** No picker script, no state file, no ImageMagick previews. Two static `feh` calls in `bspwmrc` — landscape on the main monitor, portrait on the rotated one. To change a wallpaper, edit one line. This is intentional.
 - **Modern Shell:** Powered by **Fish** and **Tide** prompt. Fast, feature-rich autosuggestions, syntax highlighting, and Git status integration without background daemons.
-- **Smooth & Flat:** Hyprland-style window animations via Picom, no blur, strict Tokyo Night colors.
+- **Smooth & Flat:** Hyprland-style window animations via Picom with dim effect on inactive windows, no blur, strict Tokyo Night colors.
 - **Smart Volume OSD:** Volume notifications dynamically change color based on level.
 - **Workflow:** Clipboard history (CopyQ), Notification history (Rofi), quick screenshots to clipboard, and a comprehensive cheatsheet.
 - **Stability:** Autostart processes (`picom`, `dunst`, `lxpolkit`, etc.) are protected against duplication via `pgrep` and `pkill`.
+- **Power Profiles:** Switch between Performance/Balanced/Power Saver with automatic Picom profile change (animations disabled in power-saver).
+- **Midnight Commander:** Tokyo Night skin in `local/share/mc/skins/`.
 
 ## 📦 Structure
 
@@ -63,8 +65,14 @@ BSPWM-machineslego/
 │       ├── sxhkdrc         # Keybindings
 │       └── scripts/        # battery (Rofi details), wifi, powermenu, etc.
 ├── home/                   # Symlinks to ~/*
+├── local/                  # Symlinks to ~/.local/*
+│   └── share/mc/skins/     # Midnight Commander skins
 ├── system/                 # Copied to /etc
 ├── scripts/                # install.sh, link.sh, unlink.sh, software.sh
+├── requirements/           # Package lists for install.sh
+│   ├── apt.txt             # Base BSPWM packages
+│   ├── apt-system.txt      # System packages (PPD, Flatpak)
+│   └── software.txt        # Additional user software
 ├── TODO.md                 # Planned features (and rejected ones)
 └── wallpapers/
 ```
@@ -103,6 +111,9 @@ The `wifi.sh` script is pre-configured for my devices. Open `~/.config/sxhkd/scr
 **Wallpapers:**
 There is no picker. Edit the two `feh` lines in `~/.config/bspwm/bspwmrc` — one for `DisplayPort-1`, one for `HDMI-A-3` (or the single `feh` line for laptops). Files live in `~/BSPWM-machineslego/wallpapers/`.
 
+**Midnight Commander Skin:**
+The Tokyo Night skin is installed to `~/.local/share/mc/skins/tokyo-night.ini`. To switch to it, run `mc`, then `F9` → `Setup` → `Colors` → select `tokyo-night`.
+
 **Laptop Lid Behavior:**
 By default, closing the lid suspends the system. To change it to **lock without suspend**:
 ```bash
@@ -114,6 +125,9 @@ HandleLidSwitchExternalPower=lock
 EOF
 sudo systemctl kill -s HUP systemd-logind
 ```
+
+**Power Profiles:**
+Switch between Performance/Balanced/Power Saver via `Super + Alt + P` (Polybar menu). The system automatically switches Picom profile (animations disabled in power-saver).
 
 ## ⌨️ Keybindings
 
@@ -136,6 +150,7 @@ sudo systemctl kill -s HUP systemd-logind
 | `Super + 1…0` | Switch workspaces |
 | `Super + Shift + 1…0` | Move window to workspace |
 | `Super + Alt + Shift + R` | Reload Entire System |
+| `Super + Alt + P` | Power Profile Selector |
 
 ## 🐛 Known Issues (Picom & UI)
 
