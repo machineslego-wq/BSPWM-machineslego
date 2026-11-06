@@ -46,12 +46,10 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
-# Check if Nerd Fonts are available
-have_nerd_fonts=false
-if [ -x "$(command -v fc-list)" ]; then
-    if fc-list | grep -qi "JetBrainsMono Nerd Font" 2>/dev/null; then
-        have_nerd_fonts=true
-    fi
+# Detect TTY vs graphical mode based on TERM
+is_tty=false
+if [[ "$TERM" == "linux" ]]; then
+    is_tty=true
 fi
 
 # Build prompt dynamically
@@ -66,20 +64,21 @@ prompt_command() {
     local c_arrow="\[\033[38;2;158;206;106m\]"    # #9ece6a
     [ $exit_code -ne 0 ] && c_arrow="\[\033[38;2;247;118;142m\]"  # red on error
 
-    # Icons
-    if [ "$have_nerd_fonts" = true ]; then
-        local icon_debian=""
-        local icon_dir=""
-        local icon_git=""
-        local sep="│"
-        local arrow="❯"
-    else
-        # TTY fallback
+    # Icons based on TTY mode
+    if [ "$is_tty" = true ]; then
+        # TTY fallback: no icons
         local icon_debian="debian"
         local icon_dir="dir"
         local icon_git="git"
         local sep="|"
         local arrow=">"
+    else
+        # Graphical mode: Nerd Fonts
+        local icon_debian=""
+        local icon_dir=""
+        local icon_git=""
+        local sep="│"
+        local arrow="❯"
     fi
 
     # Debian icon (1 space before)
@@ -108,15 +107,15 @@ prompt_command() {
     # Arrow
     local arrow_part="${c_arrow}${arrow}${reset}"
 
-    if [ "$have_nerd_fonts" = true ]; then
-        # Graphical mode: debian icon | path | git | arrow
-        PS1="${debian} ${sep} ${path_part}"
-        [ -n "$git_part" ] && PS1="${PS1} ${sep} ${git_part}"
-        PS1="${PS1} ${arrow_part} "
-    else
+    if [ "$is_tty" = true ]; then
         # TTY: username@host:path git branch
         PS1="\u@\h:\w"
         [ -n "$branch" ] && PS1="${PS1} ${icon_git} ${branch}${dirty}"
+        PS1="${PS1} ${arrow_part} "
+    else
+        # Graphical mode: debian icon | path | git | arrow
+        PS1="${debian} ${sep} ${path_part}"
+        [ -n "$git_part" ] && PS1="${PS1} ${sep} ${git_part}"
         PS1="${PS1} ${arrow_part} "
     fi
 }
