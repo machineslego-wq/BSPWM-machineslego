@@ -9,185 +9,127 @@ case $- in
 esac
 
 # don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
 HISTCONTROL=ignoreboth
 
-# append to the history file, don't overwrite it
+# append to the history file
 shopt -s histappend
 
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+# history length
 HISTSIZE=1000
 HISTFILESIZE=2000
 
-# check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
+# check window size
 shopt -s checkwinsize
 
-# make less more friendly for non-text input files, see lesspipe(1)
+# make less more friendly
 #[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
-# set variable identifying the chroot you work in (used in the prompt below)
+# set chroot variable
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
+# User specific environment
+if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]; then
+    PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+fi
+export PATH
+
 # ==========================================================
-# --- POWERLINE-STYLE PROMPT (одна строка, как в p10k) ---
+# --- PROMPT (в стиле p10k с иконками Nerd Fonts) ---
 # ==========================================================
+
+# Иконки Nerd Fonts
+PROMPT_NF_DIR=""
+PROMPT_NF_GIT=""
+PROMPT_NF_DEBIAN=""
+PROMPT_NF_ERROR=""
+PROMPT_NF_PNPM="󰚥"
+PROMPT_NF_NPM=""
+PROMPT_NF_YARN=""
+
+# Fallback на ASCII если иконки не работают
+[ -x "$(command -v fc-list)" ] && fc-list | grep -qi "nerd" 2>/dev/null || {
+    PROMPT_NF_DIR="d"
+    PROMPT_NF_GIT="g"
+    PROMPT_NF_DEBIAN="d"
+    PROMPT_NF_ERROR="x"
+    PROMPT_NF_PNPM="p"
+    PROMPT_NF_NPM="n"
+    PROMPT_NF_YARN="y"
+}
 
 # Цвета Tokyo Night
-readonly PN_FG='\[\033[38;5;252m\]'      # #c0caf5
-readonly PN_PRIMARY='\[\033[38;5;75m\]'  # #7aa2f7 (синий)
-readonly PN_SECONDARY='\[\033[38;5;183m\]' # #bb9af7 (фиолетовый)
-readonly PN_ALERT='\[\033[38;5;203m\]'   # #f7768e (красный)
-readonly PN_WARNING='\[\033[38;5;214m\]' # #e0af68 (жёлтый)
-readonly PN_SUCCESS='\[\033[38;5;113m\]' # #9ece6a (зелёный)
-readonly PN_RESET='\[\033[0m\]'
+PROMPT_BORDER='\[\e[38;2;65;72;104m\]'     # #414868
+PROMPT_SEP="${PROMPT_BORDER}│\[\e[0m\]"
+PROMPT_OS='\[\e[38;2;125;207;255m\]'       # #7dcfff
+PROMPT_DIR='\[\e[38;2;122;162;247m\]'      # #7aa2f7
+PROMPT_GIT='\[\e[38;2;187;154;247m\]'      # #bb9af7
+PROMPT_PKG='\[\e[38;2;247;118;142m\]'      # #f7768e
+PROMPT_RESET='\[\e[0m\]'
 
-# Время начала команды для подсчёта длительности
-preexec() {
-    CMD_START_TIME=$(date +%s%N)
-}
-preexec_invoke_exec() {
-    [ -n "$COMP_LINE" ] && return
-    [ "$BASH_COMMAND" = "$PROMPT_COMMAND" ] && return
-    local this_command=$(HISTTIMEFORMAT= history 1 | sed -e "s/^[ ]*[0-9]*[ ]*//")
-    preexec "$this_command"
-}
-trap 'preexec_invoke_exec' DEBUG
-
-__build_prompt() {
-    local LAST_EXIT=$?
-    local LAST_CMD_TIME=${CMD_START_TIME:-}
-    local ELAPSED=""
-    
-    if [ -n "$LAST_CMD_TIME" ]; then
-        local NOW=$(date +%s%N)
-        local DIFF=$((($NOW - $LAST_CMD_TIME) / 1000000))
-        if [ $DIFF -gt 100 ]; then
-            ELAPSED="${DIFF}ms "
-        fi
-    fi
-
-    # Среда программирования
-    local ENV=""
-    if [ -n "$CONDA_DEFAULT_ENV" ] && [ "$CONDA_DEFAULT_ENV" != "base" ]; then
-        ENV="${PN_SECONDARY} ${CONDA_DEFAULT_ENV}${PN_RESET}"
-    elif [ -n "$PYENV_VERSION" ]; then
-        ENV="${PN_SECONDARY} ${PYENV_VERSION}${PN_RESET}"
-    elif [ -f "package.json" ]; then
-        ENV="${PN_WARNING} node${PN_RESET}"
-    elif [ -f "requirements.txt" ]; then
-        ENV="${PN_FG} python${PN_RESET}"
-    elif [ -f "Cargo.toml" ]; then
-        ENV="${PN_PRIMARY} rust${PN_RESET}"
-    elif [ -f "go.mod" ]; then
-        ENV="${PN_PRIMARY} go${PN_RESET}"
-    elif [ -f "Gemfile" ]; then
-        ENV="${PN_ALERT} ruby${PN_RESET}"
-    fi
-
-    # Git branch
-    local GIT_BRANCH=""
-    if command -v git &>/dev/null; then
-        GIT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
-        if [ -n "$GIT_BRANCH" ]; then
-            local GIT_DIRTY=""
-            if ! git diff-index --quiet HEAD -- 2>/dev/null; then
-                GIT_DIRTY="${PN_ALERT}*${PN_RESET}"
-            fi
-            GIT_BRANCH="${PN_PRIMARY} ${GIT_BRANCH}${GIT_DIRTY}${PN_RESET}"
-        fi
-    fi
-
-    # Рабочий каталог
-    local PWD_SHORT="$PWD"
-    local HOME_LEN=${#HOME}
-    if [[ "$PWD" == "$HOME"* ]]; then
-        PWD_SHORT="~${PWD:$HOME_LEN}"
-    fi
-
-    # Логотип дистрибутива
-    local DISTRO="${PN_SUCCESS} debian${PN_RESET}"
-    if [ -f /etc/os-release ]; then
-        . /etc/os-release
-        case "$ID" in
-            ubuntu)  DISTRO="${PN_FG} ubuntu${PN_RESET}" ;;
-            arch)    DISTRO="${PN_ALERT} arch${PN_RESET}" ;;
-            fedora)  DISTRO="${PN_FG} fedora${PN_RESET}" ;;
-            opensuse) DISTRO="${PN_SUCCESS} opensuse${PN_RESET}" ;;
-        esac
-    fi
-
-    # Путь
-    local PATH_PART="${PN_FG} ${PWD_SHORT}${PN_RESET}"
-
-    # Время справа
-    local TIME_RIGHT="${PN_FG} $(date +%H:%M)${PN_RESET}"
-
-    # Общая длина для выравнивания
-    local TERM_WIDTH=$(tput cols)
-    
-    # Собираем левую часть
-    local LEFT_PART="${DISTRO}${PATH_PART}${GIT_BRANCH}${ENV} ${ELAPSED}"
-    
-    # Вычисляем ширину без escape-кодов
-    local LEFT_PLAIN=$(echo -e "${DISTRO}${PATH_PART}${GIT_BRANCH}${ENV}" | sed 's/\x1b\[[0-9;]*m//g')
-    local LEFT_LEN=${#LEFT_PLAIN}
-    local TIME_LEN=${#TIME_RIGHT}
-    
-    local SPACES=$((TERM_WIDTH - LEFT_LEN - TIME_LEN - 2))
-    if [ $SPACES -lt 0 ]; then
-        SPACES=0
-    fi
-    
-    # Генерируем пробелы
-    local SPACES_STR=""
-    for ((i=0; i<SPACES; i++)); do
-        SPACES_STR="${SPACES_STR} "
-    done
-    
-    # Финальная строка: левая часть + пробелы + время
-    # Используем \r чтобы перерисовать строку (как в p10k)
-    local FULL_PROMPT="\r${LEFT_PART}${SPACES_STR}${TIME_RIGHT}\n\$ "
-    
-    # Проверка на ошибку — подсветить путь красным если ошибка
-    if [ $LAST_EXIT -ne 0 ]; then
-        FULL_PROMPT="\r${DISTRO}${PN_ALERT} ${PWD_SHORT}${PN_RESET}${GIT_BRANCH}${ENV} ${PN_ALERT}${LAST_EXIT}${PN_RESET} ${ELAPSED}${SPACES_STR}${TIME_RIGHT}\n\$ "
-    fi
-    
-    # Устанавливаем промпт
-    PS1="${FULL_PROMPT}"
+# Arrow
+prompt_arrow() {
+    local exit_code=$?
+    local arrow='\[\e[38;2;158;206;106m\]❯\[\e[0m\]'
+    [ $exit_code -ne 0 ] && arrow='\[\e[38;2;247;118;142m\]❯\[\e[0m\]'
+    echo "$arrow"
 }
 
-PROMPT_COMMAND=__build_prompt
+prompt_structured() {
+    local exit_code=$?
 
-# If this is an xterm set the title to user@host:dir
-case "$TERM" in
-xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-    ;;
-*)
-    ;;
-esac
+    # Git блок
+    local git_part=""
+    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        local branch=$(git branch --show-current 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
+        local dirty=""
+        [ -n "$(git status --porcelain 2>/dev/null)" ] && dirty="*"
+        git_part=" ${PROMPT_SEP} ${PROMPT_GIT}${PROMPT_NF_GIT} ${branch}${dirty}${PROMPT_RESET}"
+    fi
 
-# enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    # Стек проекта
+    local pkg_part=""
+    if [ -f "pnpm-lock.yaml" ]; then
+        pkg_part=" ${PROMPT_SEP} ${PROMPT_PKG}${PROMPT_NF_PNPM} pnpm${PROMPT_RESET}"
+    elif [ -f "package-lock.json" ]; then
+        pkg_part=" ${PROMPT_SEP} ${PROMPT_PKG}${PROMPT_NF_NPM} npm${PROMPT_RESET}"
+    elif [ -f "yarn.lock" ]; then
+        pkg_part=" ${PROMPT_SEP} ${PROMPT_PKG}${PROMPT_NF_YARN} yarn${PROMPT_RESET}"
+    fi
+
+    # Ошибка
+    local err_part=""
+    [ $exit_code -ne 0 ] && err_part=" ${PROMPT_SEP} ${PROMPT_PKG}${PROMPT_NF_ERROR} ${exit_code}${PROMPT_RESET}"
+
+    # Время выполнения
+    local elapsed=""
+    if [ -n "${CMD_START_TIME:-}" ]; then
+        local now=$(date +%s%N)
+        local diff=$((($now - $CMD_START_TIME) / 1000000))
+        [ $diff -gt 100 ] && elapsed="${diff}ms "
+    fi
+
+    PS1="\n${PROMPT_BORDER}╭─ ${PROMPT_OS}${PROMPT_NF_DEBIAN} debian ${PROMPT_SEP} ${PROMPT_DIR}${PROMPT_NF_DIR} \w${PROMPT_RESET}${git_part}${pkg_part}${err_part} ${elapsed}\n${PROMPT_BORDER}╰─$(prompt_arrow) "
+}
+
+PROMPT_COMMAND=prompt_structured
+
+# ==========================================================
+# --- ALIASES (eza вместо ls) ---
+# ==========================================================
+if [ -x "$(command -v eza)" ]; then
+    alias ls='eza --icons --group-directories-first'
+    alias ll='eza -la --icons --group-directories-first --git'
+    alias la='eza -la --icons --group-directories-first'
+    alias l='eza -l --icons --group-directories-first'
+else
     alias ls='ls --color=auto'
 fi
 
-# some more ls aliases
-#alias ll='ls -l'
-#alias la='ls -A'
-#alias l='ls -CF'
-
-# Alias definitions.
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
-
-# enable programmable completion features
+# ==========================================================
+# --- COMPLETION ---
+# ==========================================================
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
     . /usr/share/bash-completion/bash_completion
@@ -195,4 +137,11 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+
+# NVM
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# Cargo
 . "$HOME/.cargo/env"
