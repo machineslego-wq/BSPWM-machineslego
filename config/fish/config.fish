@@ -17,9 +17,21 @@ if test -d "$HOME/.local/bin"
     fish_add_path --prepend --global "$HOME/.local/bin"
 end
 
-# --- Цветной вывод ---
-# GNU coreutils не включает цвет по умолчанию; флаг нужен явно.
-alias ls='ls --color=auto'
+# --- Цветной вывод и eza ---
+# Проверяем, установлена ли eza. Если да — используем её с иконками,
+# если нет — откатываемся на стоковый ls с цветами.
+if type -q eza
+    alias ls='eza --icons --group-directories-first'
+    alias ll='eza -la --icons --group-directories-first'
+    alias la='eza -la --icons --group-directories-first'
+    alias l='eza -l --icons --group-directories-first'
+    alias lt='eza --tree --level=2 --icons --group-directories-first'
+else
+    alias ls='ls --color=auto'
+    alias ll='ls -la --color=auto'
+    alias la='ls -la --color=auto'
+end
+
 alias grep='grep --color=auto'
 
 # --- Навигация ---
