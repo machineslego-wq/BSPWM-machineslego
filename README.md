@@ -134,6 +134,15 @@ Switch between Performance/Balanced/Power Saver via `Super + Alt + P` (Polybar m
 Dimming wallpapers to match the Tokyo Night palette using ImageMagick:
 ```bash
 convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 /path/to/tokyo-night-wallpaper.jpg
+```
+
+**Custom Telegram Theme:**
+The `themes/telegram/` folder contains a ready-to-use Tokyo Night theme (with orange accent). There is no automated installation to avoid breaking Flatpak paths. To install manually:
+1. Copy `tokyo-night.tdesktop-palette` to your Telegram theme folder:
+   - Flatpak: `~/.var/app/org.telegram.desktop/data/TelegramDesktop/tdata/theme/`
+   - Native: `~/.local/share/TelegramDesktop/tdata/theme/`
+2. Restart Telegram.
+3. Go to **Chat background** → **Edit theme** → select `tokyo-night`.
 
 ## ⌨️ Keybindings
 

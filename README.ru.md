@@ -129,12 +129,21 @@ sudo systemctl kill -s HUP systemd-logind
 **Профили питания:**
 Переключение между Performance/Balanced/Power Saver через `Super + Alt + P` (меню в Polybar). Система автоматически меняет профиль Picom (анимации выключены в power-saver).
 
+
 ### 🖼️ Обои и тема
 
 Затемнение обоев под палитру Tokyo Night через ImageMagick:
 ```bash
 convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 /path/to/tokyo-night-wallpaper.jpg
 ```
+
+**Кастомная тема для Telegram:**
+В папке `themes/telegram/` лежит готовая тема Tokyo Night (с оранжевым акцентом). Автоматической установки нет, чтобы не ломать пути Flatpak. Установить можно вручную:
+1. Скопируйте `tokyo-night.tdesktop-palette` в папку тем Telegram:
+   - Flatpak: `~/.var/app/org.telegram.desktop/data/TelegramDesktop/tdata/theme/`
+   - Обычная версия: `~/.local/share/TelegramDesktop/tdata/theme/`
+2. Перезапустите Telegram.
+3. В настройках: **Чат-фон** → **Изменить тему** → выберите `tokyo-night`.
 
 ## ⌨️ Горячие клавиши
 
