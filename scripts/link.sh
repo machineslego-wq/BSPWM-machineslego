@@ -38,12 +38,6 @@ if [ -d "$DOTFILES/config" ]; then
     for pkg in "$DOTFILES/config"/*; do
         [ -d "$pkg" ] || continue
         pkg_name=$(basename "$pkg")
-        # Исключаем qt6ct из линковки — он управляется системой
-        # Исключаем mc из линковки — он управляется черезskin
-        if [ "$pkg_name" = "qt6ct" ] || [ "$pkg_name" = "mc" ]; then
-            echo "  skip $pkg_name (system-managed)"
-            continue
-        fi
         link_item "$pkg" "$HOME/.config/$pkg_name"
     done
 fi
