@@ -1,7 +1,7 @@
 // ==========================================================
 // Tokyo Night Palette for Telegram Desktop
 // Accent: Orange (#ff9e64)
-// Floating windows (boxes) and titlebars are now strictly #1a1b26
+// Unified message input background
 // ==========================================================
 
 // THEME EDITOR SERVICE INFO START
@@ -18,8 +18,8 @@ windowSubTextFg: #565f89;
 windowSubTextFgOver: #a9b1d6;
 windowBoldFg: #c0caf5;
 windowBoldFgOver: #c0caf5;
-windowBgActive: #ff9e64; // Оранжевый для чекбоксов и радио
-windowFgActive: #1a1b26; // Темный текст внутри них
+windowBgActive: #ff9e64;
+windowFgActive: #1a1b26;
 windowActiveTextFg: #ff9e64;
 windowShadowFg: #16161e;
 windowShadowFgFallback: #1a1b26;
@@ -70,7 +70,7 @@ placeholderFg: #565f89;
 placeholderFgActive: #a9b1d6;
 inputBorderFg: #565f89;
 filterInputBorderFg: #292e42;
-filterInputInactiveBg: #1f2335;
+filterInputInactiveBg: #1a1b26; // ИСПРАВЛЕНО: Поле ввода слито с фоном
 checkboxFg: #565f89;
 sliderBgInactive: #292e42;
 sliderBgActive: #ff9e64;
@@ -78,8 +78,8 @@ tooltipBg: #1f2335;
 tooltipFg: #c0caf5;
 tooltipBorderFg: #292e42;
 titleShadow: #16161e;
-titleBg: #1a1b26;        // ИСПРАВЛЕНО: Фон заголовка окна
-titleBgActive: #1a1b26;  // ИСПРАВЛЕНО: Фон заголовка активного окна
+titleBg: #1a1b26;
+titleBgActive: #1a1b26;
 titleButtonBg: #1a1b26;
 titleButtonFg: #565f89;
 titleButtonBgOver: #292e42;
@@ -106,7 +106,7 @@ trayCounterFgMacInvert: #1a1b26;
 layerBg: #16161ea0;
 cancelIconFg: #565f89;
 cancelIconFgOver: #c0caf5;
-boxBg: #1a1b26;          // ИСПРАВЛЕНО: Фон плавающего окна настроек
+boxBg: #1a1b26;
 boxTextFg: #c0caf5;
 boxTextFgGood: #9ece6a;
 boxTextFgError: #f7768e;
@@ -366,19 +366,19 @@ historyToDownBgRipple: #3b4261;
 historyToDownFg: #c0caf5; 
 historyToDownFgOver: #ffffff; 
 historyToDownShadow: #16161e40; 
-historyComposeAreaBg: #1a1b26; 
+historyComposeAreaBg: #1a1b26; // ИСПРАВЛЕНО: Панель ввода одного цвета с полем
 historyComposeAreaFg: #c0caf5; 
 historyComposeAreaFgService: #565f89; 
 historyComposeIconFg: #565f89; 
 historyComposeIconFgOver: #c0caf5; 
 historySendIconFg: #ff9e64; 
 historySendIconFgOver: #ffb37b; 
-historyPinnedBg: #1f2335; 
-historyReplyBg: #1f2335; 
+historyPinnedBg: #1a1b26; 
+historyReplyBg: #1a1b26; 
 historyReplyIconFg: #ff9e64; 
 historyReplyCancelFg: #565f89; 
 historyReplyCancelFgOver: #c0caf5; 
-historyComposeButtonBg: #1f2335; 
+historyComposeButtonBg: #1a1b26; 
 historyComposeButtonBgOver: #292e42; 
 historyComposeButtonBgRipple: #24283b; 
 overviewCheckBg: #16161e40; 
@@ -459,7 +459,7 @@ callBarFg: #c0caf5;
 importantTooltipBg: toastBg; 
 importantTooltipFg: toastFg; 
 importantTooltipFgLink: #7dcfff; 
-filterInputActiveBg: #292e42; 
+filterInputActiveBg: #1a1b26; 
 botKbBg: #1f2335; 
 botKbDownBg: #292e42; 
 emojiIconFg: #565f89; 
