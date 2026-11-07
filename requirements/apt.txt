@@ -32,6 +32,7 @@ alacritty
 i3lock-fancy
 libnotify-bin
 fish
+eza
 curl
 fontconfig
 wget
