@@ -1,0 +1,17 @@
+#!/bin/bash
+# ==========================================================
+# dunst-history.sh — Просмотр истории уведомлений
+# super + alt + h - Вызов
+# ==========================================================
+
+# Получаем историю и форматируем через jq
+HISTORY=$(dunstctl history | jq -r '.data[][] | "[\(.appname.data)] \(.summary.data) — \(.body.data)"')
+
+# Если история пуста, показываем уведомление об этом
+if [ -z "$HISTORY" ]; then
+    dunstify -u low "История уведомлений пуста"
+    exit 0
+fi
+
+# Выводим в Rofi
+echo "$HISTORY" | rofi -dmenu -i -p " История уведомлений" -theme-str 'window {width: 50%; height: 50%;}'

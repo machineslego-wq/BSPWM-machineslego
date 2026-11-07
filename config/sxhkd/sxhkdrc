@@ -58,7 +58,7 @@ super + ctrl + v
 
 # История буфера обмена (Dunst)
 super + alt + h
-    dunstctl history | jq -r '.data[][] | "[\(.appname.data)] \(.summary.data) — \(.body.data)"' | rofi -dmenu -i -p " История уведомлений"
+    ~/.config/sxhkd/scripts/dunst-history.sh
 
 
 # ==============================================================================
