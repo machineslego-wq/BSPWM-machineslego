@@ -708,6 +708,14 @@ columnview.view:selected:focus {
     background-color: #7aa2f7;
 }
 
+/* --- ИСПРАВЛЕНО: Наведение на выделенную строку в таблицах (Системный монитор) --- */
+treeview.view:selected:hover,
+columnview.view:selected:hover {
+    color: #1a1b26;
+    background-color: #89b4ff; /* Чуть светлее синий */
+    box-shadow: inset 0 0 0 1px #c0caf5; /* Тонкая рамка вокруг ячейки */
+}
+
 treeview.view:selected:backdrop,
 columnview.view:selected:backdrop {
     color: #c0caf5;
@@ -808,9 +816,17 @@ columnview:backdrop {
     border-color: #1f2335;
 }
 
-row:hover,
+/* --- ИСПРАВЛЕНО: Обычное наведение на строку --- */
+row:hover {
+    color: #c0caf5;
+    background-color: #292e42;
+}
+
+/* --- ИСПРАВЛЕНО: Наведение на УЖЕ ВЫДЕЛЕННУЮ строку (фикс черного на черном) --- */
 row:selected:hover {
-    background-color: #24283b;
+    color: #1a1b26;
+    background-color: #89b4ff; 
+    box-shadow: inset 0 0 0 1px #c0caf5; /* Та самая рамка */
 }
 
 row:selected {
