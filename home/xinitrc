@@ -14,7 +14,7 @@ xrdb -merge "$HOME/.Xresources"
 # (тема Bibata-Modern-Amber, размер 24)
 export XCURSOR_THEME=Bibata-Modern-Ice
 export XCURSOR_SIZE=24
-export QT_QPA_PLATFORMTHEME = qt6ct
+export QT_QPA_PLATFORMTHEME=qt6ct
 
 # 3. Запуск оконного менеджера
 # exec заменяет текущий процесс (оболочку xinit) на BSPWM,
