@@ -57,69 +57,98 @@ prompt_command() {
     local exit_code=$?
     local reset="\[\033[0m\]"
 
-    # Colors (Tokyo Night)
-    local c_debian="\[\033[38;2;125;207;255m\]"    # #7dcfff
-    local c_dir="\[\033[38;2;122;162;247m\]"      # #7aa2f7
-    local c_git="\[\033[38;2;187;154;247m\]"      # #bb9af7
-    local c_arrow="\[\033[38;2;158;206;106m\]"    # #9ece6a
-    [ $exit_code -ne 0 ] && c_arrow="\[\033[38;2;247;118;142m\]"  # red on error
+    # --- ПРИГЛУШЕННЫЕ ФОНЫ (Tokyo Night) ---
+    local bg_muted_cyan="\[\033[48;2;41;46;66m\]"   # #292e42 (Фон Дебиана)
+    local bg_muted_blue="\[\033[48;2;61;89;161m\]"  # #3d59a1 (Фон папки)
+    local bg_muted_purp="\[\033[48;2;74;62;104m\]"  # #4a3e68 (Фон Git)
+    local bg_dark="\[\033[48;2;26;27;38m\]"         # #1a1b26 (Фон терминала)
 
-    # Separator - subtle but visible
-    local c_sep="\[\033[38;2;65;72;104m\]"        # #414868 (dark gray)
+    # --- ЯРКИЕ ЦВЕТА ТЕКСТА И ИКОНОК ---
+    local fg_cyan="\[\033[38;2;125;207;255m\]"      # #7dcfff (Иконка дебиана)
+    local fg_light="\[\033[38;2;192;202;245m\]"     # #c0caf5 (Светлый текст папки)
+    local fg_purple="\[\033[38;2;187;154;247m\]"    # #bb9af7 (Фиолетовый текст Git)
+    
+    # Стрелка (зеленая при успехе, красная при ошибке)
+    local fg_arrow="\[\033[38;2;158;206;106m\]"     # #9ece6a
+    [ $exit_code -ne 0 ] && fg_arrow="\[\033[38;2;247;118;142m\]" # #f7768e
 
-    # Icons based on TTY mode
-    if [ "$is_tty" = true ]; then
-        # TTY fallback: no icons
-        local icon_debian="debian"
-        local icon_dir="dir"
-        local icon_git="git"
-        local sep="|"
-        local arrow=">"
-    else
-        # Graphical mode: Nerd Fonts
-        local icon_debian=""
-        local icon_dir=""
-        local icon_git=""
-        local sep="${c_sep}│${reset}"
-        local arrow="❯"
-    fi
-
-    # Debian icon (1 space before)
-    local debian=" ${c_debian}${icon_debian}${reset}"
-
-    # Path with icon
-    local pwd_short="$PWD"
-    local home_len=${#HOME}
-    if [[ "$PWD" == "$HOME"* ]]; then
-        pwd_short="~${PWD:$home_len}"
-    fi
-    local path_part="${c_dir}${icon_dir} ${pwd_short}${reset}"
-
-    # Git - only show if in git repo
-    local git_part=""
-    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-        local branch=$(git branch --show-current 2>/dev/null)
-        if [ -z "$branch" ]; then
-            branch=$(git rev-parse --short HEAD 2>/dev/null)
-        fi
-        local dirty=""
-        [ -n "$(git status --porcelain 2>/dev/null)" ] && dirty="*"
-        git_part="${c_git}${icon_git} ${branch}${dirty}${reset}"
-    fi
-
-    # Arrow
-    local arrow_part="${c_arrow}${arrow}${reset}"
+    # --- ПЕРЕХОДЫ (POWERLINE) ---
+    # 38 (текст) и 48 (фон) должны совпадать, чтобы стык был незаметен
+    local sep_c_b="\[\033[38;2;41;46;66m\]\[\033[48;2;61;89;161m\]"
+    local sep_b_p="\[\033[38;2;61;89;161m\]\[\033[48;2;74;62;104m\]"
+    local sep_p_d="\[\033[38;2;74;62;104m\]\[\033[48;2;26;27;38m\]"
+    local sep_b_d="\[\033[38;2;61;89;161m\]\[\033[48;2;26;27;38m\]"
 
     if [ "$is_tty" = true ]; then
-        # TTY: username@host:path git branch
+        # ФОЛБЭК ДЛЯ TTY
         PS1="\u@\h:\w"
-        [ -n "$branch" ] && PS1="${PS1} ${icon_git} ${branch}${dirty}"
-        PS1="${PS1} ${arrow_part} "
+        if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+            local branch=$(git branch --show-current 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
+            local dirty=""
+            [ -n "$(git status --porcelain 2>/dev/null)" ] && dirty="*"
+            PS1="${PS1} (git:${branch}${dirty})"
+        fi
+        PS1="${PS1} $ "
     else
-        # Graphical mode: debian icon | path | git | arrow
-        PS1="${debian} ${sep} ${path_part}"
-        [ -n "$git_part" ] && PS1="${PS1} ${sep} ${git_part}"
-        PS1="${PS1} ${arrow_part} "
+        # ====================================================
+        # ГРАФИЧЕСКИЙ РЕЖИМ
+        # ====================================================
+        
+        # 1. Блок Дебиана (Оригинальная иконка )
+        PS1="${bg_muted_cyan}${fg_cyan}  "
+        
+        # 2. Блок Папки (Оригинальная иконка )
+        PS1+="${sep_c_b}${bg_muted_blue}${fg_light}  \w "
+        
+        # 3. Блок Гита (с состоянием)
+        if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+            local branch=$(git branch --show-current 2>/dev/null)
+            [ -z "$branch" ] && branch=$(git rev-parse --short HEAD 2>/dev/null)
+            
+            # Иконки nf-cod (Codicons) для Git
+            local git_icon=""  # Чистое состояние (nf-cod-git_branch)
+            local git_color="${fg_purple}" 
+            local git_stash="" 
+            
+            # Конфликты (nf-cod-git_branch_conflicts)
+            if [ -n "$(git diff --name-only --diff-filter=U 2>/dev/null)" ]; then
+                git_icon=""
+                git_color="\[\033[38;2;247;118;142m\]"
+            # Изменения (nf-cod-git_branch_changes)
+            elif [ -n "$(git status --porcelain 2>/dev/null)" ]; then
+                git_icon=""
+                branch="${branch}*" # Добавил звездочку как в fish, чтобы точно видеть изменения
+                git_color="\[\033[38;2;224;175;104m\]"
+            # Впереди/позади (если чисто)
+            else
+                local ahead=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo 0)
+                local behind=$(git rev-list --count HEAD..@{u} 2>/dev/null || echo 0)
+                if [ "$ahead" -gt 0 ] && [ "$behind" -gt 0 ]; then
+                    git_icon="" # arrow_both
+                    git_color="\[\033[38;2;125;207;255m\]"
+                elif [ "$ahead" -gt 0 ]; then
+                    git_icon="" # arrow_up
+                elif [ "$behind" -gt 0 ]; then
+                    git_icon="" # arrow_down
+                fi
+            fi
+
+            # Stash (nf-cod-archive)
+            if [ -n "$(git stash list 2>/dev/null)" ]; then
+                git_stash=" 󰀘" 
+            fi
+
+            # Вывод блока Git
+            PS1+="${sep_b_p}${bg_muted_purp}${git_color} ${git_icon} ${branch}${git_stash} "
+            # Переход на темный фон
+            PS1+="${sep_p_d}"
+        else
+            # Если гита нет, сразу переход на темный фон
+            PS1+="${sep_b_d}"
+        fi
+        
+        # 4. Финальная стрелка
+        PS1+="${bg_dark}${fg_arrow} ❯ ${reset} "
     fi
 }
 
@@ -167,4 +196,4 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
 # Cargo
-. "$HOME/.cargo/env"
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
