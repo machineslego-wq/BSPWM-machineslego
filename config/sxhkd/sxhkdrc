@@ -56,6 +56,10 @@ super + alt + n
 super + ctrl + v
     copyq menu
 
+# История буфера обмена (Dunst)
+super + alt + h
+    dunstctl history | jq -r '.data[][] | "[\(.appname.data)] \(.summary.data) — \(.body.data)"' | rofi -dmenu -i -p " История уведомлений"
+
 
 # ==============================================================================
 # ЗАПУСК ПРИЛОЖЕНИЙ (Быстрый доступ)
