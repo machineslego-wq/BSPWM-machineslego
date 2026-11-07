@@ -1,7 +1,7 @@
 // ==========================================================
 // Tokyo Night Palette for Telegram Desktop
 // Accent: Orange (#ff9e64)
-// Unified message input background
+// Unified input background, orange text selection
 // ==========================================================
 
 // THEME EDITOR SERVICE INFO START
@@ -70,7 +70,7 @@ placeholderFg: #565f89;
 placeholderFgActive: #a9b1d6;
 inputBorderFg: #565f89;
 filterInputBorderFg: #292e42;
-filterInputInactiveBg: #1a1b26; // ИСПРАВЛЕНО: Поле ввода слито с фоном
+filterInputInactiveBg: #1a1b26;
 checkboxFg: #565f89;
 sliderBgInactive: #292e42;
 sliderBgActive: #ff9e64;
@@ -198,17 +198,17 @@ stickerPanDeleteBg: #16161ecc;
 stickerPanDeleteFg: #f7768e;
 stickerPreviewBg: #16161eb0;
 historyTextInFg: #c0caf5;
-historyTextInFgSelected: #c0caf5;
+historyTextInFgSelected: #1a1b26; // ИСПРАВЛЕНО: Темный текст на оранжевом фоне
 historyTextOutFg: #c0caf5;
-historyTextOutFgSelected: #c0caf5;
+historyTextOutFgSelected: #1a1b26; // ИСПРАВЛЕНО
 historyLinkInFg: #7dcfff;
-historyLinkInFgSelected: #a9c7ff;
+historyLinkInFgSelected: #1a1b26; // ИСПРАВЛЕНО
 historyLinkOutFg: #7dcfff;
-historyLinkOutFgSelected: #a9c7ff;
+historyLinkOutFgSelected: #1a1b26; // ИСПРАВЛЕНО
 historyFileNameInFg: #c0caf5;
-historyFileNameInFgSelected: #c0caf5; 
+historyFileNameInFgSelected: #1a1b26; // ИСПРАВЛЕНО
 historyFileNameOutFg: #c0caf5;
-historyFileNameOutFgSelected: #c0caf5; 
+historyFileNameOutFgSelected: #1a1b26; // ИСПРАВЛЕНО
 historyOutIconFg: #ff9e64;
 historyOutIconFgSelected: #1a1b26; 
 historyIconFgInverted: #1a1b26; 
@@ -265,65 +265,65 @@ historyPeer7UserpicBg2: #7dcfff;
 historyPeer8UserpicBg2: #ff9e64; 
 historyPeerSavedMessagesBg2: #7aa2f7; 
 msgInBg: #24283b;
-msgInBgSelected: #292e42;
+msgInBgSelected: #ff9e64; // ИСПРАВЛЕНО: Оранжевый фон выделенного сообщения
 msgOutBg: #3d59a1;
-msgOutBgSelected: #4a6bb5;
-msgSelectOverlay: #7aa2f74c; 
-msgStickerOverlay: #7aa2f77f; 
+msgOutBgSelected: #ff9e64; // ИСПРАВЛЕНО: Оранжевый фон выделенного исходящего
+msgSelectOverlay: #ff9e644c; // ИСПРАВЛЕНО: Оранжевый оверлей для медиа
+msgStickerOverlay: #ff9e647f; // ИСПРАВЛЕНО
 msgInServiceFg: #565f89; 
-msgInServiceFgSelected: #a9b1d6; 
+msgInServiceFgSelected: #1a1b26; 
 msgOutServiceFg: #a9b1d6; 
-msgOutServiceFgSelected: #c0caf5; 
+msgOutServiceFgSelected: #1a1b26; 
 msgInShadow: #16161e00; 
 msgInShadowSelected: #16161e00; 
 msgOutShadow: #16161e00; 
 msgOutShadowSelected: #16161e00; 
 msgInDateFg: #565f89; 
-msgInDateFgSelected: #a9b1d6; 
+msgInDateFgSelected: #1a1b26; 
 msgOutDateFg: #a9b1d6; 
-msgOutDateFgSelected: #c0caf5; 
+msgOutDateFgSelected: #1a1b26; 
 msgServiceFg: #c0caf5; 
 msgServiceBg: #1f2335c8; 
-msgServiceBgSelected: #292e42; 
+msgServiceBgSelected: #ff9e64; 
 msgInReplyBarColor: #ff9e64; 
-msgInReplyBarSelColor: #ffb37b; 
+msgInReplyBarSelColor: #1a1b26; 
 msgOutReplyBarColor: #ff9e64; 
-msgOutReplyBarSelColor: #ffb37b; 
+msgOutReplyBarSelColor: #1a1b26; 
 msgImgReplyBarColor: #c0caf5; 
 msgInMonoFg: #9ece6a; 
 msgOutMonoFg: #9ece6a; 
-msgInMonoFgSelected: #b9e68a; 
-msgOutMonoFgSelected: #b9e68a; 
+msgInMonoFgSelected: #1a1b26; 
+msgOutMonoFgSelected: #1a1b26; 
 msgDateImgFg: #c0caf5; 
 msgDateImgBg: #16161e54; 
 msgDateImgBgOver: #16161e74; 
-msgDateImgBgSelected: #292e4287; 
+msgDateImgBgSelected: #ff9e6487; 
 msgFileThumbLinkInFg: #7dcfff; 
-msgFileThumbLinkInFgSelected: #a9c7ff; 
+msgFileThumbLinkInFgSelected: #1a1b26; 
 msgFileThumbLinkOutFg: #7dcfff; 
-msgFileThumbLinkOutFgSelected: #a9c7ff; 
+msgFileThumbLinkOutFgSelected: #1a1b26; 
 msgFileInBg: #7aa2f7; 
 msgFileInBgOver: #89b4ff; 
-msgFileInBgSelected: #c0caf5; 
+msgFileInBgSelected: #1a1b26; 
 msgFileOutBg: #7aa2f7; 
 msgFileOutBgOver: #89b4ff; 
-msgFileOutBgSelected: #c0caf5; 
+msgFileOutBgSelected: #1a1b26; 
 msgFile1Bg: #7aa2f7; 
 msgFile1BgDark: #3d59a1; 
 msgFile1BgOver: #89b4ff; 
-msgFile1BgSelected: #c0caf5; 
+msgFile1BgSelected: #1a1b26; 
 msgFile2Bg: #9ece6a; 
 msgFile2BgDark: #73a347; 
 msgFile2BgOver: #b9e68a; 
-msgFile2BgSelected: #c0caf5; 
+msgFile2BgSelected: #1a1b26; 
 msgFile3Bg: #f7768e; 
 msgFile3BgDark: #db4b4b; 
 msgFile3BgOver: #ff8fa8; 
-msgFile3BgSelected: #c0caf5; 
+msgFile3BgSelected: #1a1b26; 
 msgFile4Bg: #e0af68; 
 msgFile4BgDark: #b38b46; 
 msgFile4BgOver: #f1c77d; 
-msgFile4BgSelected: #c0caf5; 
+msgFile4BgSelected: #1a1b26; 
 historyFileInIconFg: #1a1b26; 
 historyFileInIconFgSelected: #1a1b26; 
 historyFileInRadialFg: #1a1b26; 
@@ -338,20 +338,20 @@ historyFileThumbRadialFg: #c0caf5;
 historyFileThumbRadialFgSelected: #1a1b26; 
 historyVideoMessageProgressFg: #c0caf5; 
 msgWaveformInActive: #ff9e64; 
-msgWaveformInActiveSelected: #ffb37b; 
+msgWaveformInActiveSelected: #1a1b26; 
 msgWaveformInInactive: #565f89; 
-msgWaveformInInactiveSelected: #a9b1d6; 
+msgWaveformInInactiveSelected: #1a1b26; 
 msgWaveformOutActive: #ff9e64; 
-msgWaveformOutActiveSelected: #ffb37b; 
+msgWaveformOutActiveSelected: #1a1b26; 
 msgWaveformOutInactive: #565f89; 
-msgWaveformOutInactiveSelected: #a9b1d6; 
+msgWaveformOutInactiveSelected: #1a1b26; 
 msgBotKbOverBgAdd: #ffffff14; 
 msgBotKbIconFg: #c0caf5; 
 msgBotKbRippleBg: #ffffff10; 
 mediaInFg: #565f89; 
-mediaInFgSelected: #a9b1d6; 
+mediaInFgSelected: #1a1b26; 
 mediaOutFg: #a9b1d6; 
-mediaOutFgSelected: #c0caf5; 
+mediaOutFgSelected: #1a1b26; 
 youtubePlayIconBg: #f7768ec8; 
 youtubePlayIconFg: #1a1b26; 
 videoPlayIconBg: #16161e7f; 
@@ -366,7 +366,7 @@ historyToDownBgRipple: #3b4261;
 historyToDownFg: #c0caf5; 
 historyToDownFgOver: #ffffff; 
 historyToDownShadow: #16161e40; 
-historyComposeAreaBg: #1a1b26; // ИСПРАВЛЕНО: Панель ввода одного цвета с полем
+historyComposeAreaBg: #1a1b26;
 historyComposeAreaFg: #c0caf5; 
 historyComposeAreaFgService: #565f89; 
 historyComposeIconFg: #565f89; 
@@ -384,7 +384,7 @@ historyComposeButtonBgRipple: #24283b;
 overviewCheckBg: #16161e40; 
 overviewCheckFg: #c0caf5; 
 overviewCheckFgActive: #c0caf5; 
-overviewPhotoSelectOverlay: #7aa2f733; 
+overviewPhotoSelectOverlay: #ff9e6433; 
 profileStatusFgOver: #a9b1d6; 
 profileVerifiedCheckBg: #7aa2f7; 
 profileVerifiedCheckFg: #1a1b26; 
