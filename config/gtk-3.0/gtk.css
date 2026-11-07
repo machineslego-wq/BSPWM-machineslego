@@ -1,0 +1,1147 @@
+/* ==========================================================
+   Tokyo Night для GTK3 (поверх Adwaita-dark)
+   Меняются только цвета. Геометрия, отступы и размеры
+   остаются штатными от Adwaita.
+   ========================================================== */
+
+/* Именованные цвета — для приложений, которые используют их
+   в собственном CSS. Встроенная Adwaita их не читает, поэтому
+   ниже есть прямые селекторы. */
+@define-color theme_bg_color #1a1b26;
+@define-color theme_fg_color #c0caf5;
+@define-color theme_base_color #1a1b26;
+@define-color theme_text_color #c0caf5;
+@define-color theme_selected_bg_color #7aa2f7;
+@define-color theme_selected_fg_color #1a1b26;
+@define-color insensitive_bg_color #1f2335;
+@define-color insensitive_fg_color #565f89;
+@define-color borders #292e42;
+
+/* Базовый фон и текст */
+.background {
+    color: #c0caf5;
+    background-color: #1a1b26;
+}
+
+.background:backdrop {
+    color: #a9b1d6;
+    background-color: #1a1b26;
+}
+
+/* Области просмотра, иконки, текст */
+.view,
+iconview,
+.view text,
+iconview text,
+textview text {
+    color: #c0caf5;
+    caret-color: #7aa2f7;
+    background-color: #1a1b26;
+}
+
+.view:backdrop,
+iconview:backdrop,
+.view text:backdrop,
+iconview text:backdrop,
+textview text:backdrop {
+    color: #a9b1d6;
+    background-color: #1a1b26;
+}
+
+.view:disabled,
+iconview:disabled,
+.view text:disabled,
+iconview text:disabled,
+textview text:disabled {
+    color: #565f89;
+    background-color: #1f2335;
+}
+
+.view:selected,
+iconview:selected,
+.view:selected:focus,
+iconview:selected:focus,
+.view text:selected,
+iconview text:selected,
+textview text:selected,
+.view text:selected:focus,
+iconview text:selected:focus,
+textview text:selected:focus {
+    color: #1a1b26;
+    background-color: #7aa2f7;
+}
+
+.view:selected:backdrop,
+iconview:selected:backdrop,
+.view text:selected:backdrop,
+iconview text:selected:backdrop,
+textview text:selected:backdrop {
+    color: #c0caf5;
+    background-color: #414868;
+}
+
+/* Выделение текста */
+textview text selection,
+entry selection,
+spinbutton selection,
+label selection {
+    color: #1a1b26;
+    background-color: #7aa2f7;
+}
+
+/* Поля ввода */
+entry,
+spinbutton:not(.vertical) {
+    color: #c0caf5;
+    caret-color: #7aa2f7;
+    background-color: #1a1b26;
+    background-image: none;
+    border-color: #292e42;
+}
+
+entry:focus,
+spinbutton:focus:not(.vertical) {
+    border-color: #7aa2f7;
+    box-shadow: inset 0 0 0 1px #7aa2f7;
+}
+
+entry:disabled,
+spinbutton:disabled:not(.vertical) {
+    color: #565f89;
+    background-color: #1f2335;
+    border-color: #1f2335;
+}
+
+entry:backdrop,
+spinbutton:backdrop:not(.vertical) {
+    color: #a9b1d6;
+    background-color: #1a1b26;
+    border-color: #1f2335;
+}
+
+entry.error,
+spinbutton.error:not(.vertical) {
+    color: #f7768e;
+    border-color: #f7768e;
+}
+
+entry.warning,
+spinbutton.warning:not(.vertical) {
+    color: #e0af68;
+    border-color: #e0af68;
+}
+
+entry image {
+    color: #a9b1d6;
+}
+
+entry image:hover {
+    color: #c0caf5;
+}
+
+/* Кнопки */
+button,
+notebook > header > tabs > arrow {
+    color: #c0caf5;
+    background-color: #24283b;
+    background-image: none;
+    border-color: #292e42;
+    text-shadow: none;
+    -gtk-icon-shadow: none;
+    box-shadow: none;
+}
+
+button:hover,
+notebook > header > tabs > arrow:hover {
+    color: #c0caf5;
+    background-color: #2f334d;
+    background-image: none;
+    border-color: #414868;
+    box-shadow: none;
+}
+
+button:active,
+button:checked,
+notebook > header > tabs > arrow:active,
+notebook > header > tabs > arrow:checked {
+    color: #c0caf5;
+    background-color: #1f2335;
+    background-image: none;
+    border-color: #414868;
+    box-shadow: none;
+}
+
+button:disabled,
+notebook > header > tabs > arrow:disabled {
+    color: #565f89;
+    background-color: #1f2335;
+    background-image: none;
+    border-color: #1f2335;
+    box-shadow: none;
+}
+
+button:backdrop,
+notebook > header > tabs > arrow:backdrop {
+    color: #a9b1d6;
+    background-color: #1f2335;
+    background-image: none;
+    border-color: #1f2335;
+    box-shadow: none;
+}
+
+button.flat,
+button.titlebutton,
+button.sidebar-button {
+    background-color: transparent;
+    background-image: none;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+button.flat:hover,
+button.titlebutton:hover,
+button.sidebar-button:hover {
+    color: #c0caf5;
+    background-color: #24283b;
+    background-image: none;
+    border-color: #292e42;
+    box-shadow: none;
+}
+
+button.suggested-action {
+    color: #1a1b26;
+    background-color: #7aa2f7;
+    background-image: none;
+    border-color: #7aa2f7;
+    text-shadow: none;
+    box-shadow: none;
+}
+
+button.suggested-action:hover {
+    color: #1a1b26;
+    background-color: #89b4ff;
+    background-image: none;
+    border-color: #89b4ff;
+    box-shadow: none;
+}
+
+button.suggested-action:active,
+button.suggested-action:checked {
+    color: #1a1b26;
+    background-color: #6a8fe0;
+    background-image: none;
+    border-color: #6a8fe0;
+    box-shadow: none;
+}
+
+button.destructive-action {
+    color: #1a1b26;
+    background-color: #f7768e;
+    background-image: none;
+    border-color: #f7768e;
+    text-shadow: none;
+    box-shadow: none;
+}
+
+button.destructive-action:hover {
+    color: #1a1b26;
+    background-color: #ff8fa8;
+    background-image: none;
+    border-color: #ff8fa8;
+    box-shadow: none;
+}
+
+button.destructive-action:active,
+button.destructive-action:checked {
+    color: #1a1b26;
+    background-color: #e0607a;
+    background-image: none;
+    border-color: #e0607a;
+    box-shadow: none;
+}
+
+/* Заголовки окон */
+headerbar,
+.titlebar:not(headerbar) {
+    color: #c0caf5;
+    background-color: #1f2335;
+    background-image: none;
+    border-color: #292e42;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+headerbar:backdrop,
+.titlebar:backdrop:not(headerbar) {
+    color: #a9b1d6;
+    background-color: #1a1b26;
+    border-color: #1f2335;
+}
+
+headerbar.selection-mode,
+.selection-mode headerbar,
+.selection-mode .titlebar:not(headerbar),
+.selection-mode.titlebar:not(headerbar) {
+    color: #1a1b26;
+    background-color: #7aa2f7;
+    background-image: none;
+    border-color: #7aa2f7;
+    text-shadow: none;
+}
+
+headerbar.selection-mode button,
+.selection-mode headerbar button {
+    color: #1a1b26;
+    background-color: rgba(26, 27, 38, 0.1);
+    background-image: none;
+    border-color: rgba(26, 27, 38, 0.2);
+    text-shadow: none;
+    box-shadow: none;
+}
+
+/* Меню */
+menu,
+.menu,
+.context-menu {
+    color: #c0caf5;
+    background-color: #1f2335;
+    border-color: #292e42;
+}
+
+menu:backdrop,
+.menu:backdrop,
+.context-menu:backdrop {
+    color: #a9b1d6;
+    background-color: #1f2335;
+    border-color: #292e42;
+}
+
+menu menuitem:hover,
+.menu menuitem:hover,
+.context-menu menuitem:hover {
+    color: #1a1b26;
+    background-color: #7aa2f7;
+}
+
+menu menuitem:disabled,
+.menu menuitem:disabled,
+.context-menu menuitem:disabled {
+    color: #565f89;
+}
+
+menu menuitem:backdrop,
+menu menuitem:backdrop:hover,
+.menu menuitem:backdrop,
+.menu menuitem:backdrop:hover,
+.context-menu menuitem:backdrop,
+.context-menu menuitem:backdrop:hover {
+    color: #a9b1d6;
+    background-color: transparent;
+}
+
+menu > arrow,
+.menu > arrow,
+.context-menu > arrow {
+    background-color: #1f2335;
+    border-color: #292e42;
+}
+
+menu > arrow:hover,
+.menu > arrow:hover,
+.context-menu > arrow:hover {
+    background-color: #2f334d;
+}
+
+menu > arrow.top,
+.menu > arrow.top,
+.context-menu > arrow.top {
+    border-bottom-color: #292e42;
+}
+
+menu > arrow.bottom,
+.menu > arrow.bottom,
+.context-menu > arrow.bottom {
+    border-top-color: #292e42;
+}
+
+/* Строка меню */
+menubar,
+.menubar {
+    color: #c0caf5;
+    background-color: #1a1b26;
+    box-shadow: inset 0 -1px #292e42;
+}
+
+menubar:backdrop,
+.menubar:backdrop {
+    color: #a9b1d6;
+    background-color: #1a1b26;
+    box-shadow: inset 0 -1px #1f2335;
+}
+
+menubar > menuitem:hover,
+.menubar > menuitem:hover {
+    color: #7aa2f7;
+    box-shadow: inset 0 -3px #7aa2f7;
+}
+
+menubar > menuitem:disabled,
+.menubar > menuitem:disabled {
+    color: #565f89;
+    box-shadow: none;
+}
+
+/* Всплывающие панели */
+popover.background,
+.csd popover.background {
+    color: #c0caf5;
+    background-color: #1f2335;
+    border-color: #292e42;
+}
+
+popover.background:backdrop,
+.csd popover.background:backdrop {
+    background-color: #1f2335;
+}
+
+/* Вкладки */
+notebook > header {
+    background-color: #1f2335;
+    border-color: #292e42;
+}
+
+notebook > header:backdrop {
+    background-color: #1a1b26;
+    border-color: #1f2335;
+}
+
+notebook > header tab {
+    color: #a9b1d6;
+}
+
+notebook > header tab:hover {
+    color: #c0caf5;
+    background-color: #24283b;
+}
+
+notebook > header tab:checked {
+    color: #c0caf5;
+}
+
+notebook > header tab:backdrop {
+    color: #565f89;
+}
+
+notebook > header tab:backdrop:checked {
+    color: #a9b1d6;
+}
+
+notebook > header tab:checked.reorderable-page {
+    background-color: #1a1b26;
+    border-color: #292e42;
+}
+
+notebook > header tab:hover.reorderable-page {
+    background-color: #24283b;
+    border-color: #292e42;
+}
+
+notebook > header.top > tabs > tab:hover {
+    box-shadow: inset 0 -4px #414868;
+}
+
+notebook > header.top > tabs > tab:checked {
+    box-shadow: inset 0 -4px #7aa2f7;
+}
+
+notebook > header.bottom > tabs > tab:hover {
+    box-shadow: inset 0 4px #414868;
+}
+
+notebook > header.bottom > tabs > tab:checked {
+    box-shadow: inset 0 4px #7aa2f7;
+}
+
+notebook > header.left > tabs > tab:hover {
+    box-shadow: inset -4px 0 #414868;
+}
+
+notebook > header.left > tabs > tab:checked {
+    box-shadow: inset -4px 0 #7aa2f7;
+}
+
+notebook > header.right > tabs > tab:hover {
+    box-shadow: inset 4px 0 #414868;
+}
+
+notebook > header.right > tabs > tab:checked {
+    box-shadow: inset 4px 0 #7aa2f7;
+}
+
+notebook > stack:not(:only-child) {
+    background-color: #1a1b26;
+}
+
+notebook > stack:not(:only-child):backdrop {
+    background-color: #1a1b26;
+}
+
+/* Полосы прокрутки */
+scrollbar {
+    background-color: #1a1b26;
+    border-color: #292e42;
+}
+
+scrollbar:backdrop {
+    background-color: #1a1b26;
+    border-color: #1f2335;
+}
+
+scrollbar slider {
+    background-color: #414868;
+}
+
+scrollbar slider:hover {
+    background-color: #565f89;
+}
+
+scrollbar slider:hover:active {
+    background-color: #7aa2f7;
+}
+
+scrollbar slider:backdrop {
+    background-color: #292e42;
+}
+
+scrollbar button {
+    color: #565f89;
+}
+
+scrollbar button:hover {
+    color: #a9b1d6;
+}
+
+scrollbar button:active,
+scrollbar button:checked {
+    color: #7aa2f7;
+}
+
+scrollbar.overlay-indicator:not(.dragging):not(.hovering) slider {
+    background-color: #565f89;
+    border-color: #1a1b26;
+}
+
+scrollbar.overlay-indicator:not(.dragging):not(.hovering) button {
+    background-color: #565f89;
+    border-color: #1a1b26;
+}
+
+/* Переключатели */
+switch {
+    color: #c0caf5;
+    background-color: #24283b;
+    border-color: #292e42;
+    text-shadow: none;
+}
+
+switch:checked {
+    color: #1a1b26;
+    background-color: #7aa2f7;
+    border-color: #7aa2f7;
+    text-shadow: none;
+}
+
+switch:disabled {
+    color: #565f89;
+    background-color: #1f2335;
+    border-color: #1f2335;
+}
+
+switch:backdrop {
+    color: #a9b1d6;
+    background-color: #1f2335;
+    border-color: #1f2335;
+}
+
+switch:backdrop:checked {
+    background-color: #414868;
+    border-color: #414868;
+}
+
+switch slider {
+    color: #1a1b26;
+    background-color: #c0caf5;
+    background-image: none;
+    border-color: #1f2335;
+    text-shadow: none;
+    box-shadow: none;
+}
+
+switch:hover slider {
+    background-color: #ffffff;
+    background-image: none;
+    box-shadow: none;
+}
+
+switch:checked slider {
+    background-color: #ffffff;
+    background-image: none;
+    border-color: #7aa2f7;
+    box-shadow: none;
+}
+
+switch:disabled slider {
+    background-color: #565f89;
+    background-image: none;
+    border-color: #1f2335;
+    box-shadow: none;
+}
+
+switch:backdrop slider {
+    background-color: #a9b1d6;
+    background-image: none;
+    border-color: #1f2335;
+    box-shadow: none;
+}
+
+/* Чекбоксы и радио-кнопки */
+check,
+radio {
+    color: #c0caf5;
+    background-color: #24283b;
+    background-image: none;
+    border-color: #414868;
+    box-shadow: none;
+}
+
+check:hover,
+radio:hover {
+    background-color: #2f334d;
+    background-image: none;
+    box-shadow: none;
+}
+
+check:checked,
+radio:checked,
+check:indeterminate,
+radio:indeterminate {
+    color: #1a1b26;
+    background-color: #7aa2f7;
+    background-image: none;
+    border-color: #7aa2f7;
+    box-shadow: none;
+}
+
+check:checked:hover,
+radio:checked:hover,
+check:indeterminate:hover,
+radio:indeterminate:hover {
+    color: #1a1b26;
+    background-color: #89b4ff;
+    background-image: none;
+    border-color: #89b4ff;
+    box-shadow: none;
+}
+
+check:disabled,
+radio:disabled {
+    color: #565f89;
+    background-color: #1f2335;
+    background-image: none;
+    border-color: #1f2335;
+    box-shadow: none;
+}
+
+check:backdrop,
+radio:backdrop {
+    background-color: #1f2335;
+    background-image: none;
+    border-color: #292e42;
+    box-shadow: none;
+}
+
+check:checked:backdrop,
+radio:checked:backdrop,
+check:indeterminate:backdrop,
+radio:indeterminate:backdrop {
+    color: #c0caf5;
+    background-color: #414868;
+    background-image: none;
+    border-color: #414868;
+    box-shadow: none;
+}
+
+/* Прогресс и ползунки */
+progressbar trough,
+scale fill,
+scale trough {
+    background-color: #1f2335;
+    border-color: #292e42;
+}
+
+progressbar trough:disabled,
+scale fill:disabled,
+scale trough:disabled {
+    background-color: #1a1b26;
+    border-color: #1f2335;
+}
+
+progressbar trough:backdrop,
+scale fill:backdrop,
+scale trough:backdrop {
+    background-color: #1f2335;
+    border-color: #1f2335;
+}
+
+progressbar progress,
+scale highlight {
+    background-color: #7aa2f7;
+    border-color: #7aa2f7;
+}
+
+progressbar progress:backdrop,
+scale highlight:backdrop {
+    background-color: #414868;
+    border-color: #414868;
+}
+
+progressbar {
+    color: #a9b1d6;
+}
+
+scale marks,
+scale value {
+    color: #a9b1d6;
+}
+
+scale slider {
+    color: #1a1b26;
+    background-color: #c0caf5;
+    background-image: none;
+    border-color: #1f2335;
+    text-shadow: none;
+    box-shadow: none;
+}
+
+scale slider:hover {
+    background-color: #ffffff;
+    background-image: none;
+    box-shadow: none;
+}
+
+scale slider:active {
+    background-color: #7aa2f7;
+    background-image: none;
+    border-color: #7aa2f7;
+    box-shadow: none;
+}
+
+scale slider:disabled {
+    background-color: #565f89;
+    background-image: none;
+    border-color: #1f2335;
+    box-shadow: none;
+}
+
+scale slider:backdrop {
+    background-color: #a9b1d6;
+    background-image: none;
+    border-color: #1f2335;
+    box-shadow: none;
+}
+
+/* Таблицы и деревья */
+treeview.view {
+    border-left-color: #292e42;
+    border-top-color: #1a1b26;
+}
+
+treeview.view:backdrop {
+    border-left-color: #1f2335;
+    border-top-color: #1a1b26;
+}
+
+treeview.view:selected,
+treeview.view:selected:focus {
+    color: #1a1b26;
+    background-color: #7aa2f7;
+}
+
+treeview.view:selected:backdrop {
+    color: #c0caf5;
+    background-color: #414868;
+}
+
+treeview.view:disabled {
+    color: #565f89;
+}
+
+treeview.view:disabled:selected {
+    color: #a9b1d6;
+}
+
+treeview.view.separator {
+    color: #292e42;
+}
+
+treeview.view.expander {
+    color: #a9b1d6;
+}
+
+treeview.view.expander:hover {
+    color: #c0caf5;
+}
+
+treeview.view.expander:selected {
+    color: #1a1b26;
+}
+
+treeview.view.progressbar {
+    background-color: #7aa2f7;
+    background-image: image(#7aa2f7);
+}
+
+treeview.view.progressbar:selected {
+    background-color: #1a1b26;
+    background-image: image(#1a1b26);
+}
+
+treeview.view.trough {
+    background-color: #1f2335;
+}
+
+treeview.view.trough:selected {
+    background-color: #414868;
+}
+
+treeview.view header button {
+    color: #a9b1d6;
+    background-color: #1f2335;
+    border-color: #292e42;
+    text-shadow: none;
+}
+
+treeview.view header button:hover {
+    color: #c0caf5;
+}
+
+treeview.view header button:active {
+    color: #c0caf5;
+}
+
+treeview.view header button:backdrop {
+    color: #565f89;
+    background-color: #1a1b26;
+    border-color: #1f2335;
+}
+
+/* Списки */
+list {
+    color: #c0caf5;
+    background-color: #1a1b26;
+    border-color: #292e42;
+}
+
+list:backdrop {
+    color: #a9b1d6;
+    background-color: #1a1b26;
+    border-color: #1f2335;
+}
+
+row.activatable.has-open-popup,
+row.activatable:hover {
+    background-color: #24283b;
+}
+
+row.activatable:selected,
+row.activatable:selected:hover,
+row.activatable:selected.has-open-popup {
+    color: #1a1b26;
+    background-color: #7aa2f7;
+}
+
+row.activatable:selected:backdrop {
+    color: #c0caf5;
+    background-color: #414868;
+}
+
+/* Рамка выделения мышью (rubberband).
+   В GTK3 она рисуется контекстом самого виджета с классом .rubberband,
+   поэтому без явного правила её заливку перекрывает наш фон .view. */
+.rubberband,
+rubberband,
+treeview.view.rubberband,
+iconview.rubberband,
+treeview.view rubberband,
+iconview rubberband,
+flowbox rubberband,
+.content-view rubberband,
+.content-view .rubberband {
+    background-color: rgba(122, 162, 247, 0.2);
+    border-color: rgba(122, 162, 247, 0.6);
+}
+
+/* Боковые панели */
+.sidebar {
+    background-color: #16161e;
+    border-color: #292e42;
+}
+
+.sidebar:backdrop {
+    background-color: #16161e;
+    border-color: #1f2335;
+}
+
+.sidebar list {
+    background-color: transparent;
+}
+
+separator.sidebar {
+    background-color: #292e42;
+}
+
+separator.sidebar:backdrop {
+    background-color: #1f2335;
+}
+
+.sidebar row:selected {
+    color: #c0caf5;
+    background-color: #292e42;
+}
+
+.sidebar row:selected:hover {
+    color: #c0caf5;
+    background-color: #2f334d;
+}
+
+placessidebar row:selected {
+    color: #c0caf5;
+}
+
+placessidebar row:disabled {
+    color: #565f89;
+}
+
+placessidebar row:backdrop {
+    color: #565f89;
+}
+
+placessidebar row:backdrop:selected {
+    color: #c0caf5;
+}
+
+placessidebar row.sidebar-new-bookmark-row {
+    color: #7aa2f7;
+}
+
+/* Фреймы, разделители, панели */
+frame > border,
+.frame {
+    border-color: #292e42;
+}
+
+frame > border:backdrop,
+.frame:backdrop {
+    border-color: #1f2335;
+}
+
+separator {
+    background-color: #292e42;
+}
+
+paned > separator {
+    background-image: image(#292e42);
+}
+
+paned > separator:selected {
+    background-image: image(#7aa2f7);
+}
+
+paned > separator:backdrop {
+    background-image: image(#1f2335);
+}
+
+paned > separator.wide {
+    background-color: #1a1b26;
+    background-image: image(#292e42), image(#292e42);
+}
+
+paned > separator.wide:backdrop {
+    background-color: #1a1b26;
+    background-image: image(#1f2335), image(#1f2335);
+}
+
+/* Всплывающие подсказки */
+tooltip.background {
+    color: #c0caf5;
+    background-color: #1f2335;
+    border-color: #414868;
+    text-shadow: none;
+}
+
+tooltip * {
+    color: #c0caf5;
+}
+
+/* Индикаторы уровня */
+levelbar trough {
+    background-color: #1f2335;
+    border-color: #292e42;
+}
+
+levelbar block.filled,
+levelbar block.high {
+    background-color: #7aa2f7;
+    border-color: #7aa2f7;
+}
+
+levelbar block.low {
+    background-color: #e0af68;
+    border-color: #e0af68;
+}
+
+levelbar block.full {
+    background-color: #9ece6a;
+    border-color: #9ece6a;
+}
+
+/* Календарь */
+calendar {
+    color: #c0caf5;
+    background-color: #1a1b26;
+    border-color: #292e42;
+}
+
+calendar:selected {
+    color: #1a1b26;
+    background-color: #7aa2f7;
+}
+
+calendar.header {
+    color: #a9b1d6;
+}
+
+calendar.button {
+    color: #a9b1d6;
+}
+
+calendar.highlight {
+    color: #7aa2f7;
+}
+
+calendar:indeterminate {
+    color: #565f89;
+}
+
+/* Ссылки */
+*:link,
+button:link,
+button:link > label {
+    color: #7dcfff;
+}
+
+*:visited,
+button:visited,
+button:visited > label {
+    color: #bb9af7;
+}
+
+*:link:hover,
+button:hover:link,
+button:link > label:hover {
+    color: #a9c7ff;
+}
+
+*:link:disabled,
+button:disabled:link,
+button:link > label:disabled {
+    color: #565f89;
+}
+
+*:link:backdrop,
+button:backdrop:link,
+button:link > label:backdrop {
+    color: #7dcfff;
+}
+
+/* Панели инструментов: Adwaita красит их в собственный серый */
+toolbar,
+.inline-toolbar,
+.location-bar,
+searchbar > revealer > box {
+    color: #c0caf5;
+    background-color: #1a1b26;
+    background-image: none;
+    border-color: #292e42;
+}
+
+toolbar:backdrop,
+.inline-toolbar:backdrop,
+.location-bar:backdrop,
+searchbar > revealer > box:backdrop {
+    color: #a9b1d6;
+    background-color: #1a1b26;
+    border-color: #1f2335;
+}
+
+actionbar > revealer > box {
+    background-color: #1a1b26;
+    border-top-color: #292e42;
+}
+
+actionbar > revealer > box:backdrop {
+    background-color: #1a1b26;
+    border-top-color: #1f2335;
+}
+
+/* Ошибки и предупреждения */
+/* InfoBar: Adwaita рисует фон на внутреннем revealer > box */
+infobar.info > revealer > box,
+infobar.question > revealer > box,
+infobar.warning > revealer > box,
+infobar.error > revealer > box {
+    color: #c0caf5;
+    background-color: #1f2335;
+    border-bottom-color: #292e42;
+    text-shadow: none;
+}
+
+infobar.info > revealer > box label,
+infobar.question > revealer > box label,
+infobar.warning > revealer > box label,
+infobar.error > revealer > box label {
+    color: #c0caf5;
+}
+
+infobar.warning > revealer > box,
+infobar.warning > revealer > box label {
+    color: #e0af68;
+}
+
+infobar.error > revealer > box,
+infobar.error > revealer > box label {
+    color: #f7768e;
+}
+
+infobar.info button,
+infobar.question button,
+infobar.warning button,
+infobar.error button {
+    color: #c0caf5;
+    background-color: #24283b;
+    background-image: none;
+    border-color: #292e42;
+    text-shadow: none;
+    box-shadow: none;
+}
+
+infobar.info button:hover,
+infobar.question button:hover,
+infobar.warning button:hover,
+infobar.error button:hover {
+    color: #c0caf5;
+    background-color: #2f334d;
+    background-image: none;
+    border-color: #414868;
+    box-shadow: none;
+}
