@@ -48,9 +48,9 @@ case "$status" in
 esac
 
 # Используем статичную иконку батареи
-lines=" Батарея ${bat_name}"$'\n'
-lines+="Уровень: ${cap}%"$'\n'
-lines+="Статус: ${status_ru}"$'\n'
+lines="󰁹 Батарея ${bat_name}"$'\n'
+lines+="󱊢 Уровень: ${cap}%"$'\n'
+lines+="󱟢 Статус: ${status_ru}"$'\n'
 
 power_now=$(cat "$BAT/power_now" 2>/dev/null || echo 0)
 energy_now=$(cat "$BAT/energy_now" 2>/dev/null || echo 0)
@@ -96,10 +96,10 @@ else
 fi
 
 if [ -n "$health_ru" ]; then
-    lines+="Здоровье: ${health_ru}"
+    lines+="󱈑 Здоровье: ${health_ru}"
 fi
 
 # --- Вывод в Rofi ---
 echo "$lines" | \
-    rofi -dmenu -i -p " Батарея" \
+    rofi -dmenu -i -p "󰁹 Батарея" \
           -theme-str 'window {width: 30%;} listview {lines: 6;}'
