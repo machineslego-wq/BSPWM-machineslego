@@ -165,17 +165,33 @@ xterm*|rxvt*)
     ;;
 esac
 
-# ls with eza and icons
-if [ -x "$(command -v eza)" ]; then
-    alias ls='eza --icons --group-directories-first'
-    alias ll='eza -la --icons --group-directories-first'
-    alias la='eza -la --icons --group-directories-first'
-    alias l='eza -l --icons --group-directories-first'
-else
+# ls with eza and icons (только для графического режима)
+if [ "$is_tty" = true ]; then
+    # ФОЛБЭК ДЛЯ TTY: стоковый ls без иконок
     if [ -x /usr/bin/dircolors ]; then
         test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     fi
     alias ls='ls --color=auto'
+    alias ll='ls -la --color=auto'
+    alias la='ls -la --color=auto'
+    alias l='ls -l --color=auto'
+else
+    # ГРАФИЧЕСКИЙ РЕЖИМ: eza с иконками
+    if [ -x "$(command -v eza)" ]; then
+        alias ls='eza --icons --group-directories-first'
+        alias ll='eza -la --icons --group-directories-first'
+        alias la='eza -la --icons --group-directories-first'
+        alias l='eza -l --icons --group-directories-first'
+    else
+        # Если eza не установлена, тоже используем стоковый ls
+        if [ -x /usr/bin/dircolors ]; then
+            test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+        fi
+        alias ls='ls --color=auto'
+        alias ll='ls -la --color=auto'
+        alias la='ls -la --color=auto'
+        alias l='ls -l --color=auto'
+    fi
 fi
 
 # Alias definitions
