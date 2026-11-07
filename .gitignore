@@ -59,3 +59,9 @@ config/fish/completions/
 /config/easyeffects/*
 !/config/easyeffects/input/
 !/config/easyeffects/output/
+
+# CopyQ: игнорируем историю буфера, лок-файлы и геометрию окон
+/config/copyq/*
+!/config/copyq/themes/
+!/config/copyq/copyq.conf
+!/config/copyq/copyq-commands.ini
