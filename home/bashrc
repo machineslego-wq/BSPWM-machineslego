@@ -194,6 +194,13 @@ else
     fi
 fi
 
+# --- Fastfetch ---
+if [ "$is_tty" = true ]; then
+    alias fastfetch='fastfetch --config ~/.config/fastfetch/tty.jsonc'
+else
+    alias fastfetch='fastfetch --config ~/.config/fastfetch/graphical.jsonc'
+fi
+
 # Alias definitions
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases

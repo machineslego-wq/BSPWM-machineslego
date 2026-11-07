@@ -34,6 +34,13 @@ end
 
 alias grep='grep --color=auto'
 
+# --- Fastfetch ---
+if test "$TERM" = "linux"
+    alias fastfetch='fastfetch --config ~/.config/fastfetch/tty.jsonc'
+else
+    alias fastfetch='fastfetch --config ~/.config/fastfetch/graphical.jsonc'
+end
+
 # --- Навигация ---
 alias ..='cd ..'
 alias ...='cd ../..'
