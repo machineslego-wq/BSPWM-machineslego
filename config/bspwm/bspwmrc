@@ -55,6 +55,11 @@ fi
 pkill -x lxpolkit 2>/dev/null
 lxpolkit &
 
+# Запуск EasyEffects в фоновом режиме (если установлен)
+if command -v easyeffects >/dev/null 2>&1; then
+    easyeffects --gapplication-service &
+fi
+
 # =====================================================================
 #               --- АВТОБЛОКИРОВКА (xss-lock) ---
 #                 pgrep защищает от запуска дублей 
