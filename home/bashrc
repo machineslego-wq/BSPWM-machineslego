@@ -114,7 +114,7 @@ prompt_command() {
             if [ -n "$status_out" ]; then
                 # Проверка на конфликты внутри быстрого вывода
                 if echo "$status_out" | grep -qE '^(DD|AU|UD|UA|DU|AA|UU)'; then
-                    git_icon=""
+                    git_icon="" # <--- ЗАМЕНЕНО НА ТРЕУГОЛЬНИК (nf-fa-exclamation-triangle)
                     git_color="\[\033[38;2;247;118;142m\]"
                 else
                     git_icon=""
@@ -135,7 +135,7 @@ prompt_command() {
                 fi
             fi
 
-            # Мгновенная проверка на stash (вместо медленного git stash list)
+            # Мгновенная проверка на stash
             if git rev-parse --verify refs/stash >/dev/null 2>&1; then
                 git_stash=" 󰀘" 
             fi
@@ -149,7 +149,7 @@ prompt_command() {
             PS1+="${sep_b_d}"
         fi
         
-        # 4. Финальная стрелка (вернул иконку ❯)
+        # 4. Финальная стрелка
         PS1+="${bg_dark}${fg_arrow}${reset} "
     fi
 }
