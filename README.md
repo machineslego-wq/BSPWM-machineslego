@@ -129,6 +129,12 @@ sudo systemctl kill -s HUP systemd-logind
 **Power Profiles:**
 Switch between Performance/Balanced/Power Saver via `Super + Alt + P` (Polybar menu). The system automatically switches Picom profile (animations disabled in power-saver).
 
+### 🖼️ Wallpapers & Theme
+
+Dimming wallpapers to match the Tokyo Night palette using ImageMagick:
+```bash
+convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 /path/to/tokyo-night-wallpaper.jpg
+
 ## ⌨️ Keybindings
 
 **Full cheatsheet:** `Super + /` (Rofi).
