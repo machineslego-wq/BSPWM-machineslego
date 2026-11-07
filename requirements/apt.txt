@@ -10,6 +10,8 @@ dunst
 picom
 feh
 lxappearance
+qt5ct
+qt6ct
 papirus-icon-theme
 bibata-cursor-theme
 fonts-jetbrains-mono
