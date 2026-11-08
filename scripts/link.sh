@@ -69,4 +69,19 @@ chmod +x "$HOME/.config/sxhkd/scripts/"*.sh 2>/dev/null
 chmod +x "$HOME/.config/polybar/launch.sh" 2>/dev/null
 chmod +x "$HOME/.config/bspwm/bspwmrc" 2>/dev/null
 
+# 5. Применяем темы для Flatpak (если Flatpak установлен)
+if command -v flatpak >/dev/null 2>&1; then
+    echo "--- Applying Flatpak theme overrides ---"
+    # Доступ к CSS-файлам GTK3/GTK4
+    flatpak override --user --filesystem=xdg-config/gtk-3.0:ro
+    flatpak override --user --filesystem=xdg-config/gtk-4.0:ro
+    # Доступ к папке с темами (если она у тебя есть)
+    flatpak override --user --filesystem=xdg-data/themes:ro
+    
+    # Доступ к конфигам Qt
+    flatpak override --user --filesystem=xdg-config/qt5ct:ro
+    flatpak override --user --filesystem=xdg-config/qt6ct:ro
+    flatpak override --user --env=QT_QPA_PLATFORMTHEME=qt5ct
+fi
+
 echo "Done. (Готово.)"
