@@ -23,6 +23,7 @@ Dotfiles + установщик BSPWM-окружения для Debian 13 Trixie
 - `scripts/link.sh` — идемпотентный линковщик: делает бэкап в `~/.dotfiles-backup-*`, ставит симлинки. Меняет уже установленные пакеты.
 - `scripts/unlink.sh` — безопасное удаление симлинков, созданных link.sh (только свои, не трогает чужие).
 - `scripts/software.sh` — установка дополнительного софта ( lazygit, neovim, mpv, gimp и т.д.). Вызывается из install.sh по требованию.
+- `scripts/install-node.sh` — Node.js LTS из NodeSource, npm с prefix `~/.npm-global` (глобальные пакеты без sudo). Запускается отдельно, не из install.sh.
 
 Не запускай `install.sh` и `unlink.sh` без явной просьбы. `link.sh` — безопасен для запуска в любое время.
 
@@ -37,6 +38,8 @@ Dotfiles + установщик BSPWM-окружения для Debian 13 Trixie
 | SXHKD | `pkill -USR1 -x sxhkd` | `Super + Escape` |
 | Polybar | `~/.config/polybar/launch.sh` | — |
 | Picom | `pkill -x picom; picom --config <профиль>` | — |
+| GTK3 / GTK4 | перезапуск приложения (CSS читается при старте) | — |
+| Qt | `qt5ct` / `qt6ct` или перезапуск приложения | — |
 | Полный перезапуск | `~/.config/sxhkd/scripts/session-restart.sh` | `Super + Alt + Shift + R` |
 
 Picom автоматически выбирает профиль по `powerprofilesctl get`:
@@ -64,6 +67,41 @@ Picom автоматически выбирает профиль по `powerprof
 - Шрифт: `JetBrainsMono Nerd Font:size=11` (основной), `JetBrainsMono Nerd Font:pixelsize=15` (для иконок).
 - Тёмная тема Tokyo Night: фон `#1a1b26`, текст `#c0caf5`.
 
+### GTK3 / GTK4
+- `config/gtk-3.0/gtk.css` и `config/gtk-4.0/gtk.css` — пользовательский CSS поверх `Adwaita-dark`. `gtk-theme-name` в `settings.ini` не меняется.
+- Меняются только цвета. Геометрия, отступы и размеры — штатные от Adwaita.
+- GTK3: Adwaita жёстко прописывает цвета, поэтому нужны прямые селекторы. `@define-color` — для приложений, которые читают именованные цвета в своём CSS.
+- GTK4/libadwaita: перекрашивается через именованные цвета (`window_*`, `view_*`, `accent_*`, `headerbar_*`, `sidebar_*`), обычные GTK4-виджеты — прямыми селекторами.
+- Adwaita рисует `background-image` / `box-shadow` в hover/active/checked/disabled/backdrop — в user CSS их надо сбрасывать явно, иначе остаются светлые пятна.
+- Фон infobar — на `infobar > revealer > box`, а не на самом `infobar`. Toolbar/searchbar (`searchbar > revealer > box`, `.toolbar`) по умолчанию серые (`#353535` / `#2d2d2d`).
+- GTK3 rubberband рисуется контекстом виджета с классом `.rubberband`; фон `.view` его перекрывает, поэтому нужны отдельные правила `.rubberband` (заливка `rgba(122,162,247,0.2)`, рамка `rgba(122,162,247,0.6)`).
+- GTK4 focus outline перекрашен с синего Adwaita `rgba(21,83,158,.7)` на `rgba(122,162,247,.7)` (+ варианты error/warning).
+- Иконки Papirus-Dark имеют собственный светлый цвет (`#dfdfdf`) — это не баг темы.
+- Применение: перезапуск приложения. Симлинки `~/.config/gtk-3.0`, `~/.config/gtk-4.0` уже стоят.
+
+### Qt (qt5ct / qt6ct)
+- `config/qt5ct/colors/tokyo-night.conf`, `config/qt6ct/colors/tokyo-night.conf` — 21 роль `QPalette` в порядке enum, формат цвета `#AARRGGBB`.
+- `qt5ct.conf` / `qt6ct.conf`: `color_scheme_path=~/.config/qt<5|6>ct/colors/tokyo-night.conf`, `custom_palette=true`, `style=Fusion`, `icon_theme=Papirus-Dark`.
+- `home/xinitrc`: `export QT_QPA_PLATFORMTHEME=qt6ct` (Qt5-приложения тоже идут через qt6ct).
+- Применение: `qt5ct` / `qt6ct` или перезапуск приложения.
+
+### Flatpak и темы
+- `link.sh` при наличии Flatpak выдаёт override'ы: read-only доступ к `xdg-config/gtk-3.0`, `gtk-4.0`, `xdg-config/qt5ct`, `qt6ct`, `xdg-data/themes` и `QT_QPA_PLATFORMTHEME=qt5ct`.
+- Flatpak-приложения видят пользовательские CSS/палитры только после повторного запуска `link.sh`.
+
+### CopyQ
+- `config/copyq/themes/tokyo-night.ini` — тема Tokyo Night. В git также трекаются `copyq.conf` и `copyq-commands.ini`.
+- Остальное содержимое `config/copyq/` (история, lock-файлы, geometry) игнорируется через `.gitignore`.
+- Автозапуск в `bspwmrc`: `copyq --start-server` (без окна), меню — `copyq menu` по хоткею.
+
+### EasyEffects
+- `config/easyeffects/output/*.json` — пресеты эквалайзера/эффектов.
+- Автозапуск в `bspwmrc`: `easyeffects --gapplication-service`, только если бинарник установлен.
+
+### Telegram
+- `themes/telegram/tokyo-night.tdesktop-palette` — тема Tokyo Night с оранжевым акцентом. Хранится вручную, автоматической установки нет (чтобы не ломать пути Flatpak).
+- Установка: положить файл в `~/.var/app/org.telegram.desktop/data/TelegramDesktop/tdata/theme/` и выбрать в настройках Telegram.
+
 ### Midnight Commander
 - Скины лежат в `local/share/mc/skins/` → `~/.local/share/mc/skins/`.
 - Формат INI: секции `[core]`, `[dialog]`, `[menu]`, `[filehighlight]`, `[editor]`, `[viewer]` и т.д.
@@ -73,6 +111,11 @@ Picom автоматически выбирает профиль по `powerprof
 - Fisher — менеджер плагинов (устанавливается автоматически).
 - Tide — промпт (устанавливается как v6).
 - Сгенерированные файлы (`fish_variables`, `conf.d/_tide_*.fish`, `functions/`, `completions/`) в git не коммитить.
+
+### Node.js / npm
+- `scripts/install-node.sh` ставит NodeSource LTS и пишет `prefix=~/.npm-global` в `~/.npmrc`: `npm i -g` работает без sudo.
+- PATH до `~/.npm-global/bin` добавляют оба шелла — `config/fish/config.fish` и `home/bashrc` (блоки идемпотентны, дублей не создают).
+- NVM, если установлен, подключается в конце `home/bashrc` и может переопределить `node`/`npm` из NodeSource.
 
 ### .gitignore
 Whitelist: отслеживаются только `config/ home/ local/ system/ scripts/ screenshots/ wallpapers/` и корневые `*.md`. Новые файлы/папки в корне молча игнорируются, пока не добавлены в `.gitignore`.

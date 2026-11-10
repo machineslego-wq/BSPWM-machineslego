@@ -33,6 +33,12 @@ fi
 if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]; then
     PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 fi
+
+# npm: глобальные пакеты без sudo (prefix задан в ~/.npmrc)
+if [[ -d "$HOME/.npm-global/bin" && ":$PATH:" != *":$HOME/.npm-global/bin:"* ]]; then
+    PATH="$HOME/.npm-global/bin:$PATH"
+fi
+
 export PATH
 
 # Color prompt
