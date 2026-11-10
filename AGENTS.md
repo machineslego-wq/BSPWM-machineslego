@@ -117,6 +117,19 @@ Picom автоматически выбирает профиль по `powerprof
 - PATH до `~/.npm-global/bin` добавляют оба шелла — `config/fish/config.fish` и `home/bashrc` (блоки идемпотентны, дублей не создают).
 - NVM, если установлен, подключается в конце `home/bashrc` и может переопределить `node`/`npm` из NodeSource.
 
+### Neovim
+- `config/nvim` → `~/.config/nvim`. Конфиг на Lua, менеджер плагинов — встроенный `vim.pack` (Neovim 0.12), список только в `lua/plugins.lua`.
+- `nvim-pack-lock.json` версионируется вместе с конфигом. Обновление плагинов: `:lua vim.pack.update()`, затем `:restart`. Lock-файл руками не править.
+- Плагины: tokyonight (тема), nvim-treesitter (ветка main), lspconfig + Mason, blink.cmp, neo-tree (+ plenary, nui, devicons), gitsigns, telescope, lualine, which-key.
+- LSP: Mason (`:Mason`) + нативный `vim.lsp.config` / `vim.lsp.enable`. Серверы: lua_ls, bashls, pyright, ts_ls, clangd, rust_analyzer, jsonls, yamlls, html, cssls, emmet_language_server, intelephense. `gopls` отложен: Go в системе не установлен.
+- Treesitter требует `tree-sitter` CLI ≥ 0.26.1 (Debian-пакет старый). `install.sh` кладёт бинарник в `~/.local/bin/tree-sitter`. Парсеры ставятся автоматически при первом запуске, обновление — `:TSUpdate`.
+- Telescope ищет файлы и текст через `ripgrep` (есть в `requirements/software.txt`). Без `rg` команды `find_files` / `live_grep` не работают. `fd` не нужен.
+- Тема — `tokyonight-night`: фон `#1a1b26`, текст `#c0caf5`. Оверрайды сайдбара и статуслайна — в `lua/theme.lua`.
+- Leader — пробел. `<leader>e` — сайдбар, `<leader>ff` / `fg` / `fb` / `fh` — поиск, `<C-h/j/k/l>` — окна (в т.ч. из сайдбара в редактор), `<S-h>` / `<S-l>` — буферы, `<C-\>` — встроенный терминал, `gd` / `gr` / `K` — LSP, `<leader>ca` / `rn` / `f` — действия/переименование/формат, `]c` / `[c` — git-хунки.
+- Вкладки — это буферы: полоска сверху рисуется lualine (`tabline.buffers`), клик/`<S-h>`/`<S-l>`/`<leader>fb` — переключение.
+- Первый запуск требует сеть: `vim.pack` качает плагины, Mason — серверы в `~/.local/share/nvim/mason/bin`.
+- Применение: правка Lua-файлов — со следующего запуска (или `:source %` для текущего файла); плагины обновляются только вручную.
+
 ### .gitignore
 Whitelist: отслеживаются только `config/ home/ local/ system/ scripts/ screenshots/ wallpapers/` и корневые `*.md`. Новые файлы/папки в корне молча игнорируются, пока не добавлены в `.gitignore`.
 

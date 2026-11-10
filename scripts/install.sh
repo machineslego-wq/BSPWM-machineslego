@@ -24,7 +24,7 @@ echo ""
 # ==========================================================
 echo "[1/4] Installing user-level software... (Установка пользовательского софта без sudo)..."
 
-# 1.1. Установка Neovim (AppImage)
+# 1.1. Установка Neovim (AppImage) и tree-sitter CLI
 echo "  -> Installing Neovim (AppImage)..."
 NVIM_BIN="$REAL_HOME/.local/bin/nvim"
 NVIM_URL="https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage"
@@ -36,6 +36,23 @@ if [ ! -f "$NVIM_BIN" ]; then
     echo "  -> Neovim AppImage installed to ~/.local/bin/nvim"
 else
     echo "  -> Neovim already installed. Skipping."
+fi
+
+# tree-sitter CLI >= 0.26.1 нужен nvim-treesitter (main) для сборки парсеров.
+# В Debian 13 пакет слишком старый, поэтому берём официальный бинарник.
+TS_BIN="$REAL_HOME/.local/bin/tree-sitter"
+TS_URL="https://github.com/tree-sitter/tree-sitter/releases/latest/download/tree-sitter-linux-x64.gz"
+
+if [ ! -x "$TS_BIN" ]; then
+    echo "  -> Installing tree-sitter CLI..."
+    TMP_TS=$(mktemp /tmp/tree-sitter-XXXXXX.gz)
+    wget -q --show-progress "$TS_URL" -O "$TMP_TS"
+    gunzip -f "$TMP_TS"
+    install -m 755 "${TMP_TS%.gz}" "$TS_BIN"
+    rm -f "${TMP_TS%.gz}"
+    echo "  -> tree-sitter CLI installed to ~/.local/bin/tree-sitter"
+else
+    echo "  -> tree-sitter CLI already installed. Skipping."
 fi
 
 # 1.2. Установка JetBrainsMono Nerd Font
