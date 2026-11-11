@@ -1,8 +1,8 @@
 /* ==========================================================
    Tokyo Night для GTK4 и libadwaita
    Основа — именованные @define-color, из которых libadwaita
-   строит палитру. Прямые селекторы — только для контролов,
-   которые Adwaita рисует тонированием currentColor.
+   строит палитру. Прямых селекторов минимум: только цвета,
+   которые Adwaita выводит из currentColor или рисует само.
    Геометрия, отступы и размеры остаются штатными от Adwaita.
    ========================================================== */
 
@@ -94,171 +94,10 @@
 @define-color content_view_bg #1a1b26;
 @define-color text_view_bg #1a1b26;
 
-/* ---------- поля ввода, кнопки, заголовок ----------
-   libadwaita выводит фон контролов тонированием currentColor и делает
-   HeaderBar в ToolbarView прозрачным, поэтому одних именованных
-   цветов для полного совпадения с прежним видом мало. */
-
-entry,
-spinbutton,
-entry > text,
-spinbutton > text {
-    color: #c0caf5;
-    caret-color: #7aa2f7;
-    background-color: #1a1b26;
-}
-
-entry,
-spinbutton {
-    background-image: none;
-    border-color: #292e42;
-}
-
-entry:focus-within,
-spinbutton:focus-within {
-    border-color: #7aa2f7;
-    box-shadow: inset 0 0 0 1px #7aa2f7;
-}
-
-entry:disabled,
-spinbutton:disabled {
-    color: #565f89;
-    background-color: #1f2335;
-    border-color: #1f2335;
-}
-
-entry:backdrop,
-spinbutton:backdrop {
-    color: #a9b1d6;
-    background-color: #1a1b26;
-    border-color: #1f2335;
-}
-
-entry.error,
-spinbutton.error {
-    color: #f7768e;
-    border-color: #f7768e;
-}
-
-entry.warning,
-spinbutton.warning {
-    color: #e0af68;
-    border-color: #e0af68;
-}
-
-button,
-notebook > header > tabs > arrow {
-    color: #c0caf5;
-    background-color: #24283b;
-    background-image: none;
-    border-color: #292e42;
-    text-shadow: none;
-    box-shadow: none;
-}
-
-button:hover,
-notebook > header > tabs > arrow:hover {
-    color: #c0caf5;
-    background-color: #2f334d;
-    background-image: none;
-    border-color: #414868;
-    box-shadow: none;
-}
-
-button:active,
-button:checked,
-notebook > header > tabs > arrow:active,
-notebook > header > tabs > arrow:checked {
-    color: #c0caf5;
-    background-color: #1f2335;
-    background-image: none;
-    border-color: #414868;
-    box-shadow: none;
-}
-
-button:disabled,
-notebook > header > tabs > arrow:disabled {
-    color: #565f89;
-    background-color: #1f2335;
-    background-image: none;
-    border-color: #1f2335;
-    box-shadow: none;
-}
-
-button:backdrop,
-notebook > header > tabs > arrow:backdrop {
-    color: #a9b1d6;
-    background-color: #1f2335;
-    background-image: none;
-    border-color: #1f2335;
-    box-shadow: none;
-}
-
-button.flat,
-button.titlebutton,
-button.sidebar-button {
-    background-color: transparent;
-    background-image: none;
-    border-color: transparent;
-    box-shadow: none;
-}
-
-button.flat:hover,
-button.titlebutton:hover,
-button.sidebar-button:hover {
-    color: #c0caf5;
-    background-color: #24283b;
-    background-image: none;
-    border-color: #292e42;
-    box-shadow: none;
-}
-
-button.suggested-action {
-    color: #1a1b26;
-    background-color: #7aa2f7;
-    background-image: none;
-    border-color: #7aa2f7;
-    text-shadow: none;
-    box-shadow: none;
-}
-
-button.suggested-action:hover {
-    color: #1a1b26;
-    background-color: #89b4ff;
-    background-image: none;
-    border-color: #89b4ff;
-    box-shadow: none;
-}
-
-button.suggested-action:active,
-button.suggested-action:checked {
-    color: #1a1b26;
-    background-color: #6a8fe0;
-    background-image: none;
-    border-color: #6a8fe0;
-    box-shadow: none;
-}
-
-headerbar,
-.titlebar:not(headerbar) {
-    color: #c0caf5;
-    background-color: #1f2335;
-    background-image: none;
-    border-color: #292e42;
-    box-shadow: none;
-    text-shadow: none;
-}
-
-headerbar:backdrop,
-.titlebar:backdrop:not(headerbar) {
-    color: #a9b1d6;
-    background-color: #1a1b26;
-    border-color: #1f2335;
-}
-
 /* ---------- точечные правки поверх libadwaita ----------
-   libadwaita рисует выделение полупрозрачным, а destructive-
-   кнопки — тонированными. Возвращаем сплошные цвета. */
+   libadwaita рисует выделение полупрозрачным, destructive-
+   кнопки — тонированными, а рамку окна — белой. Возвращаем
+   сплошные цвета Tokyo Night. */
 
 .view:selected,
 iconview:selected,
@@ -304,12 +143,8 @@ button.destructive-action:checked {
     background-color: #e0607a;
 }
 
-/* Боковые панели: у libadwaita фон задаёт .sidebar-pane,
-   отдельный ListBox с этим классом остаётся прозрачным */
-.navigation-sidebar {
-    background-color: #16161e;
-}
-
+/* Боковые панели: libadwaita выделяет строку полупрозрачным,
+   возвращаем сплошной фон как в Tokyo Night */
 .navigation-sidebar > row:selected {
     color: #c0caf5;
     background-color: #292e42;
@@ -320,15 +155,10 @@ button.destructive-action:checked {
     background-color: #2f334d;
 }
 
-/* Панель вкладок */
-notebook > header {
-    background-color: #1f2335;
-    border-color: #292e42;
-}
-
-notebook > header:backdrop {
-    background-color: #1a1b26;
-    border-color: #1f2335;
+/* Рамка окна: Adwaita рисует белый outline с прозрачностью.
+   Красим его в цвет остальных границ. */
+window.csd {
+    outline-color: @borders;
 }
 
 /* Ссылки в Tokyo Night — голубые, а не акцентно-синие */

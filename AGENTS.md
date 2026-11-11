@@ -71,13 +71,17 @@ Picom автоматически выбирает профиль по `powerprof
 - `config/gtk-3.0/gtk.css` и `config/gtk-4.0/gtk.css` — пользовательский CSS поверх `Adwaita-dark`. `gtk-theme-name` в `settings.ini` не меняется.
 - Меняются только цвета. Геометрия, отступы и размеры — штатные от Adwaita.
 - GTK3: Adwaita жёстко прописывает цвета, поэтому нужны прямые селекторы. `@define-color` — для приложений, которые читают именованные цвета в своём CSS.
-- GTK4/libadwaita: почти всё перекрашивается через именованные цвета (`window_*`, `view_*`, `accent_*`, `headerbar_*`, `sidebar_*`). Прямые селекторы нужны только там, где libadwaita выводит фон из `currentColor` (entry, button, выделение строк, destructive) или делает `HeaderBar` внутри `ToolbarView` прозрачным.
+- GTK4/libadwaita: только `@define-color` (`window_*`, `view_*`, `accent_*`, `headerbar_*`, `sidebar_*`, `borders`) и минимум точечных селекторов — выделение строк/текста, сплошная destructive-кнопка, выделение в боковых панелях, ссылки.
+- GTK4: `entry` и `button` не переопределять. libadwaita тонирует их как `color-mix(in srgb, currentColor 10%, transparent)`; жёсткий фон делает кнопки темнее полей и ломает вид «пилюль».
+- GTK4: `HeaderBar` внутри `ToolbarView` прозрачный (`toolbarview > .top-bar headerbar { background: none }`). Непрозрачный `headerbar_bg_color` + прямое правило для `headerbar` дают видимый уступ: шапка сайдбара в Nautilus на 3px выше панели кнопок.
+- GTK4: `.navigation-sidebar` не перекрашивать. Фон даёт `.sidebar-pane` из `sidebar_bg_color`; свой `background-color` у списка перекрывает 1px бордер `sidebar_border_color` между панелью и содержимым.
+- GTK4: `:root`-переменные libadwaita (`--border-opacity`, `--border-color`) — внутренние. Цвет границ задаётся через `@define-color borders`.
+- GTK4: рамка окна — это `outline: 1px solid RGB(255 255 255/7%)` у `window.csd`. Перекрашена через `window.csd { outline-color: @borders; }`. bspwm не ставит окну класс `tiled`, поэтому `window.csd.tiled` не матчится и рамку рисует именно outline.
 - GTK4 без libadwaita (тема `Default`) именованные цвета не читает — для таких приложений в файле остались только базовые имена (`theme_*`, `content_view_bg`), полноценной перекраски там нет.
-- Adwaita рисует `background-image` / `box-shadow` в hover/active/checked/disabled/backdrop — в user CSS их надо сбрасывать явно, иначе остаются светлые пятна.
-- Фон infobar — на `infobar > revealer > box`, а не на самом `infobar`. Toolbar/searchbar (`searchbar > revealer > box`, `.toolbar`) по умолчанию серые (`#353535` / `#2d2d2d`).
-- GTK3 rubberband рисуется контекстом виджета с классом `.rubberband`; фон `.view` его перекрывает, поэтому нужны отдельные правила `.rubberband` (заливка `rgba(122,162,247,0.2)`, рамка `rgba(122,162,247,0.6)`).
-- GTK4 focus outline перекрашен с синего Adwaita `rgba(21,83,158,.7)` на `rgba(122,162,247,.7)` (+ варианты error/warning).
-- Строки списков стилизуются и через `row:selected`, а не только `row.activatable:selected`: у `Gtk.ListBoxRow` без `activatable` второго класса нет.
+- GTK3: Adwaita рисует `background-image` / `box-shadow` в hover/active/checked/disabled/backdrop — в user CSS их надо сбрасывать явно, иначе остаются светлые пятна.
+- GTK3: фон infobar — на `infobar > revealer > box`, а не на самом `infobar`. Toolbar/searchbar (`searchbar > revealer > box`, `.toolbar`) по умолчанию серые (`#353535` / `#2d2d2d`).
+- GTK3: rubberband рисуется контекстом виджета с классом `.rubberband`; фон `.view` его перекрывает, поэтому нужны отдельные правила `.rubberband` (заливка `rgba(122,162,247,0.2)`, рамка `rgba(122,162,247,0.6)`).
+- GTK3: строки списков стилизуются и через `row:selected`, а не только `row.activatable:selected`: у `Gtk.ListBoxRow` без `activatable` второго класса нет.
 - Иконки Papirus-Dark имеют собственный светлый цвет (`#dfdfdf`) — это не баг темы.
 - Применение: перезапуск приложения. Симлинки `~/.config/gtk-3.0`, `~/.config/gtk-4.0` уже стоят.
 
