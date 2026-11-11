@@ -66,3 +66,7 @@ config/fish/completions/
 !/config/copyq/themes/
 !/config/copyq/copyq.conf
 !/config/copyq/copyq-commands.ini
+
+# GIMP: игнорируем всё, кроме нашей темы
+/config/GIMP/3.0/*
+!/config/GIMP/3.0/themes/
