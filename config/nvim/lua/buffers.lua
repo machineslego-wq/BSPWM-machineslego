@@ -64,7 +64,14 @@ function M.close_current()
         or vim.fn.bufexists(target) ~= 1
         or vim.fn.buflisted(target) ~= 1
     then
-        target = M.placeholder(buf)
+        target = nil
+        for _, info in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
+            if info.bufnr ~= buf then
+                target = info.bufnr
+                break
+            end
+        end
+        target = target or M.placeholder(buf)
     end
 
     M.show(0, target)
@@ -83,13 +90,14 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
 })
 
 -- Как только в пустом буфере появились изменения — показываем его во вкладках
-vim.api.nvim_create_autocmd("BufModifiedSet", {
+vim.api.nvim_create_autocmd({ "BufModifiedSet", "TextChanged", "TextChangedI", "InsertLeave" }, {
     callback = function(args)
         local buf = args.buf
         if
             vim.bo[buf].buftype == ""
             and vim.api.nvim_buf_get_name(buf) == ""
             and vim.bo[buf].modified
+            and not vim.bo[buf].buflisted
         then
             vim.bo[buf].buflisted = true
         end

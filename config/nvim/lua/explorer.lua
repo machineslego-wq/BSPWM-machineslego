@@ -3,7 +3,8 @@
 -- ==========================================================
 
 require("neo-tree").setup({
-    -- Сайдбар не растягивается, если вкладок не осталось.
+    -- Не закрывать сайдбар, когда редактор остался без вкладок:
+    -- иначе :bd завершает Neovim. Окно редактора сохраняет заглушка.
     close_if_last_window = false,
     window = {
         width = 32,
@@ -54,9 +55,9 @@ local function sidebar_window()
 end
 
 -- Держим окно редактора рядом с сайдбаром и не даём плодиться пустым вкладкам.
--- Вызывается после :bd и после закрытия окна редактора.
+-- Вызывается после :bd.
 local function ensure_editor_area(deleted)
-    -- BufDelete/WinClosed срабатывают до фактического закрытия окна
+    -- BufDelete срабатывает до фактического закрытия окна
     vim.defer_fn(function()
         -- v:exiting равен v:null, пока Neovim не завершается
         if vim.v.exiting ~= vim.NIL then
@@ -111,12 +112,5 @@ vim.api.nvim_create_autocmd("BufDelete", {
             return
         end
         ensure_editor_area(args.buf)
-    end,
-})
-
--- Закрытие окна редактора вручную (:q) тоже оставляет рабочую область
-vim.api.nvim_create_autocmd("WinClosed", {
-    callback = function()
-        ensure_editor_area()
     end,
 })
