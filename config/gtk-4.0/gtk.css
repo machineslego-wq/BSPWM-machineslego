@@ -1,15 +1,33 @@
 /* ==========================================================
    Tokyo Night для GTK4 и libadwaita
-   libadwaita перекрашивается через @define-color, обычные
-   GTK4-виджеты — прямыми селекторами. Геометрия, отступы
-   и размеры не меняются.
+   Основа — именованные @define-color, из которых libadwaita
+   строит палитру. Прямые селекторы — только для контролов,
+   которые Adwaita рисует тонированием currentColor.
+   Геометрия, отступы и размеры остаются штатными от Adwaita.
    ========================================================== */
 
-/* ---------- libadwaita ---------- */
+/* ---------- акцент и статусы ---------- */
 @define-color accent_color #7aa2f7;
 @define-color accent_bg_color #7aa2f7;
 @define-color accent_fg_color #1a1b26;
 
+@define-color destructive_color #f7768e;
+@define-color destructive_bg_color #f7768e;
+@define-color destructive_fg_color #1a1b26;
+
+@define-color success_color #9ece6a;
+@define-color success_bg_color #9ece6a;
+@define-color success_fg_color #1a1b26;
+
+@define-color warning_color #e0af68;
+@define-color warning_bg_color #e0af68;
+@define-color warning_fg_color #1a1b26;
+
+@define-color error_color #f7768e;
+@define-color error_bg_color #f7768e;
+@define-color error_fg_color #1a1b26;
+
+/* ---------- окна и панели ---------- */
 @define-color window_bg_color #1a1b26;
 @define-color window_fg_color #c0caf5;
 
@@ -46,101 +64,41 @@
 @define-color popover_fg_color #c0caf5;
 @define-color popover_shade_color rgba(0, 0, 0, 0.25);
 
-@define-color destructive_bg_color #f7768e;
-@define-color destructive_fg_color #1a1b26;
-@define-color destructive_color #f7768e;
+@define-color thumbnail_bg_color #24283b;
+@define-color thumbnail_fg_color #c0caf5;
 
-@define-color success_bg_color #9ece6a;
-@define-color success_fg_color #1a1b26;
-@define-color success_color #9ece6a;
-
-@define-color warning_bg_color #e0af68;
-@define-color warning_fg_color #1a1b26;
-@define-color warning_color #e0af68;
-
-@define-color error_bg_color #f7768e;
-@define-color error_fg_color #1a1b26;
-@define-color error_color #f7768e;
-
+/* ---------- служебные ---------- */
 @define-color insensitive_bg_color #1f2335;
 @define-color insensitive_fg_color #565f89;
 @define-color insensitive_base_color #1f2335;
 @define-color borders #292e42;
+@define-color shade_color rgba(0, 0, 0, 0.25);
 @define-color scrollbar_outline_color rgba(0, 0, 0, 0.95);
 
-/* ---------- имена обычной темы GTK4 ---------- */
+/* ---------- имена обычной темы GTK4 ----------
+   Нужны приложениям без libadwaita, которые читают
+   стандартные именованные цвета в своём CSS. */
 @define-color theme_bg_color #1a1b26;
 @define-color theme_fg_color #c0caf5;
 @define-color theme_base_color #1a1b26;
 @define-color theme_text_color #c0caf5;
 @define-color theme_selected_bg_color #7aa2f7;
 @define-color theme_selected_fg_color #1a1b26;
-
 @define-color theme_unfocused_bg_color #1a1b26;
 @define-color theme_unfocused_fg_color #a9b1d6;
 @define-color theme_unfocused_base_color #1a1b26;
 @define-color theme_unfocused_text_color #a9b1d6;
 @define-color theme_unfocused_selected_bg_color #414868;
 @define-color theme_unfocused_selected_fg_color #c0caf5;
-
 @define-color unfocused_borders #1f2335;
 @define-color content_view_bg #1a1b26;
 @define-color text_view_bg #1a1b26;
 
-/* Базовый фон и текст */
-window,
-.background {
-    color: #c0caf5;
-    background-color: #1a1b26;
-}
+/* ---------- поля ввода, кнопки, заголовок ----------
+   libadwaita выводит фон контролов тонированием currentColor и делает
+   HeaderBar в ToolbarView прозрачным, поэтому одних именованных
+   цветов для полного совпадения с прежним видом мало. */
 
-window:backdrop,
-.background:backdrop {
-    color: #a9b1d6;
-    background-color: #1a1b26;
-}
-
-/* Области просмотра и текст */
-.view,
-iconview,
-textview > border {
-    color: #c0caf5;
-    caret-color: #7aa2f7;
-    background-color: #1a1b26;
-}
-
-textview > text {
-    color: #c0caf5;
-    caret-color: #7aa2f7;
-    background-color: transparent;
-}
-
-.view:disabled,
-iconview:disabled,
-textview > text:disabled {
-    color: #565f89;
-    background-color: #1f2335;
-}
-
-.view:selected,
-iconview:selected,
-.view:selected:focus,
-iconview:selected:focus,
-textview > text:selected,
-textview > text:selected:focus,
-row:selected {
-    color: #1a1b26;
-    background-color: #7aa2f7;
-}
-
-textview > text > selection,
-entry > text > selection,
-spinbutton > text > selection {
-    color: #1a1b26;
-    background-color: #7aa2f7;
-}
-
-/* Поля ввода */
 entry,
 spinbutton,
 entry > text,
@@ -188,17 +146,6 @@ spinbutton.warning {
     border-color: #e0af68;
 }
 
-entry > image,
-spinbutton > image {
-    color: #a9b1d6;
-}
-
-entry > image:hover,
-spinbutton > image:hover {
-    color: #c0caf5;
-}
-
-/* Кнопки */
 button,
 notebook > header > tabs > arrow {
     color: #c0caf5;
@@ -292,33 +239,6 @@ button.suggested-action:checked {
     box-shadow: none;
 }
 
-button.destructive-action {
-    color: #1a1b26;
-    background-color: #f7768e;
-    background-image: none;
-    border-color: #f7768e;
-    text-shadow: none;
-    box-shadow: none;
-}
-
-button.destructive-action:hover {
-    color: #1a1b26;
-    background-color: #ff8fa8;
-    background-image: none;
-    border-color: #ff8fa8;
-    box-shadow: none;
-}
-
-button.destructive-action:active,
-button.destructive-action:checked {
-    color: #1a1b26;
-    background-color: #e0607a;
-    background-image: none;
-    border-color: #e0607a;
-    box-shadow: none;
-}
-
-/* Заголовки окон */
 headerbar,
 .titlebar:not(headerbar) {
     color: #c0caf5;
@@ -336,57 +256,71 @@ headerbar:backdrop,
     border-color: #1f2335;
 }
 
-headerbar.selection-mode,
-.selection-mode headerbar {
-    color: #1a1b26;
-    background-color: #7aa2f7;
-    background-image: none;
-    border-color: #7aa2f7;
-    text-shadow: none;
-}
+/* ---------- точечные правки поверх libadwaita ----------
+   libadwaita рисует выделение полупрозрачным, а destructive-
+   кнопки — тонированными. Возвращаем сплошные цвета. */
 
-headerbar.selection-mode button,
-.selection-mode headerbar button {
-    color: #1a1b26;
-    background-color: rgba(26, 27, 38, 0.1);
-    background-image: none;
-    border-color: rgba(26, 27, 38, 0.2);
-    text-shadow: none;
-    box-shadow: none;
-}
-
-/* Всплывающие панели и меню */
-popover.background > contents,
-popover.background > arrow,
-popover.menu > contents,
-popover.menu > arrow {
-    color: #c0caf5;
-    background-color: #1f2335;
-    border-color: #292e42;
-}
-
-popover.background,
-popover.menu {
-    color: #c0caf5;
-    background-color: transparent;
-}
-
-popover.background:backdrop,
-popover.menu:backdrop {
-    background-color: transparent;
-}
-
-modelbutton.flat:hover,
-modelbutton.flat:focus {
+.view:selected,
+iconview:selected,
+textview > text:selected,
+row:selected {
     color: #1a1b26;
     background-color: #7aa2f7;
 }
 
-modelbutton.flat:disabled {
-    color: #565f89;
+.view:selected:hover,
+row:selected:hover {
+    color: #1a1b26;
+    background-color: #89b4ff;
 }
 
-/* Вкладки */
+.view:selected:backdrop,
+iconview:selected:backdrop,
+row:selected:backdrop {
+    color: #c0caf5;
+    background-color: #414868;
+}
+
+/* Выделение текста в полях ввода */
+selection {
+    color: #1a1b26;
+    background-color: #7aa2f7;
+}
+
+/* Сплошная destructive-кнопка */
+button.destructive-action {
+    color: #1a1b26;
+    background-color: #f7768e;
+}
+
+button.destructive-action:hover {
+    color: #1a1b26;
+    background-color: #ff8fa8;
+}
+
+button.destructive-action:active,
+button.destructive-action:checked {
+    color: #1a1b26;
+    background-color: #e0607a;
+}
+
+/* Боковые панели: у libadwaita фон задаёт .sidebar-pane,
+   отдельный ListBox с этим классом остаётся прозрачным */
+.navigation-sidebar {
+    background-color: #16161e;
+}
+
+.navigation-sidebar > row:selected {
+    color: #c0caf5;
+    background-color: #292e42;
+}
+
+.navigation-sidebar > row:selected:hover {
+    color: #c0caf5;
+    background-color: #2f334d;
+}
+
+/* Панель вкладок */
 notebook > header {
     background-color: #1f2335;
     border-color: #292e42;
@@ -397,623 +331,7 @@ notebook > header:backdrop {
     border-color: #1f2335;
 }
 
-notebook > header > tabs > tab {
-    color: #a9b1d6;
-}
-
-notebook > header > tabs > tab:hover {
-    color: #c0caf5;
-    background-color: #24283b;
-}
-
-notebook > header > tabs > tab:checked {
-    color: #c0caf5;
-}
-
-notebook > header > tabs > tab:backdrop {
-    color: #565f89;
-}
-
-notebook > header > tabs > tab:backdrop:checked {
-    color: #a9b1d6;
-}
-
-notebook > header.top > tabs > tab:hover {
-    box-shadow: inset 0 -4px #414868;
-}
-
-notebook > header.top > tabs > tab:checked {
-    box-shadow: inset 0 -4px #7aa2f7;
-}
-
-notebook > header.bottom > tabs > tab:hover {
-    box-shadow: inset 0 4px #414868;
-}
-
-notebook > header.bottom > tabs > tab:checked {
-    box-shadow: inset 0 4px #7aa2f7;
-}
-
-notebook > header.left > tabs > tab:hover {
-    box-shadow: inset -4px 0 #414868;
-}
-
-notebook > header.left > tabs > tab:checked {
-    box-shadow: inset -4px 0 #7aa2f7;
-}
-
-notebook > header.right > tabs > tab:hover {
-    box-shadow: inset 4px 0 #414868;
-}
-
-notebook > header.right > tabs > tab:checked {
-    box-shadow: inset 4px 0 #7aa2f7;
-}
-
-notebook > stack {
-    background-color: #1a1b26;
-}
-
-/* Полосы прокрутки */
-scrollbar {
-    background-color: transparent;
-}
-
-scrollbar > range > trough > slider {
-    background-color: #414868;
-}
-
-scrollbar > range > trough > slider:hover {
-    background-color: #565f89;
-}
-
-scrollbar > range > trough > slider:hover:active {
-    background-color: #7aa2f7;
-}
-
-scrollbar > range > trough > slider:disabled {
-    background-color: transparent;
-}
-
-scrollbar.overlay-indicator:not(.dragging):not(.hovering) > range > trough > slider {
-    background-color: #565f89;
-    border-color: #1a1b26;
-}
-
-/* Переключатели */
-switch {
-    color: #c0caf5;
-    background-color: #24283b;
-    border-color: #292e42;
-    text-shadow: none;
-}
-
-switch:checked {
-    color: #1a1b26;
-    background-color: #7aa2f7;
-    border-color: #7aa2f7;
-    text-shadow: none;
-}
-
-switch:disabled {
-    color: #565f89;
-    background-color: #1f2335;
-    border-color: #1f2335;
-}
-
-switch:backdrop {
-    color: #a9b1d6;
-    background-color: #1f2335;
-    border-color: #1f2335;
-}
-
-switch:backdrop:checked {
-    background-color: #414868;
-    border-color: #414868;
-}
-
-switch > slider {
-    color: #1a1b26;
-    background-color: #c0caf5;
-    background-image: none;
-    border-color: #1f2335;
-    text-shadow: none;
-    box-shadow: none;
-}
-
-switch:hover > slider {
-    background-color: #ffffff;
-    background-image: none;
-    box-shadow: none;
-}
-
-switch:checked > slider {
-    background-color: #ffffff;
-    background-image: none;
-    border-color: #7aa2f7;
-    box-shadow: none;
-}
-
-switch:disabled > slider {
-    background-color: #565f89;
-    background-image: none;
-    border-color: #1f2335;
-    box-shadow: none;
-}
-
-switch:backdrop > slider {
-    background-color: #a9b1d6;
-    background-image: none;
-    border-color: #1f2335;
-    box-shadow: none;
-}
-
-/* Чекбоксы и радио-кнопки */
-check,
-radio {
-    color: #c0caf5;
-    background-color: #24283b;
-    background-image: none;
-    border-color: #414868;
-    box-shadow: none;
-}
-
-check:hover,
-radio:hover {
-    background-color: #2f334d;
-    background-image: none;
-    box-shadow: none;
-}
-
-check:checked,
-radio:checked,
-check:indeterminate,
-radio:indeterminate {
-    color: #1a1b26;
-    background-color: #7aa2f7;
-    background-image: none;
-    border-color: #7aa2f7;
-    box-shadow: none;
-}
-
-check:checked:hover,
-radio:checked:hover,
-check:indeterminate:hover,
-radio:indeterminate:hover {
-    color: #1a1b26;
-    background-color: #89b4ff;
-    background-image: none;
-    border-color: #89b4ff;
-    box-shadow: none;
-}
-
-check:disabled,
-radio:disabled {
-    color: #565f89;
-    background-color: #1f2335;
-    background-image: none;
-    border-color: #1f2335;
-    box-shadow: none;
-}
-
-check:backdrop,
-radio:backdrop {
-    background-color: #1f2335;
-    background-image: none;
-    border-color: #292e42;
-    box-shadow: none;
-}
-
-check:checked:backdrop,
-radio:checked:backdrop,
-check:indeterminate:backdrop,
-radio:indeterminate:backdrop {
-    color: #c0caf5;
-    background-color: #414868;
-    background-image: none;
-    border-color: #414868;
-    box-shadow: none;
-}
-
-/* Прогресс и ползунки */
-progressbar > trough,
-scale > trough,
-scale > trough > fill {
-    background-color: #1f2335;
-    border-color: #292e42;
-}
-
-progressbar > trough:disabled,
-scale > trough:disabled,
-scale > trough > fill:disabled {
-    background-color: #1a1b26;
-    border-color: #1f2335;
-}
-
-progressbar > trough > progress,
-scale > trough > highlight {
-    background-color: #7aa2f7;
-    border-color: #7aa2f7;
-}
-
-progressbar > trough > progress:disabled,
-scale > trough > highlight:disabled {
-    background-color: transparent;
-    border-color: transparent;
-}
-
-progressbar {
-    color: #a9b1d6;
-}
-
-scale > marks,
-scale > value {
-    color: #a9b1d6;
-}
-
-scale > trough > slider {
-    color: #1a1b26;
-    background-color: #c0caf5;
-    background-image: none;
-    border-color: #1f2335;
-    text-shadow: none;
-    box-shadow: none;
-}
-
-scale > trough > slider:hover {
-    background-color: #ffffff;
-    background-image: none;
-    box-shadow: none;
-}
-
-scale > trough > slider:active {
-    background-color: #7aa2f7;
-    background-image: none;
-    border-color: #7aa2f7;
-    box-shadow: none;
-}
-
-scale > trough > slider:disabled {
-    background-color: #565f89;
-    background-image: none;
-    border-color: #1f2335;
-    box-shadow: none;
-}
-
-scale > trough > slider:backdrop {
-    background-color: #a9b1d6;
-    background-image: none;
-    border-color: #1f2335;
-    box-shadow: none;
-}
-
-/* Таблицы и деревья */
-treeview.view,
-columnview.view {
-    border-left-color: #292e42;
-    border-top-color: #1a1b26;
-}
-
-treeview.view:backdrop,
-columnview.view:backdrop {
-    border-left-color: #1f2335;
-    border-top-color: #1a1b26;
-}
-
-treeview.view:selected,
-treeview.view:selected:focus,
-columnview.view:selected,
-columnview.view:selected:focus {
-    color: #1a1b26;
-    background-color: #7aa2f7;
-}
-
-/* --- ИСПРАВЛЕНО: Наведение на выделенную строку в таблицах (Системный монитор) --- */
-treeview.view:selected:hover,
-columnview.view:selected:hover {
-    color: #1a1b26;
-    background-color: #89b4ff; /* Чуть светлее синий */
-    box-shadow: inset 0 0 0 1px #c0caf5; /* Тонкая рамка вокруг ячейки */
-}
-
-treeview.view:selected:backdrop,
-columnview.view:selected:backdrop {
-    color: #c0caf5;
-    background-color: #414868;
-}
-
-treeview.view:disabled,
-columnview.view:disabled {
-    color: #565f89;
-}
-
-treeview.view:disabled:selected,
-columnview.view:disabled:selected {
-    color: #a9b1d6;
-}
-
-treeview.view.separator,
-columnview.view.separator {
-    color: #292e42;
-}
-
-treeview.view.expander,
-columnview.view.expander {
-    color: #a9b1d6;
-}
-
-treeview.view.expander:hover,
-columnview.view.expander:hover {
-    color: #c0caf5;
-}
-
-treeview.view.expander:selected,
-columnview.view.expander:selected {
-    color: #1a1b26;
-}
-
-treeview.view.progressbar,
-columnview.view.progressbar {
-    background-color: #7aa2f7;
-    background-image: image(#7aa2f7);
-}
-
-treeview.view.progressbar:selected,
-columnview.view.progressbar:selected {
-    background-color: #1a1b26;
-    background-image: image(#1a1b26);
-}
-
-treeview.view.trough,
-columnview.view.trough {
-    background-color: #1f2335;
-}
-
-treeview.view.trough:selected,
-columnview.view.trough:selected {
-    background-color: #414868;
-}
-
-treeview.view > header > button,
-columnview.view > header > button {
-    color: #a9b1d6;
-    background-color: #1f2335;
-    border-color: #292e42;
-    text-shadow: none;
-}
-
-treeview.view > header > button:hover,
-columnview.view > header > button:hover {
-    color: #c0caf5;
-}
-
-treeview.view > header > button:active,
-columnview.view > header > button:active {
-    color: #c0caf5;
-}
-
-treeview.view > header > button:backdrop,
-columnview.view > header > button:backdrop {
-    color: #565f89;
-    background-color: #1a1b26;
-    border-color: #1f2335;
-}
-
-/* Списки */
-list,
-listview,
-columnview {
-    color: #c0caf5;
-    background-color: #1a1b26;
-    border-color: #292e42;
-}
-
-list:backdrop,
-listview:backdrop,
-columnview:backdrop {
-    color: #a9b1d6;
-    background-color: #1a1b26;
-    border-color: #1f2335;
-}
-
-/* --- ИСПРАВЛЕНО: Обычное наведение на строку --- */
-row:hover {
-    color: #c0caf5;
-    background-color: #292e42;
-}
-
-/* --- ИСПРАВЛЕНО: Наведение на УЖЕ ВЫДЕЛЕННУЮ строку (фикс черного на черном) --- */
-row:selected:hover {
-    color: #1a1b26;
-    background-color: #89b4ff; 
-    box-shadow: inset 0 0 0 1px #c0caf5; /* Та самая рамка */
-}
-
-row:selected {
-    color: #1a1b26;
-    background-color: #7aa2f7;
-}
-
-row:selected:backdrop {
-    color: #c0caf5;
-    background-color: #414868;
-}
-
-/* Рамка выделения мышью (rubberband) */
-rubberband,
-.content-view > rubberband,
-columnview.view > rubberband,
-treeview.view > rubberband,
-gridview > rubberband,
-flowbox > rubberband {
-    background-color: rgba(122, 162, 247, 0.2);
-    border-color: rgba(122, 162, 247, 0.6);
-}
-
-/* Боковые панели */
-.navigation-sidebar,
-.sidebar {
-    color: #c0caf5;
-    background-color: #16161e;
-    border-color: #292e42;
-}
-
-.navigation-sidebar:backdrop,
-.sidebar:backdrop {
-    color: #a9b1d6;
-    background-color: #16161e;
-    border-color: #1f2335;
-}
-
-.navigation-sidebar > row:selected,
-.sidebar > row:selected {
-    color: #c0caf5;
-    background-color: #292e42;
-}
-
-.navigation-sidebar > row:selected:hover,
-.sidebar > row:selected:hover {
-    color: #c0caf5;
-    background-color: #2f334d;
-}
-
-/* Фреймы и разделители */
-frame,
-.frame {
-    border-color: #292e42;
-}
-
-frame:backdrop,
-.frame:backdrop {
-    border-color: #1f2335;
-}
-
-separator {
-    background-color: #292e42;
-}
-
-/* Всплывающие подсказки */
-tooltip {
-    text-shadow: none;
-}
-
-tooltip.background {
-    color: #c0caf5;
-    background-color: #1f2335;
-    border-color: #414868;
-}
-
-tooltip > box {
-    color: #c0caf5;
-}
-
-/* Индикаторы уровня */
-levelbar > trough > block {
-    background-color: #1f2335;
-    border-color: #292e42;
-}
-
-levelbar > trough > block.low {
-    background-color: #e0af68;
-    border-color: #e0af68;
-}
-
-levelbar > trough > block.high,
-levelbar > trough > block:not(.empty) {
-    background-color: #7aa2f7;
-    border-color: #7aa2f7;
-}
-
-levelbar > trough > block.full {
-    background-color: #9ece6a;
-    border-color: #9ece6a;
-}
-
-levelbar > trough > block.empty {
-    background-color: #1f2335;
-    border-color: #292e42;
-}
-
-/* Календарь */
-calendar {
-    color: #c0caf5;
-    border-color: #292e42;
-}
-
-calendar > header {
-    border-bottom-color: #292e42;
-}
-
-calendar > grid > label.today {
-    box-shadow: inset 0 -2px #292e42;
-}
-
-calendar > grid > label.day-number:selected {
-    color: #1a1b26;
-    background-color: #7aa2f7;
-}
-
-calendar > grid > label.day-number:checked {
-    background-color: rgba(122, 162, 247, 0.3);
-}
-
-calendar > grid > label.day-number.other-month {
-    color: #565f89;
-}
-
-/* Панели инструментов и поиска: в обычной теме GTK4 они серые */
-.toolbar,
-searchbar > revealer > box {
-    color: #c0caf5;
-    background-color: #1f2335;
-    background-image: none;
-    border-color: #292e42;
-}
-
-.toolbar:backdrop,
-searchbar > revealer > box:backdrop {
-    color: #a9b1d6;
-    background-color: #1a1b26;
-    border-color: #1f2335;
-}
-
-/* Обводка фокуса: у Adwaita она синяя (#15539e) */
-iconview:focus-visible,
-flowbox > flowboxchild:focus-visible,
-gridview > child:focus-visible,
-label:focus-visible,
-entry:focus-within,
-spinbutton:focus-within,
-button:focus-visible,
-link:focus-visible,
-notebook > header > tabs > arrow:focus-visible,
-notebook:focus-visible > header > tabs > tab:checked,
-treeview.view:focus-visible,
-columnview.view:focus-visible,
-switch:focus-visible,
-checkbutton:focus-visible,
-scale:focus-visible > trough,
-row:focus-visible,
-expander-widget:focus-visible > box > title,
-calendar > grid > label:focus,
-stacksidebar row:focus-visible,
-.navigation-sidebar > row:focus-visible:focus-within,
-colorswatch:focus-visible,
-shortcut:focus-visible {
-    outline-color: rgba(122, 162, 247, 0.7);
-}
-
-entry.error:focus-within,
-spinbutton.error:focus-within {
-    outline-color: rgba(247, 118, 142, 0.7);
-}
-
-entry.warning:focus-within,
-spinbutton.warning:focus-within {
-    outline-color: rgba(224, 175, 104, 0.7);
-}
-
-/* Ссылки */
+/* Ссылки в Tokyo Night — голубые, а не акцентно-синие */
 link,
 button.link,
 button.link > label {
@@ -1030,56 +348,4 @@ link:hover,
 button.link:hover,
 button.link > label:hover {
     color: #a9c7ff;
-}
-
-/* Ошибки и предупреждения */
-/* InfoBar: Adwaita рисует фон на внутреннем revealer > box */
-infobar.info > revealer > box,
-infobar.question > revealer > box,
-infobar.warning > revealer > box,
-infobar.error > revealer > box {
-    color: #c0caf5;
-    background-color: #1f2335;
-    border-bottom-color: #292e42;
-    text-shadow: none;
-}
-
-infobar.info > revealer > box label,
-infobar.question > revealer > box label,
-infobar.warning > revealer > box label,
-infobar.error > revealer > box label {
-    color: #c0caf5;
-}
-
-infobar.warning > revealer > box,
-infobar.warning > revealer > box label {
-    color: #e0af68;
-}
-
-infobar.error > revealer > box,
-infobar.error > revealer > box label {
-    color: #f7768e;
-}
-
-infobar.info button,
-infobar.question button,
-infobar.warning button,
-infobar.error button {
-    color: #c0caf5;
-    background-color: #24283b;
-    background-image: none;
-    border-color: #292e42;
-    text-shadow: none;
-    box-shadow: none;
-}
-
-infobar.info button:hover,
-infobar.question button:hover,
-infobar.warning button:hover,
-infobar.error button:hover {
-    color: #c0caf5;
-    background-color: #2f334d;
-    background-image: none;
-    border-color: #414868;
-    box-shadow: none;
 }

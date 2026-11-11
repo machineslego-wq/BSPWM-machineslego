@@ -71,11 +71,13 @@ Picom автоматически выбирает профиль по `powerprof
 - `config/gtk-3.0/gtk.css` и `config/gtk-4.0/gtk.css` — пользовательский CSS поверх `Adwaita-dark`. `gtk-theme-name` в `settings.ini` не меняется.
 - Меняются только цвета. Геометрия, отступы и размеры — штатные от Adwaita.
 - GTK3: Adwaita жёстко прописывает цвета, поэтому нужны прямые селекторы. `@define-color` — для приложений, которые читают именованные цвета в своём CSS.
-- GTK4/libadwaita: перекрашивается через именованные цвета (`window_*`, `view_*`, `accent_*`, `headerbar_*`, `sidebar_*`), обычные GTK4-виджеты — прямыми селекторами.
+- GTK4/libadwaita: почти всё перекрашивается через именованные цвета (`window_*`, `view_*`, `accent_*`, `headerbar_*`, `sidebar_*`). Прямые селекторы нужны только там, где libadwaita выводит фон из `currentColor` (entry, button, выделение строк, destructive) или делает `HeaderBar` внутри `ToolbarView` прозрачным.
+- GTK4 без libadwaita (тема `Default`) именованные цвета не читает — для таких приложений в файле остались только базовые имена (`theme_*`, `content_view_bg`), полноценной перекраски там нет.
 - Adwaita рисует `background-image` / `box-shadow` в hover/active/checked/disabled/backdrop — в user CSS их надо сбрасывать явно, иначе остаются светлые пятна.
 - Фон infobar — на `infobar > revealer > box`, а не на самом `infobar`. Toolbar/searchbar (`searchbar > revealer > box`, `.toolbar`) по умолчанию серые (`#353535` / `#2d2d2d`).
 - GTK3 rubberband рисуется контекстом виджета с классом `.rubberband`; фон `.view` его перекрывает, поэтому нужны отдельные правила `.rubberband` (заливка `rgba(122,162,247,0.2)`, рамка `rgba(122,162,247,0.6)`).
 - GTK4 focus outline перекрашен с синего Adwaita `rgba(21,83,158,.7)` на `rgba(122,162,247,.7)` (+ варианты error/warning).
+- Строки списков стилизуются и через `row:selected`, а не только `row.activatable:selected`: у `Gtk.ListBoxRow` без `activatable` второго класса нет.
 - Иконки Papirus-Dark имеют собственный светлый цвет (`#dfdfdf`) — это не баг темы.
 - Применение: перезапуск приложения. Симлинки `~/.config/gtk-3.0`, `~/.config/gtk-4.0` уже стоят.
 

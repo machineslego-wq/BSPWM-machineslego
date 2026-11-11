@@ -848,6 +848,23 @@ list:backdrop {
     border-color: #1f2335;
 }
 
+/* Строки без класса activatable (например, ListBoxRow в простом
+   ListBox) тоже должны оставаться читаемыми при выделении */
+row:selected {
+    color: #1a1b26;
+    background-color: #7aa2f7;
+}
+
+row:selected:hover {
+    color: #1a1b26;
+    background-color: #89b4ff;
+}
+
+row:selected:backdrop {
+    color: #c0caf5;
+    background-color: #414868;
+}
+
 row.activatable.has-open-popup,
 row.activatable:hover {
     background-color: #24283b;
