@@ -22,7 +22,7 @@ maim
 slop
 scrot
 network-manager
-pavucontrol
+pavucontrol-qt
 blueman
 thunar
 gvfs

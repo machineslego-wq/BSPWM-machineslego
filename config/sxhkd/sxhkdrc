@@ -83,7 +83,7 @@ super + v
 
 # Микшер звука (Super + A)
 super + a
-    pavucontrol
+    pavucontrol-qt
 
 # Лаунчер Rofi (Super + D)
 super + d
