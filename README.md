@@ -79,7 +79,7 @@ BSPWM-machineslego/
 │   ├── qt5ct/ qt6ct/            # tokyo-night.conf palettes
 │   ├── rofi/config.rasi         # launcher/windows/commands
 │   └── sxhkd/                   # sxhkdrc + scripts/
-├── home/                        # symlinks to ~/*: .bashrc, .xinitrc, .xprofile, .Xresources
+├── home/                        # symlinks to ~/*: .bashrc, .vimrc, .xinitrc, .xprofile, .Xresources
 ├── local/share/mc/skins/        # Midnight Commander skin
 ├── system/etc/                  # copied to /etc: touchpad, NetworkManager, interfaces
 ├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh
@@ -99,6 +99,7 @@ BSPWM-machineslego/
 - **Fonts:** JetBrainsMono Nerd Font (installed by `install.sh`), Papirus-Dark and Bibata (from `apt.txt`).
 - **Flatpak:** optional. Installed by `install.sh` together with Flathub; `link.sh` grants Flatpak apps access to the themes.
 - **Neovim:** `ripgrep` for Telescope (`find_files`, `live_grep`) — it is in `requirements/software.txt`.
+- **Vim:** the stock `vim` from `apt.txt` — a plugin-free fallback editor for configs; its config is `home/vimrc` → `~/.vimrc`.
 
 ## 🛠 Installation
 
@@ -175,6 +176,9 @@ sudo systemctl kill -s HUP systemd-logind
 
 **Neovim.**
 The config is written in Lua, plugins are managed by the built-in `vim.pack` (Neovim 0.12). The list lives in `lua/plugins.lua`, versions are pinned by `nvim-pack-lock.json`. The first launch needs network: `vim.pack` downloads plugins and Mason installs LSP servers into `~/.local/share/nvim/mason/bin`. Update plugins with `:lua vim.pack.update()` and `:restart`; Treesitter parsers with `:TSUpdate`. Full cheatsheet: `config/nvim/CHEATSHEET.md`.
+
+**Vim.**
+A plugin-free fallback editor: `home/vimrc` → `~/.vimrc`. Syntax highlighting and `filetype plugin indent on` are enabled, numbering is hybrid (absolute number on the cursor line, relative distances around it), persistent undo lives in `~/.vim/undo`, indentation is 4 spaces by default (2 for json/yaml/html/css/js), and extension-less configs get a filetype (`sxhkdrc`, `bspwmrc`, `xinitrc`, `dunstrc`, `picom*.conf`, `qt5ct.conf`, `*.tdesktop-palette`). Colors come from the terminal palette (Tokyo Night in Alacritty); no colorscheme is overridden. Apply changes with `:source ~/.vimrc`.
 
 **Node.js and npm.**
 `./scripts/install-node.sh` adds the NodeSource repository and installs LTS. Variables: `NODE_CHANNEL=lts|current|<major>` (default `lts`), `UPDATE_NPM=1` also installs `npm@latest`. Global packages go to `~/.npm-global` (`prefix` in `~/.npmrc`), and PATH is added by both Fish and bash. If NVM is installed, it is sourced at the end of `~/.bashrc` and may shadow the NodeSource `node`/`npm`.
@@ -287,6 +291,7 @@ Configs live as symlinks: editing a file in the repo changes the live system imm
 | Polybar | `~/.config/polybar/launch.sh` |
 | Picom | `pkill -x picom`, then `picom --config <profile>` |
 | Dunst | `pkill -x dunst && dunst &` |
+| Vim | `:source ~/.vimrc` |
 | Alacritty | automatically (`live_config_reload = true`) |
 | GTK3/GTK4, Qt | restart the app |
 | Everything | `Super + Alt + Shift + R` |

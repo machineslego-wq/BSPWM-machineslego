@@ -54,3 +54,4 @@ copyq
 xss-lock
 lxpolkit
 mc
+vim

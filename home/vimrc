@@ -1,0 +1,93 @@
+" ==========================================================
+" vimrc — обычный Vim для правки конфигов
+" Репозиторий: home/vimrc → симлинк ~/.vimrc
+" Применение: :source ~/.vimrc (или перезапуск vim)
+" ==========================================================
+
+" --- Основы и подсветка синтаксиса ---
+" Язык Vim определяет по имени файла; для конфигов без расширения
+" типы заданы в augroup dotfiles ниже.
+set nocompatible
+filetype plugin indent on
+syntax on
+set background=dark
+
+" --- Нумерация строк ---
+" На строке курсора — абсолютный номер, вокруг — относительные.
+set number relativenumber
+set cursorline
+set cursorlineopt=number
+
+" --- Поиск ---
+set ignorecase smartcase incsearch hlsearch
+" Esc убирает подсветку найденного
+nnoremap <silent> <Esc> :nohlsearch<CR>
+
+" --- Отступы ---
+" По умолчанию 4 пробела; для json/yaml/html/css/js — 2, для make — табы.
+set expandtab tabstop=4 shiftwidth=4 softtabstop=4
+set autoindent
+
+" --- Файлы и история ---
+set hidden
+set autoread
+set confirm
+set history=1000
+" Постоянная история изменений: переживает перезапуск Vim.
+" Каталог создаётся при загрузке, если его ещё нет.
+set undodir=~/.vim/undo//
+if !isdirectory(expand('~/.vim/undo'))
+    call mkdir(expand('~/.vim/undo'), 'p')
+endif
+set undofile
+
+" --- Интерфейс ---
+set mouse=a
+set scrolloff=5 sidescrolloff=5
+set showcmd
+set title
+set laststatus=2
+let &statusline = ' %f%m%r%h%w %y%=%l:%c  %p%%'
+set wildmenu
+set wildmode=longest:full,full
+set wildignore=*.o,*.obj,*.pyc,*.class,*.jpg,*.jpeg,*.png,*.gif,*.pdf
+set path+=**
+set noerrorbells visualbell t_vb=
+set ttimeout ttimeoutlen=50
+set backspace=indent,eol,start
+set splitright splitbelow
+set nowrap
+
+" --- Клавиши ---
+" Переход между окнами
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+" Отступ в визуальном режиме не сбрасывает выделение
+vnoremap < <gv
+vnoremap > >gv
+
+" --- Автокоманды ---
+" Группа с clear: повторный :source ~/.vimrc не плодит дубли.
+augroup dotfiles
+    autocmd!
+
+    " 2 пробела там, где так принято; make требует табы
+    autocmd FileType json,yaml,html,css,scss,javascript,typescript,vue
+                \ setlocal tabstop=2 shiftwidth=2 softtabstop=2
+    autocmd FileType make setlocal noexpandtab
+
+    " Переносим длинные строки только в текстах, код — без переноса
+    autocmd FileType markdown,text,gitcommit setlocal wrap linebreak
+
+    " Файлы без расширения, которые Vim сам не узнаёт.
+    " setfiletype задаёт тип, только если он ещё не определён.
+    autocmd BufRead,BufNewFile sxhkdrc,bspwmrc,xinitrc setfiletype sh
+    autocmd BufRead,BufNewFile dunstrc,*.tdesktop-palette setfiletype dosini
+
+    " INI-подобные .conf: по умолчанию Vim показывает их как generic conf
+    autocmd BufRead,BufNewFile picom*.conf,qt5ct.conf,qt6ct.conf,NetworkManager.conf,copyq*.conf
+                \ setlocal filetype=dosini
+augroup END

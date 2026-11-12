@@ -38,6 +38,7 @@ Dotfiles + установщик BSPWM-окружения для Debian 13 Trixie
 | SXHKD | `pkill -USR1 -x sxhkd` | `Super + Escape` |
 | Polybar | `~/.config/polybar/launch.sh` | — |
 | Picom | `pkill -x picom; picom --config <профиль>` | — |
+| Vim | `:source ~/.vimrc` | — |
 | GTK3 / GTK4 | перезапуск приложения (CSS читается при старте) | — |
 | Qt | `qt5ct` / `qt6ct` или перезапуск приложения | — |
 | Полный перезапуск | `~/.config/sxhkd/scripts/session-restart.sh` | `Super + Alt + Shift + R` |
@@ -140,6 +141,16 @@ Picom автоматически выбирает профиль по `powerprof
 - Кастомных модулей буферов нет: `lua/buffers.lua` удалён, `cnoreabbrev` убран.
 - Первый запуск требует сеть: `vim.pack` качает плагины, Mason — серверы в `~/.local/share/nvim/mason/bin`.
 - Применение: правка Lua-файлов — со следующего запуска (или `:source %` для текущего файла); плагины обновляются только вручную.
+
+### Vim
+- `home/vimrc` → `~/.vimrc`. Обычный Vim 9.1 из `requirements/apt.txt`, без плагинов и менеджеров: только настройки и один блок автокоманд для типов файлов.
+- Подсветка: `syntax on` + `filetype plugin indent on`. Тема не задаётся — цвета берутся из палитры терминала (в Alacritty это Tokyo Night). `termguicolors` и `colorscheme` намеренно не включаются.
+- Нумерация гибридная: `set number relativenumber` (на строке курсора — абсолютный номер, вокруг — относительные) + `cursorline` с `cursorlineopt=number`.
+- Отступы: 4 пробела по умолчанию, 2 для json/yaml/html/css/scss/js/ts/vue, табы для make.
+- `undofile` в `~/.vim/undo` (каталог создаётся при загрузке vimrc). Swap-файлы остаются стоковыми.
+- Хоткеи: `<Esc>` снимает подсветку поиска, `<C-h/j/k/l>` — переход между окнами, `<` / `>` в визуальном режиме сохраняют выделение.
+- Типы файлов: `sxhkdrc`, `bspwmrc`, `xinitrc` → sh; `dunstrc`, `*.tdesktop-palette` → dosini; `picom*.conf`, `qt5ct.conf`, `qt6ct.conf`, `NetworkManager.conf`, `copyq*.conf` → dosini через `setlocal filetype` (Vim по умолчанию считает их generic `conf`). `*.conf` без правил Vim показывает как `conf`, `*.toml` / `*.jsonc` / `*.rasi` распознаёт сам.
+- Применение: `:source ~/.vimrc`. Новый файл подхватывается `link.sh`.
 
 ### .gitignore
 Whitelist: отслеживаются только `config/ home/ local/ requirements/ system/ scripts/ screenshots/ themes/ wallpapers/` и корневые `README.md`, `README.ru.md`, `LICENSE*`, `TODO.md`, `AGENTS.md`, `.gitignore`. Новые файлы/папки в корне молча игнорируются, пока не добавлены в `.gitignore`.
