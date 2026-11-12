@@ -121,7 +121,16 @@ if dpkg -l 2>/dev/null | grep -q "^ii  tlp "; then
     sudo rm -f /etc/sudoers.d/tlp
 fi
 
-sudo apt install -y power-profiles-daemon flatpak
+# Считываем системные пакеты из requirements/apt-system.txt (PPD, Flatpak)
+while IFS= read -r pkg || [ -n "$pkg" ]; do
+    [[ -z "$pkg" || "$pkg" =~ ^# ]] && continue
+    if ! dpkg -l | grep -q "^ii  $pkg "; then
+        echo "    Installing: $pkg"
+        sudo apt install -y "$pkg"
+    else
+        echo "    Already installed: $pkg"
+    fi
+done < "$DOTFILES/requirements/apt-system.txt"
 sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
 if sudo systemctl enable --now power-profiles-daemon 2>/dev/null; then

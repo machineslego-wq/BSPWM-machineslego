@@ -1,6 +1,6 @@
 # TODO
 
-Текущие задачи и идеи для будущих релизов.
+Текущие задачи и планы. Файл на русском: это рабочий блокнот, а не публичная документация.
 
 > **Правило репозитория:** если задача решается стоковым модулем — не пиши скрипт. Если скрипт нужен — запускай по требованию и сразу завершай. Без фоновых циклов. Без мёртвого кода.
 > (см. [README.md](./README.md#-rule-of-the-repository) / [README.ru.md](./README.ru.md#-правило-репозитория))
@@ -11,13 +11,51 @@
 
 ### ⏳ В плане
 
-- [ ] В плане выпускать релиз 1.7.0, и архивировать данный репо в пользу sway/swayfx. Получился хороший опыт, который можно использовать как каркас для того, что мне нужно от тайлинга и чем я пользуюсь.
+- [ ] Выпустить `1.7.0` — последний релиз ветки: привести README/TODO в порядок, поставить тег, после чего **архивировать репозиторий**.
+- [ ] Оставить репозиторий как референс: палитра, структура dotfiles, скрипты и темы должны остаться читаемыми без «дожития» проекта.
 
+### 🔜 Переезд на Sway (после Debian 14 / Forky)
+
+Не решение, а **намерение**: сроки зависят от выхода Debian 14. Цель — повторить текущий workflow на Wayland, а не пересесть на чужой готовый конфиг.
+
+**Почему:**
+
+- X11 и bspwm не развиваются; Picom 12.5 — источник известных косяков (анимация стека Dunst, тени контекстных меню, `window-height`).
+- Wayland из коробки даёт нормальный HiDPI, VRR и отсутствие тиринга.
+- Sway ближе всего по духу к bspwm: тот же ручной тайлинг, дерево окон, `swaymsg` вместо `bspc`.
+
+**Что переносим почти без изменений:**
+
+- [ ] Dunst (`dunstrc`), CopyQ, EasyEffects, GTK/Qt/GIMP/CopyQ-темы, Telegram-палитра, скины MC.
+- [ ] Fish/Tide, `fastfetch`, `install-node.sh`, `bashrc`/`xprofile`-переменные.
+- [ ] Скрипты `sxhkd/scripts/*` — заменить только `bspc`-вызовы (`screenshot.sh`, `flag.sh`, `to-preselect.sh`, `powermenu.sh`).
+
+**Что придётся заменить:**
+
+- [ ] `sxhkd` → `~/.config/sway/config` (`bindsym`/`bindcode`), сохранить текущую раскладку хоткеев.
+- [ ] `polybar` → `waybar` (модули `battery`, `backlight`, `network`, `pulseaudio`, `clock`, `tray` есть стоковые; «пилюли» — через CSS).
+- [ ] `picom` → средства самого Sway: анимации только в `swayfx`, скругления/тени — через `swayfx` или `sway` + `swaylock-effects`.
+- [ ] `feh` → `swaybg` (два вызова на два выхода).
+- [ ] `xrandr` → блоки `output` в конфиге Sway (имена выходов те же: `DP-1`, `HDMI-A-1` — проверить на железе).
+- [ ] `xss-lock` + `i3lock-fancy` → `swayidle` + `swaylock`/`swaylock-effects`.
+- [ ] `xset`/`setxkbmap` → `input` и `xkb` в конфиге Sway (раскладка us,ru по Caps Lock).
+- [ ] `blueman-applet`, `lxpolkit`, `copyq` — проверить работу под Wayland (часть пойдёт через XWayland).
+- [ ] Терминал: Alacritty работает нативно, конфиг переносится как есть.
+- [ ] Rofi: оставить через XWayland или перейти на `wofi`/`fuzzel` — решить по факту (тема Tokyo Night должна сохраниться).
+
+**Открытые вопросы:**
+
+- [ ] `sway` или `swayfx` (нужны ли анимации в стиле текущего Picom).
+- [ ] Оставить `waybar` или собрать панель на чём-то другом.
+- [ ] Что делать с `polybar/scripts/power-profile.sh` — переносится как есть, меняется только вызов из панели.
+- [ ] Нужен ли XWayland для Telegram/VS Code/Firefox или переходить на нативные Wayland-сборки.
 
 ### ✅ Сделано
 
-- [x] **Eco-режим (PPD + Picom)** — реализован в `782477e`. `bspwmrc` уже выбирает `picom-eco.conf` при `power-saver` на старте, `power-profile.sh` перезапускает Picom при смене профиля через меню.
-- [x] **Neovim в `install.sh`** — AppImage в `~/.local/bin/nvim`, без конфига (LazyVim пользователь ставит сам). ~10 минут.
+- [x] **Eco-режим (PPD + Picom)** — реализован в `782477e`. `bspwmrc` выбирает `picom-eco.conf` при `power-saver`, `power-profile.sh` перезапускает Picom при смене профиля через меню.
+- [x] **Neovim** — AppImage в `~/.local/bin/nvim`, конфиг на `vim.pack`, Mason, Treesitter, шпаргалка в `config/nvim/CHEATSHEET.md`.
+- [x] **Единая тема** — GTK3/GTK4 (rewaita + `gtk-persistant.css`), Qt5/Qt6, GIMP 3, CopyQ, Telegram, Midnight Commander.
+- [x] **Node.js без sudo** — `scripts/install-node.sh` (NodeSource LTS, prefix `~/.npm-global`).
 
 ---
 
@@ -40,3 +78,5 @@
 - **Dunst: второе+ уведомление появляется без анимации.** Конфликт Picom `geometry` с логикой стека Dunst.
 - **`window-height` не парсится с унарным минусом.** Пишем `"0 - window-height"` вручную в `picom.conf`.
 - **Celeron N4120: профиль `performance` в PPD недоступен.** Только `balanced` и `power-saver`.
+- **Dunst показывает уведомления только на мониторе `0`** (`monitor = 0` в `dunstrc`). На мультимониторном ПК это основной экран.
+- **Обои привязаны к каталогу клона.** Пути в `bspwmrc` — `$HOME/BSPWM-machineslego/wallpapers/`.

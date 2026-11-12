@@ -19,10 +19,10 @@ Dotfiles + установщик BSPWM-окружения для Debian 13 Trixie
 Правка файла в репозитории сразу меняет живую систему (симлинк), отдельного шага синхронизации нет.
 
 ### Скрипты
-- `scripts/install.sh` — полная установка: apt-пакеты, шрифты, линковка, Fish/Tide, системные конфиги, Flatpak. Запускается только при первичной настройке.
+- `scripts/install.sh` — полная установка: Neovim AppImage и `tree-sitter` CLI в `~/.local/bin`, шрифт, линковка, Fish/Tide, пакеты из `requirements/apt.txt` и `apt-system.txt`, PPD/Flatpak, системные конфиги, поведение крышки. Запускается только при первичной настройке.
 - `scripts/link.sh` — идемпотентный линковщик: делает бэкап в `~/.dotfiles-backup-*`, ставит симлинки. Меняет уже установленные пакеты.
 - `scripts/unlink.sh` — безопасное удаление симлинков, созданных link.sh (только свои, не трогает чужие).
-- `scripts/software.sh` — установка дополнительного софта ( lazygit, neovim, mpv, gimp и т.д.). Вызывается из install.sh по требованию.
+- `scripts/software.sh` — установка дополнительного софта из `requirements/software.txt` (lazygit, ripgrep, mpv, gimp и т.д.). Запускается отдельно, install.sh только печатает подсказку.
 - `scripts/install-node.sh` — Node.js LTS из NodeSource, npm с prefix `~/.npm-global` (глобальные пакеты без sudo). Запускается отдельно, не из install.sh.
 
 Не запускай `install.sh` и `unlink.sh` без явной просьбы. `link.sh` — безопасен для запуска в любое время.
@@ -64,26 +64,25 @@ Picom автоматически выбирает профиль по `powerprof
 - Иконки требуют JetBrainsMono Nerd Font.
 
 ### Alacritty
-- Шрифт: `JetBrainsMono Nerd Font:size=11` (основной), `JetBrainsMono Nerd Font:pixelsize=15` (для иконок).
-- Тёмная тема Tokyo Night: фон `#1a1b26`, текст `#c0caf5`.
+- Шрифт: `JetBrainsMono Nerd Font`, `size = 10`; прозрачность `opacity = 1` — прозрачность в проекте отвергнута.
+- Тёмная тема Tokyo Night: фон `#1a1b26`, текст `#c0caf5`. `live_config_reload = true` — правки применяются без перезапуска.
 
 ### GTK3 / GTK4
-- `config/gtk-3.0/gtk.css` и `config/gtk-4.0/gtk.css` — пользовательский CSS поверх `Adwaita-dark`. `gtk-theme-name` в `settings.ini` не меняется.
-- Меняются только цвета. Геометрия, отступы и размеры — штатные от Adwaita.
-- GTK3: Adwaita жёстко прописывает цвета, поэтому нужны прямые селекторы. `@define-color` — для приложений, которые читают именованные цвета в своём CSS.
-- GTK4/libadwaita: только `@define-color` (`window_*`, `view_*`, `accent_*`, `headerbar_*`, `sidebar_*`, `borders`) и минимум точечных селекторов — выделение строк/текста, сплошная destructive-кнопка, выделение в боковых панелях, ссылки.
-- GTK4: `entry` и `button` не переопределять. libadwaita тонирует их как `color-mix(in srgb, currentColor 10%, transparent)`; жёсткий фон делает кнопки темнее полей и ломает вид «пилюль».
-- GTK4: `HeaderBar` внутри `ToolbarView` прозрачный (`toolbarview > .top-bar headerbar { background: none }`). Непрозрачный `headerbar_bg_color` + прямое правило для `headerbar` дают видимый уступ: шапка сайдбара в Nautilus на 3px выше панели кнопок.
-- GTK4: `.navigation-sidebar` не перекрашивать. Фон даёт `.sidebar-pane` из `sidebar_bg_color`; свой `background-color` у списка перекрывает 1px бордер `sidebar_border_color` между панелью и содержимым.
-- GTK4: `:root`-переменные libadwaita (`--border-opacity`, `--border-color`) — внутренние. Цвет границ задаётся через `@define-color borders`.
-- GTK4: рамка окна — это `outline: 1px solid RGB(255 255 255/7%)` у `window.csd`. Перекрашена через `window.csd { outline-color: @borders; }`. bspwm не ставит окну класс `tiled`, поэтому `window.csd.tiled` не матчится и рамку рисует именно outline.
-- GTK4 без libadwaita (тема `Default`) именованные цвета не читает — для таких приложений в файле остались только базовые имена (`theme_*`, `content_view_bg`), полноценной перекраски там нет.
-- GTK3: Adwaita рисует `background-image` / `box-shadow` в hover/active/checked/disabled/backdrop — в user CSS их надо сбрасывать явно, иначе остаются светлые пятна.
-- GTK3: фон infobar — на `infobar > revealer > box`, а не на самом `infobar`. Toolbar/searchbar (`searchbar > revealer > box`, `.toolbar`) по умолчанию серые (`#353535` / `#2d2d2d`).
-- GTK3: rubberband рисуется контекстом виджета с классом `.rubberband`; фон `.view` его перекрывает, поэтому нужны отдельные правила `.rubberband` (заливка `rgba(122,162,247,0.2)`, рамка `rgba(122,162,247,0.6)`).
-- GTK3: строки списков стилизуются и через `row:selected`, а не только `row.activatable:selected`: у `Gtk.ListBoxRow` без `activatable` второго класса нет.
+- `config/gtk-3.0/gtk.css` и `config/gtk-4.0/gtk.css` — только два `@import`: `rewaita.css` (сгенерированная палитра Tokyo Night) и `gtk-persistant.css` (ручные правки).
+- `rewaita.css` — сгенерированная палитра (rewaita), руками не правится: при перегенерации файл перезаписывается. Всё своё — в `gtk-persistant.css`, он импортируется последним.
+- Базовая тема остаётся `Adwaita-dark` (`gtk-theme-name` в `settings.ini` не меняется). Меняются только цвета: геометрия, отступы и размеры — штатные от Adwaita.
+- В `rewaita.css` два механизма параллельно: `@define-color` (GTK3 и приложения без libadwaita) и `--*-color` в `:root` (libadwaita). Править надо оба, иначе цвета разъедутся.
+- Приложения без libadwaita (тема `Default`) читают только базовые имена (`theme_*`, `content_view_bg`) — полной перекраски там нет.
+- Рамка `window.csd` в Adwaita — белый `outline` с прозрачностью; если её перекрашивать, менять `outline-color`, а не `box-shadow`. bspwm не ставит окну класс `tiled`, поэтому `window.csd.tiled` не матчится.
 - Иконки Papirus-Dark имеют собственный светлый цвет (`#dfdfdf`) — это не баг темы.
-- Применение: перезапуск приложения. Симлинки `~/.config/gtk-3.0`, `~/.config/gtk-4.0` уже стоят.
+- Применение: перезапуск приложения. Симлинки `~/.config/gtk-3.0`, `gtk-4.0` уже стоят; Flatpak видит CSS после повторного `link.sh`.
+
+### GIMP
+- `config/GIMP/3.0/themes/TokyoNight/` уезжает в `~/.config/GIMP` вместе с папкой (симлинк целого `config/GIMP`). GIMP 3 читает тему на старте, переключение — Preferences → Interface → Theme.
+- Тема переопределяет именованные цвета тёмной темы GIMP (`fg-color`, `bg-color`, `border-color` и т.д.), от системной GTK-темы не зависит.
+
+### Fastfetch
+- `config/fastfetch/graphical.jsonc` — для X11, `tty.jsonc` — для консоли. `config.fish` выбирает конфиг по `$TERM` (`linux` → TTY-вариант).
 
 ### Qt (qt5ct / qt6ct)
 - `config/qt5ct/colors/tokyo-night.conf`, `config/qt6ct/colors/tokyo-night.conf` — 21 роль `QPalette` в порядке enum, формат цвета `#AARRGGBB`.
@@ -138,12 +137,13 @@ Picom автоматически выбирает профиль по `powerprof
 - Применение: правка Lua-файлов — со следующего запуска (или `:source %` для текущего файла); плагины обновляются только вручную.
 
 ### .gitignore
-Whitelist: отслеживаются только `config/ home/ local/ system/ scripts/ screenshots/ wallpapers/` и корневые `*.md`. Новые файлы/папки в корне молча игнорируются, пока не добавлены в `.gitignore`.
+Whitelist: отслеживаются только `config/ home/ local/ requirements/ system/ scripts/ screenshots/ themes/ wallpapers/` и корневые `README.md`, `README.ru.md`, `LICENSE*`, `TODO.md`, `AGENTS.md`, `.gitignore`. Новые файлы/папки в корне молча игнорируются, пока не добавлены в `.gitignore`.
 
 ### Системные конфиги
 - `system/etc/**` → копируется в `/etc/**` с бэкапом в `/etc/dotfiles-backup-YYYYMMDD-HHMMSS`.
 - Логин при закрытии крышки: `suspend` (через `/etc/systemd/logind.conf.d/10-lid-suspend.conf`).
-- Audio backend: принудительный переход на PipeWire (удаляет PulseAudio при обнаружении).
+- Audio backend: `requirements/apt.txt` ставит `pipewire`, `pipewire-audio`, `pipewire-pulse`, `wireplumber`. Автоматического удаления PulseAudio в скриптах нет.
+- `requirements/apt-system.txt` (`power-profiles-daemon`, `flatpak`) читается `install.sh`; TLP при наличии удаляется, чтобы не конфликтовать с PPD.
 
 ## Персонализация — не обобщать молча
 
@@ -160,11 +160,15 @@ Whitelist: отслеживаются только `config/ home/ local/ system/
 
 ## Устаревшее / неиспользуемое
 
-- `config/sxhkd/scripts/wallpaper.sh` не используется: вызовы закомментированы в `bspwmrc`/`sxhkdrc`, README говорит о замене на статичные `feh`. Не восстанавливать без просьбы.
-- В конце `sxhkdrc` — закомментированный fallback скриншотов на `xclip` (рабочая версия использует `copyq`).
-- `TODO.md` устарел: Neovim уже ставится в `scripts/software.sh`.
+- `config/sxhkd/scripts/wallpaper.sh` удалён: обои ставятся статичными `feh` в `bspwmrc`, выборщик отвергнут (см. `TODO.md`). Не возвращать без просьбы.
+- `TODO.md` — рабочий блокнот, а не документация релиза; там же «Отвергнуто» и «Известные ограничения».
 - Документация — на русском; `README.md` и `README.ru.md` держать синхронными (оба обновляются одновременно).
 - AGENTS.md — внутренняя инструкция, не публикуется.
+
+## Дальние планы
+
+- `1.7.0` — последний релиз ветки, после него репозиторий архивируется и остаётся референсом.
+- К выходу Debian 14 (Forky) планируется переезд на Sway (Wayland). Пункты переноса и открытые вопросы — в `TODO.md`, раздел «Переезд на Sway». Новые фичи в X11-ветку не добавлять.
 
 ## Проверка
 

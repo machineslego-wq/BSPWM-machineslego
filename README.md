@@ -7,9 +7,13 @@
 ![PipeWire](https://img.shields.io/badge/PipeWire-Audio-blue?logo=pipewire&logoColor=white)
 ![BSPWM](https://img.shields.io/badge/WM-BSPWM-black)
 ![Fish](https://img.shields.io/badge/Shell-Fish-green)
+![Neovim](https://img.shields.io/badge/Editor-Neovim-57A143?logo=neovim&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
+![Status](https://img.shields.io/badge/status-1.x%20final-orange)
 
 A strict, flat desktop environment based on BSPWM for Debian 13 Trixie, styled in the Tokyo Night palette.
+
+> **Status:** `1.7.0` is the final major release of this branch. After that the repository goes into archive: by the release of Debian 14 (Forky) the plan is to move to **Sway** (Wayland). See [Long-term plans](#-long-term-plans) and [TODO.md](./TODO.md) for details.
 
 ---
 
@@ -32,57 +36,69 @@ Every line of code and every running process must justify its existence. This ru
 ![Workspace & Notifications](screenshots/workspace+notify.png)
 ![Rofi](screenshots/rofi-showcase.png)
 ![Wi-Fi Manager](screenshots/wifi-manager.png)
+![Wi-Fi Menu](screenshots/wifi-manager-menu.png)
+![Cheatsheet](screenshots/cheatsheet.png)
+![Power Profiles](screenshots/power-profiles.png)
+![Polybar right side](screenshots/polybar-right-expanded.png)
+![Window flag](screenshots/alt+x-example.png)
 
 </details>
 
 ## ✨ Features
 
-- **Native Modules First:** Polybar uses stock `internal/battery`, `internal/backlight`, `internal/network`, and `internal/pulseaudio`. Zero background bash loops.
-- **On-Demand Scripts:** Custom logic (Wi-Fi manager, Rofi menus, screenshots) runs only when triggered by a hotkey and exits immediately.
-- **Wallpapers — `feh` only:** No picker script, no state file, no ImageMagick previews. Two static `feh` calls in `bspwmrc` — landscape on the main monitor, portrait on the rotated one. To change a wallpaper, edit one line. This is intentional.
-- **Modern Shell:** Powered by **Fish** and **Tide** prompt. Fast, feature-rich autosuggestions, syntax highlighting, and Git status integration without background daemons.
-- **Smooth & Flat:** Hyprland-style window animations via Picom with dim effect on inactive windows, no blur, strict Tokyo Night colors.
-- **Smart Volume OSD:** Volume notifications dynamically change color based on level.
-- **Workflow:** Clipboard history (CopyQ), Notification history (Rofi), quick screenshots to clipboard, and a comprehensive cheatsheet.
-- **Stability:** Autostart processes (`picom`, `dunst`, `lxpolkit`, etc.) are protected against duplication via `pgrep` and `pkill`.
-- **Power Profiles:** Switch between Performance/Balanced/Power Saver with automatic Picom profile change (animations disabled in power-saver).
-- **Midnight Commander:** Tokyo Night skin in `local/share/mc/skins/`.
+- **Native Modules First:** Polybar uses stock `internal/bspwm`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard`, and `internal/date`. Zero background bash loops.
+- **On-Demand Scripts:** Wi-Fi, power menu, battery details, screenshots, volume OSD, and window flags are short bash scripts that run on a hotkey and exit immediately.
+- **Hardware Autodetection:** `polybar/launch.sh` finds the battery (`POLYBAR_BAT`), AC adapter (`POLYBAR_AC`), and backlight device (`POLYBAR_BACKLIGHT`) in `/sys/class/…` — no hardcoded names.
+- **Wallpapers — `feh` only:** no picker script, no state file, no previews. Two static `feh` calls in `bspwmrc`: landscape on the main monitor, portrait on the rotated one. Change a wallpaper = edit one line.
+- **Screen locking:** `xss-lock` + `i3lock-fancy` — after 10 minutes idle, with DPMS monitor blanking and proper locking before sleep (`--transfer-sleep-lock`).
+- **Modern Shell:** Fish + Tide prompt (Fisher). Autosuggestions, syntax highlighting, git status without background daemons. `eza` for file listings, `fastfetch` with separate X11 and TTY configs.
+- **Smooth & Flat:** Picom with window animations, rounded corners, and shadows; no blur and no dimming of inactive windows. Strict Tokyo Night colors.
+- **Power Profiles:** Performance / Balanced / Power Saver via PPD. In `power-saver` Picom automatically switches to `picom-eco.conf` — no animations, no shadows.
+- **One Consistent Style:** Polybar, Rofi, Dunst, Picom, Alacritty, Fish, GTK3/GTK4, Qt5/Qt6, GIMP 3, CopyQ, Midnight Commander, and Telegram are all themed in Tokyo Night.
+- **Workflow:** clipboard history (CopyQ with custom commands), notification history (Rofi), screenshots straight into the CopyQ clipboard, a keybinding cheatsheet in Rofi, and a Neovim setup styled after base VS Code with its own cheatsheet.
+- **Stability:** autostart in `bspwmrc` is guarded against duplicates via `pgrep`/`pkill`, so `Super + Alt + R` and a full session restart never spawn extra processes.
+- **Multi-machine:** hostname branches in `bspwmrc` and `wifi.sh` (a dual-monitor desktop and laptops); easy to trim down to a single machine.
 
 ## 📦 Structure
 
 ```text
 BSPWM-machineslego/
-├── config/                 # Symlinks to ~/.config/*
-│   ├── bspwm, dunst, picom, rofi, alacritty...
-│   ├── fish/               # Fish shell config
-│   │   ├── config.fish     # Aliases and base settings
-│   │   └── fish_plugins    # Tide prompt tracking (used by Fisher)
-│   ├── polybar/
-│   │   ├── config.ini      # Stock modules + native battery/backlight
-│   │   └── scripts/
-│   │       └── power-profile.sh    # PPD profile reader
-│   └── sxhkd/
-│       ├── sxhkdrc         # Keybindings
-│       └── scripts/        # battery (Rofi details), wifi, powermenu, etc.
-├── home/                   # Symlinks to ~/*
-├── local/                  # Symlinks to ~/.local/*
-│   └── share/mc/skins/     # Midnight Commander skins
-├── system/                 # Copied to /etc
-├── scripts/                # install.sh, link.sh, unlink.sh, software.sh
-├── requirements/           # Package lists for install.sh
-│   ├── apt.txt             # Base BSPWM packages
-│   ├── apt-system.txt      # System packages (PPD, Flatpak)
-│   └── software.txt        # Additional user software
-├── TODO.md                 # Planned features (and rejected ones)
-└── wallpapers/
+├── config/                      # symlinks to ~/.config/*
+│   ├── alacritty/               # terminal: Tokyo Night palette, font size 10
+│   ├── bspwm/bspwmrc            # autostart, monitors, wallpapers, window borders
+│   ├── copyq/                   # Tokyo Night theme + command menu
+│   ├── dunst/dunstrc            # notifications: stack 7, history 20
+│   ├── easyeffects/output/      # equalizer/effects presets
+│   ├── fastfetch/               # graphical.jsonc and tty.jsonc
+│   ├── fish/                    # config.fish, fish_plugins, rustup
+│   ├── GIMP/3.0/themes/         # TokyoNight theme for GIMP 3
+│   ├── gtk-3.0/ gtk-4.0/        # gtk.css → rewaita.css + gtk-persistant.css
+│   ├── nvim/                    # Lua config, vim.pack, CHEATSHEET.md
+│   ├── picom/                   # picom.conf + picom-eco.conf
+│   ├── polybar/                 # config.ini, launch.sh, scripts/
+│   ├── qt5ct/ qt6ct/            # tokyo-night.conf palettes
+│   ├── rofi/config.rasi         # launcher/windows/commands
+│   └── sxhkd/                   # sxhkdrc + scripts/
+├── home/                        # symlinks to ~/*: .bashrc, .xinitrc, .xprofile, .Xresources
+├── local/share/mc/skins/        # Midnight Commander skin
+├── system/etc/                  # copied to /etc: touchpad, NetworkManager, interfaces
+├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh
+├── requirements/                # package lists: apt.txt, apt-system.txt, software.txt
+├── screenshots/                 # README previews
+├── themes/telegram/             # .tdesktop-palette (manual install)
+├── wallpapers/                  # 1080p/4K and portrait wallpapers
+├── TODO.md                      # plans, rejected ideas, limitations
+└── LICENSE                      # MIT
 ```
 
 ## 📋 Requirements
 
-- **OS:** Debian 13 Trixie.
-- **Utilities:** `git`, `sudo`, internet access.
-- **Audio:** Optimized for **PipeWire**.
-- **Sudo:** Required for installing packages and copying configs to `/etc`.
+- **OS:** Debian 13 Trixie, **X11** (this setup is not designed for Wayland).
+- **Utilities:** `git`, `sudo`, internet access for the first install.
+- **Audio:** PipeWire (`pipewire`, `pipewire-audio`, `pipewire-pulse`, `wireplumber`). Polybar's `internal/pulseaudio` works through `pipewire-pulse`; the volume script uses `wpctl` with a `pactl` fallback.
+- **Fonts:** JetBrainsMono Nerd Font (installed by `install.sh`), Papirus-Dark and Bibata (from `apt.txt`).
+- **Flatpak:** optional. Installed by `install.sh` together with Flathub; `link.sh` grants Flatpak apps access to the themes.
+- **Neovim:** `ripgrep` for Telescope (`find_files`, `live_grep`) — it is in `requirements/software.txt`.
 
 ## 🛠 Installation
 
@@ -92,30 +108,58 @@ cd ~/BSPWM-machineslego
 chmod +x scripts/*.sh
 ./scripts/install.sh
 ```
-- **No `/etc` changes:** `./scripts/link.sh`
+
+- **Configs only (no `/etc` changes):** `./scripts/link.sh`
+- **Extra software:** `./scripts/software.sh`
+- **Node.js / npm:** `./scripts/install-node.sh` (separate, see below)
 - **Rollback:** `./scripts/unlink.sh`
 - **Launch:** `startx` (or via LightDM).
 
-### ⚙️ Post-Install Customization
+`install.sh` is idempotent: re-running it does not break what is already installed. `link.sh` can be run at any time — it backs up existing files to `~/.dotfiles-backup-YYYYMMDD-HHMMSS` and re-creates the symlinks.
 
-**Fish & Tide Prompt:**
-`install.sh` automatically installs Fisher and the Tide prompt. After installation, open a terminal and run:
+### What `install.sh` does
+
+1. **User level (no sudo):** Neovim AppImage to `~/.local/bin/nvim`, `tree-sitter` CLI ≥ 0.26.1 to `~/.local/bin`, JetBrainsMono Nerd Font to `~/.local/share/fonts`, config linking via `link.sh`, Fisher + Tide.
+2. **Packages (sudo):** everything from `requirements/apt.txt`; if **TLP** is present it is removed to avoid a conflict with `power-profiles-daemon`. PPD and Flatpak are installed, Flathub is added.
+3. **System configs:** `system/**` is copied to `/etc/**` with a backup in `/etc/dotfiles-backup-YYYYMMDD-HHMMSS`.
+4. **Laptop lid:** if a battery exists, `/etc/systemd/logind.conf.d/10-lid-suspend.conf` is written (`HandleLidSwitch=suspend`); on a desktop this step is skipped.
+
+### What `link.sh` does
+
+- `config/<pkg>` → `~/.config/<pkg>`
+- `home/<file>` → `~/.<file>`
+- `local/share/mc/skins/*.ini` → `~/.local/share/mc/skins/`
+- sets `+x` on Polybar/SXHKD scripts and `bspwmrc`
+- with Flatpak installed, adds overrides: read-only access to `xdg-config/gtk-3.0`, `gtk-4.0`, `qt5ct`, `qt6ct`, `xdg-data/themes`, and `QT_QPA_PLATFORMTHEME=qt5ct`
+
+## ⚙️ Post-Install
+
+**Fish & Tide.**
+The Tide prompt is installed automatically. After installation, open a terminal and run:
+
 ```bash
 tide configure
 ```
-This interactive wizard will help you set up the prompt's style, colors, and icons to match your preferences.
 
-**Wi-Fi Manager:**
-The `wifi.sh` script is pre-configured for my devices. Open `~/.config/sxhkd/scripts/wifi.sh` and add your interface name (e.g., `wlan0`, `wlp3s0`) to the `if/elif` block. Change `HOTSPOT_SSID` and `HOTSPOT_PASSWORD` at the top of the script.
+The wizard sets style, colors, and icons. `config.fish` already defines Tokyo Night colors and `eza` aliases; `fastfetch` has a separate TTY config.
 
-**Wallpapers:**
-There is no picker. Edit the two `feh` lines in `~/.config/bspwm/bspwmrc` — one for `DisplayPort-1`, one for `HDMI-A-3` (or the single `feh` line for laptops). Files live in `~/BSPWM-machineslego/wallpapers/`.
+**Wi-Fi.**
+`~/.config/sxhkd/scripts/wifi.sh` is tailored to specific machines: the interface is chosen by `hostname` (`travelmate` → `wlp3s0`, `lx15pro`/`lx15pro-deb` → `wlo1`, `lamer-deb` → `wlp7s0`, otherwise `wlan0`). Add your interface to that block and set `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` at the top of the file.
 
-**Midnight Commander Skin:**
-The Tokyo Night skin is installed to `~/.local/share/mc/skins/tokyo-night.ini`. To switch to it, run `mc`, then `F9` → `Setup` → `Colors` → select `tokyo-night`.
+**Wallpapers.**
+There is no picker. Edit the `feh` calls in `~/.config/bspwm/bspwmrc`:
 
-**Laptop Lid Behavior:**
-By default, closing the lid suspends the system. To change it to **lock without suspend**:
+- `lamer-deb` (desktop): `xrandr` sets up `DisplayPort-1` (primary, 144 Hz) and `HDMI-A-3` (left, rotated), `bspc` assigns workspaces I–IX and X, and `feh` applies landscape and portrait wallpapers.
+- any other host: all 10 workspaces on one screen and a single landscape wallpaper.
+
+Paths are hardcoded as `$HOME/BSPWM-machineslego/wallpapers/` — if you clone the repo elsewhere, update them. Window borders: `#24283b` (normal), `#6b8dd6` (focused), `#bb9af7` (preselect).
+
+**Midnight Commander skin.**
+Installed to `~/.local/share/mc/skins/tokyo-night.ini`. Switch with `mc` → `F9` → `Setup` → `Colors` → `tokyo-night`.
+
+**Laptop lid behavior.**
+By default, closing the lid suspends the system (the screen is locked via `xss-lock`). To **lock without suspend**:
+
 ```bash
 sudo rm /etc/systemd/logind.conf.d/10-lid-suspend.conf
 sudo tee /etc/systemd/logind.conf.d/10-lid-lock.conf > /dev/null <<'EOF'
@@ -126,52 +170,141 @@ EOF
 sudo systemctl kill -s HUP systemd-logind
 ```
 
-**Power Profiles:**
-Switch between Performance/Balanced/Power Saver via `Super + Alt + P` (Polybar menu). The system automatically switches Picom profile (animations disabled in power-saver).
+**Power Profiles.**
+`Super + Alt + P` or a click on the Polybar module. The menu offers Performance / Balanced / Power Saver, switches via `powerprofilesctl`, and immediately restarts Picom with the matching profile. Limitation: on Celeron N4120 the `performance` profile is unavailable — only `balanced` and `power-saver`.
 
-### 🖼️ Wallpapers & Theme
+**Neovim.**
+The config is written in Lua, plugins are managed by the built-in `vim.pack` (Neovim 0.12). The list lives in `lua/plugins.lua`, versions are pinned by `nvim-pack-lock.json`. The first launch needs network: `vim.pack` downloads plugins and Mason installs LSP servers into `~/.local/share/nvim/mason/bin`. Update plugins with `:lua vim.pack.update()` and `:restart`; Treesitter parsers with `:TSUpdate`. Full cheatsheet: `config/nvim/CHEATSHEET.md`.
 
-Dimming wallpapers to match the Tokyo Night palette using ImageMagick:
+**Node.js and npm.**
+`./scripts/install-node.sh` adds the NodeSource repository and installs LTS. Variables: `NODE_CHANNEL=lts|current|<major>` (default `lts`), `UPDATE_NPM=1` also installs `npm@latest`. Global packages go to `~/.npm-global` (`prefix` in `~/.npmrc`), and PATH is added by both Fish and bash. If NVM is installed, it is sourced at the end of `~/.bashrc` and may shadow the NodeSource `node`/`npm`.
+
+**Themes.**
+- **GTK3/GTK4:** `config/gtk-3.0/gtk.css` and `config/gtk-4.0/gtk.css` are an entry point with two `@import`s: `rewaita.css` (Tokyo Night palette, do not edit by hand) and `gtk-persistant.css` (your own tweaks; the file is never overwritten). The base theme is `Adwaita-dark`, `gtk-theme-name` is unchanged. Apply by restarting the app; Flatpak apps pick up the CSS after re-running `link.sh`.
+- **Qt5/Qt6:** palettes in `config/qt5ct/colors/tokyo-night.conf` and `config/qt6ct/colors/tokyo-night.conf` (21 `QPalette` roles, `#AARRGGBB` format), `style=Fusion`, Papirus-Dark icons. `QT_QPA_PLATFORMTHEME=qt6ct` from `xinitrc` also applies to Qt5 apps. Apply with `qt5ct`/`qt6ct` or by restarting the app.
+- **GIMP 3:** `config/GIMP/3.0/themes/TokyoNight/` is picked up as a user theme — enable it in GIMP: Preferences → Interface → Theme.
+- **CopyQ:** `tokyo-night.ini` theme plus a command menu (pin, tags). History and window geometry never reach git.
+- **EasyEffects:** presets in `config/easyeffects/output/*.json`. The service starts from `bspwmrc` if the binary exists; some effects may need `calf-plugins` from `requirements/software.txt`.
+- **Telegram:** `themes/telegram/tokyo-night.tdesktop-palette` (Tokyo Night with an orange accent). No automated install, to avoid breaking Flatpak paths:
+  1. copy the file to `~/.var/app/org.telegram.desktop/data/TelegramDesktop/tdata/theme/` (Flatpak) or `~/.local/share/TelegramDesktop/tdata/theme/` (native);
+  2. restart Telegram;
+  3. **Chat background** → **Edit theme** → `tokyo-night`.
+- **Midnight Commander:** see the skin above.
+
+**System configs (`system/etc/`).**
+- `X11/xorg.conf.d/30-touchpad.conf` — libinput: tap-to-click, natural scrolling, clickfinger, two-finger scroll, disable-while-typing.
+- `NetworkManager/NetworkManager.conf` — `plugins=ifupdown,keyfile` and `managed=true` so NM does not ignore interfaces from `/etc/network/interfaces`.
+- `network/interfaces` — standard `lo` + `source /etc/network/interfaces.d/*`.
+
+**Dimming wallpapers to match the palette** (optional, ImageMagick):
+
 ```bash
 convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 /path/to/tokyo-night-wallpaper.jpg
 ```
 
-**Custom Telegram Theme:**
-The `themes/telegram/` folder contains a ready-to-use Tokyo Night theme (with orange accent). There is no automated installation to avoid breaking Flatpak paths. To install manually:
-1. Copy `tokyo-night.tdesktop-palette` to your Telegram theme folder:
-   - Flatpak: `~/.var/app/org.telegram.desktop/data/TelegramDesktop/tdata/theme/`
-   - Native: `~/.local/share/TelegramDesktop/tdata/theme/`
-2. Restart Telegram.
-3. Go to **Chat background** → **Edit theme** → select `tokyo-night`.
-
 ## ⌨️ Keybindings
 
-**Full cheatsheet:** `Super + /` (Rofi).
+**Full cheatsheet:** `Super + /` (Rofi, searchable through hidden tags). Neovim cheatsheet: `config/nvim/CHEATSHEET.md`.
+
+### System & launch
 
 | Keybinding | Action |
 |---|---|
 | `Super + Return` | Terminal (Alacritty) |
-| `Super + D` | Launcher (Rofi) |
+| `Super + D` | Launcher (Rofi drun) |
 | `Super + /` | Cheatsheet |
+| `Alt + Tab` | Window switcher (Rofi) |
+| `Super + E` / `B` / `V` | Thunar / Firefox / VS Code |
+| `Super + A` | Audio mixer (pavucontrol-qt) |
+| `Super + X` | Sensors (`watch sensors`) |
 | `Super + Alt + N` | Wi-Fi Manager |
-| `Super + Shift + Q` | Power Menu (Rofi) |
+| `Super + Alt + T` | Telegram (Flatpak) + WS proxy |
 | `Super + Alt + B` | Battery Details (Rofi) |
+| `Super + Alt + P` | Power Profile Selector |
 | `Super + Alt + H` | Notification History |
 | `Super + Ctrl + V` | Clipboard History (CopyQ) |
-| `Super + F1/F2/F3` | Screenshots (Full/Window/Delay) |
-| `Super + F4` | Active Monitor Screenshot |
-| `Super + Shift + S` | Screenshot (Area) |
-| `Super + H/J/K/L` | Move floating window (Vim-style) |
+| `Super + Shift + Q` | Power Menu (Rofi) |
+| `Super + Alt + L` | Lock screen |
+| `Super + Escape` | Reload SXHKD config |
+| `Super + Alt + Shift + R` | Full session restart (SXHKD, BSPWM, Polybar, Dunst, Picom, applets) |
+
+### Screenshots & media
+
+| Keybinding | Action |
+|---|---|
+| `Super + F1` | Whole screen |
+| `Super + F2` | Active window |
+| `Super + F3` | 3-second delay |
+| `Super + F4` | Active monitor |
+| `Super + Shift + S` | Selected area |
+| `Fn + brightness` | `brightnessctl` ±5% |
+| `Fn + volume` | Volume OSD ±2% |
+
+Screenshots are saved to `~/Screenshots` and copied to the CopyQ clipboard (fallback: `xclip`).
+
+### Windows & workspaces
+
+| Keybinding | Action |
+|---|---|
+| `Super + arrows` | Focus a window |
+| `Super + Shift + arrows` | Swap with a neighbor |
+| `Super + H/J/K/L` | Move floating window (vim-style) |
+| `Super + C` / `Super + Shift + C` | Next / previous window |
+| `Super + backtick` / `Super + Tab` | Previous window / previous workspace |
+| `Super + O` / `I` | Focus history back / forward |
+| `Super + P/B/,/.` | Parent / brother / first / second window |
+| `Super + [` / `]` | Previous / next workspace |
 | `Super + 1…0` | Switch workspaces |
 | `Super + Shift + 1…0` | Move window to workspace |
-| `Super + Alt + Shift + R` | Reload Entire System |
-| `Super + Alt + P` | Power Profile Selector |
+| `Super + W` / `Super + Shift + W` | Close window / kill process |
+| `Super + T` / `Super + Shift + T` | Tiled / pseudo-tiled |
+| `Super + S` / `Super + F` | Floating / fullscreen |
+| `Super + M` | Monocle |
+| `Super + G` | Swap with the biggest window |
+| `Super + Alt + Q` / `R` | Quit BSPWM / restart BSPWM |
+
+### Preselect, flags & resizing
+
+| Keybinding | Action |
+|---|---|
+| `Super + Ctrl + arrows` | Preselect direction |
+| `Super + Ctrl + 1…9` | Preselect ratio |
+| `Super + Ctrl + Space` | Cancel preselect for the window |
+| `Super + Ctrl + Shift + Space` | Cancel preselect for the workspace |
+| `Super + Y` | Send the marked window into preselect |
+| `Super + Ctrl + M/X/Y/Z` | Flags: marked / locked / sticky / private |
+| `Super + Alt + arrows` | Grow the window |
+| `Super + Alt + Shift + arrows` | Shrink the window |
+
+## 🔄 Updating & applying changes
+
+Configs live as symlinks: editing a file in the repo changes the live system immediately. After `git pull`, just run `./scripts/link.sh` (new symlinks are created, replaced files go to a backup).
+
+| What changed | How to apply |
+|---|---|
+| BSPWM | `bspc wm -r` or `Super + Alt + R` |
+| SXHKD | `pkill -USR1 -x sxhkd` or `Super + Escape` |
+| Polybar | `~/.config/polybar/launch.sh` |
+| Picom | `pkill -x picom`, then `picom --config <profile>` |
+| Dunst | `pkill -x dunst && dunst &` |
+| Alacritty | automatically (`live_config_reload = true`) |
+| GTK3/GTK4, Qt | restart the app |
+| Everything | `Super + Alt + Shift + R` |
 
 ## 🐛 Known Issues (Picom & UI)
 
-- **Dunst Stack Animation:** Only the first notification animates. Second and subsequent notifications in the stack appear instantly due to a known **Picom 12.5** conflict with Dunst's positioning.
+- **Dunst Stack Animation:** only the first notification animates. Second and subsequent notifications in the stack appear instantly due to a known **Picom 12.5** conflict with Dunst's positioning.
 - **Context Menu Shadows:** Telegram (Flatpak) and Firefox context menus have poorly rendered shadows. This is why they are explicitly excluded in `picom.conf` (`shadow = false`).
-- **AMD Sleep:** On Ryzen 7000-series, suspend may fail. Add `mem_sleep_default=s2idle` to GRUB if the laptop shuts down instead of sleeping.
+- **AMD Sleep:** on Ryzen 7000-series, suspend may fail. Add `mem_sleep_default=s2idle` to GRUB if the laptop shuts down instead of sleeping.
+- **Dunst on multiple monitors:** notifications appear only on monitor `0` (`monitor = 0` in `dunstrc`).
+- **`window-height` in Picom:** the unary minus is not parsed — rules must use `"0 - window-height"` written by hand.
+
+## 🗺 Long-term plans
+
+- `1.7.0` is the final release of this branch. After that the repository is archived: it stays as a working reference and a "skeleton" of solutions (palette, scripts, themes, dotfiles layout).
+- By the release of **Debian 14 (Forky)** the plan is to move to **Sway / swayfx** (Wayland). Reasons: X11 and bspwm are no longer evolving, Picom drags along well-known quirks, and Wayland gives proper HiDPI, VRR, and no tearing out of the box.
+- What will have to be replaced: `sxhkd` → `sway` config (`bindsym`), `polybar` → `waybar`, `picom` → the compositor itself, `feh` → `swaybg`, `xss-lock`/`i3lock-fancy` → `swayidle`/`swaylock`, `xrandr` → `output` directives. Dunst, Rofi (via XWayland) or its Wayland counterparts, GTK/Qt themes, and the scripts carry over almost unchanged.
+- Plans and rejected ideas live in [TODO.md](./TODO.md).
 
 ## 📄 License
 
