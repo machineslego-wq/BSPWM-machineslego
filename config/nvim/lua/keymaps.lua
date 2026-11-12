@@ -8,10 +8,10 @@ local map = vim.keymap.set
 map("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Следующий буфер" })
 map("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Предыдущий буфер" })
 
--- Закрытие текущего буфера: окно остаётся, пустая заглушка одна и не listed
-map("n", "<leader>bd", function()
-    require("buffers").close_current()
-end, { desc = "Закрыть буфер" })
+-- Закрытие текущего буфера: окно остаётся для следующего файла.
+-- С несохранёнными изменениями :bd откажет, :bd! закроет принудительно.
+map("n", "<leader>bd", "<cmd>bd<cr>", { desc = "Закрыть буфер" })
+map("n", "<leader>bD", "<cmd>bd!<cr>", { desc = "Закрыть буфер без сохранения" })
 
 -- Окна (в т.ч. переход из сайдбара в редактор и обратно)
 map("n", "<C-h>", "<C-w>h", { desc = "Окно влево" })
@@ -29,7 +29,7 @@ map("n", "<Esc>", "<cmd>nohlsearch<cr>", { desc = "Убрать подсветк
 -- Встроенный терминал: один и тот же буфер, открыть/скрыть
 local term_buf
 
-function _G.toggle_terminal()
+local function toggle_terminal()
     if term_buf and vim.api.nvim_buf_is_valid(term_buf) then
         local win = vim.fn.bufwinid(term_buf)
         if win ~= -1 then
