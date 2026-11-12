@@ -56,29 +56,3 @@ opt.wrap = false
 -- Быстрее реагируют gitsigns/diagnostics/which-key
 opt.updatetime = 300
 opt.timeoutlen = 400
-
--- Пустой безымянный буфер (при старте без файла и после :bd) не должен
--- висеть вкладкой в tabline. Как только в нём что-то набрали или записали —
--- возвращаем его в список.
-local function scratch(buf)
-    return vim.bo[buf].buftype == "" and vim.api.nvim_buf_get_name(buf) == ""
-end
-
-vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
-    callback = function(args)
-        if scratch(args.buf) and not vim.bo[args.buf].modified then
-            vim.bo[args.buf].buflisted = false
-        end
-    end,
-})
-
-vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "BufWritePost" }, {
-    callback = function(args)
-        if
-            not vim.bo[args.buf].buflisted
-            and (vim.bo[args.buf].modified or vim.api.nvim_buf_get_name(args.buf) ~= "")
-        then
-            vim.bo[args.buf].buflisted = true
-        end
-    end,
-})
