@@ -72,7 +72,7 @@ BSPWM-machineslego/
 │   ├── fastfetch/               # graphical.jsonc and tty.jsonc
 │   ├── fish/                    # config.fish, fish_plugins, rustup
 │   ├── GIMP/3.0/themes/         # TokyoNight theme for GIMP 3
-│   ├── gtk-3.0/ gtk-4.0/        # gtk.css → rewaita.css + gtk-persistant.css
+│   ├── gtk-3.0/ gtk-4.0/        # gtk.css: Tokyo Night palette over Adwaita-dark
 │   ├── nvim/                    # Lua config, vim.pack, CHEATSHEET.md
 │   ├── picom/                   # picom.conf + picom-eco.conf
 │   ├── polybar/                 # config.ini, launch.sh, scripts/
@@ -180,7 +180,7 @@ The config is written in Lua, plugins are managed by the built-in `vim.pack` (Ne
 `./scripts/install-node.sh` adds the NodeSource repository and installs LTS. Variables: `NODE_CHANNEL=lts|current|<major>` (default `lts`), `UPDATE_NPM=1` also installs `npm@latest`. Global packages go to `~/.npm-global` (`prefix` in `~/.npmrc`), and PATH is added by both Fish and bash. If NVM is installed, it is sourced at the end of `~/.bashrc` and may shadow the NodeSource `node`/`npm`.
 
 **Themes.**
-- **GTK3/GTK4:** `config/gtk-3.0/gtk.css` and `config/gtk-4.0/gtk.css` are an entry point with two `@import`s: `rewaita.css` (Tokyo Night palette, do not edit by hand) and `gtk-persistant.css` (your own tweaks; the file is never overwritten). The base theme is `Adwaita-dark`, `gtk-theme-name` is unchanged. Apply by restarting the app; Flatpak apps pick up the CSS after re-running `link.sh`.
+- **GTK3/GTK4:** `config/gtk-3.0/gtk.css` is a full stylesheet over `Adwaita-dark`: `@define-color` plus direct selectors (Adwaita hardcodes its colors, so they have to be overridden by hand). `config/gtk-4.0/gtk.css` contains only libadwaita variables (`:root` with `--*-color`) and a compatibility `@define-color` layer. `gtk-theme-name` is unchanged, only colors are repainted. Apply by restarting the app; Flatpak apps pick up the CSS after re-running `link.sh`.
 - **Qt5/Qt6:** palettes in `config/qt5ct/colors/tokyo-night.conf` and `config/qt6ct/colors/tokyo-night.conf` (21 `QPalette` roles, `#AARRGGBB` format), `style=Fusion`, Papirus-Dark icons. `QT_QPA_PLATFORMTHEME=qt6ct` from `xinitrc` also applies to Qt5 apps. Apply with `qt5ct`/`qt6ct` or by restarting the app.
 - **GIMP 3:** `config/GIMP/3.0/themes/TokyoNight/` is picked up as a user theme — enable it in GIMP: Preferences → Interface → Theme.
 - **CopyQ:** `tokyo-night.ini` theme plus a command menu (pin, tags). History and window geometry never reach git.

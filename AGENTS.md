@@ -68,12 +68,15 @@ Picom автоматически выбирает профиль по `powerprof
 - Тёмная тема Tokyo Night: фон `#1a1b26`, текст `#c0caf5`. `live_config_reload = true` — правки применяются без перезапуска.
 
 ### GTK3 / GTK4
-- `config/gtk-3.0/gtk.css` и `config/gtk-4.0/gtk.css` — только два `@import`: `rewaita.css` (сгенерированная палитра Tokyo Night) и `gtk-persistant.css` (ручные правки).
-- `rewaita.css` — сгенерированная палитра (rewaita), руками не правится: при перегенерации файл перезаписывается. Всё своё — в `gtk-persistant.css`, он импортируется последним.
-- Базовая тема остаётся `Adwaita-dark` (`gtk-theme-name` в `settings.ini` не меняется). Меняются только цвета: геометрия, отступы и размеры — штатные от Adwaita.
-- В `rewaita.css` два механизма параллельно: `@define-color` (GTK3 и приложения без libadwaita) и `--*-color` в `:root` (libadwaita). Править надо оба, иначе цвета разъедутся.
-- Приложения без libadwaita (тема `Default`) читают только базовые имена (`theme_*`, `content_view_bg`) — полной перекраски там нет.
-- Рамка `window.csd` в Adwaita — белый `outline` с прозрачностью; если её перекрашивать, менять `outline-color`, а не `box-shadow`. bspwm не ставит окну класс `tiled`, поэтому `window.csd.tiled` не матчится.
+- `config/gtk-3.0/gtk.css` — полный пользовательский CSS поверх `Adwaita-dark`: `@define-color` для именованных цветов + прямые селекторы по виджетам.
+- `config/gtk-4.0/gtk.css` — только переменные libadwaita (`:root` с `--*-color`) и слой `@define-color` для совместимости; прямых селекторов нет.
+- `gtk-theme-name` в `settings.ini` не меняется (`Adwaita-dark`). Меняются только цвета: геометрия, отступы и размеры — штатные от Adwaita.
+- Приложения без libadwaita (тема `Default`) читают только `@define-color`-имена; полной перекраски там нет.
+- GTK3: Adwaita рисует `background-image` / `box-shadow` в hover/active/checked/disabled/backdrop — в user CSS их надо сбрасывать явно, иначе остаются светлые пятна.
+- GTK3: фон infobar — на `infobar > revealer > box`, а не на самом `infobar`. Toolbar/searchbar (`searchbar > revealer > box`, `.toolbar`) по умолчанию серые (`#353535` / `#2d2d2d`).
+- GTK3: rubberband рисуется контекстом виджета с классом `.rubberband`; фон `.view` его перекрывает, поэтому нужны отдельные правила `.rubberband` (заливка `rgba(122,162,247,0.2)`, рамка `rgba(122,162,247,0.6)`).
+- GTK3: строки списков стилизуются и через `row:selected`, а не только `row.activatable:selected`: у `Gtk.ListBoxRow` без `activatable` второго класса нет.
+- Рамка `window.csd` в Adwaita — белый `outline` с прозрачностью; bspwm не ставит окну класс `tiled`, поэтому `window.csd.tiled` не матчится.
 - Иконки Papirus-Dark имеют собственный светлый цвет (`#dfdfdf`) — это не баг темы.
 - Применение: перезапуск приложения. Симлинки `~/.config/gtk-3.0`, `gtk-4.0` уже стоят; Flatpak видит CSS после повторного `link.sh`.
 

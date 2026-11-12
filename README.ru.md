@@ -72,7 +72,7 @@ BSPWM-machineslego/
 │   ├── fastfetch/               # graphical.jsonc и tty.jsonc
 │   ├── fish/                    # config.fish, fish_plugins, rustup
 │   ├── GIMP/3.0/themes/         # тема TokyoNight для GIMP 3
-│   ├── gtk-3.0/ gtk-4.0/        # gtk.css → rewaita.css + gtk-persistant.css
+│   ├── gtk-3.0/ gtk-4.0/        # gtk.css: палитра Tokyo Night поверх Adwaita-dark
 │   ├── nvim/                    # Lua-конфиг, vim.pack, CHEATSHEET.md
 │   ├── picom/                   # picom.conf + picom-eco.conf
 │   ├── polybar/                 # config.ini, launch.sh, scripts/
@@ -180,7 +180,7 @@ sudo systemctl kill -s HUP systemd-logind
 `./scripts/install-node.sh` подключает NodeSource и ставит LTS. Переменные: `NODE_CHANNEL=lts|current|<major>` (по умолчанию `lts`), `UPDATE_NPM=1` — ещё и `npm@latest`. Глобальные пакеты ставятся в `~/.npm-global` (`prefix` в `~/.npmrc`), PATH добавляют и Fish, и bash. Если стоит NVM, он подключается в конце `~/.bashrc` и может переопределить `node`/`npm`.
 
 **Темы.**
-- **GTK3/GTK4:** `config/gtk-3.0/gtk.css` и `config/gtk-4.0/gtk.css` — точка входа из двух `@import`: `rewaita.css` (палитра Tokyo Night, руками не править) и `gtk-persistant.css` (сюда — свои правки, файл не перезаписывается). Базовая тема — `Adwaita-dark`, `gtk-theme-name` не меняется. Применение — перезапуск приложения; Flatpak-приложения подхватывают CSS после повторного `link.sh`.
+- **GTK3/GTK4:** `config/gtk-3.0/gtk.css` — полный CSS поверх `Adwaita-dark`: `@define-color` плюс прямые селекторы (Adwaita жёстко прописывает цвета, их приходится переопределять вручную). `config/gtk-4.0/gtk.css` — только переменные libadwaita (`:root` с `--*-color`) и слой `@define-color` для совместимости. `gtk-theme-name` не меняется, перекрашиваются только цвета. Применение — перезапуск приложения; Flatpak-приложения подхватывают CSS после повторного `link.sh`.
 - **Qt5/Qt6:** палитры `config/qt5ct/colors/tokyo-night.conf` и `config/qt6ct/colors/tokyo-night.conf` (21 роль `QPalette`, формат `#AARRGGBB`), `style=Fusion`, иконки Papirus-Dark. `QT_QPA_PLATFORMTHEME=qt6ct` из `xinitrc` действует и на Qt5-приложения. Применение: `qt5ct`/`qt6ct` или перезапуск приложения.
 - **GIMP 3:** `config/GIMP/3.0/themes/TokyoNight/` подхватывается как пользовательская тема — включи её в GIMP: Preferences → Interface → Theme.
 - **CopyQ:** тема `tokyo-night.ini` + меню команд (закрепить, метки). История и геометрия окна в git не попадают.

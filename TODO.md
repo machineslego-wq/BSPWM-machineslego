@@ -54,7 +54,7 @@
 
 - [x] **Eco-режим (PPD + Picom)** — реализован в `782477e`. `bspwmrc` выбирает `picom-eco.conf` при `power-saver`, `power-profile.sh` перезапускает Picom при смене профиля через меню.
 - [x] **Neovim** — AppImage в `~/.local/bin/nvim`, конфиг на `vim.pack`, Mason, Treesitter, шпаргалка в `config/nvim/CHEATSHEET.md`.
-- [x] **Единая тема** — GTK3/GTK4 (rewaita + `gtk-persistant.css`), Qt5/Qt6, GIMP 3, CopyQ, Telegram, Midnight Commander.
+- [x] **Единая тема** — GTK3/GTK4 (свой CSS поверх `Adwaita-dark`), Qt5/Qt6, GIMP 3, CopyQ, Telegram, Midnight Commander.
 - [x] **Node.js без sudo** — `scripts/install-node.sh` (NodeSource LTS, prefix `~/.npm-global`).
 
 ---
@@ -68,6 +68,7 @@
 - **Скрипт-выборщик обоев** (`wallpaper.sh` через Rofi) — заменён двумя статичными вызовами `feh` в `bspwmrc`. Сменить обои = отредактировать одну строку.
 - **Авто-тема по времени суток** — зависела от тем.
 - **Тема из обоев** (`matugen` / `pywal`) — слишком сложно для личного сетапа. Палитра Tokyo Night фиксированная, генерация не нужна.
+- **rewaita / автогенерация GTK-темы** — пробовали (`3a5e1ad`), откатили. Красит аккуратно, но багов и расхождений больше, чем в своём `gtk.css` поверх `Adwaita-dark`. Не возвращать без просьбы.
 
 ---
 
