@@ -23,6 +23,15 @@ map("n", "<C-l>", "<C-w>l", { desc = "Окно вправо" })
 map("n", "<leader>w", "<cmd>write<cr>", { desc = "Сохранить" })
 map("n", "<leader>q", "<cmd>qa<cr>", { desc = "Выйти" })
 
+-- :q / :q! / :wq выходят из Neovim целиком, а не закрывают только окно
+-- редактора (рядом всегда висит сайдбар).
+for _, pair in ipairs({ { "q", "qa" }, { "q!", "qa!" }, { "wq", "wqa" } }) do
+    vim.cmd(
+        ("cnoreabbrev <expr> %s getcmdtype() ==# ':' && getcmdline() ==# '%s' ? '%s' : '%s'")
+            :format(pair[1], pair[1], pair[2], pair[1])
+    )
+end
+
 -- Сброс подсветки поиска
 map("n", "<Esc>", "<cmd>nohlsearch<cr>", { desc = "Убрать подсветку поиска" })
 
