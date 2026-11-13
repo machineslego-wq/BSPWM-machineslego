@@ -22,7 +22,7 @@ opacity = 1
 dynamic_padding = true
 
 # Внутренние отступы (x — по горизонтали, y — по вертикали)
-padding = { x = 0, y = 8 }
+padding = { x = 0, y = 0 }
 
 # Стартовый размер окна
 dimensions = { columns = 100, lines = 28 }
