@@ -28,6 +28,7 @@
 
 - [ ] Dunst (`dunstrc`), CopyQ, EasyEffects, GTK/Qt/GIMP/CopyQ-темы, Telegram-палитра, скины MC.
 - [ ] Fish/Tide, `fastfetch`, `install-node.sh`, `bashrc`/`xprofile`-переменные.
+- [ ] Neovim и Vim — терминальные редакторы, конфиги переносятся как есть (`config/nvim`, `home/vimrc`).
 - [ ] Скрипты `sxhkd/scripts/*` — заменить только `bspc`-вызовы (`screenshot.sh`, `flag.sh`, `to-preselect.sh`, `powermenu.sh`).
 
 **Что придётся заменить:**
@@ -53,7 +54,8 @@
 ### ✅ Сделано
 
 - [x] **Eco-режим (PPD + Picom)** — реализован в `782477e`. `bspwmrc` выбирает `picom-eco.conf` при `power-saver`, `power-profile.sh` перезапускает Picom при смене профиля через меню.
-- [x] **Neovim** — AppImage в `~/.local/bin/nvim`, конфиг на `vim.pack`, Mason, Treesitter, шпаргалка в `config/nvim/CHEATSHEET.md`.
+- [x] **Neovim** — AppImage в `~/.local/bin/nvim`, конфиг на `vim.pack`, Mason, Treesitter; neo-tree с фиксированной шириной 32 и открытием файлов справа; шпаргалка в `config/nvim/CHEATSHEET.md`.
+- [x] **Vim** — `home/vimrc` без плагинов: подсветка синтаксиса и определение типов файлов, гибридная нумерация (абсолютный номер на строке курсора, относительные вокруг), постоянная история в `~/.vim/undo`, типы файлов для конфигов без расширения. `vim` добавлен в `apt.txt`.
 - [x] **Единая тема** — GTK3/GTK4 (свой CSS поверх `Adwaita-dark`), Qt5/Qt6, GIMP 3, CopyQ, Telegram, Midnight Commander.
 - [x] **Node.js без sudo** — `scripts/install-node.sh` (NodeSource LTS, prefix `~/.npm-global`).
 
@@ -69,6 +71,7 @@
 - **Авто-тема по времени суток** — зависела от тем.
 - **Тема из обоев** (`matugen` / `pywal`) — слишком сложно для личного сетапа. Палитра Tokyo Night фиксированная, генерация не нужна.
 - **rewaita / автогенерация GTK-темы** — пробовали (`3a5e1ad`), откатили. Красит аккуратно, но багов и расхождений больше, чем в своём `gtk.css` поверх `Adwaita-dark`. Не возвращать без просьбы.
+- **Своя тема и плагины для Vim** — не нужны. Палитра терминала (Alacritty) уже Tokyo Night, отдельный colorscheme дублировал бы цвета; всё «умное» (LSP, сайдбар, автодополнение) живёт в Neovim, а Vim остаётся стоковым редактором для правки конфигов.
 
 ---
 
@@ -81,3 +84,4 @@
 - **Celeron N4120: профиль `performance` в PPD недоступен.** Только `balanced` и `power-saver`.
 - **Dunst показывает уведомления только на мониторе `0`** (`monitor = 0` в `dunstrc`). На мультимониторном ПК это основной экран.
 - **Обои привязаны к каталогу клона.** Пути в `bspwmrc` — `$HOME/BSPWM-machineslego/wallpapers/`.
+- **Vim — без плагинов.** В `~/.vimrc` только настройки и подсветка: нет LSP, дерева файлов и автодополнения — для этого есть Neovim. Файлы с расширением (`*.yaml`, `*.json`, `*.toml`, `*.css` и т.д.) Vim определяет сам, а имена без расширения (`sxhkdrc`, `bspwmrc`, `dunstrc` и т.п.) перечислены в `augroup dotfiles` вручную.

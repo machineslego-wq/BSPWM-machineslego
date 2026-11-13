@@ -56,6 +56,7 @@
 - **Профили питания:** Performance / Balanced / Power Saver через PPD. В `power-saver` Picom автоматически переключается на `picom-eco.conf` — без анимаций и теней.
 - **Единый стиль:** Polybar, Rofi, Dunst, Picom, Alacritty, Fish, GTK3/GTK4, Qt5/Qt6, GIMP 3, CopyQ, Midnight Commander и Telegram оформлены в Tokyo Night.
 - **Workflow:** история буфера (CopyQ + меню команд), история уведомлений (Rofi), скриншоты сразу в буфер CopyQ, шпаргалка по хоткеям в Rofi, Neovim в стиле базового VS Code со своей шпаргалкой.
+- **Запасной Vim:** обычный `vim` из `apt.txt` без плагинов — подсветка синтаксиса почти для всего, гибридная нумерация (абсолютный номер на строке курсора, относительные вокруг) и постоянная история изменений. Конфиг — `~/.vimrc` (`home/vimrc`).
 - **Стабильность:** автозапуск в `bspwmrc` защищён от дублей через `pgrep`/`pkill`, поэтому `Super + Alt + R` и полный рестарт сессии не плодят процессы.
 - **Несколько машин:** hostname-ветвления в `bspwmrc` и `wifi.sh` (десктоп с двумя мониторами и ноутбуки), но при желании конфиг сводится к одной машине.
 
@@ -208,7 +209,7 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 
 ## ⌨️ Горячие клавиши
 
-**Полная шпаргалка:** `Super + /` (Rofi, с поиском по скрытым тегам). Шпаргалка по Neovim — `config/nvim/CHEATSHEET.md`.
+**Полная шпаргалка:** `Super + /` (Rofi, с поиском по скрытым тегам). Шпаргалка по Neovim — `config/nvim/CHEATSHEET.md`, по Vim — комментарии в `~/.vimrc`.
 
 ### Система и запуск
 
@@ -308,7 +309,7 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 
 - `1.7.0` — финальный релиз этой ветки. После него репозиторий архивируется: он остаётся как рабочий референс и «каркас» решений (палитра, скрипты, темы, структура dotfiles).
 - К выходу **Debian 14 (Forky)** планируется переезд на **Sway / swayfx** (Wayland). Причины: X11 и bspwm заморожены в развитии, Picom тянет за собой известные косяки, а Wayland даёт нормальный HiDPI, VRR и отсутствие тиринга из коробки.
-- Что придётся заменить: `sxhkd` → `sway` config (`bindsym`), `polybar` → `waybar`, `picom` → средства самого композитора, `feh` → `swaybg`, `xss-lock`/`i3lock-fancy` → `swayidle`/`swaylock`, `xrandr` → `output` в конфиге Sway. Dunst, Rofi (через XWayland) или его Wayland-аналоги, GTK/Qt-темы и скрипты переносятся почти без изменений.
+- Что придётся заменить: `sxhkd` → `sway` config (`bindsym`), `polybar` → `waybar`, `picom` → средства самого композитора, `feh` → `swaybg`, `xss-lock`/`i3lock-fancy` → `swayidle`/`swaylock`, `xrandr` → `output` в конфиге Sway. Dunst, Rofi (через XWayland) или его Wayland-аналоги, GTK/Qt-темы, скрипты и конфиги Neovim/Vim (терминальные редакторы от X11 не зависят) переносятся почти без изменений.
 - Планы и отвергнутые идеи — в [TODO.md](./TODO.md).
 
 ## 📄 Лицензия

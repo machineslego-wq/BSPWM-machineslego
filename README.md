@@ -56,6 +56,7 @@ Every line of code and every running process must justify its existence. This ru
 - **Power Profiles:** Performance / Balanced / Power Saver via PPD. In `power-saver` Picom automatically switches to `picom-eco.conf` — no animations, no shadows.
 - **One Consistent Style:** Polybar, Rofi, Dunst, Picom, Alacritty, Fish, GTK3/GTK4, Qt5/Qt6, GIMP 3, CopyQ, Midnight Commander, and Telegram are all themed in Tokyo Night.
 - **Workflow:** clipboard history (CopyQ with custom commands), notification history (Rofi), screenshots straight into the CopyQ clipboard, a keybinding cheatsheet in Rofi, and a Neovim setup styled after base VS Code with its own cheatsheet.
+- **Stock Vim as a fallback:** plain `vim` from `apt.txt` with no plugins — syntax highlighting for nearly everything, hybrid numbering (absolute number on the cursor line, relative around it), and persistent undo. Config: `~/.vimrc` (`home/vimrc`).
 - **Stability:** autostart in `bspwmrc` is guarded against duplicates via `pgrep`/`pkill`, so `Super + Alt + R` and a full session restart never spawn extra processes.
 - **Multi-machine:** hostname branches in `bspwmrc` and `wifi.sh` (a dual-monitor desktop and laptops); easy to trim down to a single machine.
 
@@ -208,7 +209,7 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 
 ## ⌨️ Keybindings
 
-**Full cheatsheet:** `Super + /` (Rofi, searchable through hidden tags). Neovim cheatsheet: `config/nvim/CHEATSHEET.md`.
+**Full cheatsheet:** `Super + /` (Rofi, searchable through hidden tags). Neovim cheatsheet: `config/nvim/CHEATSHEET.md`; Vim cheatsheet: the comments in `~/.vimrc`.
 
 ### System & launch
 
@@ -308,7 +309,7 @@ Configs live as symlinks: editing a file in the repo changes the live system imm
 
 - `1.7.0` is the final release of this branch. After that the repository is archived: it stays as a working reference and a "skeleton" of solutions (palette, scripts, themes, dotfiles layout).
 - By the release of **Debian 14 (Forky)** the plan is to move to **Sway / swayfx** (Wayland). Reasons: X11 and bspwm are no longer evolving, Picom drags along well-known quirks, and Wayland gives proper HiDPI, VRR, and no tearing out of the box.
-- What will have to be replaced: `sxhkd` → `sway` config (`bindsym`), `polybar` → `waybar`, `picom` → the compositor itself, `feh` → `swaybg`, `xss-lock`/`i3lock-fancy` → `swayidle`/`swaylock`, `xrandr` → `output` directives. Dunst, Rofi (via XWayland) or its Wayland counterparts, GTK/Qt themes, and the scripts carry over almost unchanged.
+- What will have to be replaced: `sxhkd` → `sway` config (`bindsym`), `polybar` → `waybar`, `picom` → the compositor itself, `feh` → `swaybg`, `xss-lock`/`i3lock-fancy` → `swayidle`/`swaylock`, `xrandr` → `output` directives. Dunst, Rofi (via XWayland) or its Wayland counterparts, GTK/Qt themes, the scripts, and the Neovim/Vim configs (terminal editors do not depend on X11) carry over almost unchanged.
 - Plans and rejected ideas live in [TODO.md](./TODO.md).
 
 ## 📄 License
