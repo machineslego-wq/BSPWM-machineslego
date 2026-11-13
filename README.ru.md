@@ -90,6 +90,7 @@ BSPWM-machineslego/
 ├── screenshots/                 # превью для README
 ├── themes/telegram/             # .tdesktop-palette (ручная установка)
 ├── wallpapers/                  # обои 1080p/4K и портретные
+├── RELEASE.md                   # заметки к текущему релизу (EN + RU)
 ├── TODO.md                      # планы, отвергнутые идеи, ограничения
 └── LICENSE                      # MIT
 ```
