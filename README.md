@@ -316,7 +316,7 @@ Configs live as symlinks: editing a file in the repo changes the live system imm
 
 ## 🗺 Plans
 
-- `1.7.0` is just the next release: tidy up README/TODO and tag it.
+- `1.7.0` is out. Notes for the current release live in [RELEASE.md](./RELEASE.md), history — in [Releases](https://github.com/machineslego-wq/BSPWM-machineslego/releases). The next stop is `1.8.0`.
 - The BSPWM/X11 branch is the main and long-term one; a Wayland migration is not planned: Debian is stable, while Wayland compositors with the needed features ship as rolling releases. This is a deliberate choice in favour of predictability; details are in the "Rejected" section of [TODO.md](./TODO.md).
 - Current tasks, "Done", rejected ideas, and known limitations live in [TODO.md](./TODO.md).
 
