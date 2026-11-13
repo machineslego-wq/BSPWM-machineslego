@@ -1,0 +1,143 @@
+#!/bin/bash
+# ==========================================================
+# vhost-rm — Удаление виртуального хоста Apache2
+# ==========================================================
+# Показывает список существующих vhost в sites-available,
+# отключает и удаляет выбранный, удаляет запись из /etc/hosts
+# и (опционально) директорию сайта.
+# Целевая система: Debian 13 Trixie
+# Установка:
+#   chmod +x vhost-rm.sh
+#   ln -sf "$PWD/vhost-rm.sh" ~/.local/bin/vhost-rm
+# ==========================================================
+
+if [ -n "$SUDO_USER" ]; then
+    REAL_USER=$SUDO_USER
+    REAL_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+else
+    REAL_USER=$USER
+    REAL_HOME=$HOME
+fi
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+print_message() { echo -e "${2}${1}${NC}"; }
+
+echo "=== Apache2 Virtual Host — Remove (Удаление виртуального хоста) ==="
+sudo -v || { echo "Error: sudo required. (Ошибка: требуются права sudo.)"; exit 1; }
+echo ""
+
+# --- Пути ---
+hosts_file="/etc/hosts"
+sites_available_dir="/etc/apache2/sites-available"
+sites_enabled_dir="/etc/apache2/sites-enabled"
+
+# --- Список существующих vhost (без стандартных) ---
+mapfile -t vhosts < <(
+    find "$sites_available_dir" -maxdepth 1 -type f -name '*.conf' -printf '%f\n' 2>/dev/null \
+        | grep -vE '^(000-default|default-ssl)\.conf$' \
+        | sed 's/\.conf$//' \
+        | sort
+)
+
+if [ ${#vhosts[@]} -eq 0 ]; then
+    print_message "Виртуальные хосты не найдены в $sites_available_dir" "$YELLOW"
+    exit 0
+fi
+
+echo "Доступные виртуальные хосты:"
+i=1
+for v in "${vhosts[@]}"; do
+    if [ -L "$sites_enabled_dir/$v.conf" ]; then
+        status="${GREEN}enabled ${NC}"
+    else
+        status="${YELLOW}disabled${NC}"
+    fi
+    printf "  %2d) %-40s [%b]\n" "$i" "$v" "$status"
+    ((i++))
+done
+echo ""
+
+# --- Ввод: номер из списка или имя домена вручную ---
+read -p "-> Номер для удаления, имя домена или 'q' для выхода: " choice
+
+case "$choice" in
+    q|Q|"")
+        echo "Отменено."
+        exit 0
+        ;;
+esac
+
+if [[ $choice =~ ^[0-9]+$ ]]; then
+    if [ "$choice" -ge 1 ] && [ "$choice" -le ${#vhosts[@]} ]; then
+        domain_name="${vhosts[$((choice - 1))]}"
+    else
+        print_message "Ошибка: нет такого номера (1..${#vhosts[@]})." "$RED"
+        exit 1
+    fi
+else
+    domain_name="$choice"
+fi
+
+if [ -z "$domain_name" ]; then
+    print_message "Ошибка: название домена не может быть пустым." "$RED"
+    exit 1
+fi
+
+document_root="/var/www/html/$domain_name"
+vhost_file="$sites_available_dir/$domain_name.conf"
+escaped_domain=$(printf '%s' "$domain_name" | sed 's/\./\\./g')
+
+print_message "-> Начинаем удаление домена: $domain_name" "$CYAN"
+echo ""
+
+# 1. Отключение
+echo "-> 1. Отключаем сайт..."
+if [ -f "$vhost_file" ]; then
+    sudo a2dissite "$domain_name.conf" > /dev/null 2>&1
+    print_message "  Сайт отключён" "$GREEN"
+else
+    print_message "  Файл конфигурации не найден" "$YELLOW"
+fi
+
+# 2. Удаление конфига
+echo "-> 2. Удаляем конфигурацию..."
+if [ -f "$vhost_file" ]; then
+    sudo rm "$vhost_file"
+    print_message "  Конфигурация удалена" "$GREEN"
+fi
+
+# 3. /etc/hosts
+echo "-> 3. Удаляем запись из /etc/hosts..."
+if grep -qE "^[^#]*\b$domain_name\b" "$hosts_file"; then
+    sudo sed -i "/$escaped_domain/d" "$hosts_file"
+    print_message "  Запись удалена из /etc/hosts" "$GREEN"
+else
+    print_message "  Запись не найдена в /etc/hosts" "$YELLOW"
+fi
+
+# 4. Директория (опционально)
+echo "-> 4. Удаление директории сайта..."
+read -p "   Удалить $document_root? [y/N]: " delete_dir
+if [[ $delete_dir =~ ^[Yy]$ ]]; then
+    if [ -d "$document_root" ]; then
+        sudo rm -rf "$document_root"
+        print_message "  Директория сайта удалена" "$GREEN"
+    else
+        print_message "  Директория сайта не найдена" "$YELLOW"
+    fi
+else
+    print_message "  Директория сохранена" "$YELLOW"
+fi
+
+# 5. Перезагрузка Apache
+echo "-> 5. Перезагружаем Apache..."
+sudo systemctl reload apache2
+print_message "  Apache перезагружен" "$GREEN"
+
+echo ""
+print_message "=== Домен $domain_name успешно удалён! ===" "$GREEN"
