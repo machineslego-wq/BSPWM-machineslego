@@ -172,7 +172,7 @@ Picom автоматически выбирает профиль по `powerprof
 - Применение: `:source ~/.vimrc`. Новый файл подхватывается `link.sh`.
 
 ### .gitignore
-Whitelist: отслеживаются только `config/ home/ local/ requirements/ system/ scripts/ screenshots/ themes/ wallpapers/` и корневые `README.md`, `README.ru.md`, `LICENSE*`, `TODO.md`, `AGENTS.md`, `.gitignore`. Новые файлы/папки в корне молча игнорируются, пока не добавлены в `.gitignore`.
+Whitelist: отслеживаются только `config/ home/ local/ requirements/ system/ scripts/ screenshots/ themes/ wallpapers/` и корневые `README.md`, `README.ru.md`, `RELEASE.md`, `LICENSE*`, `TODO.md`, `AGENTS.md`, `.gitignore`. Новые файлы/папки в корне молча игнорируются, пока не добавлены в `.gitignore`.
 
 ### Системные конфиги
 - `system/etc/**` → копируется в `/etc/**` с бэкапом в `/etc/dotfiles-backup-YYYYMMDD-HHMMSS`.
