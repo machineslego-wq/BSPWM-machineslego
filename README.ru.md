@@ -9,11 +9,11 @@
 ![Fish](https://img.shields.io/badge/Shell-Fish-green)
 ![Neovim](https://img.shields.io/badge/Editor-Neovim-57A143?logo=neovim&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Status](https://img.shields.io/badge/status-1.x%20final-orange)
+![Status](https://img.shields.io/badge/status-maintained-brightgreen)
 
 Строгое, плоское рабочее окружение на базе BSPWM для Debian 13 Trixie в палитре Tokyo Night.
 
-> **Статус:** `1.7.0` — финальный крупный релиз ветки. Дальше репозиторий уходит в архив: к выходу Debian 14 (Forky) планируется переезд на **Sway** (Wayland). Подробности — в разделе [Дальние планы](#-дальние-планы) и в [TODO.md](./TODO.md).
+> **Статус:** окружение живёт на BSPWM/X11 и остаётся здесь надолго — стабильность Debian важнее, а нужные Wayland-композиторы обновляются роллингом. Ближайшие задачи и отвергнутые идеи — в [TODO.md](./TODO.md).
 
 ---
 
@@ -307,12 +307,11 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 - **Dunst на нескольких мониторах:** уведомления показываются только на мониторе `0` (`monitor = 0` в `dunstrc`).
 - **`window-height` в Picom:** унарный минус не парсится — в правилах пишется `"0 - window-height"` вручную.
 
-## 🗺 Дальние планы
+## 🗺 Планы
 
-- `1.7.0` — финальный релиз этой ветки. После него репозиторий архивируется: он остаётся как рабочий референс и «каркас» решений (палитра, скрипты, темы, структура dotfiles).
-- К выходу **Debian 14 (Forky)** планируется переезд на **Sway / swayfx** (Wayland). Причины: X11 и bspwm заморожены в развитии, Picom тянет за собой известные косяки, а Wayland даёт нормальный HiDPI, VRR и отсутствие тиринга из коробки.
-- Что придётся заменить: `sxhkd` → `sway` config (`bindsym`), `polybar` → `waybar`, `picom` → средства самого композитора, `feh` → `swaybg`, `xss-lock`/`i3lock-fancy` → `swayidle`/`swaylock`, `xrandr` → `output` в конфиге Sway. Dunst, Rofi (через XWayland) или его Wayland-аналоги, GTK/Qt-темы, скрипты и конфиги Neovim/Vim (терминальные редакторы от X11 не зависят) переносятся почти без изменений.
-- Планы и отвергнутые идеи — в [TODO.md](./TODO.md).
+- `1.7.0` — очередной релиз: привести README/TODO в порядок и поставить тег.
+- Ветка BSPWM/X11 — основная и долгосрочная, переезд на Wayland не планируется: Debian стабилен, а Wayland-композиторы с нужными возможностями идут роллингом. Это осознанный выбор в пользу предсказуемости; подробности — в разделе «Отвергнуто» в [TODO.md](./TODO.md).
+- Текущие задачи, «Сделано», отвергнутые идеи и известные ограничения — в [TODO.md](./TODO.md).
 
 ## 📄 Лицензия
 

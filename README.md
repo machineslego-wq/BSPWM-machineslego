@@ -9,11 +9,11 @@
 ![Fish](https://img.shields.io/badge/Shell-Fish-green)
 ![Neovim](https://img.shields.io/badge/Editor-Neovim-57A143?logo=neovim&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Status](https://img.shields.io/badge/status-1.x%20final-orange)
+![Status](https://img.shields.io/badge/status-maintained-brightgreen)
 
 A strict, flat desktop environment based on BSPWM for Debian 13 Trixie, styled in the Tokyo Night palette.
 
-> **Status:** `1.7.0` is the final major release of this branch. After that the repository goes into archive: by the release of Debian 14 (Forky) the plan is to move to **Sway** (Wayland). See [Long-term plans](#-long-term-plans) and [TODO.md](./TODO.md) for details.
+> **Status:** the setup lives on BSPWM/X11 and stays here for good — Debian stability matters more, and the Wayland compositors worth switching to ship as rolling releases. Current tasks and rejected ideas are in [TODO.md](./TODO.md).
 
 ---
 
@@ -307,12 +307,11 @@ Configs live as symlinks: editing a file in the repo changes the live system imm
 - **Dunst on multiple monitors:** notifications appear only on monitor `0` (`monitor = 0` in `dunstrc`).
 - **`window-height` in Picom:** the unary minus is not parsed — rules must use `"0 - window-height"` written by hand.
 
-## 🗺 Long-term plans
+## 🗺 Plans
 
-- `1.7.0` is the final release of this branch. After that the repository is archived: it stays as a working reference and a "skeleton" of solutions (palette, scripts, themes, dotfiles layout).
-- By the release of **Debian 14 (Forky)** the plan is to move to **Sway / swayfx** (Wayland). Reasons: X11 and bspwm are no longer evolving, Picom drags along well-known quirks, and Wayland gives proper HiDPI, VRR, and no tearing out of the box.
-- What will have to be replaced: `sxhkd` → `sway` config (`bindsym`), `polybar` → `waybar`, `picom` → the compositor itself, `feh` → `swaybg`, `xss-lock`/`i3lock-fancy` → `swayidle`/`swaylock`, `xrandr` → `output` directives. Dunst, Rofi (via XWayland) or its Wayland counterparts, GTK/Qt themes, the scripts, and the Neovim/Vim configs (terminal editors do not depend on X11) carry over almost unchanged.
-- Plans and rejected ideas live in [TODO.md](./TODO.md).
+- `1.7.0` is just the next release: tidy up README/TODO and tag it.
+- The BSPWM/X11 branch is the main and long-term one; a Wayland migration is not planned: Debian is stable, while Wayland compositors with the needed features ship as rolling releases. This is a deliberate choice in favour of predictability; details are in the "Rejected" section of [TODO.md](./TODO.md).
+- Current tasks, "Done", rejected ideas, and known limitations live in [TODO.md](./TODO.md).
 
 ## 📄 License
 
