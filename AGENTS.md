@@ -130,6 +130,15 @@ Picom автоматически выбирает профиль по `powerprof
 - Tide — промпт (устанавливается как v6).
 - Сгенерированные файлы (`fish_variables`, `conf.d/_tide_*.fish`, `functions/`, `completions/`) в git не коммитить.
 
+### Bash-промпт
+- Промпт вынесен из `home/bashrc`: пресеты лежат в `config/bash/themes/` → `~/.config/bash/themes/`, подключаются через `.` (не исполняемые, режим 644).
+- `home/bashrc` только выбирает файл: `BASH_PROMPT="${BASH_PROMPT:-tokyo-night}"`; нет файла — фолбэк `PS1='\u@\h:\w\$ '`.
+- `tokyo-night.bash` — текущий промпт (Debian → папка → git → стрелка), `PROMPT_COMMAND=prompt_command`, заголовок окна выставляется там же.
+- `tokyo-night-minimal.bash` — статичный `PS1` без `PROMPT_COMMAND` и вызовов `git`; весь код — в одной строке, только цвета.
+- Промпт в git-репозитории делает 2–5 вызовов `git` на каждый ввод — это основная цена; сам sourcing темы незаметен. Если нужна скорость — `tokyo-night-minimal`.
+- Новая тема: файл `config/bash/themes/<имя>.bash`, который выставляет `PS1` (и при необходимости `PROMPT_COMMAND`); ничего больше править не надо.
+- Применение: новый шелл (`exec bash`) или `source ~/.bashrc`.
+
 ### Node.js / npm
 - `scripts/install-node.sh` ставит NodeSource LTS и пишет `prefix=~/.npm-global` в `~/.npmrc`: `npm i -g` работает без sudo.
 - PATH до `~/.npm-global/bin` добавляют оба шелла — `config/fish/config.fish` и `home/bashrc` (блоки идемпотентны, дублей не создают).

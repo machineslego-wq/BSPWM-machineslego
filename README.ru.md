@@ -66,6 +66,7 @@
 BSPWM-machineslego/
 ├── config/                      # симлинки в ~/.config/*
 │   ├── alacritty/               # терминал: палитра Tokyo Night, шрифт 10
+│   ├── bash/themes/             # пресеты промпта: tokyo-night, tokyo-night-minimal
 │   ├── bspwm/bspwmrc            # автозапуск, мониторы, обои, рамки окон
 │   ├── copyq/                   # тема Tokyo Night + меню команд
 │   ├── dunst/dunstrc            # уведомления: стек 7, история 20
@@ -146,6 +147,11 @@ tide configure
 ```
 
 Мастер настроит стиль, цвета и иконки. `config.fish` уже задаёт цвета Fish в Tokyo Night и алиасы `eza`; для `fastfetch` есть отдельный конфиг для TTY.
+
+**Промпт Bash.**
+`~/.bashrc` подключает пресет из `~/.config/bash/themes/<имя>.bash`; имя задаёт `BASH_PROMPT`, по умолчанию `tokyo-night` (Debian → папка → git → стрелка). Второй пресет — `tokyo-night-minimal`: одна строка без вызовов `git`.
+
+Сменить насовсем — поправить строку `BASH_PROMPT=` в `~/.bashrc`; примерить на один запуск — `BASH_PROMPT=tokyo-night-minimal bash`. Если файла нет, остаётся стоковый `\u@\h:\w\$`.
 
 **Wi-Fi.**
 Команда `wifi` (`~/.local/bin`) рассчитана на конкретные машины: имя интерфейса выбирается по `hostname` (`travelmate` → `wlp3s0`, `lx15pro`/`lx15pro-deb` → `wlo1`, `lamer-deb` → `wlp7s0`, иначе `wlan0`). Добавь свой интерфейс в этот блок и задай `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` в начале файла.

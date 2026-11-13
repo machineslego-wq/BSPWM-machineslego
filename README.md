@@ -66,6 +66,7 @@ Every line of code and every running process must justify its existence. This ru
 BSPWM-machineslego/
 ├── config/                      # symlinks to ~/.config/*
 │   ├── alacritty/               # terminal: Tokyo Night palette, font size 10
+│   ├── bash/themes/             # prompt presets: tokyo-night, tokyo-night-minimal
 │   ├── bspwm/bspwmrc            # autostart, monitors, wallpapers, window borders
 │   ├── copyq/                   # Tokyo Night theme + command menu
 │   ├── dunst/dunstrc            # notifications: stack 7, history 20
@@ -146,6 +147,11 @@ tide configure
 ```
 
 The wizard sets style, colors, and icons. `config.fish` already defines Tokyo Night colors and `eza` aliases; `fastfetch` has a separate TTY config.
+
+**Bash prompt.**
+`~/.bashrc` sources a preset from `~/.config/bash/themes/<name>.bash`; the name comes from `BASH_PROMPT`, default `tokyo-night` (Debian → directory → git → arrow). The second preset, `tokyo-night-minimal`, is a single line with no `git` calls.
+
+To switch for good, edit the `BASH_PROMPT=` line in `~/.bashrc`; to try it for one shell, run `BASH_PROMPT=tokyo-night-minimal bash`. If the file is missing, the stock `\u@\h:\w\$` stays.
 
 **Wi-Fi.**
 The `wifi` command (`~/.local/bin`) is tailored to specific machines: the interface is chosen by `hostname` (`travelmate` → `wlp3s0`, `lx15pro`/`lx15pro-deb` → `wlo1`, `lamer-deb` → `wlp7s0`, otherwise `wlan0`). Add your interface to that block and set `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` at the top of the file.
