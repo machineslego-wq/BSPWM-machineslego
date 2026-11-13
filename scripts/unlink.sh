@@ -57,6 +57,22 @@ if [ -d "$DOTFILES/home" ]; then
     done
 fi
 
+# 3. Чистим команды в ~/.local/bin/ (список берём из local/bin репозитория)
+if [ -d "$DOTFILES/local/bin" ]; then
+    for cmd in "$DOTFILES/local/bin"/*; do
+        [ -e "$cmd" ] || continue
+        check_and_remove "$HOME/.local/bin/$(basename "$cmd")"
+    done
+fi
+
+# 4. Чистим скины MC в ~/.local/share/mc/skins/
+if [ -d "$DOTFILES/local/share/mc/skins" ]; then
+    for skin in "$DOTFILES/local/share/mc/skins"/*.ini; do
+        [ -e "$skin" ] || continue
+        check_and_remove "$HOME/.local/share/mc/skins/$(basename "$skin")"
+    done
+fi
+
 echo ""
 echo "Symlinks removed (Удалено симлинков): $removed"
 if [ "$skipped" -gt 0 ]; then

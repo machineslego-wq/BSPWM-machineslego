@@ -52,7 +52,20 @@ if [ -d "$DOTFILES/home" ]; then
     done
 fi
 
-# 3. Линкуем local/share/mc/skins/ -> ~/.local/share/mc/skins/
+# 3. Линкуем local/bin/ -> ~/.local/bin/ (команды в PATH, поштучно)
+# Поштучно, а не симлинком каталога: в ~/.local/bin лежат и чужие файлы
+# (nvim, tree-sitter, zed) — их трогать нельзя.
+echo "--- Installing commands to ~/.local/bin (Установка команд) ---"
+if [ -d "$DOTFILES/local/bin" ]; then
+    for cmd in "$DOTFILES/local/bin"/*; do
+        [ -e "$cmd" ] || continue
+        chmod +x "$cmd"
+        cmd_name=$(basename "$cmd")
+        link_item "$cmd" "$HOME/.local/bin/$cmd_name"
+    done
+fi
+
+# 4. Линкуем local/share/mc/skins/ -> ~/.local/share/mc/skins/
 echo "--- Installing mc skins to ~/.local/share/mc/skins/ (Установка скинов MC) ---"
 if [ -d "$DOTFILES/local/share/mc/skins" ]; then
     for skin in "$DOTFILES/local/share/mc/skins"/*.ini; do
@@ -62,14 +75,13 @@ if [ -d "$DOTFILES/local/share/mc/skins" ]; then
     done
 fi
 
-# 4. Права на скрипты
+# 5. Права на скрипты
 echo "--- Setting permissions (+x) (Выставление прав (+x)) ---"
-chmod +x "$HOME/.config/polybar/scripts/"*.sh 2>/dev/null
 chmod +x "$HOME/.config/sxhkd/scripts/"*.sh 2>/dev/null
 chmod +x "$HOME/.config/polybar/launch.sh" 2>/dev/null
 chmod +x "$HOME/.config/bspwm/bspwmrc" 2>/dev/null
 
-# 5. Применяем темы для Flatpak (если Flatpak установлен)
+# 6. Применяем темы для Flatpak (если Flatpak установлен)
 if command -v flatpak >/dev/null 2>&1; then
     echo "--- Applying Flatpak theme overrides ---"
     # Доступ к CSS-файлам GTK3/GTK4

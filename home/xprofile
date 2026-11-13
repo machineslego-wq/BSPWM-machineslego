@@ -1,3 +1,4 @@
+export PATH="$HOME/.local/bin:$PATH"
 export QT_STYLE_OVERRIDE=qt6ct
 export XCURSOR_THEME=Bibata-Modern-Ice
 export XCURSOR_SIZE=24

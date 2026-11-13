@@ -47,7 +47,7 @@ Every line of code and every running process must justify its existence. This ru
 ## ✨ Features
 
 - **Native Modules First:** Polybar uses stock `internal/bspwm`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard`, and `internal/date`. Zero background bash loops.
-- **On-Demand Scripts:** Wi-Fi, power menu, battery details, screenshots, volume OSD, and window flags are short bash scripts that run on a hotkey and exit immediately.
+- **On-Demand Commands:** `wifi`, `powermenu`, `battery`, `screenshot`, `volume`, and `cheatsheet` live in `~/.local/bin` (PATH); window flags — in `config/sxhkd/scripts`. They run on a hotkey and exit immediately.
 - **Hardware Autodetection:** `polybar/launch.sh` finds the battery (`POLYBAR_BAT`), AC adapter (`POLYBAR_AC`), and backlight device (`POLYBAR_BACKLIGHT`) in `/sys/class/…` — no hardcoded names.
 - **Wallpapers — `feh` only:** no picker script, no state file, no previews. Two static `feh` calls in `bspwmrc`: landscape on the main monitor, portrait on the rotated one. Change a wallpaper = edit one line.
 - **Screen locking:** `xss-lock` + `i3lock-fancy` — after 10 minutes idle, with DPMS monitor blanking and proper locking before sleep (`--transfer-sleep-lock`).
@@ -58,7 +58,7 @@ Every line of code and every running process must justify its existence. This ru
 - **Workflow:** clipboard history (CopyQ with custom commands), notification history (Rofi), screenshots straight into the CopyQ clipboard, a keybinding cheatsheet in Rofi, and a Neovim setup styled after base VS Code with its own cheatsheet.
 - **Stock Vim as a fallback:** plain `vim` from `apt.txt` with no plugins — syntax highlighting for nearly everything, hybrid numbering (absolute number on the cursor line, relative around it), and persistent undo. Config: `~/.vimrc` (`home/vimrc`).
 - **Stability:** autostart in `bspwmrc` is guarded against duplicates via `pgrep`/`pkill`, so `Super + Alt + R` and a full session restart never spawn extra processes.
-- **Multi-machine:** hostname branches in `bspwmrc` and `wifi.sh` (a dual-monitor desktop and laptops); easy to trim down to a single machine.
+- **Multi-machine:** hostname branches in `bspwmrc` and `wifi` (a dual-monitor desktop and laptops); easy to trim down to a single machine.
 
 ## 📦 Structure
 
@@ -76,11 +76,12 @@ BSPWM-machineslego/
 │   ├── gtk-3.0/ gtk-4.0/        # gtk.css: Tokyo Night palette over Adwaita-dark
 │   ├── nvim/                    # Lua config, vim.pack, CHEATSHEET.md
 │   ├── picom/                   # picom.conf + picom-eco.conf
-│   ├── polybar/                 # config.ini, launch.sh, scripts/
+│   ├── polybar/                 # config.ini, launch.sh
 │   ├── qt5ct/ qt6ct/            # tokyo-night.conf palettes
 │   ├── rofi/config.rasi         # launcher/windows/commands
-│   └── sxhkd/                   # sxhkdrc + scripts/
+│   └── sxhkd/                   # sxhkdrc + hotkey helpers (scripts/)
 ├── home/                        # symlinks to ~/*: .bashrc, .vimrc, .xinitrc, .xprofile, .Xresources
+├── local/bin/                   # commands in ~/.local/bin: wifi, screenshot, volume, ...
 ├── local/share/mc/skins/        # Midnight Commander skin
 ├── system/etc/                  # copied to /etc: touchpad, NetworkManager, interfaces
 ├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh
@@ -130,8 +131,9 @@ chmod +x scripts/*.sh
 
 - `config/<pkg>` → `~/.config/<pkg>`
 - `home/<file>` → `~/.<file>`
+- `local/bin/<command>` → `~/.local/bin/<command>` — one link per file, foreign files in `~/.local/bin` (nvim, tree-sitter) stay untouched
 - `local/share/mc/skins/*.ini` → `~/.local/share/mc/skins/`
-- sets `+x` on Polybar/SXHKD scripts and `bspwmrc`
+- sets `+x` on `local/bin` commands, SXHKD scripts, and `bspwmrc`
 - with Flatpak installed, adds overrides: read-only access to `xdg-config/gtk-3.0`, `gtk-4.0`, `qt5ct`, `qt6ct`, `xdg-data/themes`, and `QT_QPA_PLATFORMTHEME=qt5ct`
 
 ## ⚙️ Post-Install
@@ -146,7 +148,7 @@ tide configure
 The wizard sets style, colors, and icons. `config.fish` already defines Tokyo Night colors and `eza` aliases; `fastfetch` has a separate TTY config.
 
 **Wi-Fi.**
-`~/.config/sxhkd/scripts/wifi.sh` is tailored to specific machines: the interface is chosen by `hostname` (`travelmate` → `wlp3s0`, `lx15pro`/`lx15pro-deb` → `wlo1`, `lamer-deb` → `wlp7s0`, otherwise `wlan0`). Add your interface to that block and set `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` at the top of the file.
+The `wifi` command (`~/.local/bin`) is tailored to specific machines: the interface is chosen by `hostname` (`travelmate` → `wlp3s0`, `lx15pro`/`lx15pro-deb` → `wlo1`, `lamer-deb` → `wlp7s0`, otherwise `wlan0`). Add your interface to that block and set `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` at the top of the file.
 
 **Wallpapers.**
 There is no picker. Edit the `feh` calls in `~/.config/bspwm/bspwmrc`:

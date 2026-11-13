@@ -47,7 +47,7 @@
 ## ✨ Особенности
 
 - **Native Modules First:** Polybar использует стоковые `internal/bspwm`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard` и `internal/date`. Ноль фоновых bash-циклов.
-- **Скрипты по требованию:** Wi-Fi, меню питания, батарея, скриншоты, OSD громкости и флаги окон — короткие bash-скрипты, которые запускаются по хоткею и сразу завершаются.
+- **Команды по требованию:** `wifi`, `powermenu`, `battery`, `screenshot`, `volume` и `cheatsheet` лежат в `~/.local/bin` (PATH), флаги окон — в `config/sxhkd/scripts`. Запускаются по хоткею и сразу завершаются.
 - **Автоопределение железа:** `polybar/launch.sh` сам находит батарею (`POLYBAR_BAT`), адаптер питания (`POLYBAR_AC`) и карту подсветки (`POLYBAR_BACKLIGHT`) в `/sys/class/…` — имена не захардкожены.
 - **Обои — только `feh`:** никакого скрипта-выборщика, state-файла и превью. Два статичных вызова `feh` в `bspwmrc`: landscape на основной монитор, portrait на повёрнутый. Сменить обои = поправить одну строку.
 - **Блокировка экрана:** `xss-lock` + `i3lock-fancy` — через 10 минут бездействия, с гашением монитора по DPMS и корректной блокировкой перед сном (`--transfer-sleep-lock`).
@@ -58,7 +58,7 @@
 - **Workflow:** история буфера (CopyQ + меню команд), история уведомлений (Rofi), скриншоты сразу в буфер CopyQ, шпаргалка по хоткеям в Rofi, Neovim в стиле базового VS Code со своей шпаргалкой.
 - **Запасной Vim:** обычный `vim` из `apt.txt` без плагинов — подсветка синтаксиса почти для всего, гибридная нумерация (абсолютный номер на строке курсора, относительные вокруг) и постоянная история изменений. Конфиг — `~/.vimrc` (`home/vimrc`).
 - **Стабильность:** автозапуск в `bspwmrc` защищён от дублей через `pgrep`/`pkill`, поэтому `Super + Alt + R` и полный рестарт сессии не плодят процессы.
-- **Несколько машин:** hostname-ветвления в `bspwmrc` и `wifi.sh` (десктоп с двумя мониторами и ноутбуки), но при желании конфиг сводится к одной машине.
+- **Несколько машин:** hostname-ветвления в `bspwmrc` и `wifi` (десктоп с двумя мониторами и ноутбуки), но при желании конфиг сводится к одной машине.
 
 ## 📦 Структура
 
@@ -76,11 +76,12 @@ BSPWM-machineslego/
 │   ├── gtk-3.0/ gtk-4.0/        # gtk.css: палитра Tokyo Night поверх Adwaita-dark
 │   ├── nvim/                    # Lua-конфиг, vim.pack, CHEATSHEET.md
 │   ├── picom/                   # picom.conf + picom-eco.conf
-│   ├── polybar/                 # config.ini, launch.sh, scripts/
+│   ├── polybar/                 # config.ini, launch.sh
 │   ├── qt5ct/ qt6ct/            # палитры tokyo-night.conf
 │   ├── rofi/config.rasi         # лаунчер/окна/команды
-│   └── sxhkd/                   # sxhkdrc + scripts/
+│   └── sxhkd/                   # sxhkdrc + хелперы хоткеев (scripts/)
 ├── home/                        # симлинки в ~/*: .bashrc, .vimrc, .xinitrc, .xprofile, .Xresources
+├── local/bin/                   # команды в ~/.local/bin: wifi, screenshot, volume, ...
 ├── local/share/mc/skins/        # скин Midnight Commander
 ├── system/etc/                  # копируется в /etc: touchpad, NetworkManager, interfaces
 ├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh
@@ -130,8 +131,9 @@ chmod +x scripts/*.sh
 
 - `config/<pkg>` → `~/.config/<pkg>`
 - `home/<file>` → `~/.<file>`
+- `local/bin/<команда>` → `~/.local/bin/<команда>` — поштучно, чужие файлы в `~/.local/bin` (nvim, tree-sitter) не трогает
 - `local/share/mc/skins/*.ini` → `~/.local/share/mc/skins/`
-- выставляет `+x` скриптам Polybar/SXHKD и `bspwmrc`
+- выставляет `+x` командам из `local/bin`, скриптам SXHKD и `bspwmrc`
 - при наличии Flatpak выдаёт override'ы: read-only доступ к `xdg-config/gtk-3.0`, `gtk-4.0`, `qt5ct`, `qt6ct`, `xdg-data/themes` и `QT_QPA_PLATFORMTHEME=qt5ct`
 
 ## ⚙️ После установки
@@ -146,7 +148,7 @@ tide configure
 Мастер настроит стиль, цвета и иконки. `config.fish` уже задаёт цвета Fish в Tokyo Night и алиасы `eza`; для `fastfetch` есть отдельный конфиг для TTY.
 
 **Wi-Fi.**
-`~/.config/sxhkd/scripts/wifi.sh` рассчитан на конкретные машины: имя интерфейса выбирается по `hostname` (`travelmate` → `wlp3s0`, `lx15pro`/`lx15pro-deb` → `wlo1`, `lamer-deb` → `wlp7s0`, иначе `wlan0`). Добавь свой интерфейс в этот блок и задай `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` в начале файла.
+Команда `wifi` (`~/.local/bin`) рассчитана на конкретные машины: имя интерфейса выбирается по `hostname` (`travelmate` → `wlp3s0`, `lx15pro`/`lx15pro-deb` → `wlo1`, `lamer-deb` → `wlp7s0`, иначе `wlan0`). Добавь свой интерфейс в этот блок и задай `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` в начале файла.
 
 **Обои.**
 Выборщика нет. Правь вызовы `feh` в `~/.config/bspwm/bspwmrc`:

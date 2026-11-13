@@ -29,7 +29,7 @@
 - [ ] Dunst (`dunstrc`), CopyQ, EasyEffects, GTK/Qt/GIMP/CopyQ-темы, Telegram-палитра, скины MC.
 - [ ] Fish/Tide, `fastfetch`, `install-node.sh`, `bashrc`/`xprofile`-переменные.
 - [ ] Neovim и Vim — терминальные редакторы, конфиги переносятся как есть (`config/nvim`, `home/vimrc`).
-- [ ] Скрипты `sxhkd/scripts/*` — заменить только `bspc`-вызовы (`screenshot.sh`, `flag.sh`, `to-preselect.sh`, `powermenu.sh`).
+- [ ] Команды `local/bin/*` и хелперы `config/sxhkd/scripts/*` — заменить только `bspc`-вызовы: `screenshot` (режим `monitor`), `flag.sh`, `to-preselect.sh`, `preselect-cancel-all.sh`.
 
 **Что придётся заменить:**
 
@@ -48,16 +48,16 @@
 
 - [ ] `sway` или `swayfx` (нужны ли анимации в стиле текущего Picom).
 - [ ] Оставить `waybar` или собрать панель на чём-то другом.
-- [ ] Что делать с `polybar/scripts/power-profile.sh` — переносится как есть, меняется только вызов из панели.
 - [ ] Нужен ли XWayland для Telegram/VS Code/Firefox или переходить на нативные Wayland-сборки.
 
 ### ✅ Сделано
 
-- [x] **Eco-режим (PPD + Picom)** — реализован в `782477e`. `bspwmrc` выбирает `picom-eco.conf` при `power-saver`, `power-profile.sh` перезапускает Picom при смене профиля через меню.
+- [x] **Eco-режим (PPD + Picom)** — реализован в `782477e`. `bspwmrc` выбирает `picom-eco.conf` при `power-saver`, `power-profile` перезапускает Picom при смене профиля через меню.
 - [x] **Neovim** — AppImage в `~/.local/bin/nvim`, конфиг на `vim.pack`, Mason, Treesitter; neo-tree с фиксированной шириной 32 и открытием файлов справа; шпаргалка в `config/nvim/CHEATSHEET.md`.
 - [x] **Vim** — `home/vimrc` без плагинов: подсветка синтаксиса и определение типов файлов, гибридная нумерация (абсолютный номер на строке курсора, относительные вокруг), постоянная история в `~/.vim/undo`, типы файлов для конфигов без расширения. `vim` добавлен в `apt.txt`.
 - [x] **Единая тема** — GTK3/GTK4 (свой CSS поверх `Adwaita-dark`), Qt5/Qt6, GIMP 3, CopyQ, Telegram, Midnight Commander.
 - [x] **Node.js без sudo** — `scripts/install-node.sh` (NodeSource LTS, prefix `~/.npm-global`).
+- [x] **Команды в `~/.local/bin`** — `battery`, `cheatsheet`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `volume`, `wifi` перенесены из `config/sxhkd/scripts` и `config/polybar/scripts`; `link.sh`/`unlink.sh` линкуют их поштучно, PATH выставляют `xinitrc`/`xprofile`. В `config/sxhkd/scripts` остались только хоткей-хелперы (`flag.sh`, `to-preselect.sh`, `preselect-cancel-all.sh`).
 
 ---
 

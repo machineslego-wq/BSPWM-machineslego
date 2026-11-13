@@ -13,22 +13,30 @@ Dotfiles + установщик BSPWM-окружения для Debian 13 Trixie
 ### Структура репозитория
 - `config/<pkg>` → симлинк `~/.config/<pkg>`
 - `home/<file>` → `~/.<file>` (добавляется точка к имени)
-- `local/<dir>` → симлинк `~/.local/<dir>` (для скинов MC, шрифтов и т.д.)
+- `local/bin/<команда>` → симлинк `~/.local/bin/<команда>` (поштучно: там же лежат nvim, tree-sitter, zed — их не трогать)
+- `local/share/mc/skins/*.ini` → симлинк `~/.local/share/mc/skins/<файл>`
 - `system/**` → копируется в `/etc/**` с бэкапом в `/etc/dotfiles-backup-YYYYMMDD-HHMMSS`
 
 Правка файла в репозитории сразу меняет живую систему (симлинк), отдельного шага синхронизации нет.
 
 ### Скрипты
 - `scripts/install.sh` — полная установка: Neovim AppImage и `tree-sitter` CLI в `~/.local/bin`, шрифт, линковка, Fish/Tide, пакеты из `requirements/apt.txt` и `apt-system.txt`, PPD/Flatpak, системные конфиги, поведение крышки. Запускается только при первичной настройке.
-- `scripts/link.sh` — идемпотентный линковщик: делает бэкап в `~/.dotfiles-backup-*`, ставит симлинки. Меняет уже установленные пакеты.
-- `scripts/unlink.sh` — безопасное удаление симлинков, созданных link.sh (только свои, не трогает чужие).
+- `scripts/link.sh` — идемпотентный линковщик: делает бэкап в `~/.dotfiles-backup-*`, ставит симлинки (конфиги, home-файлы, команды в `~/.local/bin`, скины MC). Меняет уже установленные пакеты.
+- `scripts/unlink.sh` — безопасное удаление симлинков, созданных link.sh (только свои, не трогает чужие): `~/.config/*`, home-файлы, `~/.local/bin`, скины MC.
 - `scripts/software.sh` — установка дополнительного софта из `requirements/software.txt` (lazygit, ripgrep, mpv, gimp и т.д.). Запускается отдельно, install.sh только печатает подсказку.
 - `scripts/install-node.sh` — Node.js LTS из NodeSource, npm с prefix `~/.npm-global` (глобальные пакеты без sudo). Запускается отдельно, не из install.sh.
 
 Не запускай `install.sh` и `unlink.sh` без явной просьбы. `link.sh` — безопасен для запуска в любое время.
 
 ### Права на файлы
-Скрипты в git имеют режим 755; новые `.sh` тоже должны быть executable (`chmod +x`).
+Скрипты и команды в git имеют режим 755; новые файлы в `local/bin/` и `*.sh` тоже должны быть executable (`chmod +x`). `link.sh` выставляет `+x` при линковке.
+
+### Команды и хелперы
+- Пользовательские команды — в `local/bin/` → `~/.local/bin` (PATH): `battery`, `cheatsheet`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `volume`, `wifi`. Без расширения `.sh`, с шебангом.
+- Хоткей-«клей» BSPWM остаётся в `config/sxhkd/scripts/`: `flag.sh`, `to-preselect.sh`, `preselect-cancel-all.sh`. Они действуют на focused-окно и вне хоткея смысла не имеют.
+- `config/polybar/launch.sh` — часть конфига панели (запускается из `bspwmrc`), а не команда.
+- Из `sxhkdrc` и Polybar команды вызываются по короткому имени, без `~/.config/...`. PATH с `~/.local/bin` выставляют `home/xinitrc` (`startx`) и `home/xprofile` (display manager), поэтому `sxhkd`, `polybar`, `dunst` и `rofi` его наследуют.
+- Новая команда: файл в `local/bin/` без расширения, при необходимости строка в `sxhkdrc`. `link.sh` сам сделает симлинк и `+x`.
 
 ## Применение изменений
 
@@ -41,7 +49,7 @@ Dotfiles + установщик BSPWM-окружения для Debian 13 Trixie
 | Vim | `:source ~/.vimrc` | — |
 | GTK3 / GTK4 | перезапуск приложения (CSS читается при старте) | — |
 | Qt | `qt5ct` / `qt6ct` или перезапуск приложения | — |
-| Полный перезапуск | `~/.config/sxhkd/scripts/session-restart.sh` | `Super + Alt + Shift + R` |
+| Полный перезапуск | `session-restart` | `Super + Alt + Shift + R` |
 
 Picom автоматически выбирает профиль по `powerprofilesctl get`:
 - `power-saver` → `picom-eco.conf`
@@ -53,6 +61,7 @@ Picom автоматически выбирает профиль по `powerprof
 - Команда под хоткеем — отступ ровно 4 пробела (не табы).
 - Поддерживается brace-раскладка `super + {a,b}` (аналог `super + a; super + b`).
 - Комментарии — только на отдельной строке; inline-комментарии ломают парсер.
+- Команды из `~/.local/bin` вызываются по имени; хоткей-хелперы — `~/.config/sxhkd/scripts/*.sh`.
 
 ### Picom
 - Не парсит унарный минус: писать `"0 - window-height"`, а не `"-window-height"`.
@@ -164,19 +173,19 @@ Whitelist: отслеживаются только `config/ home/ local/ require
 ## Персонализация — не обобщать молча
 
 ### Hostname-специфичные ветвления
-- `bspwmrc` и `wifi.sh` проверяют `hostname` (`lamer-deb`, `travelmate`, `lx15pro`, `lx15pro-deb`).
+- `bspwmrc` и команда `wifi` проверяют `hostname` (`lamer-deb`, `travelmate`, `lx15pro`, `lx15pro-deb`).
 - `bspwmrc` — запуск OpenRGB (только для ПК `lamer-deb`).
 
 ### Мониторы и интерфейсы
 - Жёстко заданные имена мониторов (`DisplayPort-1`, `HDMI-A-3`).
-- Жёстко заданные имена Wi-Fi интерфейсов в `wifi.sh`.
+- Жёстко заданные имена Wi-Fi интерфейсов в `local/bin/wifi`.
 
 ### Обои
 Пути к обоям в `bspwmrc` захардкожены как `$HOME/BSPWM-machineslego/wallpapers/` — клон в другом каталоге ломает обои.
 
 ## Устаревшее / неиспользуемое
 
-- `config/sxhkd/scripts/wallpaper.sh` удалён: обои ставятся статичными `feh` в `bspwmrc`, выборщик отвергнут (см. `TODO.md`). Не возвращать без просьбы.
+- `wallpaper.sh` удалён: обои ставятся статичными `feh` в `bspwmrc`, выборщик отвергнут (см. `TODO.md`). Не возвращать без просьбы.
 - `TODO.md` — рабочий блокнот, а не документация релиза; там же «Отвергнуто» и «Известные ограничения».
 - Документация — на русском; `README.md` и `README.ru.md` держать синхронными (оба обновляются одновременно).
 - AGENTS.md — внутренняя инструкция, не публикуется.

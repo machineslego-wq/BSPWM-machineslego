@@ -22,15 +22,15 @@
 
 # Помощь (Super + /)
 super + slash
-    ~/.config/sxhkd/scripts/cheatsheet.sh
+    cheatsheet
 
 # Перезапуск ВСЕГО (SXHKD + BSPWM + Polybar + Dunst + Picom + Аплеты) (Super + Alt + Shift + R)
 super + alt + shift + r
-    ~/.config/sxhkd/scripts/session-restart.sh
+    session-restart
 
 # Меню питания (Super + Shift + Q)
 super + shift + q
-    ~/.config/sxhkd/scripts/powermenu.sh
+    powermenu
 
 # Заблокировать экран (Super + Alt + L)
 super + alt + l
@@ -46,11 +46,11 @@ super + x
 
 # Выбор режима питания (Super + Alt + P)
 super + alt + p
-    ~/.config/polybar/scripts/power-profile.sh --menu &
+    power-profile --menu &
 
 # Управление Wi-Fi (Super + Alt + N)
 super + alt + n
-    ~/.config/sxhkd/scripts/wifi.sh
+    wifi
 
 # История буфера обмена (CopyQ) — всплывающее меню у курсора (Super + Ctrl + V)
 super + ctrl + v
@@ -58,7 +58,7 @@ super + ctrl + v
 
 # История буфера обмена (Dunst)
 super + alt + h
-    ~/.config/sxhkd/scripts/dunst-history.sh
+    dunst-history
 
 
 # ==============================================================================
@@ -95,7 +95,7 @@ super + alt + t
 
 # Батарея: подробности в Rofi (Super + Alt + B)
 super + alt + b
-    ~/.config/sxhkd/scripts/battery.sh
+    battery
 
 
 # ==============================================================================
@@ -104,11 +104,11 @@ super + alt + b
 
 # Скриншоты: весь экран / окно / задержка / монитор (Super + F1..F4)
 super + F{1,2,3,4}
-    ~/.config/sxhkd/scripts/screenshot.sh {full,window,delayed,monitor}
+    screenshot {full,window,delayed,monitor}
 
 # Скриншот: выделенная область (Super + Shift + S)
 super + shift + s
-    ~/.config/sxhkd/scripts/screenshot.sh region
+    screenshot region
 
 # Яркость: +5% (Fn + Brightness Up)
 XF86MonBrightnessUp
@@ -120,15 +120,15 @@ XF86MonBrightnessDown
 
 # Громкость: +5% (Fn + Vol Up)
 XF86AudioRaiseVolume
-    ~/.config/sxhkd/scripts/volume.sh up
+    volume up
 
 # Громкость: -5% (Fn + Vol Down)
 XF86AudioLowerVolume
-    ~/.config/sxhkd/scripts/volume.sh down
+    volume down
 
 # Громкость: Mute (Fn + Vol Mute)
 XF86AudioMute
-    ~/.config/sxhkd/scripts/volume.sh mute
+    volume mute
 
 
 # ==============================================================================
