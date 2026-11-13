@@ -149,7 +149,7 @@ tide configure
 Мастер настроит стиль, цвета и иконки. `config.fish` уже задаёт цвета Fish в Tokyo Night и алиасы `eza`; для `fastfetch` есть отдельный конфиг для TTY.
 
 **Промпт Bash.**
-`~/.bashrc` подключает пресет из `~/.config/bash/themes/<имя>.bash`; имя задаёт `BASH_PROMPT`, по умолчанию `tokyo-night` (Debian → папка → git → стрелка). Второй пресет — `tokyo-night-minimal`: одна строка без вызовов `git`.
+`~/.bashrc` подключает пресет из `~/.config/bash/themes/<имя>.bash`; имя задаёт `BASH_PROMPT`, по умолчанию `tokyo-night` (Debian → папка → git → стрелка). Ещё два пресета: `tokyo-night-minimal` (одна строка без вызовов `git`) и `empty` — пустой шаблон с закомментированными примерами для своей темы.
 
 Сменить насовсем — поправить строку `BASH_PROMPT=` в `~/.bashrc`; примерить на один запуск — `BASH_PROMPT=tokyo-night-minimal bash`. Если файла нет, остаётся стоковый `\u@\h:\w\$`.
 
