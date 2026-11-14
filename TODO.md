@@ -25,6 +25,8 @@
 
 ### ✅ Сделано
 
+- [x] **Rofi: фиксированные размеры** — проценты заменены на `em`: на 1920×1080 вид прежний, на 1366×768 и выше — тот же. Launcher 40em (800 px), `battery` 29em, `wifi` 24/29em, `power-profile` 21em, `powermenu` 19em, `cheatsheet` 48em × 38em, `dunst-history` 48em × 27em.
+
 - [x] **`rice-help`** — печатает все команды из `local/bin` с описанием из шапки файла (третья строка). Список не хардкожен: новая команда появляется в выводе сама.
 - [x] **Машинные команды в `local/bin`** — `start-llm`, `start-comfy`, `vllm-setup`, `yacht`, `mount-nas`, `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Быстрый запуск по умолчанию, установка/обслуживание — флагами, без интерактивных вопросов. Не переносились: `vhost-add` (уже есть), `create/delete-apache2-domain` (заменены `vhost-add`/`vhost-remove`), `run_comfyiu_v2` (байт-в-байт копия v1), установщик Nerd Font (дубль `install.sh`, там свежее).
 - [x] **`rice-check`** — команда в `local/bin`: симлинки на репозиторий, команды и пути из `sxhkdrc`, `bash -n`, картинки README. Код возврата 0/1, запуск по требованию.

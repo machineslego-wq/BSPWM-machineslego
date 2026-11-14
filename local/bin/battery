@@ -15,7 +15,7 @@ done
 # --- 2. Формирование меню и вывод ---
 if [ -z "$BAT" ]; then
     echo "Питание: стационарный ПК (батареи нет)" | \
-        rofi -dmenu -i -p "󰚥 Питание" -theme-str 'window {width: 30%;}'
+        rofi -dmenu -i -p "󰚥 Питание" -theme-str 'window {width: 29em;}'
     exit 0
 fi
 
@@ -101,5 +101,4 @@ fi
 
 # --- Вывод в Rofi ---
 echo "$lines" | \
-    rofi -dmenu -i -p "󰁹 Батарея" \
-          -theme-str 'window {width: 30%;} listview {lines: 6;}'
+    rofi -dmenu -i -p "󰁹 Батарея" -theme-str 'window {width: 29em;}'

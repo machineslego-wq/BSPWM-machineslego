@@ -35,7 +35,7 @@ else
     TOGGLE_TEXT="󰖩 Включить Wi-Fi"
 fi
 
-CHOICE=$(printf "$TOGGLE_TEXT\n󰤨 Подключиться к сети\n󰈈 Скрытая сеть\n󰀂 Включить хотспот\n󰅖 Выключить хотспот" | rofi -dmenu -p "󰖩 Wi-Fi" -theme-str 'window {width: 25%;}')
+CHOICE=$(printf "$TOGGLE_TEXT\n󰤨 Подключиться к сети\n󰈈 Скрытая сеть\n󰀂 Включить хотспот\n󰅖 Выключить хотспот" | rofi -dmenu -p "󰖩 Wi-Fi" -theme-str 'window {width: 24em;}')
 
 case "$CHOICE" in
     *"Включить Wi-Fi"*)
@@ -86,7 +86,7 @@ case "$CHOICE" in
         fi
         
         # Меню выбора
-        NET_CHOICE=$(echo "$NETWORKS" | rofi -dmenu -p "Выбор сети" -theme-str 'window {width: 30%;}')
+        NET_CHOICE=$(echo "$NETWORKS" | rofi -dmenu -p "Выбор сети" -theme-str 'window {width: 29em;}')
         
         if [ -n "$NET_CHOICE" ]; then
             # Отрезаем две иконки и два пробела, оставляя только SSID
@@ -114,7 +114,7 @@ case "$CHOICE" in
         fi
 
         # Пустой stdin → rofi просто показывает поле ввода
-        HIDDEN_SSID=$(echo "" | rofi -dmenu -p "SSID скрытой сети" -theme-str 'window {width: 30%;}')
+        HIDDEN_SSID=$(echo "" | rofi -dmenu -p "SSID скрытой сети" -theme-str 'window {width: 29em;}')
 
         if [ -n "$HIDDEN_SSID" ]; then
             notify-send -h string:x-canonical-private-synchronous:wifi \

@@ -14,4 +14,4 @@ if [ -z "$HISTORY" ]; then
 fi
 
 # Выводим в Rofi
-echo "$HISTORY" | rofi -dmenu -i -p " История уведомлений" -theme-str 'window {width: 50%; height: 50%;}'
+echo "$HISTORY" | rofi -dmenu -i -p " История уведомлений" -theme-str 'window {width: 48em; height: 27em;}'

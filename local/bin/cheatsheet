@@ -11,7 +11,7 @@
 #   что и фон, поэтому не видны, но работают в поиске Rofi).
 # ==========================================================
 
-cat <<EOF | rofi -dmenu -i -markup-rows -scroll-method 1 -p "󰌌 Горячие клавиши" -theme-str 'window {width: 50%; height: 70%;} listview {lines: 20; scrollbar: true;}'
+cat <<EOF | rofi -dmenu -i -markup-rows -scroll-method 1 -p "󰌌 Горячие клавиши" -theme-str 'window {width: 48em; height: 38em;} listview {lines: 20; scrollbar: true;}'
 <b>󰒓 СИСТЕМА И ЗАПУСК</b>
 󰌌 Super + /                        Шпаргалка                      <span foreground="#1a1b26">[помощь, хелп, help, клавиши]</span>
 󰆍 Super + Return                   Терминал (Alacritty)           <span foreground="#1a1b26">[консоль, cmd, shell, terminal]</span>
