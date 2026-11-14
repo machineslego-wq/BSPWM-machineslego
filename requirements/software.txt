@@ -30,5 +30,6 @@ gimp
 inkscape
 libreoffice
 libreoffice-gtk3
+cava
 easyeffects
 calf-plugins

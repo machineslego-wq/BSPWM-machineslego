@@ -123,6 +123,14 @@ Picom автоматически выбирает профиль по `powerprof
 - `config/easyeffects/output/*.json` — пресеты эквалайзера/эффектов.
 - Автозапуск в `bspwmrc`: `easyeffects --gapplication-service`, только если бинарник установлен.
 
+### Cava
+- `config/cava/config` → `~/.config/cava/config`. Пакет `cava` — в `requirements/software.txt`, вход не задан: cava сам выбирает PipeWire первым.
+- `framerate = 60` — отклик около 16 мс. `noise_reduction` управляет только спадом: 0 — дёргается, 100 — «желе»; 50 — быстрый подъём и плавное затухание.
+- `bars = 0`, `bar_width = 2`, `bar_spacing = 1` — число столбиков подстраивается под ширину терминала.
+- `method = noncurses` + `synchronized_sync = 1` — без мерцания и расслоения; `show_idle_bar_heads = 1` рисует точки на нулевой линии в тишине.
+- Градиент по высоте: `#7aa2f7` → `#7dcfff` → `#bb9af7` → `#f7768e`, фон `#1a1b26`.
+- Применение: перезапуск `cava` (конфиг читается при старте).
+
 ### Telegram
 - `themes/telegram/tokyo-night.tdesktop-palette` — тема Tokyo Night с оранжевым акцентом. Хранится вручную, автоматической установки нет (чтобы не ломать пути Flatpak).
 - Установка: положить файл в `~/.var/app/org.telegram.desktop/data/TelegramDesktop/tdata/theme/` и выбрать в настройках Telegram.
