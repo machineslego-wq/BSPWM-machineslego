@@ -1,0 +1,36 @@
+#!/bin/bash
+# ==========================================================
+# rice-help — список команд репозитория
+# ==========================================================
+# Печатает команды из local/bin и описание из третьей строки
+# каждого файла. Список не хардкожен: новая команда появляется
+# сама. Подробности: <команда> --help.
+# ==========================================================
+
+set -u
+
+SELF=$(readlink -f "$0")
+BIN=$(cd "$(dirname "$SELF")" && pwd)
+
+width=0
+for file in "$BIN"/*; do
+    name=$(basename "$file")
+    [ "${#name}" -gt "$width" ] && width=${#name}
+done
+
+echo "Команды репозитория (local/bin):"
+echo "Подробнее: <команда> --help"
+echo
+
+count=0
+for file in "$BIN"/*; do
+    name=$(basename "$file")
+    line=$(sed -n '3p' "$file")
+    desc=${line#*— }
+    [ "$desc" = "$line" ] && desc=${line#\# }
+    printf '  %-*s  %s\n' "$width" "$name" "$desc"
+    count=$((count + 1))
+done
+
+echo
+echo "Всего: $count"
