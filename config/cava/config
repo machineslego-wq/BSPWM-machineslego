@@ -54,4 +54,4 @@ gradient_color_4 = '#f7768e'
 
 [smoothing]
 # 0 — дёргается, 100 — «желе»; 40 — резче дефолтных 77 и без хвоста
-noise_reduction = 40
+noise_reduction = 20
