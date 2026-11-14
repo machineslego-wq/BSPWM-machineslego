@@ -32,8 +32,8 @@ sleep_timer = 0
 method = noncurses
 orientation = bottom
 
-# Стерео: низкие частоты в центре, края — каналы
-channels = stereo
+# Моно: единый спектр по всей ширине — низкие частоты слева, высокие справа
+channels = mono
 
 # Кадр выводится целиком и сразу — без расслоения
 synchronized_sync = 1
@@ -53,5 +53,5 @@ gradient_color_3 = '#bb9af7'
 gradient_color_4 = '#f7768e'
 
 [smoothing]
-# 0 — дёргается, 100 — «желе»; 50 — быстрый подъём и плавный спад
-noise_reduction = 50
+# 0 — дёргается, 100 — «желе»; 40 — резче дефолтных 77 и без хвоста
+noise_reduction = 40

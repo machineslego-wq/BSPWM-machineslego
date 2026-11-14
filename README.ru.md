@@ -200,7 +200,7 @@ sudo systemctl kill -s HUP systemd-logind
 - **Qt5/Qt6:** палитры `config/qt5ct/colors/tokyo-night.conf` и `config/qt6ct/colors/tokyo-night.conf` (21 роль `QPalette`, формат `#AARRGGBB`), `style=Fusion`, иконки Papirus-Dark. `QT_QPA_PLATFORMTHEME=qt6ct` из `xinitrc` действует и на Qt5-приложения. Применение: `qt5ct`/`qt6ct` или перезапуск приложения.
 - **GIMP 3:** `config/GIMP/3.0/themes/TokyoNight/` подхватывается как пользовательская тема — включи её в GIMP: Preferences → Interface → Theme.
 - **CopyQ:** тема `tokyo-night.ini` + меню команд (закрепить, метки). История и геометрия окна в git не попадают.
-- **Cava:** `config/cava/config` — спектр в терминале. 60 fps для мгновенной реакции, `noise_reduction = 50`: подъём без задержки, спад плавный; градиент по высоте столбика — синий → голубой → фиолетовый → коралловый. Запуск — `cava` (в Alacritty), конфиг читается при старте.
+- **Cava:** `config/cava/config` — спектр в терминале. 60 fps для мгновенной реакции, `noise_reduction = 40`: подъём без задержки, спад резкий, но плавный. Один моно-спектр по всей ширине — низкие частоты слева, высокие справа; градиент по высоте столбика — синий → голубой → фиолетовый → коралловый. Запуск — `cava` (в Alacritty), конфиг читается при старте.
 - **EasyEffects:** пресеты в `config/easyeffects/output/*.json`. Сервис запускается из `bspwmrc`, если бинарник установлен; для эффектов может понадобиться `calf-plugins` из `requirements/software.txt`.
 - **Telegram:** `themes/telegram/tokyo-night.tdesktop-palette` (Tokyo Night с оранжевым акцентом). Автоустановки нет, чтобы не ломать пути Flatpak:
   1. скопируй файл в `~/.var/app/org.telegram.desktop/data/TelegramDesktop/tdata/theme/` (Flatpak) или `~/.local/share/TelegramDesktop/tdata/theme/` (обычная версия);
