@@ -74,7 +74,7 @@ ensure_ollama() {
             -v "$OLLAMA_MODELS_DIR":/root/.ollama \
             -p 11434:11434 \
             --restart unless-stopped \
-            -e HSA_OVERRIDE_GFX_VERSION=11.0.0 \
+            -e HSA_OVERRIDE_GFX_VERSION=11.0.1 \
             -e OLLAMA_FLASH_ATTENTION=1 \
             -e "OLLAMA_CONTEXT_LENGTH=$OLLAMA_CTX" \
             -e OLLAMA_NUM_PARALLEL=1 \
