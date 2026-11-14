@@ -1,0 +1,152 @@
+#!/bin/bash
+# ==========================================================
+# yacht — Yacht с сетью, изолированной от VPN
+# ==========================================================
+# Использование: yacht {start|stop|restart|status|logs|update|reset}
+# Без аргумента печатает справку.
+# ==========================================================
+
+set -u
+
+NAME=yacht
+PORT=8000
+IMAGE=selfhostedpro/yacht:latest
+SOCKET=/var/run/docker.sock
+CONFIG_VOLUME=yacht_config
+NETWORK=yacht_network
+SUBNET=172.20.0.0/16
+
+usage() {
+    cat << 'EOF'
+Использование: yacht {start|stop|restart|status|logs|update|reset}
+
+  start    запустить Yacht с исправленной сетью
+  stop     остановить
+  restart  перезапустить
+  status   показать статус и адрес
+  logs     показать логи (без -f)
+  update   обновить образ и перезапустить
+  reset    удалить контейнер, том и сеть
+EOF
+}
+
+die() { echo "Ошибка: $*" >&2; exit 1; }
+
+need_root() {
+    [ "$EUID" -eq 0 ] || die "нужен root: sudo yacht $*"
+}
+
+need_docker() {
+    command -v docker >/dev/null || die "Docker не установлен"
+    systemctl is-active --quiet docker || {
+        echo "Docker не запущен, стартую..."
+        systemctl start docker || die "не удалось запустить Docker"
+    }
+}
+
+exists() { docker inspect "$NAME" >/dev/null 2>&1; }
+running() { [ "$(docker inspect -f '{{.State.Running}}' "$NAME" 2>/dev/null)" = "true" ]; }
+
+create_network() {
+    if docker network ls --format '{{.Name}}' | grep -qx "$NETWORK"; then
+        echo "Сеть $NETWORK уже существует."
+    else
+        echo "Создаю сеть $NETWORK..."
+        docker network create \
+            --driver bridge \
+            --subnet "$SUBNET" \
+            --opt "com.docker.network.bridge.name=br-yacht" \
+            "$NETWORK" >/dev/null
+    fi
+}
+
+start_yacht() {
+    need_root start
+    need_docker
+    create_network
+
+    if exists; then
+        echo "Удаляю старый контейнер $NAME..."
+        docker rm -f "$NAME" >/dev/null
+    fi
+
+    echo "Запускаю Yacht..."
+    docker run -d \
+        --name "$NAME" \
+        --restart unless-stopped \
+        --network "$NETWORK" \
+        -p "$PORT":8000 \
+        -v "$SOCKET":/var/run/docker.sock \
+        -v "$CONFIG_VOLUME":/config \
+        -e DISABLE_AUTH=true \
+        -e "DOCKER_HOST=unix:///var/run/docker.sock" \
+        --label "com.centurylinklabs.watchtower.enable=true" \
+        "$IMAGE" >/dev/null || die "не удалось запустить контейнер"
+
+    sleep 5
+    if running; then
+        local ip
+        ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$NAME")
+        echo "Yacht запущен: http://localhost:$PORT (сеть $NETWORK, IP $ip)"
+        curl -s -o /dev/null --max-time 5 "http://localhost:$PORT" \
+            && echo "Сервис отвечает." \
+            || echo "Сервис пока не отвечает — подожди или смотри yacht logs."
+    else
+        echo "Контейнер не запустился, логи:" >&2
+        docker logs "$NAME" 2>&1 | tail -20 >&2
+        exit 1
+    fi
+}
+
+stop_yacht() {
+    need_root stop
+    running || { echo "Yacht не запущен."; return 0; }
+    echo "Останавливаю Yacht..."
+    docker stop "$NAME" >/dev/null
+}
+
+show_status() {
+    if ! exists; then
+        echo "Yacht не установлен."
+        return 0
+    fi
+    echo "Контейнер: $(docker inspect -f '{{.State.Status}}' "$NAME")"
+    echo "Образ:     $(docker inspect -f '{{.Config.Image}}' "$NAME")"
+    echo "Порт:      $PORT"
+    if running; then
+        echo "Адрес:     http://localhost:$PORT"
+    fi
+}
+
+show_logs() {
+    exists || die "контейнера $NAME нет"
+    docker logs --tail 60 "$NAME" 2>&1
+}
+
+update_yacht() {
+    need_root update
+    need_docker
+    docker pull "$IMAGE"
+    start_yacht
+}
+
+reset_yacht() {
+    need_root reset
+    docker stop "$NAME" 2>/dev/null || true
+    docker rm "$NAME" 2>/dev/null || true
+    docker volume rm "$CONFIG_VOLUME" 2>/dev/null || true
+    docker network rm "$NETWORK" 2>/dev/null || true
+    echo "Yacht удалён вместе с томом и сетью."
+}
+
+case "${1:-}" in
+    start)          start_yacht ;;
+    stop)           stop_yacht ;;
+    restart)        stop_yacht; start_yacht ;;
+    status)         show_status ;;
+    logs)           show_logs ;;
+    update)         update_yacht ;;
+    reset)          reset_yacht ;;
+    help|--help|-h) usage ;;
+    *)              usage; exit 1 ;;
+esac

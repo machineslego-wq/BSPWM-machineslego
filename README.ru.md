@@ -48,6 +48,7 @@
 
 - **Native Modules First:** Polybar использует стоковые `internal/bspwm`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard` и `internal/date`. Ноль фоновых bash-циклов.
 - **Команды по требованию:** `wifi`, `powermenu`, `battery`, `screenshot`, `volume`, `cheatsheet` и `rice-check` лежат в `~/.local/bin` (PATH), флаги окон — в `config/sxhkd/scripts`. Запускаются по хоткею и сразу завершаются.
+- **Машинные команды:** `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Docker/ROCm-команды рассчитаны на конкретную машину; проверяют демон и печатают справку, если не хватает аргумента.
 - **Автоопределение железа:** `polybar/launch.sh` сам находит батарею (`POLYBAR_BAT`), адаптер питания (`POLYBAR_AC`) и карту подсветки (`POLYBAR_BACKLIGHT`) в `/sys/class/…` — имена не захардкожены.
 - **Обои — только `feh`:** никакого скрипта-выборщика, state-файла и превью. Два статичных вызова `feh` в `bspwmrc`: landscape на основной монитор, portrait на повёрнутый. Сменить обои = поправить одну строку.
 - **Блокировка экрана:** `xss-lock` + `i3lock-fancy` — через 10 минут бездействия, с гашением монитора по DPMS и корректной блокировкой перед сном (`--transfer-sleep-lock`).

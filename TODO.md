@@ -25,6 +25,7 @@
 
 ### ✅ Сделано
 
+- [x] **Машинные команды в `local/bin`** — `start-llm`, `start-comfy`, `vllm-setup`, `yacht`, `mount-nas`, `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Быстрый запуск по умолчанию, установка/обслуживание — флагами, без интерактивных вопросов. Не переносились: `vhost-add` (уже есть), `create/delete-apache2-domain` (заменены `vhost-add`/`vhost-remove`), `run_comfyiu_v2` (байт-в-байт копия v1), установщик Nerd Font (дубль `install.sh`, там свежее).
 - [x] **`rice-check`** — команда в `local/bin`: симлинки на репозиторий, команды и пути из `sxhkdrc`, `bash -n`, картинки README. Код возврата 0/1, запуск по требованию.
 
 - [x] **Релиз `v1.7.0`** — аннотированный тег, `RELEASE.md` с заметками на двух языках (EN-блок, `---`, RU-блок), запись в whitelist `.gitignore`, порядок публикации в AGENTS.

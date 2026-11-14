@@ -1,0 +1,52 @@
+#!/bin/bash
+# ==========================================================
+# sddm-avatar — аватар пользователя на экране входа SDDM
+# ==========================================================
+# Использование: sddm-avatar <путь-к-картинке> [--no-restart]
+# Копирует картинку в /usr/share/sddm/faces/<пользователь>.face.icon
+# и перезапускает SDDM (если не указан --no-restart).
+# ==========================================================
+
+set -u
+
+usage() {
+    cat << 'EOF'
+Использование: sddm-avatar <путь-к-картинке> [--no-restart]
+
+  <путь>        картинка для аватара (jpg/png)
+  --no-restart  не перезапускать SDDM
+EOF
+}
+
+die() { echo "Ошибка: $*" >&2; exit 1; }
+
+src=""
+restart=1
+for arg in "$@"; do
+    case "$arg" in
+        --no-restart) restart=0 ;;
+        -h|--help|help) usage; exit 0 ;;
+        --*) usage; exit 1 ;;
+        *) [ -z "$src" ] || { usage; exit 1; }; src="$arg" ;;
+    esac
+done
+
+[ -n "$src" ] || { usage; exit 1; }
+[ -f "$src" ] || die "файл не найден: $src"
+
+command -v sddm >/dev/null || die "SDDM не установлен"
+sudo -v || die "требуются права sudo"
+
+user=$(whoami)
+dest="/usr/share/sddm/faces/$user.face.icon"
+
+sudo mkdir -p /usr/share/sddm/faces
+sudo cp "$src" "$dest"
+sudo chown root:root "$dest"
+sudo chmod 644 "$dest"
+echo "Аватар установлен: $dest"
+
+if [ "$restart" -eq 1 ]; then
+    echo "Перезапускаю SDDM..."
+    sudo systemctl restart sddm
+fi

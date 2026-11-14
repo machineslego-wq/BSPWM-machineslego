@@ -1,0 +1,170 @@
+#!/bin/bash
+# ==========================================================
+# start-llm — Ollama + OpenWebUI в Docker (ROCm)
+# ==========================================================
+# Использование:
+#   start-llm              быстрый запуск (создаст контейнеры при необходимости)
+#   start-llm --recreate   пересоздать контейнеры с актуальными настройками
+#   start-llm --models     дотянуть модели Qwen 3.5 9B и 4B
+#   start-llm --status     состояние контейнеров и загруженных моделей
+#   start-llm --stop       остановить Ollama и OpenWebUI
+#   start-llm --logs       последние строки логов
+#
+# Без аргументов — быстрый запуск. Без флага --models модели не качаются.
+# ==========================================================
+
+set -u
+
+OLLAMA=ollama
+WEBUI=openwebui
+MODELS=(qwen3.5:9b qwen3.5:4b)
+OLLAMA_CTX=32768
+OLLAMA_MODELS_DIR="$HOME/ollama_models"
+WEBUI_DATA_DIR="$HOME/openwebui/data"
+
+usage() {
+    cat << 'EOF'
+Использование: start-llm [--recreate|--models|--status|--stop|--logs]
+
+  (без флагов)  быстрый запуск: Ollama + OpenWebUI
+  --recreate    пересоздать контейнеры с актуальными настройками
+  --models      дотянуть модели Qwen 3.5 9B и 4B
+  --status      состояние контейнеров и загруженных моделей
+  --stop        остановить Ollama и OpenWebUI
+  --logs        последние строки логов
+EOF
+}
+
+die() { echo "Ошибка: $*" >&2; exit 1; }
+
+exists() { [ -n "$(docker ps -aq -f "name=^${1}$")" ]; }
+running() { [ -n "$(docker ps -q -f "name=^${1}$")" ]; }
+
+ollama_env_ok() {
+    docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$OLLAMA" 2>/dev/null \
+        | grep -qx "OLLAMA_CONTEXT_LENGTH=$OLLAMA_CTX"
+}
+
+wait_for_ollama() {
+    local i
+    for i in $(seq 1 30); do
+        curl -sf --max-time 2 http://127.0.0.1:11434/api/version >/dev/null && return 0
+        sleep 1
+    done
+    return 1
+}
+
+ensure_ollama() {
+    if exists "$OLLAMA" && ! ollama_env_ok; then
+        echo "Контейнер Ollama создан с другими настройками — пересоздаю."
+        docker rm -f "$OLLAMA" >/dev/null
+    fi
+
+    if exists "$OLLAMA"; then
+        running "$OLLAMA" || { echo "Запускаю Ollama..."; docker start "$OLLAMA" >/dev/null; }
+    else
+        echo "Создаю контейнер Ollama..."
+        mkdir -p "$OLLAMA_MODELS_DIR"
+        docker run -d \
+            --name "$OLLAMA" \
+            --device=/dev/kfd \
+            --device=/dev/dri \
+            --group-add video \
+            --security-opt seccomp=unconfined \
+            -v "$OLLAMA_MODELS_DIR":/root/.ollama \
+            -p 11434:11434 \
+            --restart unless-stopped \
+            -e HSA_OVERRIDE_GFX_VERSION=11.0.0 \
+            -e OLLAMA_FLASH_ATTENTION=1 \
+            -e "OLLAMA_CONTEXT_LENGTH=$OLLAMA_CTX" \
+            -e OLLAMA_NUM_PARALLEL=1 \
+            -e OLLAMA_MAX_LOADED_MODELS=1 \
+            -e OLLAMA_KEEP_ALIVE=-1 \
+            ollama/ollama:rocm >/dev/null || die "не удалось создать контейнер Ollama"
+    fi
+}
+
+ensure_webui() {
+    if exists "$WEBUI"; then
+        running "$WEBUI" || { echo "Запускаю OpenWebUI..."; docker start "$WEBUI" >/dev/null; }
+    else
+        echo "Создаю контейнер OpenWebUI..."
+        mkdir -p "$WEBUI_DATA_DIR"
+        docker run -d \
+            --name "$WEBUI" \
+            --network host \
+            -v "$WEBUI_DATA_DIR":/app/backend/data \
+            -e USE_OLLAMA=false \
+            -e OLLAMA_BASE_URL=http://127.0.0.1:11434 \
+            -e AIOHTTP_CLIENT_TIMEOUT=1800 \
+            --restart unless-stopped \
+            openwebui/open-webui:latest >/dev/null || die "не удалось создать контейнер OpenWebUI"
+    fi
+}
+
+pull_models() {
+    ensure_ollama
+    wait_for_ollama || die "Ollama не отвечает, модели не скачать"
+    for model in "${MODELS[@]}"; do
+        echo "Скачиваю $model..."
+        docker exec "$OLLAMA" ollama pull "$model" || echo "Не удалось скачать $model"
+    done
+}
+
+show_status() {
+    docker ps -a --filter "name=^${OLLAMA}$" --filter "name=^${WEBUI}$" \
+        --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+    if running "$OLLAMA"; then
+        echo
+        echo "Загруженные модели:"
+        docker exec "$OLLAMA" ollama ps 2>/dev/null || true
+    fi
+}
+
+stop_all() {
+    for name in "$OLLAMA" "$WEBUI"; do
+        if running "$name"; then
+            echo "Останавливаю $name..."
+            docker stop "$name" >/dev/null
+        fi
+    done
+}
+
+show_logs() {
+    for name in "$OLLAMA" "$WEBUI"; do
+        echo "=== $name ==="
+        docker logs --tail 40 "$name" 2>&1 || true
+        echo
+    done
+}
+
+case "${1:-}" in
+    --help|-h|help) usage; exit 0 ;;
+esac
+
+command -v docker >/dev/null || die "Docker не установлен"
+docker info >/dev/null 2>&1 || die "Docker не запущен"
+
+case "${1:-}" in
+    "")             ;;
+    --recreate)     docker rm -f "$OLLAMA" "$WEBUI" >/dev/null 2>&1; ;;
+    --models)       pull_models; exit 0 ;;
+    --status)       show_status; exit 0 ;;
+    --stop)         stop_all; exit 0 ;;
+    --logs)         show_logs; exit 0 ;;
+    *)              usage; exit 1 ;;
+esac
+
+ensure_ollama
+ensure_webui
+
+if wait_for_ollama; then
+    echo "Ollama работает."
+else
+    echo "Внимание: Ollama не отвечает, смотрите: start-llm --logs"
+fi
+
+echo
+echo "OpenWebUI:  http://localhost:8080"
+echo "Ollama API: http://localhost:11434/v1"
+echo "Модели:     start-llm --models"

@@ -1,0 +1,136 @@
+#!/bin/bash
+# ==========================================================
+# vllm-setup — vLLM с ROCm (OpenAI-совместимый API)
+# ==========================================================
+# Использование:
+#   vllm-setup                 поднять vLLM и вывести API-ключ
+#   vllm-setup --recreate      пересоздать контейнер
+#   vllm-setup --api-key KEY   задать ключ явно
+#   vllm-setup --stop          остановить контейнер
+#   vllm-setup --status        показать состояние
+#
+# Ключ хранится в ~/.config/vllm/api-key и переиспользуется,
+# чтобы не ломать конфиг OpenCode при каждом запуске.
+# ==========================================================
+
+set -u
+
+NAME=vllm-backend
+IMAGE=vllm/vllm-openai-rocm:latest
+MODELS_DIR="$HOME/vllm-models"
+MODEL="Qwen2.5-7B-Instruct-AWQ"
+PORT=8000
+KEY_FILE="$HOME/.config/vllm/api-key"
+
+usage() {
+    cat << 'EOF'
+Использование: vllm-setup [--recreate|--api-key KEY|--stop|--status]
+
+  (без флагов)  поднять vLLM и вывести API-ключ
+  --recreate    пересоздать контейнер
+  --api-key     задать ключ явно
+  --stop        остановить контейнер
+  --status      показать состояние
+EOF
+}
+
+die() { echo "Ошибка: $*" >&2; exit 1; }
+
+exists() { docker inspect "$NAME" >/dev/null 2>&1; }
+
+load_key() {
+    local key="${VLLM_API_KEY:-}"
+    [ -n "$key" ] || key=$(cat "$KEY_FILE" 2>/dev/null || true)
+    [ -n "$key" ] || key=$(openssl rand -hex 16)
+    mkdir -p "$(dirname "$KEY_FILE")"
+    printf '%s\n' "$key" > "$KEY_FILE"
+    chmod 600 "$KEY_FILE"
+    echo "$key"
+}
+
+setup() {
+    command -v docker >/dev/null || die "Docker не установлен"
+    docker info >/dev/null 2>&1 || die "Docker не запущен"
+    if exists; then
+        die "контейнер $NAME уже есть — пересоздать: vllm-setup --recreate"
+    fi
+
+    [ -e /dev/kfd ] || die "нет /dev/kfd — ROCm/GPU не видны"
+    if ! id -nG | grep -qw render; then
+        echo "Добавляю $USER в группу render (нужен повторный вход)..."
+        sudo usermod -aG render "$USER"
+    fi
+
+    local api_key
+    api_key=$(load_key)
+
+    mkdir -p "$MODELS_DIR"
+    echo "Скачиваю образ..."
+    docker pull "$IMAGE" || die "образ не скачался"
+    [ -d "$MODELS_DIR/$MODEL" ] || echo "Внимание: модели $MODELS_DIR/$MODEL пока нет."
+
+    echo "Запускаю vLLM..."
+    docker run -d --name "$NAME" \
+        --device=/dev/kfd \
+        --device=/dev/dri \
+        --group-add=video \
+        --ipc=host \
+        --cap-add=SYS_PTRACE \
+        --security-opt seccomp=unconfined \
+        -p "$PORT":8000 \
+        -v "$MODELS_DIR":/models \
+        -e HSA_OVERRIDE_GFX_VERSION=11.0.0 \
+        -e VLLM_ALLOW_LONG_MAX_MODEL_LEN=1 \
+        "$IMAGE" \
+        --model "/models/$MODEL" \
+        --quantization awq \
+        --max-model-len 32768 \
+        --api-key "$api_key" >/dev/null || die "контейнер не запустился"
+
+    sleep 5
+    echo
+    echo "Проверяю API (первый старт может занять минуту)..."
+    local i
+    for i in $(seq 1 30); do
+        if curl -sf --max-time 3 -o /dev/null \
+            -H "Authorization: Bearer $api_key" "http://127.0.0.1:$PORT/v1/models"; then
+            echo "API готов: http://127.0.0.1:$PORT/v1"
+            break
+        fi
+        sleep 2
+    done
+    if ! curl -sf --max-time 3 -o /dev/null -H "Authorization: Bearer $api_key" \
+        "http://127.0.0.1:$PORT/v1/models"; then
+        echo "API пока не отвечает — смотри: docker logs $NAME"
+    fi
+
+    echo
+    echo "API-ключ: $api_key (сохранён в $KEY_FILE)"
+    echo "Для OpenCode: baseURL http://127.0.0.1:$PORT/v1, apiKey — этот ключ."
+}
+
+stop() {
+    docker stop "$NAME" >/dev/null 2>&1 || { echo "vLLM не запущен."; return 0; }
+    echo "vLLM остановлен."
+}
+
+status() {
+    if ! exists; then
+        echo "vLLM не установлен."
+        return 0
+    fi
+    echo "Контейнер: $(docker inspect -f '{{.State.Status}}' "$NAME")"
+    echo "Порт:      $PORT"
+}
+
+case "${1:-}" in
+    --help|-h|help) usage; exit 0 ;;
+esac
+case "${1:-}" in
+    "")            setup ;;
+    --recreate)    docker rm -f "$NAME" >/dev/null 2>&1; setup ;;
+    --api-key)     [ -n "${2:-}" ] || { usage; exit 1; }; VLLM_API_KEY="$2"; setup ;;
+    --stop)        stop ;;
+    --status)      status ;;
+    *)             usage; exit 1 ;;
+esac

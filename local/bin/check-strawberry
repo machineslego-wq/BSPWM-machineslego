@@ -1,0 +1,70 @@
+#!/bin/bash
+# ==========================================================
+# check-strawberry — диагностика иконок Strawberry/Qt
+# ==========================================================
+# Печатает тему иконок, наследование Papirus, пакеты, переменные
+# окружения и проверяет поиск иконок. Запускает Strawberry на 5
+# секунд с QT_LOGGING_RULES для проверки выбора иконок.
+# ==========================================================
+
+echo "========================================"
+echo "Диагностика иконок для Strawberry/Qt"
+echo "Дата: $(date)"
+echo "Хост: $(hostname)"
+echo "========================================"
+
+echo "1. Тема иконок в GNOME:"
+gsettings get org.gnome.desktop.interface icon-theme 2>/dev/null || echo "Не удалось получить"
+
+echo
+echo "2. Наследование Papirus:"
+grep -E "^Inherits=" /usr/share/icons/Papirus-Dark/index.theme 2>/dev/null || echo "Файл не найден"
+
+echo
+echo "3. Установленные пакеты иконок:"
+dpkg -l | grep -E "papirus-icon-theme|breeze-icon-theme|kf6-breeze-icon-theme|qt6-gtk-platformtheme" | awk '{print $1,$2,$3}'
+
+echo
+echo "4. Переменные окружения:"
+env | grep -E "QT_|XDG_DATA_DIRS" | sort
+
+echo
+echo "5. Структура каталогов Papirus (16x16):"
+ls -la /usr/share/icons/Papirus-Dark/16x16/ 2>/dev/null | grep -E "apps|actions" || echo "Нет доступа или папка отсутствует"
+
+echo
+echo "6. Проверка наличия иконок:"
+for icon in document-open-folder media-playback-start; do
+    for section in actions apps; do
+        printf '  %s (%s): ' "$icon" "$section"
+        found=$(find /usr/share/icons/Papirus-Dark -name "${icon}*" -path "*/${section}/*" -print -quit 2>/dev/null)
+        echo "${found:-Нет}"
+    done
+done
+
+echo
+echo "7. Содержимое apps (первые 5 файлов):"
+ls /usr/share/icons/Papirus-Dark/16x16/apps/ 2>/dev/null | head -5 || echo "Папка apps отсутствует"
+
+echo
+echo "8. Платформа Qt:"
+echo "QT_QPA_PLATFORM: ${QT_QPA_PLATFORM:-не задана}"
+echo "QT_QPA_PLATFORMTHEME: ${QT_QPA_PLATFORMTHEME:-не задана}"
+
+echo
+echo "9. Версия Strawberry:"
+strawberry --version 2>/dev/null || echo "Не найден"
+
+echo
+echo "10. Тест с QT_QPA_PLATFORMTHEME=gtk3 (5 секунд)..."
+timeout 5s env QT_QPA_PLATFORMTHEME=gtk3 QT_ICON_THEME=Papirus-Dark \
+    QT_LOGGING_RULES="*.debug=true" strawberry 2>&1 \
+    | grep -E "Searched icon themes|Theme key" | head -5 \
+    || echo "Тест не удался (возможно, strawberry не запускается)"
+
+echo
+echo "11. Проверка breeze-dark (родительская тема):"
+ls -ld /usr/share/icons/breeze-dark 2>/dev/null || echo "breeze-dark отсутствует"
+
+echo "========================================"
+echo "Диагностика завершена."

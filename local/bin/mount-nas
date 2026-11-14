@@ -1,0 +1,121 @@
+#!/bin/bash
+# ==========================================================
+# mount-nas — NFS-шары домашнего сервера
+# ==========================================================
+# Использование: mount-nas {mount|umount|status|help}
+# Без аргумента печатает справку.
+# ==========================================================
+
+set -u
+
+SERVER_IP="192.168.3.8"
+BASE_DIR="$HOME/nfs_share"
+NFS_OPTIONS="vers=4,_netdev,soft,timeo=100,retrans=1,noexec,nosuid"
+
+# Пары: серверная_папка локальное_имя
+MOUNT_PAIRS=(
+    "/mnt/apps/downloads downloads"
+    "/mnt/main/nikita nikita"
+)
+
+usage() {
+    cat << EOF
+Использование: mount-nas {mount|umount|status}
+
+  mount    смонтировать шары
+  umount   размонтировать шары
+  status   показать состояние
+
+Сервер:  $SERVER_IP
+Папка:   $BASE_DIR
+Шары:
+$(for pair in "${MOUNT_PAIRS[@]}"; do read -r remote local <<< "$pair"; echo "  $remote -> $BASE_DIR/$local"; done)
+EOF
+}
+
+is_mounted() {
+    mountpoint -q "$1"
+}
+
+mounted_paths() {
+    for pair in "${MOUNT_PAIRS[@]}"; do
+        read -r remote local_name <<< "$pair"
+        echo "$BASE_DIR/$local_name"
+    done
+}
+
+do_mount() {
+    sudo -v || { echo "Ошибка: требуются права sudo." >&2; exit 1; }
+
+    mkdir -p "$BASE_DIR"
+    while read -r local_dir; do
+        if [ ! -d "$local_dir" ]; then
+            mkdir -p "$local_dir" 2>/dev/null \
+                || sudo install -d -o "$(id -u)" -g "$(id -g)" "$local_dir"
+        fi
+    done < <(mounted_paths)
+
+    mounted=0
+    total=0
+    for pair in "${MOUNT_PAIRS[@]}"; do
+        read -r remote local_name <<< "$pair"
+        local_dir="$BASE_DIR/$local_name"
+        total=$((total + 1))
+
+        printf '%-45s ' "$remote -> $local_dir"
+        if is_mounted "$local_dir"; then
+            echo "уже смонтирован"
+            mounted=$((mounted + 1))
+            continue
+        fi
+        if sudo mount -t nfs -o "$NFS_OPTIONS" "$SERVER_IP:$remote" "$local_dir" 2>/dev/null; then
+            sudo chown "$(id -u):$(id -g)" "$local_dir" 2>/dev/null
+            echo "ОК"
+            mounted=$((mounted + 1))
+        else
+            echo "ОШИБКА (сервер недоступен?)"
+        fi
+    done
+    echo
+    echo "Смонтировано: $mounted из $total"
+}
+
+do_umount() {
+    sudo -v || { echo "Ошибка: требуются права sudo." >&2; exit 1; }
+
+    while read -r local_dir; do
+        printf '%-45s ' "$local_dir"
+        if ! is_mounted "$local_dir"; then
+            echo "не смонтирован"
+            continue
+        fi
+        if sudo umount "$local_dir" 2>/dev/null; then
+            echo "размонтирован"
+        elif sudo umount -l "$local_dir" 2>/dev/null; then
+            echo "размонтирован (lazy)"
+        else
+            echo "ОШИБКА"
+        fi
+    done < <(mounted_paths)
+}
+
+show_status() {
+    while read -r local_dir; do
+        printf '%-45s ' "$local_dir"
+        if is_mounted "$local_dir"; then
+            echo "СМОНТИРОВАН"
+        elif [ -d "$local_dir" ]; then
+            echo "папка есть, не смонтирован"
+        else
+            echo "папки нет"
+        fi
+    done < <(mounted_paths)
+}
+
+case "${1:-}" in
+    mount)  do_mount; show_status ;;
+    umount|unmount) do_umount ;;
+    status) show_status ;;
+    help|--help|-h) usage ;;
+    *) usage; exit 1 ;;
+esac

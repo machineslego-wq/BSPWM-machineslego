@@ -33,6 +33,7 @@ Dotfiles + установщик BSPWM-окружения для Debian 13 Trixie
 
 ### Команды и хелперы
 - Пользовательские команды — в `local/bin/` → `~/.local/bin` (PATH): `battery`, `cheatsheet`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `volume`, `wifi`, `rice-check`. Без расширения `.sh`, с шебангом.
+- Машинные команды — там же: `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas`, `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. По умолчанию — быстрый запуск; первичная установка и обслуживание — флагами. Команда с обязательным аргументом без него печатает справку и выходит с кодом 1.
 - Хоткей-«клей» BSPWM остаётся в `config/sxhkd/scripts/`: `flag.sh`, `to-preselect.sh`, `preselect-cancel-all.sh`. Они действуют на focused-окно и вне хоткея смысла не имеют.
 - `config/polybar/launch.sh` — часть конфига панели (запускается из `bspwmrc`), а не команда.
 - Из `sxhkdrc` и Polybar команды вызываются по короткому имени, без `~/.config/...`. PATH с `~/.local/bin` выставляют `home/xinitrc` (`startx`) и `home/xprofile` (display manager), поэтому `sxhkd`, `polybar`, `dunst` и `rofi` его наследуют.

@@ -1,0 +1,27 @@
+#!/bin/bash
+# ==========================================================
+# check-hardware — сводка по железу и драйверам
+# ==========================================================
+# Печатает ядро, Mesa, CPU, GPU, драйвер amdgpu и последнее ядро
+# в /boot. Только чтение, без sudo.
+# ==========================================================
+
+echo "=== Системная диагностика ==="
+echo "1. Ядро: $(uname -r)"
+
+mesa=$(dpkg-query -W -f='${Version}' mesa-vulkan-drivers 2>/dev/null)
+echo "2. Mesa: ${mesa:-не установлен}"
+
+cpu=$(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2 | sed 's/^ *//')
+echo "3. CPU: ${cpu:-неизвестно}"
+
+gpu=$(lspci 2>/dev/null | grep -iE 'vga|display|3d' | cut -d: -f3- | sed 's/^ *//')
+echo "4. GPU: ${gpu:-не найдено}"
+
+if lsmod | awk '{print $1}' | grep -qx amdgpu; then
+    echo "5. AMD драйвер: amdgpu загружен"
+else
+    echo "5. AMD драйвер: amdgpu не загружен"
+fi
+
+echo "6. Ядро в /boot: $(ls -1 /boot/vmlinuz-* 2>/dev/null | tail -1)"

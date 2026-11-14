@@ -1,0 +1,61 @@
+#!/bin/bash
+# ==========================================================
+# openrgb-i2c-fix — доступ к I2C для OpenRGB (Intel)
+# ==========================================================
+# Загружает i2c-dev и i2c-i801, добавляет их в автозагрузку,
+# создаёт группу i2c, правило udev и добавляет пользователя в группу.
+# После запуска нужен повторный вход в систему.
+# ==========================================================
+
+set -e
+
+if [ "$EUID" -ne 0 ]; then
+    echo "Запускайте через sudo: sudo openrgb-i2c-fix" >&2
+    exit 1
+fi
+
+MODULES_CONF="/etc/modules-load.d/openrgb-i2c.conf"
+UDEV_RULE="/etc/udev/rules.d/99-i2c-permissions.rules"
+
+echo "=== I2C для OpenRGB ==="
+
+echo "Загружаю модули i2c-dev и i2c-i801..."
+modprobe i2c-dev
+modprobe i2c-i801
+
+echo "Добавляю модули в автозагрузку ($MODULES_CONF)..."
+cat > "$MODULES_CONF" << EOF
+# Загружается для OpenRGB (Intel)
+i2c-dev
+i2c-i801
+EOF
+
+echo "Настраиваю права доступа..."
+if ! getent group i2c >/dev/null; then
+    groupadd i2c
+fi
+
+if [ -n "${SUDO_USER:-}" ]; then
+    usermod -a -G i2c "$SUDO_USER"
+    echo "Пользователь $SUDO_USER добавлен в группу i2c."
+else
+    echo "Предупреждение: не удалось определить пользователя."
+    echo "  Добавьте себя в группу i2c вручную: sudo usermod -a -G i2c \$USER"
+fi
+
+echo "Создаю правило udev ($UDEV_RULE)..."
+cat > "$UDEV_RULE" << EOF
+# Доступ к I2C устройствам для группы i2c
+KERNEL=="i2c-[0-9]*", GROUP="i2c", MODE="0660"
+EOF
+
+udevadm control --reload-rules
+udevadm trigger
+
+echo
+echo "Готово. Что сделано:"
+echo "  - модули i2c-dev и i2c-i801 загружены и в автозагрузке"
+echo "  - группа i2c и правило udev для /dev/i2c-*"
+echo
+echo "Дальше: выйти из системы и зайти заново, затем запускать OpenRGB"
+echo "обычным пользователем (без sudo). Проверка: lsmod | grep i2c"

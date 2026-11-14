@@ -1,0 +1,160 @@
+#!/bin/bash
+# ==========================================================
+# start-comfy — ComfyUI в Docker (ROCm)
+# ==========================================================
+# Быстрый запуск — просто start-comfy. Первичная установка, проверка
+# менеджера и обслуживание — флагами. Интерактивных вопросов нет.
+# ==========================================================
+
+set -u
+
+COMFYUI_DIR="$HOME/comfyui"
+CONTAINER=comfyui
+IMAGE="rocm/pytorch:rocm7.1_ubuntu22.04_py3.10_pytorch_release_2.8.0"
+MANAGER_DIR="$COMFYUI_DIR/custom_nodes/comfyui-manager"
+MANAGER_REPO="https://github.com/ltdrdata/ComfyUI-Manager"
+MANAGER_IN_CONTAINER="/workspace/comfyui/custom_nodes/comfyui-manager"
+COMFYUI_REPO="https://github.com/comfyanonymous/ComfyUI"
+
+usage() {
+    cat << 'EOF'
+Использование: start-comfy [--setup|--manager|--recreate|--stop|--status|--logs]
+
+  (без флагов)  поднять контейнер и запустить ComfyUI
+  --setup       первичная установка: ComfyUI, зависимости, менеджер
+  --manager     проверить и починить ComfyUI-Manager
+  --recreate    пересоздать контейнер
+  --stop        остановить ComfyUI внутри контейнера
+  --status      состояние контейнера и процесса
+  --logs        последние строки логов
+EOF
+}
+
+die() { echo "Ошибка: $*" >&2; exit 1; }
+
+exists() { [ -n "$(docker ps -aq -f "name=^${CONTAINER}$")" ]; }
+running() { [ -n "$(docker ps -q -f "name=^${CONTAINER}$")" ]; }
+
+ensure_container() {
+    if ! exists; then
+        [ -d "$COMFYUI_DIR" ] && [ -n "$(ls -A "$COMFYUI_DIR" 2>/dev/null)" ] \
+            || die "нет $COMFYUI_DIR — сначала start-comfy --setup"
+
+        echo "Создаю контейнер $CONTAINER..."
+        docker run -d --name "$CONTAINER" \
+            --device=/dev/kfd \
+            --device=/dev/dri \
+            --group-add video \
+            -v "$COMFYUI_DIR":/workspace/comfyui \
+            -p 8188:8188 \
+            "$IMAGE" \
+            tail -f /dev/null >/dev/null || die "не удалось создать контейнер"
+
+        echo "Ставлю базовые зависимости ComfyUI (это долго, один раз)..."
+        docker exec "$CONTAINER" bash -c "
+            cd /workspace/comfyui &&
+            python3 -m pip install --upgrade pip &&
+            pip install -r requirements.txt safetensors
+        " || die "зависимости не установились"
+    elif ! running; then
+        echo "Запускаю контейнер $CONTAINER..."
+        docker start "$CONTAINER" >/dev/null
+    fi
+}
+
+setup_all() {
+    mkdir -p "$COMFYUI_DIR"
+    if [ -z "$(ls -A "$COMFYUI_DIR" 2>/dev/null)" ]; then
+        echo "Клонирую ComfyUI в $COMFYUI_DIR..."
+        git clone "$COMFYUI_REPO" "$COMFYUI_DIR" || die "не удалось склонировать ComfyUI"
+    fi
+
+    ensure_container
+
+    if [ ! -d "$MANAGER_DIR" ]; then
+        echo "Клонирую ComfyUI-Manager..."
+        git clone "$MANAGER_REPO" "$MANAGER_DIR" || die "не удалось склонировать менеджер"
+    fi
+    repair_manager
+    echo "Установка завершена."
+}
+
+repair_manager() {
+    if [ ! -d "$MANAGER_DIR" ]; then
+        die "менеджер не установлен — запусти start-comfy --setup"
+    fi
+
+    if [ ! -d "$MANAGER_DIR/.git" ] || [ ! -f "$MANAGER_DIR/__init__.py" ]; then
+        echo "Менеджер повреждён (нет .git или __init__.py) — переклонирую."
+        rm -rf "$MANAGER_DIR"
+        git clone "$MANAGER_REPO" "$MANAGER_DIR" || die "не удалось переклонировать менеджер"
+    fi
+
+    if [ -f "$MANAGER_DIR/requirements.txt" ]; then
+        echo "Ставлю зависимости менеджера..."
+        docker exec "$CONTAINER" pip install -r "$MANAGER_IN_CONTAINER/requirements.txt" \
+            || echo "Внимание: зависимости менеджера не установились."
+    fi
+    echo "Обновляю GitPython..."
+    docker exec "$CONTAINER" pip install --upgrade GitPython \
+        || echo "Внимание: GitPython не обновился."
+}
+
+launch() {
+    local manager_flag=""
+    if docker exec "$CONTAINER" bash -c \
+        "cd /workspace/comfyui && python3 main.py --help 2>&1 | grep -q -- '--enable-manager'"; then
+        manager_flag="--enable-manager"
+    fi
+
+    docker exec "$CONTAINER" bash -c "pkill -f 'python3 main.py' || true" || true
+    sleep 1
+
+    echo "Запускаю ComfyUI${manager_flag:+ с $manager_flag}..."
+    docker exec -d "$CONTAINER" bash -c \
+        "cd /workspace/comfyui && python3 main.py --listen 0.0.0.0 $manager_flag"
+    sleep 3
+
+    echo
+    echo "ComfyUI: http://localhost:8188"
+    docker logs --tail 200 "$CONTAINER" 2>&1 | grep -i -E "manager|error|traceback" | tail -10 || true
+}
+
+stop_comfy() {
+    running || die "контейнер $CONTAINER не запущен"
+    echo "Останавливаю ComfyUI..."
+    docker exec "$CONTAINER" bash -c "pkill -f 'python3 main.py' || true" || true
+}
+
+show_status() {
+    docker ps -a --filter "name=^${CONTAINER}$" --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+    if running; then
+        if docker exec "$CONTAINER" pgrep -f 'python3 main.py' >/dev/null 2>&1; then
+            echo "ComfyUI: процесс запущен"
+        else
+            echo "ComfyUI: процесс не запущен (start-comfy)"
+        fi
+    fi
+}
+
+show_logs() {
+    docker logs --tail 60 "$CONTAINER" 2>&1 || true
+}
+
+case "${1:-}" in
+    --help|-h|help) usage; exit 0 ;;
+esac
+
+command -v docker >/dev/null || die "Docker не установлен"
+docker info >/dev/null 2>&1 || die "Docker не запущен"
+
+case "${1:-}" in
+    "")             ensure_container; launch ;;
+    --setup)        setup_all; launch ;;
+    --manager)      running || ensure_container; repair_manager ;;
+    --recreate)     docker rm -f "$CONTAINER" >/dev/null 2>&1; ensure_container; launch ;;
+    --stop)         stop_comfy ;;
+    --status)       show_status ;;
+    --logs)         show_logs ;;
+    *)              usage; exit 1 ;;
+esac
