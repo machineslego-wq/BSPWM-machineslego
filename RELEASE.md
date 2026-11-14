@@ -1,59 +1,44 @@
-v1.7.0 — Editors, Themes & a Cleaner Layout
+v1.7.1 — Fixed Menus & Machine Tools
 
 What's done
 
-Two weeks of work on the desktop layer: a Neovim config and a plugin-free Vim setup, one Tokyo Night palette across GTK/Qt/CopyQ/MC/Telegram/EasyEffects, user commands moved to `~/.local/bin`, and a switchable Bash prompt.
+A compact release around the menus and the setup itself: Rofi no longer depends on the monitor size, two helpers describe and verify the rice, nine machine commands moved into `local/bin`, and the little rendering annoyances are gone.
 
-## ⌨️ Neovim & Vim
+## 🧩 Rofi: one size on every screen
 
-- **Neovim:** Lua config on the built-in `vim.pack` (no plugin manager), LSP through Mason + `vim.lsp.config`, Treesitter, telescope, blink.cmp, neo-tree (fixed 32-column sidebar, files open to the right), gitsigns, lualine, which-key. Plugin versions pinned by `nvim-pack-lock.json`, hotkeys documented in `CHEATSHEET.md`.
-- **Vim:** plugin-free `~/.vimrc` — syntax and filetype detection, hybrid line numbers, persistent undo, 4/2-space indents per language, correct filetype for `sxhkdrc`, `bspwmrc`, `xinitrc`, `dunstrc`, `picom.conf`.
+- Menu widths used to be a percentage of the monitor, so the same menu was 574 px on a 1366-wide screen and 806 px on a 1920-wide one. They are now set in `em`: the unit follows the font, not the screen.
+- Launcher 800 px; `battery` 580; `wifi` 480 (network picker and hidden SSID 580); `power-profile` 420; `powermenu` 380; `cheatsheet` 960×760; notification history 960×540. All of them are identical from 1366×768 up.
+- Short menus still take their height from the content: `lines` is only an upper bound, so a four-item prompt stays compact instead of stretching into a tall empty block.
 
-## 🎨 One theme everywhere
+## 🧰 Helpers for the setup
 
-- **GTK3:** hand-written CSS over `Adwaita-dark` — named colors plus direct widget selectors, with Adwaita's own hover/active/backdrop backgrounds reset explicitly.
-- **GTK4:** libadwaita CSS variables only, plus a `@define-color` compatibility layer.
-- **Qt5/Qt6:** 21-role palettes (`#AARRGGBB`, Fusion, Papirus-Dark); `QT_QPA_PLATFORMTHEME=qt6ct` covers Qt5 apps too.
-- **Also styled:** CopyQ, Midnight Commander skin, Telegram palette (manual install), EasyEffects presets, separate `fastfetch` configs for X11 and TTY.
-- **Flatpak:** `link.sh` adds read-only access to the GTK/Qt configs and themes, so sandboxed apps see the same look.
+- `rice-help` prints every command in `local/bin` with a one-line description. The list is built from the files themselves, so a new command shows up without editing anything.
+- `rice-check` verifies the live setup: symlinks into the repo, the commands and paths used by `sxhkdrc`, `bash -n` on the scripts, and the README screenshots. Run on demand, exit code 0/1.
 
-## 🗂 Commands live where commands belong
+## 🐳 Machine commands
 
-- `battery`, `cheatsheet`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `volume`, `wifi` now live in `~/.local/bin` and are called by name from `sxhkdrc` and Polybar.
-- `config/sxhkd/scripts/` keeps only focused-window hotkey glue: `flag.sh`, `to-preselect.sh`, `preselect-cancel-all.sh`.
-- `link.sh` links commands **one file at a time**, so foreign binaries in `~/.local/bin` (`nvim`, `tree-sitter`, `zed`) are never touched; `unlink.sh` removes only its own links.
-- The old sxhkd ↔ polybar cross-dependency is gone: `power-profile` is no longer a panel script.
+- `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`.
+- A bare command is the quick start; first-time setup and maintenance are flags (`--setup`, `--models`, `--recreate`, `--status`, `--stop`, `--logs`). The interactive y/N questions are gone.
+- A command that needs an argument prints usage and exits with 1; `--help` exits with 0.
+- `vllm-setup` keeps the API key in `~/.config/vllm/api-key` and reuses it, so restarting the container no longer breaks the client config.
+- `start-llm` recreates the Ollama container only when its environment no longer matches, instead of wiping it on every run.
 
-## 🐚 Switchable Bash prompt
+## 🌐 Apache2 virtual hosts
 
-- The prompt moved out of `~/.bashrc` into `~/.config/bash/themes/<name>.bash`, selected by `BASH_PROMPT` (default `tokyo-night`).
-- Three presets: `tokyo-night` (Debian → directory → git → arrow), `tokyo-night-minimal` (single line, no `git` calls), `empty` (template with commented examples).
-- Window title is now refreshed with every prompt; the dead `force_color_prompt` block is gone.
-
-## ⚙️ Install & maintenance
-
-- Requirements split into `apt.txt`, `apt-system.txt` and `software.txt`; `scripts/software.sh` installs optional apps.
-- `scripts/install-node.sh` sets up NodeSource LTS with npm packages in `~/.npm-global` (no sudo).
-- `wallpaper.sh` removed: wallpapers are set by `feh` in `bspwmrc`.
-- `unlink.sh` got a stricter symlink check and now also cleans `~/.local/bin` and MC skins.
-- Eco mode: `picom-eco.conf` is chosen on `power-saver`, and `power-profile` restarts Picom when the profile changes.
+- `vhost-add` and `vhost-remove` create and delete a virtual host together with its `/etc/hosts` entry, site directory and test page.
 
 ## 🐛 Fixes
 
-- Screenshots land in CopyQ history and the clipboard; a cancelled region capture stays silent.
-- `pavucontrol` replaced by `pavucontrol-qt` (the GTK build pulled in Adwaita).
-- Popup menus in GTK apps no longer get broken shadows in Picom.
-- Battery icons, the caps-lock symbol and the fastfetch layout are aligned with the stock modules.
-
-## 🧭 Direction
-
-- The project stays on **BSPWM/X11**. The archive plan and the Sway/Wayland migration are dropped: Debian is stable, while the Wayland compositors worth using ship as rolling releases.
+- Polybar: the deprecated `content*` and `label-indicator` keys are replaced with `format`/`label` and `label-indicator-on` — the deprecation warnings are gone.
+- Picom: open and close animations are centered, and the shadow follows the window instead of jumping to a corner.
+- Alacritty: vertical padding set to 0.
+- Telegram: icons and date labels on read media are visible again in the dark palette.
+- `start-llm`: `HSA_OVERRIDE_GFX_VERSION=11.0.1` for the current ROCm/GPU combination.
 
 ## ⚠️ Migration notes
 
-- Commands moved out of `~/.config/sxhkd/scripts/` and `~/.config/polybar/scripts/`. Run `./scripts/link.sh` after pulling — it creates the `~/.local/bin` links. `unlink.sh` can remove them.
-- The Bash prompt now comes from `config/bash` → `~/.config/bash`. To change the preset, edit `BASH_PROMPT=` in `~/.bashrc` and open a new shell.
-- Neovim's first launch needs network access: `vim.pack` downloads plugins, Mason installs LSP servers.
+- The new commands need symlinks: run `./scripts/link.sh` after pulling.
+- Rofi reads its config on every launch; Polybar and Telegram need a restart, Alacritty — a new window.
 
 🚀 Update Instructions
 
@@ -69,62 +54,47 @@ Then reload the session: `Super + Alt + Shift + R`.
 
 ---
 
-v1.7.0 — редакторы, темы и порядок в файлах
+v1.7.1 — фиксированные меню и машинные команды
 
 Что сделано
 
-Две недели работы над «рабочим столом»: конфиг Neovim и Vim без плагинов, одна палитра Tokyo Night для GTK/Qt/CopyQ/MC/Telegram/EasyEffects, пользовательские команды переехали в `~/.local/bin`, а промпт Bash стал сменным.
+Компактный релиз про меню и сам райс: Rofi больше не зависит от размера монитора, две команды описывают и проверяют окружение, девять машинных скриптов переехали в `local/bin`, а мелкие недочёты отрисовки исправлены.
 
-## ⌨️ Neovim и Vim
+## 🧩 Rofi: один размер на любом экране
 
-- **Neovim:** конфиг на Lua со встроенным `vim.pack` (без менеджера плагинов), LSP через Mason + `vim.lsp.config`, Treesitter, telescope, blink.cmp, neo-tree (фиксированный сайдбар 32 колонки, файлы открываются справа), gitsigns, lualine, which-key. Версии плагинов зафиксированы в `nvim-pack-lock.json`, хоткеи — в `CHEATSHEET.md`.
-- **Vim:** `~/.vimrc` без плагинов — синтаксис и типы файлов, гибридная нумерация, постоянная история undo, отступы 4/2 пробела по языкам, правильный filetype для `sxhkdrc`, `bspwmrc`, `xinitrc`, `dunstrc`, `picom.conf`.
+- Ширина меню раньше задавалась в процентах от монитора: одно и то же меню было 574 px на экране 1366 и 806 px на 1920. Теперь размеры в `em` — эта единица считается от шрифта, а не от экрана.
+- Launcher 800 px; `battery` 580; `wifi` 480 (выбор сети и скрытая сеть — 580); `power-profile` 420; `powermenu` 380; `cheatsheet` 960×760; история уведомлений 960×540. От 1366×768 и выше всё совпадает.
+- Высоту короткие меню по-прежнему берут из содержимого: `lines` задаёт только максимум, поэтому меню из четырёх пунктов остаётся компактным, а не растягивается в пустой блок.
 
-## 🎨 Одна тема везде
+## 🧰 Помощники по райсу
 
-- **GTK3:** свой CSS поверх `Adwaita-dark` — именованные цвета плюс прямые селекторы; фоны Adwaita в hover/active/backdrop сброшены явно.
-- **GTK4:** только переменные libadwaita, плюс слой совместимости `@define-color`.
-- **Qt5/Qt6:** палитры на 21 роль (`#AARRGGBB`, Fusion, Papirus-Dark); `QT_QPA_PLATFORMTHEME=qt6ct` покрывает и Qt5-приложения.
-- **Также оформлены:** CopyQ, скин Midnight Commander, палитра Telegram (ручная установка), пресеты EasyEffects, отдельные конфиги `fastfetch` для X11 и TTY.
-- **Flatpak:** `link.sh` выдаёт read-only доступ к конфигам GTK/Qt и темам, чтобы приложения в песочнице выглядели так же.
+- `rice-help` печатает все команды из `local/bin` с описанием в одну строку. Список строится по самим файлам: новая команда появляется в нём без правок.
+- `rice-check` проверяет живое окружение: симлинки на репозиторий, команды и пути из `sxhkdrc`, `bash -n` для скриптов, картинки README. Запуск по требованию, код возврата 0/1.
 
-## 🗂 Команды там, где им место
+## 🐳 Машинные команды
 
-- `battery`, `cheatsheet`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `volume`, `wifi` теперь лежат в `~/.local/bin` и вызываются по имени из `sxhkdrc` и Polybar.
-- В `config/sxhkd/scripts/` остался только хоткей-«клей» для focused-окна: `flag.sh`, `to-preselect.sh`, `preselect-cancel-all.sh`.
-- `link.sh` линкует команды **поштучно**, поэтому чужие бинарники в `~/.local/bin` (`nvim`, `tree-sitter`, `zed`) не трогаются; `unlink.sh` удаляет только свои ссылки.
-- Двунаправленная зависимость sxhkd ↔ polybar исчезла: `power-profile` больше не «скрипт панели».
+- `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`.
+- Команда без аргументов — быстрый запуск; первичная установка и обслуживание вынесены во флаги (`--setup`, `--models`, `--recreate`, `--status`, `--stop`, `--logs`). Интерактивных вопросов y/N больше нет.
+- Команда, которой нужен аргумент, печатает справку и выходит с кодом 1; `--help` — с кодом 0.
+- `vllm-setup` хранит API-ключ в `~/.config/vllm/api-key` и переиспользует его: перезапуск контейнера больше не ломает конфиг клиента.
+- `start-llm` пересоздаёт контейнер Ollama только если его окружение перестало совпадать, а не при каждом запуске.
 
-## 🐚 Сменный промпт Bash
+## 🌐 Виртуальные хосты Apache2
 
-- Промпт вынесен из `~/.bashrc` в `~/.config/bash/themes/<имя>.bash`, выбор — через `BASH_PROMPT` (по умолчанию `tokyo-night`).
-- Три пресета: `tokyo-night` (Debian → папка → git → стрелка), `tokyo-night-minimal` (одна строка, без вызовов `git`), `empty` (шаблон с закомментированными примерами).
-- Заголовок окна теперь обновляется с каждым промптом; мёртвый блок `force_color_prompt` удалён.
-
-## ⚙️ Установка и обслуживание
-
-- Списки пакетов разделены: `apt.txt`, `apt-system.txt`, `software.txt`; `scripts/software.sh` ставит дополнительный софт.
-- `scripts/install-node.sh` настраивает NodeSource LTS, глобальные npm-пакеты — в `~/.npm-global` (без sudo).
-- `wallpaper.sh` удалён: обои ставятся через `feh` в `bspwmrc`.
-- В `unlink.sh` усилена проверка симлинков, добавлена чистка `~/.local/bin` и скинов MC.
-- Eco-режим: при `power-saver` выбирается `picom-eco.conf`, а `power-profile` перезапускает Picom при смене профиля.
+- `vhost-add` и `vhost-remove` создают и удаляют виртуальный хост вместе с записью в `/etc/hosts`, каталогом сайта и тестовой страницей.
 
 ## 🐛 Исправления
 
-- Скриншоты попадают в историю CopyQ и в буфер; отмена выделения области — без уведомления.
-- `pavucontrol` заменён на `pavucontrol-qt` (GTK-сборка тянула Adwaita).
-- Контекстные меню GTK-приложений больше не получают кривые тени в Picom.
-- Иконки батареи, символ Caps Lock и раскладка fastfetch приведены к стоковым модулям.
-
-## 🧭 Направление
-
-- Проект остаётся на **BSPWM/X11**. План архивации и переезд на Sway/Wayland отменены: Debian стабилен, а нужные Wayland-композиторы идут роллингом.
+- Polybar: устаревшие ключи `content*` и `label-indicator` заменены на `format`/`label` и `label-indicator-on` — предупреждения о deprecation исчезли.
+- Picom: анимации открытия и закрытия центрированы, тень следует за окном, а не прыгает в угол.
+- Alacritty: вертикальный отступ выставлен в 0.
+- Telegram: иконки и дата на прочитанных медиа снова видны в тёмной палитре.
+- `start-llm`: `HSA_OVERRIDE_GFX_VERSION=11.0.1` под текущую связку ROCm/GPU.
 
 ## ⚠️ Что сделать после обновления
 
-- Команды уехали из `~/.config/sxhkd/scripts/` и `~/.config/polybar/scripts/`. После `git pull` запусти `./scripts/link.sh` — он создаст ссылки в `~/.local/bin`. Убрать их можно через `unlink.sh`.
-- Промпт Bash теперь берётся из `config/bash` → `~/.config/bash`. Чтобы сменить пресет, поправь `BASH_PROMPT=` в `~/.bashrc` и открой новый шелл.
-- Первый запуск Neovim требует сети: `vim.pack` качает плагины, Mason ставит LSP-серверы.
+- Новым командам нужны симлинки: после `git pull` запусти `./scripts/link.sh`.
+- Rofi читает конфиг при каждом запуске; Polybar и Telegram нужен перезапуск, Alacritty — новое окно.
 
 🚀 Инструкция по обновлению
 
