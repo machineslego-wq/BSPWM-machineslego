@@ -25,6 +25,8 @@
 
 ### ✅ Сделано
 
+- [x] **`rice-check`** — команда в `local/bin`: симлинки на репозиторий, запущенные `bspwm`/`sxhkd`/`polybar`/`picom`/`dunst`/`copyq`, команды и пути из `sxhkdrc`, `bash -n`, JSON и картинки README. Код возврата 0/1, запуск по требованию.
+
 - [x] **Релиз `v1.7.0`** — аннотированный тег, `RELEASE.md` с заметками на двух языках (EN-блок, `---`, RU-блок), запись в whitelist `.gitignore`, порядок публикации в AGENTS.
 - [x] **Eco-режим (PPD + Picom)** — реализован в `782477e`. `bspwmrc` выбирает `picom-eco.conf` при `power-saver`, `power-profile` перезапускает Picom при смене профиля через меню.
 - [x] **Neovim** — AppImage в `~/.local/bin/nvim`, конфиг на `vim.pack`, Mason, Treesitter; neo-tree с фиксированной шириной 32 и открытием файлов справа; шпаргалка в `config/nvim/CHEATSHEET.md`.

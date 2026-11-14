@@ -1,0 +1,139 @@
+#!/bin/bash
+# ==========================================================
+# rice-check — Проверка состояния райса и дотфайлов
+# ==========================================================
+# Запуск: rice-check
+# Проверяет симлинки на репозиторий, запущенные компоненты,
+# команды из sxhkdrc, синтаксис скриптов, JSON и картинки README.
+# Без сети и sudo. Код возврата: 0 — всё в порядке, 1 — есть проблемы.
+# ==========================================================
+
+set -u
+
+SELF=$(readlink -f "$0")
+DOTFILES=$(cd "$(dirname "$SELF")/../.." && pwd)
+cd "$DOTFILES" || exit 1
+
+fail=0
+ok()      { printf '  ok    %s\n' "$*"; }
+bad()     { printf '  FAIL  %s\n' "$*"; fail=1; }
+note()    { printf '  --    %s\n' "$*"; }
+section() { printf '\n%s\n' "$*"; }
+
+# --- 1. Симлинки: репозиторий -> живая система ---
+section "Симлинки"
+
+links=0
+check_link() {
+    local live=$1 want=$2 real
+    if [ ! -L "$live" ]; then
+        bad "$live: нет симлинка (запусти ./scripts/link.sh)"
+        return
+    fi
+    real=$(readlink -f "$live")
+    case "$real" in
+        "$want")        links=$((links + 1)) ;;
+        "$DOTFILES"/*)  bad "$live: ведёт на $real вместо $want" ;;
+        *)              bad "$live: ведёт вне репозитория ($real)" ;;
+    esac
+}
+
+for dir in "$DOTFILES"/config/*/; do
+    pkg=$(basename "$dir")
+    check_link "$HOME/.config/$pkg" "$DOTFILES/config/$pkg"
+done
+for file in "$DOTFILES"/home/*; do
+    name=$(basename "$file")
+    check_link "$HOME/.$name" "$DOTFILES/home/$name"
+done
+for file in "$DOTFILES"/local/bin/*; do
+    name=$(basename "$file")
+    check_link "$HOME/.local/bin/$name" "$DOTFILES/local/bin/$name"
+done
+for file in "$DOTFILES"/local/share/mc/skins/*.ini; do
+    name=$(basename "$file")
+    check_link "$HOME/.local/share/mc/skins/$name" "$DOTFILES/local/share/mc/skins/$name"
+done
+[ "$fail" -eq 0 ] && ok "все ссылки на месте"
+
+# --- 2. Запущенные компоненты райса ---
+section "Компоненты сессии"
+for proc in bspwm sxhkd polybar picom dunst; do
+    if pgrep -x "$proc" >/dev/null 2>&1; then
+        ok "$proc"
+    else
+        bad "$proc не запущен"
+    fi
+done
+if command -v copyq >/dev/null 2>&1; then
+    if pgrep -x copyq >/dev/null 2>&1; then
+        ok "copyq"
+    else
+        note "copyq установлен, но не запущен"
+    fi
+fi
+
+# --- 3. Команды и пути из sxhkdrc ---
+section "Команды из sxhkdrc"
+
+missing=0
+cmds=$(grep -oP '^\s{4}\K[^\s]+' "$DOTFILES/config/sxhkd/sxhkdrc" \
+       | grep -vE '^(~|\$|/|\.)' | sort -u)
+for cmd in $cmds; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        bad "нет команды: $cmd"
+        missing=1
+    fi
+done
+[ "$missing" -eq 0 ] && ok "$(printf '%s\n' "$cmds" | wc -l) команд найдены в PATH"
+
+paths=$(grep -oP '^\s{4}\K~/\S+' "$DOTFILES/config/sxhkd/sxhkdrc" | sort -u)
+for path in $paths; do
+    [ -x "${path/#\~/$HOME}" ] || bad "нет исполняемого файла: $path"
+done
+
+# --- 4. Синтаксис скриптов и целостность файлов ---
+section "Конфиги и файлы"
+
+syn=0
+while IFS= read -r f; do
+    if ! bash -n "$f" 2>/dev/null; then
+        bad "синтаксис: $f"
+    else
+        syn=$((syn + 1))
+    fi
+done < <(git -C "$DOTFILES" ls-files -- '*.sh' 'local/bin/*' 'config/sxhkd/scripts/*')
+ok "$syn shell-файлов без ошибок"
+
+if command -v jq >/dev/null 2>&1; then
+    js=0
+    while IFS= read -r f; do
+        if jq empty "$f" >/dev/null 2>&1; then
+            js=$((js + 1))
+        else
+            bad "битый JSON: ${f#"$DOTFILES"/}"
+        fi
+    done < <(git -C "$DOTFILES" ls-files -- '*.json')
+    ok "$js JSON-файлов валидны"
+else
+    note "jq не установлен — JSON не проверен"
+fi
+
+img=0
+while IFS= read -r p; do
+    if [ -f "$DOTFILES/$p" ]; then
+        img=$((img + 1))
+    else
+        bad "нет картинки из README: $p"
+    fi
+done < <(grep -ho 'screenshots/[A-Za-z0-9_+.-]*\.png' "$DOTFILES"/README*.md | sort -u)
+ok "$img картинок README на месте"
+
+# --- Итог ---
+echo
+if [ "$fail" -eq 0 ]; then
+    echo "Всё в порядке."
+else
+    echo "Есть проблемы — см. FAIL выше."
+fi
+exit "$fail"

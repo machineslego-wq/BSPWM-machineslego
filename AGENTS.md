@@ -32,7 +32,7 @@ Dotfiles + установщик BSPWM-окружения для Debian 13 Trixie
 Скрипты и команды в git имеют режим 755; новые файлы в `local/bin/` и `*.sh` тоже должны быть executable (`chmod +x`). `link.sh` выставляет `+x` при линковке.
 
 ### Команды и хелперы
-- Пользовательские команды — в `local/bin/` → `~/.local/bin` (PATH): `battery`, `cheatsheet`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `volume`, `wifi`. Без расширения `.sh`, с шебангом.
+- Пользовательские команды — в `local/bin/` → `~/.local/bin` (PATH): `battery`, `cheatsheet`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `volume`, `wifi`, `rice-check`. Без расширения `.sh`, с шебангом.
 - Хоткей-«клей» BSPWM остаётся в `config/sxhkd/scripts/`: `flag.sh`, `to-preselect.sh`, `preselect-cancel-all.sh`. Они действуют на focused-окно и вне хоткея смысла не имеют.
 - `config/polybar/launch.sh` — часть конфига панели (запускается из `bspwmrc`), а не команда.
 - Из `sxhkdrc` и Polybar команды вызываются по короткому имени, без `~/.config/...`. PATH с `~/.local/bin` выставляют `home/xinitrc` (`startx`) и `home/xprofile` (display manager), поэтому `sxhkd`, `polybar`, `dunst` и `rofi` его наследуют.
@@ -218,6 +218,7 @@ Whitelist: отслеживаются только `config/ home/ local/ require
 ## Проверка
 
 - Тестов нет.
+- `rice-check` — состояние райса и дотфайлов: симлинки на репозиторий, запущенные bspwm/sxhkd/polybar/picom/dunst, команды из `sxhkdrc`, `bash -n`, JSON и картинки README. Код возврата 0/1, запуск по требованию.
 - Синтаксис скриптов: `bash -n <script>`.
 - Конфиги проверяются только перезапуском соответствующего компонента/сессии.
 - Перед завершением — `git status`; не коммитить `~/.dotfiles-backup-*` и сгенерированные файлы (Fish/Tide, history).
