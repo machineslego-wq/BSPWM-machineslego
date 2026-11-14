@@ -27,20 +27,17 @@ Every line of code and every running process must justify its existence. This ru
 
 ---
 
-![Desktop](screenshots/desktop.png)
+![Desktop](screenshots/desktop.webp)
 
 <details>
 <summary><b>Show more screenshots</b></summary>
 <br>
 
-![Workspace & Notifications](screenshots/workspace+notify.png)
-![Rofi](screenshots/rofi-showcase.png)
-![Wi-Fi Manager](screenshots/wifi-manager.png)
-![Wi-Fi Menu](screenshots/wifi-manager-menu.png)
-![Cheatsheet](screenshots/cheatsheet.png)
-![Power Profiles](screenshots/power-profiles.png)
-![Polybar right side](screenshots/polybar-right-expanded.png)
-![Window flag](screenshots/alt+x-example.png)
+![fastfetch](screenshots/fastfetch.webp)
+![Strwaberry + Cava + Easyeffects](screenshots/theme-demonstration-strawberry-cava-easyeffects.webp)
+![VSCode + Obsidian](screenshots/theme-demonstration-vscode-obsidian.webp)
+![VSCode + Nautilus](screenshots/theme-demonstration-vscode-nautilus.webp)
+
 
 </details>
 

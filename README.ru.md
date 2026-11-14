@@ -27,20 +27,16 @@
 
 ---
 
-![Рабочий стол](screenshots/desktop.png)
+![Desktop](screenshots/desktop.webp)
 
 <details>
 <summary><b>Показать больше скриншотов</b></summary>
 <br>
 
-![Рабочее пространство](screenshots/workspace+notify.png)
-![Rofi](screenshots/rofi-showcase.png)
-![Менеджер Wi-Fi](screenshots/wifi-manager.png)
-![Меню Wi-Fi](screenshots/wifi-manager-menu.png)
-![Шпаргалка](screenshots/cheatsheet.png)
-![Профили питания](screenshots/power-profiles.png)
-![Правая часть Polybar](screenshots/polybar-right-expanded.png)
-![Флаг окна](screenshots/alt+x-example.png)
+![fastfetch](screenshots/fastfetch.webp)
+![Strwaberry + Cava + Easyeffects](screenshots/theme-demonstration-strawberry-cava-easyeffects.webp)
+![VSCode + Obsidian](screenshots/theme-demonstration-vscode-obsidian.webp)
+![VSCode + Nautilus](screenshots/theme-demonstration-vscode-nautilus.webp)
 
 </details>
 
