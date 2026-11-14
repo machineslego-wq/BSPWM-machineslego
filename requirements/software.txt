@@ -29,5 +29,6 @@ mupdf
 gimp
 inkscape
 libreoffice
+libreoffice-gtk4
 easyeffects
 calf-plugins
