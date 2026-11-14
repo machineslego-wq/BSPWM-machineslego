@@ -18,6 +18,9 @@ export XCURSOR_THEME=Bibata-Modern-Ice
 export XCURSOR_SIZE=24
 export QT_QPA_PLATFORMTHEME=qt6ct
 
+# Фикс для libreoffice для gtk3
+export SAL_USE_VCLPLUGIN=gtk3
+
 # 3. Запуск оконного менеджера
 # exec заменяет текущий процесс (оболочку xinit) на BSPWM,
 # чтобы при выходе из WM сессия Xorg корректно завершалась.
