@@ -1,0 +1,68 @@
+#!/bin/bash
+# ==========================================================
+# sway-display — мониторы и обои для Sway
+# ==========================================================
+# В bspwm раскладка живёт в bspwmrc через if/else по hostname,
+# потому что xrandr выполняется один раз при старте. В конфиге
+# Sway условий нет, поэтому то же самое вынесено в отдельную
+# команду: она же умеет переприменяться после reload.
+#
+# Вызывается из config/sway/config: exec_always sway-display
+# Вручную: sway-display (внутри сессии Sway)
+# ==========================================================
+
+set -u
+
+WALL="$HOME/BSPWM-machineslego/wallpapers"
+LAND="$WALL/tokyo-night-girl-landscape.jpg"
+PORT="$WALL/tokyo-night-girl-portrait.jpg"
+
+if ! command -v swaymsg >/dev/null 2>&1; then
+    echo "sway-display: swaymsg не найден (Sway не установлен?)" >&2
+    exit 1
+fi
+
+if [ -z "${SWAYSOCK:-}" ]; then
+    echo "sway-display: запускать внутри сессии Sway (нет SWAYSOCK)" >&2
+    exit 1
+fi
+
+# При старте сессии Sway выполняет exec до готовности IPC.
+# Ждём, пока swaymsg начнёт отвечать.
+outputs=""
+for _ in $(seq 1 20); do
+    outputs=$(swaymsg -t get_outputs -r 2>/dev/null) || true
+    [ -n "$outputs" ] && break
+    sleep 0.25
+done
+
+if [ -z "$outputs" ]; then
+    echo "sway-display: swaymsg не отвечает" >&2
+    exit 1
+fi
+
+has_output() {
+    grep -q "\"$1\"" <<<"$outputs"
+}
+
+run() {
+    swaymsg "$1" >/dev/null 2>&1 || echo "sway-display: не применилось: $1" >&2
+}
+
+# Все подключённые выходы включены.
+run "output * enable"
+
+if [ "$(hostname)" = "lamer-deb" ] && has_output DisplayPort-1 && has_output HDMI-A-3; then
+    # ПК: DP-1 — основной 1920x1080@144, HDMI-A-3 — слева, повёрнут на 90°.
+    # Геометрия как в bspwmrc: HDMI занимает 1080 px по X, DP стоит правее.
+    run "output DisplayPort-1 mode 1920x1080@144Hz position 1080 250"
+    run "output HDMI-A-3 transform 90 position 0 0"
+
+    # Горизонтальные обои на основной, вертикальные — на повёрнутый.
+    run "output DisplayPort-1 bg $LAND fill"
+    run "output HDMI-A-3 bg $PORT fill"
+else
+    # Ноутбуки и всё остальное: один экран (или зеркало) — горизонтальные
+    # обои на каждый выход. Имена выходов не хардкодим.
+    run "output * bg $LAND fill"
+fi

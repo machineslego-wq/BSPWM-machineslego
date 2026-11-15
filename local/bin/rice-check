@@ -55,7 +55,10 @@ for path in $(grep -oP '^\s{4}\K~/\S+' config/sxhkd/sxhkdrc | sort -u); do
 done
 
 # --- Синтаксис скриптов и картинки из README ---
+# Файл, удалённый из рабочего дерева, но ещё не закоммиченный, пропускаем:
+# иначе переименование команды валит проверку до коммита.
 while IFS= read -r file; do
+    [ -f "$file" ] || continue
     bash -n "$file" 2>/dev/null || bad "синтаксис: $file"
 done < <(git ls-files -- '*.sh' 'local/bin/*' 'config/sxhkd/scripts/*')
 

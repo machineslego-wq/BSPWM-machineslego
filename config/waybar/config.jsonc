@@ -1,0 +1,150 @@
+// -*- mode: jsonc -*-
+// ==========================================================
+// Waybar для Sway — тема Tokyo Night
+// ==========================================================
+// Живёт в репозитории: config/waybar -> ~/.config/waybar
+// Запуск: exec waybar в ~/.config/sway/config
+// Перезапуск после правки этого файла: pkill -x waybar; waybar &
+// style.css подхватывается на лету (reload_style_on_change).
+//
+// Модули, завязанные на rofi (powermenu, power-profile, wifi),
+// здесь не используются: под Wayland rofi не работает.
+// ==========================================================
+
+{
+    "layer": "top",
+    "position": "top",
+    "height": 32,
+    "spacing": 0,
+    "fixed-center": true,
+    "reload_style_on_change": true,
+
+    "modules-left": [
+        "sway/workspaces",
+        "sway/mode",
+        "sway/scratchpad"
+    ],
+    "modules-center": [
+        "sway/window"
+    ],
+    "modules-right": [
+        "tray",
+        "power-profiles-daemon",
+        "network",
+        "backlight",
+        "battery",
+        "wireplumber",
+        "clock"
+    ],
+
+    // Рабочие столы: римские цифры как в Polybar, fallback — точка.
+    "sway/workspaces": {
+        "disable-scroll": true,
+        "format": "{icon}",
+        "format-icons": {
+            "1": "I",
+            "2": "II",
+            "3": "III",
+            "4": "IV",
+            "5": "V",
+            "6": "VI",
+            "7": "VII",
+            "8": "VIII",
+            "9": "IX",
+            "10": "X",
+            "default": "•"
+        }
+    },
+
+    "sway/mode": {
+        "format": "<span style=\"italic\">{}</span>"
+    },
+
+    "sway/scratchpad": {
+        "format": "{icon} {count}",
+        "show-empty": false,
+        "format-icons": ["", "󰖯"],
+        "tooltip": true,
+        "tooltip-format": "{app}: {title}"
+    },
+
+    "sway/window": {
+        "format": "{title}",
+        "max-length": 60,
+        "tooltip": false
+    },
+
+    "tray": {
+        "icon-size": 18,
+        "spacing": 8
+    },
+
+    // Иконки как в local/bin/power-profile
+    "power-profiles-daemon": {
+        "format": "{icon}",
+        "tooltip": true,
+        "tooltip-format": "Профиль: {profile}\nДрайвер: {driver}",
+        "format-icons": {
+            "performance": "󰓅",
+            "balanced": "󰒓",
+            "power-saver": "󰾆",
+            "default": "󰒓"
+        }
+    },
+
+    "network": {
+        "interval": 3,
+        "format-wifi": "{icon} {essid}",
+        "format-ethernet": "󰈀 {ifname}",
+        "format-linked": "󰈀 {ifname}",
+        "format-disconnected": "󰤮",
+        "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+        "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ifname} · {ipaddr}",
+        "tooltip-format-ethernet": "{ifname} · {ipaddr}/{cidr}",
+        "tooltip-format-disconnected": "Нет подключения",
+        "on-click": "nm-connection-editor"
+    },
+
+    "backlight": {
+        "format": "{icon} {percent}%",
+        "format-icons": ["󰃞", "󰃟", "󰃠"],
+        "tooltip": false
+    },
+
+    "battery": {
+        "interval": 30,
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{icon} {capacity}%",
+        "format-charging": "{icon} {capacity}%",
+        "format-plugged": "{icon} {capacity}%",
+        "tooltip-format": "{timeTo}",
+        "format-icons": [
+            "󰁺", "󰁻", "󰁼", "󰁽", "󰁾",
+            "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"
+        ]
+    },
+
+    // Звук через PipeWire (wpctl), pactl в системе не установлен
+    "wireplumber": {
+        "format": "{icon} {volume}%",
+        "format-muted": "󰝟",
+        "format-icons": ["󰕿", "󰖀", "󰕾"],
+        "scroll-step": 5,
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+        "on-scroll-up": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+",
+        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+    },
+
+    // ВАЖНО: waybar допускает только один плейсхолдер {…} в формате.
+    // Дата и время пишутся внутри одного спецификатора, иначе
+    // "clock: format error: invalid arg-id in format string".
+    "clock": {
+        "interval": 60,
+        "format": "{:%H:%M  󰃭 %a, %d %b}",
+        "format-alt": "{:%H:%M:%S  󰃭 %d.%m.%Y}",
+        "tooltip": false
+    }
+}

@@ -1,0 +1,266 @@
+# ==============================================================================
+# Sway — конфиг BSPWM-machineslego (эксперимент)
+# ==============================================================================
+# Основа — стоковый /etc/sway/config, переписанный под райс:
+# те же цвета, отступы и хоткеи, где это осмысленно под Wayland.
+#
+# Запуск: sway-session (TTY) или сессия GDM от install-sway.sh --session.
+# Применение: Super + Escape (reload) или Super + Shift + C.
+# Шпаргалка: Super + / (cheatsheet-sway).
+#
+# Что здесь НЕ как в BSPWM:
+#   - нет picom: тени и скругления — отдельный композитор, Sway их не умеет;
+#   - нет preselect: у Sway другая модель дерева;
+#   - вместо rofi — wofi, вместо Polybar — waybar, вместо sxhkd — сам Sway.
+# ==============================================================================
+
+### Переменные
+#
+# Logo key. Use Mod1 for Alt.
+set $mod Mod4
+# Home row direction keys, like vim
+set $left h
+set $down j
+set $up k
+set $right l
+# Терминал и лаунчер
+set $term foot
+set $menu wofi --show drun
+
+### Оформление окон
+#
+# pixel 2 — у окна только рамка в 2 px, без заголовка (как border_width в bspwm).
+default_border pixel 2
+default_floating_border pixel 2
+
+# Отступы между окнами (window_gap 4). Внешние не нужны: место под waybar
+# резервирует layer-shell, панель не перекрывает окна.
+gaps inner 4
+gaps outer 0
+smart_gaps off
+smart_borders off
+
+# Рамки — цвета bspwm: normal #24283b, focused #6b8dd6.
+# child_border — это и есть рамка вокруг самого окна в режиме pixel.
+client.focused          #6b8dd6 #1f2335 #c0caf5 #6b8dd6 #6b8dd6
+client.focused_inactive #24283b #1f2335 #a9b1d6 #24283b #24283b
+client.unfocused        #24283b #1a1b26 #a9b1d6 #24283b #24283b
+client.urgent           #e0af68 #e0af68 #1a1b26 #e0af68 #e0af68
+
+# Фокус не прыгает за мышью (в bspwm focus_follows_pointer false).
+focus_follows_mouse no
+# Указатель не переезжает при смене фокуса (pointer_follows_focus false).
+mouse_warping none
+
+# Перетаскивание плавающих окон: $mod + ЛКМ, ресайз: $mod + ПКМ.
+floating_modifier $mod normal
+
+### Устройства ввода
+#
+# Раскладка US/RU с переключением по Caps Lock — как setxkbmap в bspwmrc.
+input "type:keyboard" {
+    xkb_layout us,ru
+    xkb_options grp:caps_toggle
+    # Автоповтор как xset r rate 250 30.
+    repeat_delay 250
+    repeat_rate 30
+}
+
+# Тачпад ноутбука: тап и защита от случайных касаний при наборе.
+input "type:touchpad" {
+    tap enabled
+    dwt enabled
+}
+
+# Курсор тот же, что выставляет sway-session.
+seat seat0 xcursor_theme Bibata-Modern-Ice 24
+
+### Автозапуск
+#
+# Sway не умеет условий по hostname, поэтому мониторы и обои — в скрипте.
+# exec_always: раскладка переприменяется и при reload (после стыковки монитора).
+exec_always sway-display
+
+# Панель, уведомления, polkit. pgrep — чтобы reload не плодил дубли.
+exec pgrep -x waybar >/dev/null || waybar
+exec pgrep -x mako >/dev/null || mako
+exec pgrep -x lxpolkit >/dev/null || lxpolkit
+
+# Блокировка по бездействию: 10 минут, как xset s 600 в bspwmrc.
+exec pgrep -x swayidle >/dev/null || swayidle -w \
+    timeout 600 'swaylock -f -c 1a1b26' \
+    before-sleep 'swaylock -f -c 1a1b26'
+
+### Клавиши: запуск приложений
+#
+    # Терминал (foot)
+    bindsym $mod+Return exec $term
+
+    # Лаунчер (wofi)
+    bindsym $mod+d exec $menu
+
+    # Браузер, редактор, файлы, микшер
+    bindsym $mod+b exec firefox
+    bindsym $mod+v exec code
+    bindsym $mod+e exec thunar
+    bindsym $mod+a exec pavucontrol-qt
+
+    # Датчики в терминале
+    bindsym $mod+x exec foot -e watch -n 1 sensors
+
+    # Шпаргалка по хоткеям Sway
+    bindsym $mod+slash exec cheatsheet-sway
+
+    # Wi-Fi (nmcli + wofi; пароль спрашивается в foot)
+    bindsym $mod+Alt+n exec wifi-sway
+
+    # Профиль питания (power-profiles-daemon + wofi)
+    bindsym $mod+Alt+p exec power-profile-sway --menu
+
+    # Telegram (flatpak) через WS-прокси
+    bindsym $mod+Alt+t exec sh -c 'tg-ws-proxy & sleep 1 && flatpak run org.telegram.desktop'
+
+### Клавиши: конфиг, блокировка, выход
+#
+    # Перечитать конфиг (аналог pkill -USR1 -x sxhkd)
+    bindsym $mod+Escape reload
+    bindsym $mod+Shift+c reload
+
+    # Заблокировать экран (в bspwm — i3lock-fancy)
+    bindsym $mod+Alt+l exec swaylock -f -c 1a1b26
+
+    # Меню питания: блокировка / выключить / выйти / перезагрузить
+    bindsym $mod+Shift+q exec powermenu-sway
+
+    # Выход из Sway с подтверждением
+    bindsym $mod+Shift+e exec swaynag -t warning \
+        -m 'Выйти из Sway? Сессия Wayland завершится.' \
+        -B 'Да, выйти' 'swaymsg exit'
+
+### Клавиши: скриншоты
+#
+    # Super+F1..F4 как в bspwm: экран / окно / задержка / монитор
+    bindsym $mod+F1 exec screenshot-sway full
+    bindsym $mod+F2 exec screenshot-sway window
+    bindsym $mod+F3 exec screenshot-sway delayed
+    bindsym $mod+F4 exec screenshot-sway monitor
+
+    # Выделенная область
+    bindsym $mod+Shift+s exec screenshot-sway region
+
+    # Print — весь экран
+    bindsym --locked Print exec screenshot-sway full
+
+### Клавиши: звук и яркость
+#
+    bindsym --locked XF86AudioRaiseVolume exec volume up
+    bindsym --locked XF86AudioLowerVolume exec volume down
+    bindsym --locked XF86AudioMute exec volume mute
+    bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
+    bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
+
+### Клавиши: фокус и перемещение окон
+#
+    # Фокус: стрелки и h/j/k/l
+    bindsym $mod+Left focus left
+    bindsym $mod+Down focus down
+    bindsym $mod+Up focus up
+    bindsym $mod+Right focus right
+    bindsym $mod+$left focus left
+    bindsym $mod+$down focus down
+    bindsym $mod+$up focus up
+    bindsym $mod+$right focus right
+
+    # Перемещение окна (свап с соседом в терминах bspwm)
+    bindsym $mod+Shift+Left move left
+    bindsym $mod+Shift+Down move down
+    bindsym $mod+Shift+Up move up
+    bindsym $mod+Shift+Right move right
+    bindsym $mod+Shift+$left move left
+    bindsym $mod+Shift+$down move down
+    bindsym $mod+Shift+$up move up
+    bindsym $mod+Shift+$right move right
+
+    # Закрыть окно (в bspwm — Super+W)
+    bindsym $mod+w kill
+
+### Клавиши: столы
+#
+    # Переключить стол
+    bindsym $mod+1 workspace number 1
+    bindsym $mod+2 workspace number 2
+    bindsym $mod+3 workspace number 3
+    bindsym $mod+4 workspace number 4
+    bindsym $mod+5 workspace number 5
+    bindsym $mod+6 workspace number 6
+    bindsym $mod+7 workspace number 7
+    bindsym $mod+8 workspace number 8
+    bindsym $mod+9 workspace number 9
+    bindsym $mod+0 workspace number 10
+
+    # Перенести окно на стол
+    bindsym $mod+Shift+1 move container to workspace number 1
+    bindsym $mod+Shift+2 move container to workspace number 2
+    bindsym $mod+Shift+3 move container to workspace number 3
+    bindsym $mod+Shift+4 move container to workspace number 4
+    bindsym $mod+Shift+5 move container to workspace number 5
+    bindsym $mod+Shift+6 move container to workspace number 6
+    bindsym $mod+Shift+7 move container to workspace number 7
+    bindsym $mod+Shift+8 move container to workspace number 8
+    bindsym $mod+Shift+9 move container to workspace number 9
+    bindsym $mod+Shift+0 move container to workspace number 10
+
+    # Соседний стол / предыдущий стол (Super + [ / ] / Tab)
+    bindsym $mod+bracketleft workspace prev_on_output
+    bindsym $mod+bracketright workspace next_on_output
+    bindsym $mod+Tab workspace back_and_forth
+
+    # Поиск по открытым окнам (Alt + Tab; wofi --show window в Sway не
+    # работает — нет wlr-foreign-toplevel-management, поэтому свой список)
+    bindsym Alt+Tab exec sway-switch
+
+### Клавиши: раскладки, полноэкранный, скретчпад
+#
+    # «Тайловый» режим: переключение horizontal/vertical
+    bindsym $mod+t layout toggle split
+
+    # Вкладки
+    bindsym $mod+Shift+t layout tabbed
+
+    # Стопка (ближайший аналог monocle из bspwm)
+    bindsym $mod+m layout stacking
+
+    # Плавающее окно
+    bindsym $mod+s floating toggle
+
+    # На весь экран
+    bindsym $mod+f fullscreen toggle
+
+    # Скретчпад: спрятать / показать
+    bindsym $mod+Shift+minus move scratchpad
+    bindsym $mod+minus scratchpad show
+
+### Режим изменения размера
+#
+mode "resize" {
+    bindsym $left resize shrink width 10px
+    bindsym $down resize grow height 10px
+    bindsym $up resize shrink height 10px
+    bindsym $right resize grow width 10px
+
+    bindsym Left resize shrink width 10px
+    bindsym Down resize grow height 10px
+    bindsym Up resize shrink height 10px
+    bindsym Right resize grow width 10px
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+### Остальное — из системных drop-in'ов
+#
+# /etc/sway/config.d/50-systemd-user.conf прокидывает WAYLAND_DISPLAY и
+# SWAYSOCK в systemd/dbus — без него порталы не видят сессию.
+# Панели swaybar здесь нет: её роль играет waybar (exec выше).
+include /etc/sway/config.d/*

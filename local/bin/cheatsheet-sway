@@ -1,0 +1,72 @@
+#!/bin/bash
+# ==========================================================
+# cheatsheet-sway — шпаргалка горячих клавиш Sway
+# ==========================================================
+# Аналог cheatsheet-bspwm, но меню рисует wofi (rofi — X11).
+# Тот же приём со скрытыми тегами: строка-описание написана цветом
+# фона, поэтому не видна, но находится поиском.
+#
+# Вызов: Super + / в Sway
+# Список должен совпадать с config/sway/config.
+# ==========================================================
+
+cat <<EOF | wofi --dmenu --allow-markup --cache-file /dev/null \
+    --prompt "󰌌 Горячие клавиши" --width 960 --height 700
+<b>󰒓 СИСТЕМА И ЗАПУСК</b>
+󰌌 Super + /                        Шпаргалка                      <span foreground="#1a1b26">[помощь, хелп, help, клавиши]</span>
+󰆍 Super + Return                   Терминал (foot)                <span foreground="#1a1b26">[консоль, cmd, shell, terminal]</span>
+󰀻 Super + D                        Лаунчер (wofi)                 <span foreground="#1a1b26">[меню, пуск, запуск, search]</span>
+󰈹 Super + B                        Браузер (Firefox)              <span foreground="#1a1b26">[браузер, интернет, web, firefox]</span>
+󰨞 Super + V                        Редактор (VS Code)             <span foreground="#1a1b26">[код, редактор, vscode, ide]</span>
+󰉋 Super + E                        Файлы (Thunar)                 <span foreground="#1a1b26">[файлы, проводник, папки, explorer]</span>
+󰕾 Super + A                        Микшер звука                   <span foreground="#1a1b26">[звук, громкость, audio, наушники]</span>
+󰖩 Super + Alt + N                  Wi-Fi (wofi)                   <span foreground="#1a1b26">[сеть, wifi, интернет, хотспот, nmcli]</span>
+󰓅 Super + Alt + P                  Профиль питания (wofi)         <span foreground="#1a1b26">[питание, профиль, батарея, power, performance, eco]</span>
+ Super + Alt + T                  Telegram (flatpak) + Proxy     <span foreground="#1a1b26">[телеграм, чат, messenger, прокси, proxy]</span>
+󰔏 Super + X                        Датчики (foot)                 <span foreground="#1a1b26">[датчики, сенсоры, нагрев, sensors, watch]</span>
+󰑓 Super + Escape                   Перечитать конфиг Sway         <span foreground="#1a1b26">[рестарт, конфиг, reload, reload]</span>
+󰑓 Super + Shift + C                Перечитать конфиг Sway         <span foreground="#1a1b26">[рестарт, конфиг, reload, reload]</span>
+
+<b>󰐥 ПИТАНИЕ И БЛОКИРОВКА</b>
+󰌾 Super + Alt + L                  Заблокировать экран            <span foreground="#1a1b26">[lock, блокировка, пароль, swaylock]</span>
+󰤆 Super + Shift + Q                Меню питания (wofi)            <span foreground="#1a1b26">[питание, выключить, перезагрузка, выход, powermenu]</span>
+󰜉 Super + Shift + E                Выход из Sway                  <span foreground="#1a1b26">[выход, quit, exit, logout, swaynag]</span>
+󰒲 Бездействие 10 мин               Автоблокировка (swayidle)      <span foreground="#1a1b26">[idle, таймаут, блокировка, swayidle]</span>
+
+<b>󰄄 СКРИНШОТЫ (В БУФЕР)</b>
+󰹑 Super + F1                       Весь экран                     <span foreground="#1a1b26">[скриншот, screenshot, снять, экран, capture]</span>
+󰖲 Super + F2                       Активное окно                  <span foreground="#1a1b26">[скриншот, screenshot, окно, window]</span>
+󰔛 Super + F3                       Экран (задержка 3с)            <span foreground="#1a1b26">[скриншот, screenshot, таймер, delay]</span>
+󰍹 Super + F4                       Активный монитор               <span foreground="#1a1b26">[скриншот, screenshot, монитор, экран, monitor]</span>
+󰩭 Super + Shift + S                Выделенная область             <span foreground="#1a1b26">[скриншот, screenshot, регион, зона, slurp]</span>
+󰹑 Print                            Весь экран                     <span foreground="#1a1b26">[скриншот, screenshot, print, снять]</span>
+
+<b>󰃠 ЯРКОСТЬ И ЗВУК</b>
+󰃠 Fn + Яркость +/-                 Яркость +5% / -5%              <span foreground="#1a1b26">[яркость, brightness, экран]</span>
+󰕾 Fn + Громкость +/-               Громкость +2% / -2%            <span foreground="#1a1b26">[звук, громкость, volume]</span>
+󰕾 Fn + Mute                        Выключить/включить звук        <span foreground="#1a1b26">[mute, звук, тишина]</span>
+
+<b>󰖯 УПРАВЛЕНИЕ ОКНАМИ</b>
+󰁔 Super + Стрелки                  Смена фокуса                   <span foreground="#1a1b26">[окно, window, фокус, focus]</span>
+󰁔 Super + H / J / K / L            Смена фокуса (Vim)             <span foreground="#1a1b26">[окно, window, фокус, focus, vim]</span>
+󰩨 Super + Shift + Стрелки          Переместить окно               <span foreground="#1a1b26">[окно, window, move, свап, swap]</span>
+󰩨 Super + Shift + H / J / K / L    Переместить окно (Vim)         <span foreground="#1a1b26">[окно, window, move, vim]</span>
+󰍹 Super + 1..9, 0                  Переключить стол               <span foreground="#1a1b26">[стол, workspace, десктоп]</span>
+󰧨 Super + Shift + 1..9, 0          Перенести окно на стол         <span foreground="#1a1b26">[окно, window, стол, workspace]</span>
+󰁔 Super + [                        Предыдущий стол                <span foreground="#1a1b26">[стол, workspace, prev]</span>
+󰁔 Super + ]                        Следующий стол                 <span foreground="#1a1b26">[стол, workspace, next]</span>
+󰓾 Super + Tab                      Предыдущий стол                <span foreground="#1a1b26">[стол, workspace, back, and, forth]</span>
+󰖯 Alt + Tab                        Поиск по открытым окнам        <span foreground="#1a1b26">[окно, window, поиск, switch, alt-tab, wofi]</span>
+󰅖 Super + W                        Закрыть окно                   <span foreground="#1a1b26">[окно, window, close, quit, выход]</span>
+󰊓 Super + F                        На весь экран                  <span foreground="#1a1b26">[окно, window, fullscreen, развернуть]</span>
+
+<b>󰕰 РАСКЛАДКИ И РАЗМЕРЫ</b>
+󰕰 Super + T                        Тайл (гориз./верт.)            <span foreground="#1a1b26">[окно, window, тайлинг, tile, split, layout]</span>
+󰖲 Super + Shift + T                Вкладки                        <span foreground="#1a1b26">[окно, window, вкладки, tabbed, layout]</span>
+󰕰 Super + M                        Стопка (аналог Monocle)        <span foreground="#1a1b26">[окно, window, стопка, stacking, monocle]</span>
+󰖲 Super + S                        Плавающее окно                 <span foreground="#1a1b26">[окно, window, floating, плавающее]</span>
+󰩨 Super + R                        Режим ресайза                  <span foreground="#1a1b26">[окно, window, ресайз, resize]</span>
+󰩨 Стрелки / H J K L в ресайзе      Изменить размер на 10 px       <span foreground="#1a1b26">[окно, window, ресайз, resize, размер]</span>
+󰖯 Super + Minus                    Показать скретчпад            <span foreground="#1a1b26">[окно, window, scratchpad, заначка]</span>
+󰖯 Super + Shift + Minus            Спрятать в скретчпад           <span foreground="#1a1b26">[окно, window, scratchpad, заначка]</span>
+EOF

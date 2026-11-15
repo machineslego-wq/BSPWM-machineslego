@@ -1,0 +1,88 @@
+/* ==========================================================
+   wofi для Sway — тема Tokyo Night
+   ==========================================================
+   Живёт в репозитории: config/wofi/style.css
+   Палитра как в Polybar/Waybar:
+     #1a1b26 — фон окна       #1f2335 — поле ввода
+     #24283b — выбранная строка
+     #292e42 — рамка          #c0caf5 — текст
+     #a9b1d6 — приглушённый   #7aa2f7 — акцент
+
+   ВАЖНО: селектор `window` (и `#window`) wofi игнорирует —
+   фон окна рисует `#outer-box`. Окно при этом прозрачное,
+   поэтому скругление углов `#outer-box` работает: в углах
+   видно обои, сама панель остаётся непрозрачной.
+   ========================================================== */
+
+* {
+    font-family: "JetBrainsMono Nerd Font";
+    font-size: 12px;
+}
+
+/* Корень окна: фон, рамка, скругление внешнего блока */
+#outer-box {
+    margin: 0;
+    padding: 0;
+    border: 1px solid #292e42;
+    border-radius: 12px;
+    background-color: #1a1b26;
+    color: #c0caf5;
+}
+
+/* Поле поиска */
+#input {
+    margin: 8px;
+    padding: 6px 10px;
+    border: 1px solid #292e42;
+    border-radius: 6px;
+    background-color: #1f2335;
+    color: #c0caf5;
+}
+
+#input:focus {
+    border-color: #7aa2f7;
+}
+
+#input image {
+    color: #565f89;
+}
+
+/* Контейнеры списка */
+#inner-box {
+    margin: 0 8px 8px 8px;
+    padding: 0;
+    background-color: transparent;
+}
+
+#scroll {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+}
+
+/* Строки списка */
+#entry {
+    padding: 6px 8px;
+    border-radius: 6px;
+    background-color: transparent;
+}
+
+#entry:selected {
+    background-color: #24283b;
+}
+
+#text {
+    margin: 0;
+    padding: 0 4px;
+    color: #c0caf5;
+}
+
+#text:selected {
+    color: #7aa2f7;
+}
+
+#img {
+    padding: 0 6px 0 0;
+    background-color: transparent;
+}

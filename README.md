@@ -44,7 +44,7 @@ Every line of code and every running process must justify its existence. This ru
 ## ✨ Features
 
 - **Native Modules First:** Polybar uses stock `internal/bspwm`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard`, and `internal/date`. Zero background bash loops.
-- **On-Demand Commands:** `wifi`, `powermenu`, `battery`, `screenshot`, `volume`, `cheatsheet`, `rice-check`, and `rice-help` live in `~/.local/bin` (PATH); window flags — in `config/sxhkd/scripts`. They run on a hotkey and exit immediately.
+- **On-Demand Commands:** `wifi`, `powermenu`, `battery`, `screenshot`, `volume`, `cheatsheet-bspwm`, `rice-check`, and `rice-help` live in `~/.local/bin` (PATH); the Sway set (`cheatsheet-sway`, `screenshot-sway`, `sway-display`, `sway-switch`, `sway-session`, `wifi-sway`, `powermenu-sway`, `power-profile-sway`) lives there too; window flags — in `config/sxhkd/scripts`. They run on a hotkey and exit immediately.
 - **Machine Utilities:** `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Docker/ROCm commands are machine-specific; they check for the daemon and print usage when an argument is missing.
 - **Hardware Autodetection:** `polybar/launch.sh` finds the battery (`POLYBAR_BAT`), AC adapter (`POLYBAR_AC`), and backlight device (`POLYBAR_BACKLIGHT`) in `/sys/class/…` — no hardcoded names.
 - **Wallpapers — `feh` only:** no picker script, no state file, no previews. Two static `feh` calls in `bspwmrc`: landscape on the main monitor, portrait on the rotated one. Change a wallpaper = edit one line.
@@ -53,7 +53,7 @@ Every line of code and every running process must justify its existence. This ru
 - **Smooth & Flat:** Picom with window animations, rounded corners, and shadows; no blur and no dimming of inactive windows. Strict Tokyo Night colors.
 - **Power Profiles:** Performance / Balanced / Power Saver via PPD. In `power-saver` Picom automatically switches to `picom-eco.conf` — no animations, no shadows.
 - **One Consistent Style:** Polybar, Rofi, Dunst, Picom, Alacritty, Fish, Cava, GTK3/GTK4, Qt5/Qt6, GIMP 3, CopyQ, Midnight Commander, and Telegram are all themed in Tokyo Night.
-- **Workflow:** clipboard history (CopyQ with custom commands), notification history (Rofi), screenshots straight into the CopyQ clipboard, a keybinding cheatsheet in Rofi, and a Neovim setup styled after base VS Code with its own cheatsheet.
+- **Workflow:** clipboard history (CopyQ with custom commands), notification history (Rofi), screenshots straight into the CopyQ clipboard, keybinding cheatsheets (Rofi for BSPWM, wofi for Sway), and a Neovim setup styled after base VS Code with its own cheatsheet.
 - **Stock Vim as a fallback:** plain `vim` from `apt.txt` with no plugins — syntax highlighting for nearly everything, hybrid numbering (absolute number on the cursor line, relative around it), and persistent undo. Config: `~/.vimrc` (`home/vimrc`).
 - **Stability:** autostart in `bspwmrc` is guarded against duplicates via `pgrep`/`pkill`, so `Super + Alt + R` and a full session restart never spawn extra processes.
 - **Multi-machine:** hostname branches in `bspwmrc` and `wifi` (a dual-monitor desktop and laptops); easy to trim down to a single machine.
@@ -84,8 +84,8 @@ BSPWM-machineslego/
 ├── local/bin/                   # commands in ~/.local/bin: wifi, screenshot, volume, ...
 ├── local/share/mc/skins/        # Midnight Commander skin
 ├── system/etc/                  # copied to /etc: touchpad, NetworkManager, interfaces
-├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh
-├── requirements/                # package lists: apt.txt, apt-system.txt, software.txt
+├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh, install-sway.sh
+├── requirements/                # package lists: apt.txt, apt-system.txt, software.txt, sway.txt
 ├── screenshots/                 # README previews
 ├── themes/telegram/             # .tdesktop-palette (manual install)
 ├── wallpapers/                  # 1080p/4K and portrait wallpapers
@@ -116,6 +116,7 @@ chmod +x scripts/*.sh
 - **Configs only (no `/etc` changes):** `./scripts/link.sh`
 - **Extra software:** `./scripts/software.sh`
 - **Node.js / npm:** `./scripts/install-node.sh` (separate, see below)
+- **Sway (experiment):** `./scripts/install-sway.sh` — packages from `requirements/sway.txt` only, configs untouched; `--session` also adds a GDM entry that starts `sway-session` (environment wrapper, no `xinitrc`/`xprofile` under Wayland). Sway itself is configured in `config/sway`: pixel borders only, 4 px gaps, Tokyo Night border colors, `foot` as the terminal (`config/foot`), waybar instead of Polybar, wofi instead of Rofi, monitors and wallpapers via `sway-display` (Sway has no hostname conditions in its config), screenshots via `screenshot-sway`, and the wifi/power menus via `wifi-sway`, `powermenu-sway`, `power-profile-sway` (wofi with rounded corners)
 - **Rollback:** `./scripts/unlink.sh`
 - **Launch:** `startx` (or via LightDM).
 
@@ -218,7 +219,7 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 
 ## ⌨️ Keybindings
 
-**Full cheatsheet:** `Super + /` (Rofi, searchable through hidden tags). Neovim cheatsheet: `config/nvim/CHEATSHEET.md`; Vim cheatsheet: the comments in `~/.vimrc`.
+**Full cheatsheet:** `Super + /` — `cheatsheet-bspwm` (Rofi) in BSPWM, `cheatsheet-sway` (wofi) in Sway; both are searchable through hidden tags. Neovim cheatsheet: `config/nvim/CHEATSHEET.md`; Vim cheatsheet: the comments in `~/.vimrc`.
 
 ### System & launch
 

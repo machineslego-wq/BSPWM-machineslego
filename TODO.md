@@ -20,7 +20,7 @@
 
 ### ✅ Сделано
 
-- [x] **Rofi: фиксированные размеры** — проценты заменены на `em`: на 1920×1080 вид прежний, на 1366×768 и выше — тот же. Launcher 40em (800 px), `battery` 29em, `wifi` 24/29em, `power-profile` 21em, `powermenu` 19em, `cheatsheet` 48em × 38em, `dunst-history` 48em × 27em.
+- [x] **Rofi: фиксированные размеры** — проценты заменены на `em`: на 1920×1080 вид прежний, на 1366×768 и выше — тот же. Launcher 40em (800 px), `battery` 29em, `wifi` 24/29em, `power-profile` 21em, `powermenu` 19em, `cheatsheet-bspwm` 48em × 38em, `dunst-history` 48em × 27em.
 - [x] **Cava** — `config/cava/config`: 60 fps, `noise_reduction = 40` (резкий подъём и спад без дрожания), моно-спектр слева направо (низкие → высокие), градиент Tokyo Night по высоте, `noncurses` + `synchronized_sync` без мерцания. Пакет добавлен в `requirements/software.txt`.
 
 - [x] **`rice-help`** — печатает все команды из `local/bin` с описанием из шапки файла (третья строка). Список не хардкожен: новая команда появляется в выводе сама.
@@ -33,7 +33,7 @@
 - [x] **Vim** — `home/vimrc` без плагинов: подсветка синтаксиса и определение типов файлов, гибридная нумерация (абсолютный номер на строке курсора, относительные вокруг), постоянная история в `~/.vim/undo`, типы файлов для конфигов без расширения. `vim` добавлен в `apt.txt`.
 - [x] **Единая тема** — GTK3/GTK4 (свой CSS поверх `Adwaita-dark`), Qt5/Qt6, GIMP 3, CopyQ, Telegram, Midnight Commander.
 - [x] **Node.js без sudo** — `scripts/install-node.sh` (NodeSource LTS, prefix `~/.npm-global`).
-- [x] **Команды в `~/.local/bin`** — `battery`, `cheatsheet`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `volume`, `wifi` перенесены из `config/sxhkd/scripts` и `config/polybar/scripts`; `link.sh`/`unlink.sh` линкуют их поштучно, PATH выставляют `xinitrc`/`xprofile`. В `config/sxhkd/scripts` остались только хоткей-хелперы (`flag.sh`, `to-preselect.sh`, `preselect-cancel-all.sh`).
+- [x] **Команды в `~/.local/bin`** — `battery`, `cheatsheet-bspwm`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `volume`, `wifi` перенесены из `config/sxhkd/scripts` и `config/polybar/scripts`; `link.sh`/`unlink.sh` линкуют их поштучно, PATH выставляют `xinitrc`/`xprofile`. В `config/sxhkd/scripts` остались только хоткей-хелперы (`flag.sh`, `to-preselect.sh`, `preselect-cancel-all.sh`).
 - [x] **Промпт Bash в пресетах** — `home/bashrc` только выбирает файл по `BASH_PROMPT`; пресеты `tokyo-night` (Debian → папка → git → стрелка), `tokyo-night-minimal` (одна строка, без `git`) и `empty` (шаблон для своей темы) лежат в `config/bash/themes/`. Заголовок окна перенесён внутрь `prompt_command`, мёртвый блок `force_color_prompt` удалён.
 
 ---

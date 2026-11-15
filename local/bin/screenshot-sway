@@ -1,0 +1,88 @@
+#!/bin/bash
+# ==========================================================
+# screenshot-sway — скриншоты под Wayland (grim), копия в буфер
+# ==========================================================
+# Аналог screenshot для BSPWM/X11: maim заменён на grim,
+# область — на slurp, буфер — на wl-copy.
+#
+# Использование: screenshot-sway {full|window|region|delayed|monitor}
+#   full     весь экран
+#   window   активное окно (по геометрии из дерева Sway)
+#   region   выделенная область (slurp, Esc — отмена)
+#   delayed  весь экран через 3 секунды
+#   monitor  монитор с фокусом
+#
+# CopyQ под Wayland ведёт себя нестабильно, поэтому история
+# буфера не пополняется — только системный буфер (Ctrl+V).
+# ==========================================================
+
+set -u
+
+MODE="${1:-}"
+case "$MODE" in
+    full|window|region|delayed|monitor) ;;
+    *)
+        echo "usage: $0 {full|window|region|delayed|monitor}" >&2
+        exit 1
+        ;;
+esac
+
+DIR="$HOME/Screenshots"
+mkdir -p "$DIR"
+FILE="$DIR/$(date +%Y-%m-%d_%H-%M-%S).png"
+
+# --- Захват ---
+case "$MODE" in
+    full)
+        grim "$FILE"
+        ;;
+    delayed)
+        sleep 3
+        grim "$FILE"
+        ;;
+    region)
+        # Esc в slurp завершает его с ошибкой — тихо выходим.
+        GEOM=$(slurp 2>/dev/null) || exit 1
+        [ -n "$GEOM" ] || exit 1
+        grim -g "$GEOM" "$FILE"
+        ;;
+    monitor)
+        OUT=$(swaymsg -t get_outputs -r | jq -r '.[] | select(.focused) | .name' | head -n 1)
+        [ -n "$OUT" ] || exit 1
+        grim -o "$OUT" "$FILE"
+        ;;
+    window)
+        # Последний (самый глубокий) узел с focused=true — это и есть окно.
+        # grim ждёт геометрию в виде "x,y WxH" (формат X11 не принимает).
+        GEOM=$(swaymsg -t get_tree -r | jq -r '
+            [.. | objects | select(.focused? == true)] | last
+            | if .rect then "\(.rect.x),\(.rect.y) \(.rect.width)x\(.rect.height)" else empty end
+        ')
+        [ -n "$GEOM" ] || exit 1
+        grim -g "$GEOM" "$FILE"
+        ;;
+esac
+
+# --- Отмена/ошибка: файла нет или он пустой ---
+if [ ! -s "$FILE" ]; then
+    rm -f "$FILE"
+    exit 1
+fi
+
+# --- Буфер обмена ---
+if ! wl-copy < "$FILE"; then
+    notify-send -a "Screenshot" -u normal "Скриншот" "Не удалось скопировать в буфер: $FILE"
+    exit 1
+fi
+
+# --- OSD ---
+case "$MODE" in
+    full)    LABEL="Весь экран" ;;
+    window)  LABEL="Активное окно" ;;
+    region)  LABEL="Область" ;;
+    delayed) LABEL="Экран (3с)" ;;
+    monitor) LABEL="Активный монитор" ;;
+esac
+
+notify-send -a "Screenshot" -u low -t 2000 \
+            "Скриншот" "$LABEL → буфер"

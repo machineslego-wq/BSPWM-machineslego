@@ -1,0 +1,201 @@
+/* ==========================================================
+   Waybar для Sway — тема Tokyo Night
+   ==========================================================
+   Живёт в репозитории: config/waybar/style.css
+   Палитра та же, что в Polybar:
+     #1a1b26 — фон панели      #1f2335 — пилюля
+     #24283b — активная пилюля #292e42 — hover
+     #c0caf5 — текст           #a9b1d6 — приглушённый текст
+     #565f89 — неактивное      #7aa2f7 — акцент
+     #9ece6a — успех           #e0af68 — предупреждение
+     #f7768e — критично
+   ========================================================== */
+
+* {
+    font-family: "JetBrainsMono Nerd Font";
+    font-size: 12px;
+    font-weight: normal;
+    min-height: 0;
+}
+
+window#waybar {
+    background-color: #1a1b26;
+    color: #c0caf5;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+/* --- Рабочие столы --- */
+#workspaces {
+    margin: 0 6px;
+}
+
+#workspaces button {
+    padding: 0 8px;
+    margin: 5px 1px;
+    border: none;
+    border-radius: 6px;
+    background-color: transparent;
+    box-shadow: none;
+    color: #565f89;
+}
+
+#workspaces button.occupied {
+    color: #c0caf5;
+}
+
+#workspaces button.visible {
+    color: #c0caf5;
+    background-color: #1f2335;
+}
+
+#workspaces button.focused {
+    color: #7aa2f7;
+    background-color: #24283b;
+    box-shadow: inset 0 -2px #7aa2f7;
+}
+
+#workspaces button.urgent {
+    background-color: #e0af68;
+    color: #1a1b26;
+}
+
+#workspaces button:hover {
+    background-color: #292e42;
+    color: #c0caf5;
+    box-shadow: none;
+}
+
+/* --- Общий вид модулей («пилюли») --- */
+#mode,
+#scratchpad,
+#power-profiles-daemon,
+#network,
+#backlight,
+#battery,
+#wireplumber,
+#clock {
+    padding: 0 10px;
+    margin: 5px 2px;
+    border-radius: 6px;
+    background-color: #1f2335;
+    color: #c0caf5;
+}
+
+/* Заголовок окна — без пилюли, тише остальных */
+#window {
+    padding: 0 10px;
+    margin: 5px 2px;
+    background-color: transparent;
+    color: #a9b1d6;
+}
+
+/* Трей — без фона, только иконки */
+#tray {
+    padding: 0 6px;
+    margin: 5px 2px;
+    background-color: transparent;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+}
+
+/* --- Часы: акцентная пилюля --- */
+#clock {
+    background-color: #24283b;
+    color: #7aa2f7;
+    font-weight: bold;
+}
+
+/* --- Режим (resize) --- */
+#mode {
+    background-color: #e0af68;
+    color: #1a1b26;
+    font-weight: bold;
+}
+
+/* --- Scratchpad --- */
+#scratchpad {
+    color: #bb9af7;
+}
+
+#scratchpad.empty {
+    background-color: transparent;
+}
+
+/* --- Профиль питания --- */
+#power-profiles-daemon.performance {
+    color: #f7768e;
+}
+
+#power-profiles-daemon.balanced {
+    color: #7aa2f7;
+}
+
+#power-profiles-daemon.power-saver {
+    color: #9ece6a;
+}
+
+/* --- Сеть --- */
+#network {
+    color: #7dcfff;
+}
+
+#network.disconnected {
+    color: #f7768e;
+    background-color: #1f2335;
+}
+
+#network.linked,
+#network.ethernet {
+    color: #7dcfff;
+}
+
+/* --- Батарея --- */
+#battery.charging,
+#battery.plugged {
+    color: #9ece6a;
+}
+
+#battery.warning:not(.charging) {
+    color: #e0af68;
+}
+
+@keyframes blink {
+    to {
+        color: #f7768e;
+        background-color: #24283b;
+    }
+}
+
+#battery.critical:not(.charging) {
+    color: #f7768e;
+    animation-name: blink;
+    animation-duration: 0.8s;
+    animation-timing-function: steps(12);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+/* --- Звук --- */
+#wireplumber.muted {
+    color: #565f89;
+}
+
+/* --- Тултипы --- */
+tooltip {
+    background-color: #1a1b26;
+    border: 1px solid #292e42;
+    border-radius: 6px;
+}
+
+tooltip label {
+    color: #c0caf5;
+}

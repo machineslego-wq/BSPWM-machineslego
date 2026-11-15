@@ -43,7 +43,7 @@
 ## ✨ Особенности
 
 - **Native Modules First:** Polybar использует стоковые `internal/bspwm`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard` и `internal/date`. Ноль фоновых bash-циклов.
-- **Команды по требованию:** `wifi`, `powermenu`, `battery`, `screenshot`, `volume`, `cheatsheet`, `rice-check` и `rice-help` лежат в `~/.local/bin` (PATH), флаги окон — в `config/sxhkd/scripts`. Запускаются по хоткею и сразу завершаются.
+- **Команды по требованию:** `wifi`, `powermenu`, `battery`, `screenshot`, `volume`, `cheatsheet-bspwm`, `rice-check` и `rice-help` лежат в `~/.local/bin` (PATH), там же набор Sway (`cheatsheet-sway`, `screenshot-sway`, `sway-display`, `sway-switch`, `sway-session`, `wifi-sway`, `powermenu-sway`, `power-profile-sway`); флаги окон — в `config/sxhkd/scripts`. Запускаются по хоткею и сразу завершаются.
 - **Машинные команды:** `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Docker/ROCm-команды рассчитаны на конкретную машину; проверяют демон и печатают справку, если не хватает аргумента.
 - **Автоопределение железа:** `polybar/launch.sh` сам находит батарею (`POLYBAR_BAT`), адаптер питания (`POLYBAR_AC`) и карту подсветки (`POLYBAR_BACKLIGHT`) в `/sys/class/…` — имена не захардкожены.
 - **Обои — только `feh`:** никакого скрипта-выборщика, state-файла и превью. Два статичных вызова `feh` в `bspwmrc`: landscape на основной монитор, portrait на повёрнутый. Сменить обои = поправить одну строку.
@@ -52,7 +52,7 @@
 - **Плавность и плоский дизайн:** Picom с анимациями окон, скруглениями и тенями, без blur и без затемнения неактивных окон. Строгие цвета Tokyo Night.
 - **Профили питания:** Performance / Balanced / Power Saver через PPD. В `power-saver` Picom автоматически переключается на `picom-eco.conf` — без анимаций и теней.
 - **Единый стиль:** Polybar, Rofi, Dunst, Picom, Alacritty, Fish, Cava, GTK3/GTK4, Qt5/Qt6, GIMP 3, CopyQ, Midnight Commander и Telegram оформлены в Tokyo Night.
-- **Workflow:** история буфера (CopyQ + меню команд), история уведомлений (Rofi), скриншоты сразу в буфер CopyQ, шпаргалка по хоткеям в Rofi, Neovim в стиле базового VS Code со своей шпаргалкой.
+- **Workflow:** история буфера (CopyQ + меню команд), история уведомлений (Rofi), скриншоты сразу в буфер CopyQ, шпаргалки по хоткеям (Rofi для BSPWM, wofi для Sway), Neovim в стиле базового VS Code со своей шпаргалкой.
 - **Запасной Vim:** обычный `vim` из `apt.txt` без плагинов — подсветка синтаксиса почти для всего, гибридная нумерация (абсолютный номер на строке курсора, относительные вокруг) и постоянная история изменений. Конфиг — `~/.vimrc` (`home/vimrc`).
 - **Стабильность:** автозапуск в `bspwmrc` защищён от дублей через `pgrep`/`pkill`, поэтому `Super + Alt + R` и полный рестарт сессии не плодят процессы.
 - **Несколько машин:** hostname-ветвления в `bspwmrc` и `wifi` (десктоп с двумя мониторами и ноутбуки), но при желании конфиг сводится к одной машине.
@@ -83,8 +83,8 @@ BSPWM-machineslego/
 ├── local/bin/                   # команды в ~/.local/bin: wifi, screenshot, volume, ...
 ├── local/share/mc/skins/        # скин Midnight Commander
 ├── system/etc/                  # копируется в /etc: touchpad, NetworkManager, interfaces
-├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh
-├── requirements/                # списки пакетов: apt.txt, apt-system.txt, software.txt
+├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh, install-sway.sh
+├── requirements/                # списки пакетов: apt.txt, apt-system.txt, software.txt, sway.txt
 ├── screenshots/                 # превью для README
 ├── themes/telegram/             # .tdesktop-palette (ручная установка)
 ├── wallpapers/                  # обои 1080p/4K и портретные
@@ -115,6 +115,7 @@ chmod +x scripts/*.sh
 - **Только конфиги (без изменений в `/etc`):** `./scripts/link.sh`
 - **Дополнительный софт:** `./scripts/software.sh`
 - **Node.js / npm:** `./scripts/install-node.sh` (отдельно, см. ниже)
+- **Sway (эксперимент):** `./scripts/install-sway.sh` — только пакеты из `requirements/sway.txt`, конфиги не трогает; `--session` дополнительно добавляет сессию в GDM, которая запускает `sway-session` (обёртка с окружением: под Wayland `xinitrc`/`xprofile` не работают). Сам Sway настраивается в `config/sway`: только рамки (pixel 2), отступы 4 px, цвета рамок Tokyo Night, терминал `foot` (`config/foot`), waybar вместо Polybar, wofi вместо Rofi, мониторы и обои — через `sway-display` (в конфиге Sway нет условий по hostname), скриншоты — через `screenshot-sway`, меню Wi-Fi и питания — через `wifi-sway`, `powermenu-sway`, `power-profile-sway` (wofi со скруглёнными углами)
 - **Откат:** `./scripts/unlink.sh`
 - **Запуск:** `startx` (или через LightDM).
 
@@ -217,7 +218,7 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 
 ## ⌨️ Горячие клавиши
 
-**Полная шпаргалка:** `Super + /` (Rofi, с поиском по скрытым тегам). Шпаргалка по Neovim — `config/nvim/CHEATSHEET.md`, по Vim — комментарии в `~/.vimrc`.
+**Полная шпаргалка:** `Super + /` — `cheatsheet-bspwm` (Rofi) в BSPWM, `cheatsheet-sway` (wofi) в Sway; обе с поиском по скрытым тегам. Шпаргалка по Neovim — `config/nvim/CHEATSHEET.md`, по Vim — комментарии в `~/.vimrc`.
 
 ### Система и запуск
 

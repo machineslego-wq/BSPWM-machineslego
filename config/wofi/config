@@ -1,0 +1,41 @@
+# ==========================================================
+# wofi — лаунчер для Sway (тема Tokyo Night)
+# ==========================================================
+# Живёт в репозитории: config/wofi -> ~/.config/wofi
+# Запуск из Sway: wofi --show drun   (хоткей Super+D)
+# Другие режимы: wofi --show run | wofi --show window
+# Стиль — style.css рядом, читается при каждом запуске.
+# ==========================================================
+
+# Режим по умолчанию (drun = .desktop-приложения)
+show=drun
+prompt=Запуск
+
+# Размер и положение окна
+width=600
+height=400
+location=center
+orientation=vertical
+halign=fill
+content_halign=fill
+
+# Поиск
+filter_rate=100
+matching=fuzzy
+key_expand=Tab
+
+# Внешний вид списка
+allow_images=true
+image_size=22
+allow_markup=true
+hide_scroll=true
+
+# Окно подстраивается под число пунктов, а не висит пустым
+# (аналог fixed-height: false в Rofi). Максимум задают width/height.
+dynamic_lines=true
+
+# Кнопки действий (Launch/Close) не нужны: выбор по Enter
+no_actions=true
+
+# Слой отрисовки поверх окон
+layer=overlay

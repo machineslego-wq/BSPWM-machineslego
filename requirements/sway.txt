@@ -1,0 +1,30 @@
+# Sway — Wayland-композитор и его окружение (эксперимент, требует sudo)
+# Устанавливается скриптом scripts/install-sway.sh; конфиги не трогаются.
+
+# Композитор и базовые компоненты
+sway
+swaybg
+swayidle
+swaylock
+
+# Панель, лаунчер, терминал
+waybar
+wofi
+foot
+
+# Уведомления
+mako-notifier
+
+# Скриншоты и буфер обмена
+grim
+slurp
+wl-clipboard
+
+# Портал скринкастов и X11-приложения
+xdg-desktop-portal
+xdg-desktop-portal-wlr
+xdg-desktop-portal-gtk
+xwayland
+
+# Агент polkit (GUI-запрос пароля)
+lxpolkit

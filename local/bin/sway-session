@@ -1,0 +1,90 @@
+#!/bin/bash
+# ==========================================================
+# sway-session — запуск Sway с окружением из дотфайлов
+# ==========================================================
+# Заменяет home/xinitrc и home/xprofile для Wayland: выставляет
+# PATH, темы Qt/GTK, курсор, переменные XDG-сессии, прокидывает
+# окружение в systemd/dbus (порталы, Flatpak) и запускает sway.
+#
+# Использование:
+#   sway-session              из TTY (после логина)
+#   Exec=sway-session         в /usr/share/wayland-sessions/*.desktop
+#                             (ставится: ./scripts/install-sway.sh --session)
+#
+# Все аргументы передаются sway: sway-session -c ~/.config/sway/config
+# ==========================================================
+
+if [ "$(id -u)" -eq 0 ]; then
+    echo "Error: Sway нельзя запускать от root. (Sway must not run as root.)" >&2
+    exit 1
+fi
+
+if ! command -v sway >/dev/null 2>&1; then
+    echo "Error: sway не установлен. Запусти ./scripts/install-sway.sh" >&2
+    exit 1
+fi
+
+# Из X11 Sway не стартует: нет доступа к DRM, вложенный режим не поддерживается.
+if [ "${XDG_SESSION_TYPE:-}" = "x11" ]; then
+    echo "Error: ты в X11-сессии. Выйди в TTY (Ctrl+Alt+F3) или выбери сессию Sway в GDM." >&2
+    exit 1
+fi
+
+# --- PATH: команды из ~/.local/bin (volume, screenshot, sway-session) ---
+export PATH="$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"
+
+# --- Идентификация сессии ---
+# Нужна порталам, GTK/GDK и Qt, чтобы приложения выбирали Wayland-путь.
+export XDG_CURRENT_DESKTOP=sway
+export XDG_SESSION_TYPE=wayland
+export XDG_SESSION_DESKTOP=sway
+export DESKTOP_SESSION=sway
+
+# --- Курсор ---
+# Sway берёт тему курсора из этих же переменных (сам и Xwayland-клиенты).
+export XCURSOR_THEME=Bibata-Modern-Ice
+export XCURSOR_SIZE=24
+
+# --- Qt ---
+# qt6ct: палитра, стиль Fusion и иконки Papirus-Dark из config/qt6ct.
+# wayland;xcb — сначала нативный Wayland, иначе XWayland (старые Qt-приложения).
+export QT_QPA_PLATFORMTHEME=qt6ct
+export QT_STYLE_OVERRIDE=qt6ct
+export QT_QPA_PLATFORM="wayland;xcb"
+
+# --- GTK ---
+# Тема и иконки читаются из config/gtk-3.0 и config/gtk-4.0 (settings.ini + gtk.css),
+# GTK_THEME не задаём: он перебил бы пользовательский CSS.
+# x11 в списке — для GTK-приложений, у которых нет Wayland-бэкенда.
+export GDK_BACKEND="wayland,x11"
+
+# --- LibreOffice ---
+# Как в home/xinitrc: рисуем через GTK3, иначе интерфейс будет «сырым».
+export SAL_USE_VCLPLUGIN=gtk3
+
+# --- Браузеры, Electron, Java ---
+export MOZ_ENABLE_WAYLAND=1
+export ELECTRON_OZONE_PLATFORM_HINT=auto
+export _JAVA_AWT_WM_NONREPARENTING=1
+
+# --- Проброс окружения в systemd и D-Bus ---
+# Без этого порталы (скринкасты, файловые диалоги Flatpak) и
+# dbus-активируемые сервисы не видят WAYLAND_DISPLAY и темы.
+# WAYLAND_DISPLAY и SWAYSOCK добавит сам Sway через
+# /etc/sway/config.d/50-systemd-user.conf.
+SESSION_ENV=(
+    PATH XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP DESKTOP_SESSION
+    XCURSOR_THEME XCURSOR_SIZE
+    QT_QPA_PLATFORMTHEME QT_STYLE_OVERRIDE QT_QPA_PLATFORM
+    GDK_BACKEND SAL_USE_VCLPLUGIN
+    MOZ_ENABLE_WAYLAND ELECTRON_OZONE_PLATFORM_HINT _JAVA_AWT_WM_NONREPARENTING
+)
+
+if command -v dbus-update-activation-environment >/dev/null 2>&1; then
+    dbus-update-activation-environment --systemd "${SESSION_ENV[@]}" 2>/dev/null || true
+fi
+if command -v systemctl >/dev/null 2>&1; then
+    systemctl --user import-environment "${SESSION_ENV[@]}" 2>/dev/null || true
+fi
+
+exec sway "$@"
