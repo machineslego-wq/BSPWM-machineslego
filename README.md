@@ -116,7 +116,7 @@ chmod +x scripts/*.sh
 - **Configs only (no `/etc` changes):** `./scripts/link.sh`
 - **Extra software:** `./scripts/software.sh`
 - **Node.js / npm:** `./scripts/install-node.sh` (separate, see below)
-- **Sway (experiment):** `./scripts/install-sway.sh` — packages from `requirements/sway.txt` only, configs untouched; `--session` also adds a GDM entry that starts `sway-session` (environment wrapper, no `xinitrc`/`xprofile` under Wayland). Sway itself is configured in `config/sway`: pixel borders only, 4 px gaps, Tokyo Night border colors, `foot` as the terminal (`config/foot`), waybar instead of Polybar, wofi instead of Rofi, monitors and wallpapers via `sway-display` (Sway has no hostname conditions in its config), screenshots via `screenshot-sway`, and the wifi/power menus via `wifi-sway`, `powermenu-sway`, `power-profile-sway` (wofi with rounded corners)
+- **Sway (experiment):** `./scripts/install-sway.sh` — packages from `requirements/sway.txt` only, configs untouched; `--session` also adds a GDM entry that starts `sway-session` (environment wrapper, no `xinitrc`/`xprofile` under Wayland). Sway itself is configured in `config/sway`: pixel borders only, 4 px gaps, Tokyo Night border colors, `foot` as the terminal (`config/foot`), waybar instead of Polybar, wofi instead of Rofi, monitors and wallpapers via `sway-display` (Sway has no hostname conditions in its config), screenshots via `screenshot-sway`, and the wifi/power menus via `wifi-sway`, `powermenu-sway`, `power-profile-sway` (wofi styled after Rofi, square corners); notifications come from `mako` (`config/mako`) styled after `dunst`
 - **Rollback:** `./scripts/unlink.sh`
 - **Launch:** `startx` (or via LightDM).
 

@@ -115,7 +115,7 @@ chmod +x scripts/*.sh
 - **Только конфиги (без изменений в `/etc`):** `./scripts/link.sh`
 - **Дополнительный софт:** `./scripts/software.sh`
 - **Node.js / npm:** `./scripts/install-node.sh` (отдельно, см. ниже)
-- **Sway (эксперимент):** `./scripts/install-sway.sh` — только пакеты из `requirements/sway.txt`, конфиги не трогает; `--session` дополнительно добавляет сессию в GDM, которая запускает `sway-session` (обёртка с окружением: под Wayland `xinitrc`/`xprofile` не работают). Сам Sway настраивается в `config/sway`: только рамки (pixel 2), отступы 4 px, цвета рамок Tokyo Night, терминал `foot` (`config/foot`), waybar вместо Polybar, wofi вместо Rofi, мониторы и обои — через `sway-display` (в конфиге Sway нет условий по hostname), скриншоты — через `screenshot-sway`, меню Wi-Fi и питания — через `wifi-sway`, `powermenu-sway`, `power-profile-sway` (wofi со скруглёнными углами)
+- **Sway (эксперимент):** `./scripts/install-sway.sh` — только пакеты из `requirements/sway.txt`, конфиги не трогает; `--session` дополнительно добавляет сессию в GDM, которая запускает `sway-session` (обёртка с окружением: под Wayland `xinitrc`/`xprofile` не работают). Сам Sway настраивается в `config/sway`: только рамки (pixel 2), отступы 4 px, цвета рамок Tokyo Night, терминал `foot` (`config/foot`), waybar вместо Polybar, wofi вместо Rofi, мониторы и обои — через `sway-display` (в конфиге Sway нет условий по hostname), скриншоты — через `screenshot-sway`, меню Wi-Fi и питания — через `wifi-sway`, `powermenu-sway`, `power-profile-sway` (wofi в стиле Rofi, без скруглений), уведомления — `mako` (`config/mako`) в стиле `dunst`
 - **Откат:** `./scripts/unlink.sh`
 - **Запуск:** `startx` (или через LightDM).
 

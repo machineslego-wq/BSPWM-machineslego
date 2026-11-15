@@ -58,6 +58,9 @@ floating_modifier $mod normal
 ### Устройства ввода
 #
 # Раскладка US/RU с переключением по Caps Lock — как setxkbmap в bspwmrc.
+# Все хоткеи ниже объявлены с --to-code: Sway переводит keysym в keycode
+# по первой раскладке (us), поэтому Super+w и остальные работают и на
+# русской раскладке. Без флага --to-code в RU-режиме они не срабатывают.
 input "type:keyboard" {
     xkb_layout us,ru
     xkb_options grp:caps_toggle
@@ -94,169 +97,169 @@ exec pgrep -x swayidle >/dev/null || swayidle -w \
 ### Клавиши: запуск приложений
 #
     # Терминал (foot)
-    bindsym $mod+Return exec $term
+    bindsym --to-code $mod+Return exec $term
 
     # Лаунчер (wofi)
-    bindsym $mod+d exec $menu
+    bindsym --to-code $mod+d exec $menu
 
     # Браузер, редактор, файлы, микшер
-    bindsym $mod+b exec firefox
-    bindsym $mod+v exec code
-    bindsym $mod+e exec thunar
-    bindsym $mod+a exec pavucontrol-qt
+    bindsym --to-code $mod+b exec firefox
+    bindsym --to-code $mod+v exec code
+    bindsym --to-code $mod+e exec thunar
+    bindsym --to-code $mod+a exec pavucontrol-qt
 
     # Датчики в терминале
-    bindsym $mod+x exec foot -e watch -n 1 sensors
+    bindsym --to-code $mod+x exec foot -e watch -n 1 sensors
 
     # Шпаргалка по хоткеям Sway
-    bindsym $mod+slash exec cheatsheet-sway
+    bindsym --to-code $mod+slash exec cheatsheet-sway
 
     # Wi-Fi (nmcli + wofi; пароль спрашивается в foot)
-    bindsym $mod+Alt+n exec wifi-sway
+    bindsym --to-code $mod+Alt+n exec wifi-sway
 
     # Профиль питания (power-profiles-daemon + wofi)
-    bindsym $mod+Alt+p exec power-profile-sway --menu
+    bindsym --to-code $mod+Alt+p exec power-profile-sway --menu
 
     # Telegram (flatpak) через WS-прокси
-    bindsym $mod+Alt+t exec sh -c 'tg-ws-proxy & sleep 1 && flatpak run org.telegram.desktop'
+    bindsym --to-code $mod+Alt+t exec sh -c 'tg-ws-proxy & sleep 1 && flatpak run org.telegram.desktop'
 
 ### Клавиши: конфиг, блокировка, выход
 #
     # Перечитать конфиг (аналог pkill -USR1 -x sxhkd)
-    bindsym $mod+Escape reload
-    bindsym $mod+Shift+c reload
+    bindsym --to-code $mod+Escape reload
+    bindsym --to-code $mod+Shift+c reload
 
     # Заблокировать экран (в bspwm — i3lock-fancy)
-    bindsym $mod+Alt+l exec swaylock -f -c 1a1b26
+    bindsym --to-code $mod+Alt+l exec swaylock -f -c 1a1b26
 
     # Меню питания: блокировка / выключить / выйти / перезагрузить
-    bindsym $mod+Shift+q exec powermenu-sway
+    bindsym --to-code $mod+Shift+q exec powermenu-sway
 
     # Выход из Sway с подтверждением
-    bindsym $mod+Shift+e exec swaynag -t warning \
+    bindsym --to-code $mod+Shift+e exec swaynag -t warning \
         -m 'Выйти из Sway? Сессия Wayland завершится.' \
         -B 'Да, выйти' 'swaymsg exit'
 
 ### Клавиши: скриншоты
 #
     # Super+F1..F4 как в bspwm: экран / окно / задержка / монитор
-    bindsym $mod+F1 exec screenshot-sway full
-    bindsym $mod+F2 exec screenshot-sway window
-    bindsym $mod+F3 exec screenshot-sway delayed
-    bindsym $mod+F4 exec screenshot-sway monitor
+    bindsym --to-code $mod+F1 exec screenshot-sway full
+    bindsym --to-code $mod+F2 exec screenshot-sway window
+    bindsym --to-code $mod+F3 exec screenshot-sway delayed
+    bindsym --to-code $mod+F4 exec screenshot-sway monitor
 
     # Выделенная область
-    bindsym $mod+Shift+s exec screenshot-sway region
+    bindsym --to-code $mod+Shift+s exec screenshot-sway region
 
     # Print — весь экран
-    bindsym --locked Print exec screenshot-sway full
+    bindsym --to-code --locked Print exec screenshot-sway full
 
 ### Клавиши: звук и яркость
 #
-    bindsym --locked XF86AudioRaiseVolume exec volume up
-    bindsym --locked XF86AudioLowerVolume exec volume down
-    bindsym --locked XF86AudioMute exec volume mute
-    bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
-    bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
+    bindsym --to-code --locked XF86AudioRaiseVolume exec volume up
+    bindsym --to-code --locked XF86AudioLowerVolume exec volume down
+    bindsym --to-code --locked XF86AudioMute exec volume mute
+    bindsym --to-code --locked XF86MonBrightnessUp exec brightnessctl set 5%+
+    bindsym --to-code --locked XF86MonBrightnessDown exec brightnessctl set 5%-
 
 ### Клавиши: фокус и перемещение окон
 #
     # Фокус: стрелки и h/j/k/l
-    bindsym $mod+Left focus left
-    bindsym $mod+Down focus down
-    bindsym $mod+Up focus up
-    bindsym $mod+Right focus right
-    bindsym $mod+$left focus left
-    bindsym $mod+$down focus down
-    bindsym $mod+$up focus up
-    bindsym $mod+$right focus right
+    bindsym --to-code $mod+Left focus left
+    bindsym --to-code $mod+Down focus down
+    bindsym --to-code $mod+Up focus up
+    bindsym --to-code $mod+Right focus right
+    bindsym --to-code $mod+$left focus left
+    bindsym --to-code $mod+$down focus down
+    bindsym --to-code $mod+$up focus up
+    bindsym --to-code $mod+$right focus right
 
     # Перемещение окна (свап с соседом в терминах bspwm)
-    bindsym $mod+Shift+Left move left
-    bindsym $mod+Shift+Down move down
-    bindsym $mod+Shift+Up move up
-    bindsym $mod+Shift+Right move right
-    bindsym $mod+Shift+$left move left
-    bindsym $mod+Shift+$down move down
-    bindsym $mod+Shift+$up move up
-    bindsym $mod+Shift+$right move right
+    bindsym --to-code $mod+Shift+Left move left
+    bindsym --to-code $mod+Shift+Down move down
+    bindsym --to-code $mod+Shift+Up move up
+    bindsym --to-code $mod+Shift+Right move right
+    bindsym --to-code $mod+Shift+$left move left
+    bindsym --to-code $mod+Shift+$down move down
+    bindsym --to-code $mod+Shift+$up move up
+    bindsym --to-code $mod+Shift+$right move right
 
     # Закрыть окно (в bspwm — Super+W)
-    bindsym $mod+w kill
+    bindsym --to-code $mod+w kill
 
 ### Клавиши: столы
 #
     # Переключить стол
-    bindsym $mod+1 workspace number 1
-    bindsym $mod+2 workspace number 2
-    bindsym $mod+3 workspace number 3
-    bindsym $mod+4 workspace number 4
-    bindsym $mod+5 workspace number 5
-    bindsym $mod+6 workspace number 6
-    bindsym $mod+7 workspace number 7
-    bindsym $mod+8 workspace number 8
-    bindsym $mod+9 workspace number 9
-    bindsym $mod+0 workspace number 10
+    bindsym --to-code $mod+1 workspace number 1
+    bindsym --to-code $mod+2 workspace number 2
+    bindsym --to-code $mod+3 workspace number 3
+    bindsym --to-code $mod+4 workspace number 4
+    bindsym --to-code $mod+5 workspace number 5
+    bindsym --to-code $mod+6 workspace number 6
+    bindsym --to-code $mod+7 workspace number 7
+    bindsym --to-code $mod+8 workspace number 8
+    bindsym --to-code $mod+9 workspace number 9
+    bindsym --to-code $mod+0 workspace number 10
 
     # Перенести окно на стол
-    bindsym $mod+Shift+1 move container to workspace number 1
-    bindsym $mod+Shift+2 move container to workspace number 2
-    bindsym $mod+Shift+3 move container to workspace number 3
-    bindsym $mod+Shift+4 move container to workspace number 4
-    bindsym $mod+Shift+5 move container to workspace number 5
-    bindsym $mod+Shift+6 move container to workspace number 6
-    bindsym $mod+Shift+7 move container to workspace number 7
-    bindsym $mod+Shift+8 move container to workspace number 8
-    bindsym $mod+Shift+9 move container to workspace number 9
-    bindsym $mod+Shift+0 move container to workspace number 10
+    bindsym --to-code $mod+Shift+1 move container to workspace number 1
+    bindsym --to-code $mod+Shift+2 move container to workspace number 2
+    bindsym --to-code $mod+Shift+3 move container to workspace number 3
+    bindsym --to-code $mod+Shift+4 move container to workspace number 4
+    bindsym --to-code $mod+Shift+5 move container to workspace number 5
+    bindsym --to-code $mod+Shift+6 move container to workspace number 6
+    bindsym --to-code $mod+Shift+7 move container to workspace number 7
+    bindsym --to-code $mod+Shift+8 move container to workspace number 8
+    bindsym --to-code $mod+Shift+9 move container to workspace number 9
+    bindsym --to-code $mod+Shift+0 move container to workspace number 10
 
     # Соседний стол / предыдущий стол (Super + [ / ] / Tab)
-    bindsym $mod+bracketleft workspace prev_on_output
-    bindsym $mod+bracketright workspace next_on_output
-    bindsym $mod+Tab workspace back_and_forth
+    bindsym --to-code $mod+bracketleft workspace prev_on_output
+    bindsym --to-code $mod+bracketright workspace next_on_output
+    bindsym --to-code $mod+Tab workspace back_and_forth
 
     # Поиск по открытым окнам (Alt + Tab; wofi --show window в Sway не
     # работает — нет wlr-foreign-toplevel-management, поэтому свой список)
-    bindsym Alt+Tab exec sway-switch
+    bindsym --to-code Alt+Tab exec sway-switch
 
 ### Клавиши: раскладки, полноэкранный, скретчпад
 #
     # «Тайловый» режим: переключение horizontal/vertical
-    bindsym $mod+t layout toggle split
+    bindsym --to-code $mod+t layout toggle split
 
     # Вкладки
-    bindsym $mod+Shift+t layout tabbed
+    bindsym --to-code $mod+Shift+t layout tabbed
 
     # Стопка (ближайший аналог monocle из bspwm)
-    bindsym $mod+m layout stacking
+    bindsym --to-code $mod+m layout stacking
 
     # Плавающее окно
-    bindsym $mod+s floating toggle
+    bindsym --to-code $mod+s floating toggle
 
     # На весь экран
-    bindsym $mod+f fullscreen toggle
+    bindsym --to-code $mod+f fullscreen toggle
 
     # Скретчпад: спрятать / показать
-    bindsym $mod+Shift+minus move scratchpad
-    bindsym $mod+minus scratchpad show
+    bindsym --to-code $mod+Shift+minus move scratchpad
+    bindsym --to-code $mod+minus scratchpad show
 
 ### Режим изменения размера
 #
 mode "resize" {
-    bindsym $left resize shrink width 10px
-    bindsym $down resize grow height 10px
-    bindsym $up resize shrink height 10px
-    bindsym $right resize grow width 10px
+    bindsym --to-code $left resize shrink width 10px
+    bindsym --to-code $down resize grow height 10px
+    bindsym --to-code $up resize shrink height 10px
+    bindsym --to-code $right resize grow width 10px
 
-    bindsym Left resize shrink width 10px
-    bindsym Down resize grow height 10px
-    bindsym Up resize shrink height 10px
-    bindsym Right resize grow width 10px
+    bindsym --to-code Left resize shrink width 10px
+    bindsym --to-code Down resize grow height 10px
+    bindsym --to-code Up resize shrink height 10px
+    bindsym --to-code Right resize grow width 10px
 
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
+    bindsym --to-code Return mode "default"
+    bindsym --to-code Escape mode "default"
 }
-bindsym $mod+r mode "resize"
+bindsym --to-code $mod+r mode "resize"
 
 ### Остальное — из системных drop-in'ов
 #

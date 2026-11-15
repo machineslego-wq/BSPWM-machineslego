@@ -9,6 +9,9 @@
      #565f89 — неактивное      #7aa2f7 — акцент
      #9ece6a — успех           #e0af68 — предупреждение
      #f7768e — критично
+
+   Углы прямые: border-radius нигде не задаётся, панель и
+   «пилюли» — строгие прямоугольники.
    ========================================================== */
 
 * {
@@ -36,7 +39,6 @@ window#waybar.hidden {
     padding: 0 8px;
     margin: 5px 1px;
     border: none;
-    border-radius: 6px;
     background-color: transparent;
     box-shadow: none;
     color: #565f89;
@@ -79,17 +81,8 @@ window#waybar.hidden {
 #clock {
     padding: 0 10px;
     margin: 5px 2px;
-    border-radius: 6px;
     background-color: #1f2335;
     color: #c0caf5;
-}
-
-/* Заголовок окна — без пилюли, тише остальных */
-#window {
-    padding: 0 10px;
-    margin: 5px 2px;
-    background-color: transparent;
-    color: #a9b1d6;
 }
 
 /* Трей — без фона, только иконки */
@@ -193,7 +186,6 @@ window#waybar.hidden {
 tooltip {
     background-color: #1a1b26;
     border: 1px solid #292e42;
-    border-radius: 6px;
 }
 
 tooltip label {

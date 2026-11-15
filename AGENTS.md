@@ -83,20 +83,29 @@ Picom автоматически выбирает профиль по `powerprof
 
 ### Waybar (Sway)
 - `config/waybar/config.jsonc` + `config/waybar/style.css` → `~/.config/waybar`. Панель только для Sway; в BSPWM работает Polybar.
-- Модули завязаны на Sway: `sway/workspaces`, `sway/mode`, `sway/scratchpad`, `sway/window`. Рабочие столы — римские цифры через `format-icons` (`default` — `•` для нестандартных имён).
+- Слева — `sway/workspaces`, `sway/mode`, `sway/scratchpad`, в центре — только часы, справа — трей и системные модули. Заголовка окна (`sway/window`) нет: панель не пересказывает название приложения.
+- Рабочие столы — римские цифры через `format-icons` (`default` — `•` для нестандартных имён).
 - Звук — `wireplumber` с вызовами `wpctl`: `pactl` в системе не установлен. Клики не запускают rofi-команды (`powermenu`, `power-profile`, `wifi` — они X11-only), сеть открывает `nm-connection-editor`.
-- Панель непрозрачная: `#1a1b26`, «пилюли» `#1f2335`, активный стол `#24283b` + подчёркивание `#7aa2f7`.
+- Панель непрозрачная: `#1a1b26`, «пилюли» `#1f2335`, активный стол `#24283b` + подчёркивание `#7aa2f7`. Скруглений нет: `border-radius` в CSS не задаётся ни у панели, ни у кнопок, ни у тултипов.
 - В формате модуля допустим только **один** плейсхолдер `{…}`: `"{:%H:%M} {:%d %b}"` даёт `clock: format error: invalid arg-id`, поэтому дата и время пишутся внутри одного спецификатора — `"{:%H:%M  󰃭 %a, %d %b}"`.
 - `reload_style_on_change` включён: CSS применяется без перезапуска. Правка `config.jsonc` — `pkill -x waybar; waybar &`.
 
 ### Wofi (Sway)
 - `config/wofi/config` + `config/wofi/style.css` → `~/.config/wofi`. Лаунчер для Sway; в BSPWM остаётся Rofi.
 - `show=drun`, окно `600x400` по центру, `no_actions=true` (без кнопок Launch/Close), `layer=overlay`.
-- Фон окна рисует **`#outer-box`**, а не `window`/`#window`: эти селекторы wofi игнорирует. Само окно при этом прозрачное, поэтому `border-radius: 12px` на `#outer-box` даёт скруглённые внешние углы: в углах видно обои, панель остаётся непрозрачной.
+- Фон окна рисует **`#outer-box`**, а не `window`/`#window`: эти селекторы wofi игнорирует. Само окно прозрачное, но прозрачности у панели нет — `#outer-box` непрозрачный.
+- Стиль повторяет `config/rofi/config.rasi`: отступ 12 px, поле ввода `#24283b`, выбранная строка — акцент `#7aa2f7` с тёмным текстом, углы прямые (скруглений нет ни у окна, ни у поля, ни у строк).
 - Меню подстраиваются под содержимое: `dynamic_lines=true` в конфиге (аналог `fixed-height: false` в Rofi), `--lines` считает и поле ввода, поэтому в скриптах передаётся «пунктов + 2».
-- Стиль читается при каждом запуске: фон `#1a1b26`, выбранная строка `#24283b`, акцент `#7aa2f7`. Прозрачности самой панели нет.
+- Стиль читается при каждом запуске: фон `#1a1b26`, акцент `#7aa2f7`.
 - Запуск: `wofi --show drun` (хоткей Sway — `Super+D`), `--show run` — команды. `--show window` под Sway не работает: он требует `wlr-foreign-toplevel-management`, которого в Sway нет; переключение окон — `sway-switch` (список из дерева Sway + `wofi --dmenu`, фокус по `con_id`).
 - Меню команд — `--dmenu` с `--cache-file /dev/null` (иначе wofi сортирует пункты по частоте выбора): `wifi-sway`, `powermenu-sway`, `power-profile-sway`.
+
+### Mako (Sway)
+- `config/mako/config` → `~/.config/mako`. Уведомления для Sway; в BSPWM остаётся `dunst` (`config/dunst/dunstrc`).
+- Оформление повторяет dunst: фон `#1a1b26`, текст `#c0caf5`, рамка 2 px `#7aa2f7`, радиус 10, ширина 360, прогресс-бар акцентом, иконки выключены (`icons=0`), критические уведомления без таймаута и с красной рамкой `#f7768e`.
+- Геометрия переведена с dunst: `origin top-right` → `anchor=top-right`, `offset (10, 44)` → `outer-margin=44,10,10,10` (44 сверху — место под waybar), `gap_size 8` → `margin=8`.
+- Мышь: ЛКМ — `dismiss`, СКМ — `invoke-default-action`, ПКМ — `dismiss-all`. Важно: `on-button-left` принимает действие `dismiss`, а не `close` (с `close` mako не стартует).
+- Применение: `pkill -HUP -x mako` (перечитывает конфиг). Проверка синтаксиса — `timeout 3 dbus-run-session -- mako --config config/mako/config` (пустой вывод = ok).
 
 ### Sway (эксперимент)
 - `config/sway/config` — конфиг в репозитории, линкуется как `~/.config/sway`; `include /etc/sway/config.d/*` внутри остаётся абсолютным (оттуда приходит `50-systemd-user.conf`). Стоковый `bar { ... }` (swaybar) удалён, его роль играет waybar.
@@ -107,6 +116,7 @@ Picom автоматически выбирает профиль по `powerprof
 - Автозапуск: `exec pgrep -x waybar >/dev/null || waybar`, то же для `mako`, `lxpolkit`, `swayidle` (10 минут → `swaylock -f -c 1a1b26`) — reload не плодит дубли.
 - Хоткеи повторяют bspwm там, где это осмысленно: `$mod+Return` — `foot`, `$mod+d` — `wofi --show drun`, `$mod+/` — `cheatsheet-sway`, `$mod+F1..F4` и `$mod+Shift+S` — `screenshot-sway`, `$mod+Escape` — reload, `$mod+w` — kill, `$mod+Alt+L` — `swaylock`, `$mod+Alt+N` — `wifi-sway`, `$mod+Alt+P` — `power-profile-sway --menu`, `$mod+Shift+Q` — `powermenu-sway`, `$mod+Shift+E` — выход через `swaynag`. Preselect/monocle/picom-аналогов нет.
 - Раскладка `us,ru` с `grp:caps_toggle` и автоповтором 250/30 задана через `input "type:keyboard"`; тачпад — `tap`/`dwt`.
+- Все `bindsym` объявлены с `--to-code`: Sway переводит keysym в keycode по первой раскладке (`us`), поэтому хоткеи и вызовы wofi (`Super+d`, `Super+Alt+n` и остальные) срабатывают и в русской раскладке. Без флага keysym привязан к текущей раскладке и в RU-режиме не совпадает.
 - Применение: `Super+Escape` или `Super+Shift+C` (`swaymsg reload`). `~/.config/sway` — симлинк, правки сразу в репозитории.
 - `home/xinitrc` и `home/xprofile` под Wayland не выполняются: их переменные перенесены в `sway-session` (сессия из TTY) или в `--session`-обёртку из GDM.
 

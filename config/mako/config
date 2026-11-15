@@ -1,0 +1,82 @@
+# ==========================================================
+# mako — уведомления для Sway в стиле Dunst
+# ==========================================================
+# Живёт в репозитории: config/mako -> ~/.config/mako
+# Эталон — config/dunst/dunstrc: тот же фон, текст, рамка
+# 2px, ширина 360, скругление 10, прогресс-бар акцентом,
+# иконки выключены, критичные уведомления не закрываются.
+#
+# Отличия Dunst -> mako:
+#   offset (10, 44)  -> outer-margin 44,10,10,10 (место под waybar)
+#   gap_size 8       -> margin 8
+#   stack_duplicates -> group-by=app-name,summary
+#   history_length   -> max-history
+#
+# Применение: mako перечитывает конфиг по SIGHUP
+#   pkill -HUP -x mako
+# ==========================================================
+
+# --- Шрифт и текст ---
+font=JetBrainsMono Nerd Font 10
+markup=1
+format=<b>%s</b>\n%b
+text-alignment=left
+
+# --- Геометрия ---
+# width — как в Dunst, height — максимум (короткие подрезаются).
+width=360
+height=140
+
+# Отступ от края экрана: top=44 (под панель), остальные 10.
+outer-margin=44,10,10,10
+# Отступ между уведомлениями в стопке.
+margin=8
+padding=8
+
+# --- Оформление ---
+background-color=#1a1b26
+text-color=#c0caf5
+border-size=2
+border-color=#7aa2f7
+border-radius=10
+
+# Полоса прогресса (таймер закрытия) — акцент Tokyo Night.
+progress-color=over #7aa2f7
+
+# Иконки выключены: только текст (как в Dunst).
+icons=0
+
+# --- Поведение ---
+default-timeout=8000
+ignore-timeout=0
+max-visible=7
+max-history=20
+layer=overlay
+anchor=top-right
+
+# Стопка одинаковых уведомлений от одного приложения.
+group-by=app-name,summary
+
+# Мышь как в Dunst: ЛКМ закрыть, СКМ действие, ПКМ закрыть все.
+on-button-left=dismiss
+on-button-middle=invoke-default-action
+on-button-right=dismiss-all
+
+# --- Уровни важности (цвета и таймауты как в Dunst) ---
+[urgency=low]
+background-color=#1a1b26
+text-color=#c0caf5
+border-color=#7aa2f7
+default-timeout=5000
+
+[urgency=normal]
+background-color=#1a1b26
+text-color=#c0caf5
+border-color=#7aa2f7
+default-timeout=8000
+
+[urgency=critical]
+background-color=#1a1b26
+text-color=#f7768e
+border-color=#f7768e
+default-timeout=0
