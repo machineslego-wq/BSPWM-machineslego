@@ -20,10 +20,11 @@
     "fixed-center": true,
     "reload_style_on_change": true,
 
+    // Слева логотип Debian (клик — wofi drun), дальше островок
+    // с рабочими столами, режимом и scratchpad.
     "modules-left": [
-        "sway/workspaces",
-        "sway/mode",
-        "sway/scratchpad"
+        "custom/debian",
+        "group/left"
     ],
     "modules-center": [
         "group/center"
@@ -33,6 +34,12 @@
     ],
 
     // Островки: фон и скругление рисует группа, внутри — модули.
+    // Слева: рабочие столы, режим, scratchpad.
+    "group/left": {
+        "orientation": "horizontal",
+        "modules": ["sway/workspaces", "sway/mode", "sway/scratchpad"]
+    },
+
     // Центр: яркость, дата, батарея.
     "group/center": {
         "orientation": "horizontal",
@@ -46,9 +53,17 @@
             "tray",
             "power-profiles-daemon",
             "network",
-            "wireplumber",
+            "custom/volume",
             "custom/powermenu"
         ]
+    },
+
+    // Логотип Debian: глиф U+F306, как в Polybar. Клик открывает
+    // wofi drun (то же, что Super+D); под Wayland rofi не работает.
+    "custom/debian": {
+        "format": "\uf306",
+        "tooltip": false,
+        "on-click": "wofi --show drun"
     },
 
     "custom/powermenu": {
@@ -88,9 +103,10 @@
         "tooltip-format": "{app}: {title}"
     },
 
+    // Иконки трея чуть мельче, чем в Polybar (там 18): не раздувают островок
     "tray": {
-        "icon-size": 18,
-        "spacing": 8
+        "icon-size": 16,
+        "spacing": 10
     },
 
     // Иконки как в local/bin/power-profile
@@ -125,28 +141,34 @@
         "tooltip": false
     },
 
+    // Пороги как в Polybar: иконки красные до 30%, жёлтые до 60%,
+    // дальше обычные. Порядок format-icons — от 0% к 100%, как ramp-capacity.
     "battery": {
         "interval": 30,
         "states": {
-            "warning": 30,
-            "critical": 15
+            "warning": 59,
+            "critical": 14
         },
         "format": "{icon} {capacity}%",
         "format-charging": "{icon} {capacity}%",
         "format-plugged": "{icon} {capacity}%",
         "tooltip-format": "{timeTo}",
         "format-icons": [
-            "󰁺", "󰁻", "󰁼", "󰁽", "󰁾",
+            "󰂃", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾",
             "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"
         ]
     },
 
-    // Звук через PipeWire (wpctl), pactl в системе не установлен
-    "wireplumber": {
-        "format": "{icon} {volume}%",
-        "format-muted": "󰝟",
-        "format-icons": ["󰕿", "󰖀", "󰕾"],
-        "scroll-step": 5,
+    // Звук через PipeWire (wpctl), pactl в системе не установлен.
+    // Родной wireplumber полоску не умеет, поэтому ярлык собирает
+    // local/bin/volume-sway: иконка, проценты и 5 точек, как
+    // bar-volume в Polybar. Клики и прокрутка остаются за waybar,
+    // после события он перезапускает скрипт (exec-on-event).
+    "custom/volume": {
+        "exec": "volume-sway",
+        "interval": 1,
+        "format": "{text}",
+        "tooltip": false,
         "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
         "on-scroll-up": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+",
         "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"

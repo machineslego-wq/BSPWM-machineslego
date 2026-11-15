@@ -10,14 +10,15 @@
    pseudo-class», правило молча отбрасывается), а @define-color —
    родной механизм GTK, на нём waybar и работает.
 
-   Углы прямые у панели и столов; центр и правый блок собраны в
-   «островки» — группы с фоном @bg-mid и скруглением 5 px.
+   Углы прямые у панели и столов; слева, в центре и справа —
+   «островки»: группы с фоном @bg-alt и скруглением 5 px, как
+   панельки Polybar.
    ========================================================== */
 
 /* --- Палитра --- */
 @define-color bg #1a1b26;            /* фон панели, тултипы */
-@define-color bg-mid #1f2335;        /* островки и пилюли */
-@define-color bg-alt #24283b;        /* активный стол, мигание battery */
+@define-color bg-mid #1f2335;        /* мигание battery */
+@define-color bg-alt #24283b;        /* островки: столы, центр, справа */
 @define-color bg-highlight #292e42;  /* hover, рамка тултипа */
 @define-color fg #c0caf5;            /* основной текст */
 @define-color disabled #565f89;      /* неактивное */
@@ -26,7 +27,6 @@
 @define-color success #9ece6a;       /* зарядка, power-saver */
 @define-color warning #e0af68;       /* батарея разряжается, urgent */
 @define-color alert #f7768e;         /* критично, ошибки */
-@define-color info #7dcfff;          /* сеть */
 
 * {
     font-family: "JetBrainsMono Nerd Font";
@@ -46,12 +46,12 @@ window#waybar.hidden {
 
 /* --- Рабочие столы --- */
 #workspaces {
-    margin: 0 0 0 4px;
+    padding: 0 4px;
 }
 
 #workspaces button {
     padding: 0 10px;
-    margin: 5px 1px;
+    margin: 3px 1px;
     border: none;
     background-color: transparent;
     box-shadow: none;
@@ -65,12 +65,13 @@ window#waybar.hidden {
 
 #workspaces button.visible {
     color: @fg;
-    background-color: @bg-mid;
 }
 
+/* Активный стол — как label-focused в Polybar: акцентный текст
+   и подчёркивание, фон островка не меняется. */
 #workspaces button.focused {
     color: @primary;
-    background-color: @bg-alt;
+    background-color: transparent;
     box-shadow: inset 0 -2px @primary;
 }
 
@@ -85,15 +86,16 @@ window#waybar.hidden {
     box-shadow: none;
 }
 
-/* --- Островки: центр и правый блок ---
+/* --- Островки: слева, центр и правый блок ---
    Фон и скругление рисует сама группа. В waybar группа
-   `group/center` получает GTK-имя `center` (без префикса group/),
-   поэтому селекторы — #center и #right. Модули внутри — без
-   своих «пилюль» и внешних отступов, поэтому внутри блока нет
-   пустых промежутков: только padding текста. */
+   `group/left` получает GTK-имя `left` (без префикса group/),
+   поэтому селекторы — #left, #center и #right. Модули внутри —
+   без своих «пилюль» и внешних отступов, поэтому внутри блока
+   нет пустых промежутков: только padding текста. */
+#left,
 #center,
 #right {
-    background-color: @bg-mid;
+    background-color: @bg-alt;
     border-radius: 5px;
     margin: 4px 6px;
     padding: 0 2px;
@@ -104,7 +106,7 @@ window#waybar.hidden {
 #network,
 #backlight,
 #battery,
-#wireplumber,
+#custom-volume,
 #clock,
 #tray,
 #custom-powermenu {
@@ -123,18 +125,28 @@ window#waybar.hidden {
 #custom-powermenu {
     padding: 0 9px;
     font-size: 14px;
-}
-
-#custom-powermenu:hover {
     color: @primary;
 }
 
-/* Режим и scratchpad — отдельные пилюли слева */
+#custom-powermenu:hover {
+    color: @fg;
+}
+
+/* Логотип Debian слева: вне островка, клик — wofi drun.
+   Жирный и крупнее текста, как font-2 и padding 2 в Polybar. */
+#custom-debian {
+    padding: 0 2px 0 10px;
+    font-size: 15px;
+    font-weight: bold;
+    color: @primary;
+}
+
+/* Режим и scratchpad — внутри левого островка, без своего фона */
 #mode,
 #scratchpad {
     padding: 0 10px;
-    margin: 4px 2px;
-    background-color: @bg-mid;
+    margin: 0;
+    background-color: transparent;
     color: @fg;
 }
 
@@ -148,14 +160,14 @@ window#waybar.hidden {
 
 /* --- Часы: акцентный текст внутри центрального островка --- */
 #clock {
-    color: @fg;
+    color: @primary;
     font-weight: bold;
 }
 
-/* --- Режим (resize) --- */
+/* --- Режим (resize): текст предупреждения, без своей пилюли --- */
 #mode {
-    background-color: @warning;
-    color: @bg;
+    background-color: transparent;
+    color: @warning;
     font-weight: bold;
 }
 
@@ -168,34 +180,13 @@ window#waybar.hidden {
     background-color: transparent;
 }
 
-/* --- Профиль питания --- */
-#power-profiles-daemon.performance {
-    color: @alert;
-}
-
-#power-profiles-daemon.balanced {
-    color: @primary;
-}
-
-#power-profiles-daemon.power-saver {
-    color: @success;
-}
-
-/* --- Сеть --- */
-#network {
-    color: @info;
-}
-
+/* --- Профиль питания и сеть: обычный текст, как в Polybar
+   (цвет @fg задан списком модулей островка выше) --- */
 #network.disconnected {
     color: @alert;
 }
 
-#network.linked,
-#network.ethernet {
-    color: @info;
-}
-
-/* --- Батарея --- */
+/* --- Батарея: зарядка зелёная, низкий заряд жёлтый, критический красный --- */
 #battery.charging,
 #battery.plugged {
     color: @success;
@@ -208,7 +199,7 @@ window#waybar.hidden {
 @keyframes blink {
     to {
         color: @alert;
-        background-color: @bg-alt;
+        background-color: @bg-mid;
     }
 }
 
@@ -221,10 +212,8 @@ window#waybar.hidden {
     animation-direction: alternate;
 }
 
-/* --- Звук --- */
-#wireplumber.muted {
-    color: @disabled;
-}
+/* --- Звук: иконку, проценты и точки красит volume-sway
+   pango-разметкой, поэтому своих цветов здесь нет --- */
 
 /* --- Тултипы --- */
 tooltip {

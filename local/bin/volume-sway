@@ -1,0 +1,81 @@
+#!/bin/bash
+# ==========================================================
+# volume-sway — громкость для waybar: иконка, проценты и
+# полоска из 5 точек, как bar-volume в Polybar
+# ==========================================================
+# Родной модуль waybar (wireplumber) полоску не умеет, поэтому
+# модуль custom/volume запускает этот скрипт (interval = 1), а
+# вывод печатается pango-разметкой.
+#
+# Полоска: 5 точек по 20%, цвет по громкости — синий до 70%,
+# жёлтый до 90%, красный выше. Пустые точки приглушённые, как
+# bar-volume-empty в Polybar. Мут — иконка и проценты серым,
+# полоска показывает реальный уровень.
+#
+# Клики и прокрутку обрабатывает waybar (on-click/on-scroll-*):
+# после события он перезапускает скрипт (exec-on-event).
+# Палитра — как в config/waybar/style.css.
+# ==========================================================
+
+set -u
+
+fg='#c0caf5'
+disabled='#565f89'
+primary='#7aa2f7'
+warning='#e0af68'
+alert='#f7768e'
+
+info=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null)
+
+if [ -z "$info" ]; then
+    printf '<span foreground="%s">󰝟 нет устройства</span>\n' "$disabled"
+    exit 0
+fi
+
+# "Volume: 0.45" или "Volume: 0.45 [MUTED]"
+# awk с C-локалью: иначе в ru_RU 0.45 приходит как 0,45 и проценты ломаются
+vol=$(printf '%s\n' "$info" | LC_ALL=C awk '{ printf "%d", $2 * 100 + 0.5 }')
+muted=0
+case "$info" in *MUTED*) muted=1 ;; esac
+
+# Иконки как ramp-volume в Polybar: 0–19% тихо, 20–39% средне, 40%+ громко
+if [ "$muted" -eq 1 ]; then
+    icon='󰝟'
+    color="$disabled"
+elif [ "$vol" -lt 20 ]; then
+    icon='󰕿'
+    color="$fg"
+elif [ "$vol" -lt 40 ]; then
+    icon='󰖀'
+    color="$fg"
+else
+    icon='󰕾'
+    color="$fg"
+fi
+
+# Цвет заполненных точек — по громкости (bar-volume-foreground-N в Polybar)
+if [ "$vol" -ge 90 ]; then
+    fill_color="$alert"
+elif [ "$vol" -ge 70 ]; then
+    fill_color="$warning"
+else
+    fill_color="$primary"
+fi
+
+# 5 точек по 20%: любая дробь заполняет следующую (в Polybar — indicator)
+filled=$(( (vol + 19) / 20 ))
+[ "$filled" -gt 5 ] && filled=5
+
+bar=""
+for i in 1 2 3 4 5; do
+    if [ "$i" -le "$filled" ]; then
+        bar+="<span foreground=\"$fill_color\">●</span>"
+    else
+        bar+="<span foreground=\"$disabled\">○</span>"
+    fi
+    [ "$i" -lt 5 ] && bar+=" "
+done
+
+# ●/○ крупнее текста при том же кегле (• в 12px почти точка),
+# поэтому полоска читается как bar-volume в Polybar и не растягивает панель
+printf '<span foreground="%s">%s %d%%</span>  %s\n' "$color" "$icon" "$vol" "$bar"
