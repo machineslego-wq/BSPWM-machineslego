@@ -10,8 +10,8 @@
      #9ece6a — успех           #e0af68 — предупреждение
      #f7768e — критично
 
-   Углы прямые: border-radius нигде не задаётся, панель и
-   «пилюли» — строгие прямоугольники.
+   Углы прямые у панели и столов; центр и правый блок собраны в
+   «островки» — группы с фоном #1f2335 и скруглением 5 px.
    ========================================================== */
 
 * {
@@ -32,16 +32,17 @@ window#waybar.hidden {
 
 /* --- Рабочие столы --- */
 #workspaces {
-    margin: 0 6px;
+    margin: 0 0 0 4px;
 }
 
 #workspaces button {
-    padding: 0 8px;
+    padding: 0 10px;
     margin: 5px 1px;
     border: none;
     background-color: transparent;
     box-shadow: none;
     color: #565f89;
+    border-radius: 0;
 }
 
 #workspaces button.occupied {
@@ -70,26 +71,57 @@ window#waybar.hidden {
     box-shadow: none;
 }
 
-/* --- Общий вид модулей («пилюли») --- */
-#mode,
-#scratchpad,
+/* --- Островки: центр и правый блок ---
+   Фон и скругление рисует сама группа. В waybar группа
+   `group/center` получает GTK-имя `center` (без префикса group/),
+   поэтому селекторы — #center и #right. Модули внутри — без
+   своих «пилюль» и внешних отступов, поэтому внутри блока нет
+   пустых промежутков: только padding текста. */
+#center,
+#right {
+    background-color: #1f2335;
+    border-radius: 5px;
+    margin: 4px 6px;
+    padding: 0 2px;
+}
+
+/* Модули внутри островков: только горизонтальные отступы */
 #power-profiles-daemon,
 #network,
 #backlight,
 #battery,
 #wireplumber,
-#clock {
-    padding: 0 10px;
-    margin: 5px 2px;
-    background-color: #1f2335;
+#clock,
+#tray,
+#custom-powermenu {
+    padding: 0 8px;
+    margin: 0;
+    background-color: transparent;
     color: #c0caf5;
 }
 
 /* Трей — без фона, только иконки */
 #tray {
-    padding: 0 6px;
-    margin: 5px 2px;
-    background-color: transparent;
+    padding: 0 4px;
+}
+
+/* Кнопка питания: открывает powermenu-sway */
+#custom-powermenu {
+    padding: 0 9px;
+    font-size: 14px;
+}
+
+#custom-powermenu:hover {
+    color: #7aa2f7;
+}
+
+/* Режим и scratchpad — отдельные пилюли слева */
+#mode,
+#scratchpad {
+    padding: 0 10px;
+    margin: 4px 2px;
+    background-color: #1f2335;
+    color: #c0caf5;
 }
 
 #tray > .passive {
@@ -100,10 +132,9 @@ window#waybar.hidden {
     -gtk-icon-effect: highlight;
 }
 
-/* --- Часы: акцентная пилюля --- */
+/* --- Часы: акцентный текст внутри центрального островка --- */
 #clock {
-    background-color: #24283b;
-    color: #7aa2f7;
+    color: #c0caf5;
     font-weight: bold;
 }
 
@@ -143,7 +174,6 @@ window#waybar.hidden {
 
 #network.disconnected {
     color: #f7768e;
-    background-color: #1f2335;
 }
 
 #network.linked,

@@ -7,8 +7,9 @@
 // Перезапуск после правки этого файла: pkill -x waybar; waybar &
 // style.css подхватывается на лету (reload_style_on_change).
 //
-// Модули, завязанные на rofi (powermenu, power-profile, wifi),
-// здесь не используются: под Wayland rofi не работает.
+// Модули rofi (powermenu, power-profile, wifi) здесь не используются:
+// под Wayland rofi не работает. Их аналоги на wofi — wifi-sway,
+// power-profile-sway, powermenu-sway (кнопка питания справа).
 // ==========================================================
 
 {
@@ -25,32 +26,52 @@
         "sway/scratchpad"
     ],
     "modules-center": [
-        "clock"
+        "group/center"
     ],
     "modules-right": [
-        "tray",
-        "power-profiles-daemon",
-        "network",
-        "backlight",
-        "battery",
-        "wireplumber"
+        "group/right"
     ],
 
-    // Рабочие столы: римские цифры как в Polybar, fallback — точка.
+    // Островки: фон и скругление рисует группа, внутри — модули.
+    // Центр: яркость, дата, батарея.
+    "group/center": {
+        "orientation": "horizontal",
+        "modules": ["backlight", "clock", "battery"]
+    },
+
+    // Справа: трей, профиль питания, сеть, звук, кнопка powermenu-sway.
+    "group/right": {
+        "orientation": "horizontal",
+        "modules": [
+            "tray",
+            "power-profiles-daemon",
+            "network",
+            "wireplumber",
+            "custom/powermenu"
+        ]
+    },
+
+    "custom/powermenu": {
+        "format": "󰐥",
+        "tooltip": false,
+        "on-click": "powermenu-sway"
+    },
+
+    // Рабочие столы: цифры 1–10 как в Polybar, fallback — точка.
     "sway/workspaces": {
         "disable-scroll": true,
         "format": "{icon}",
         "format-icons": {
-            "1": "I",
-            "2": "II",
-            "3": "III",
-            "4": "IV",
-            "5": "V",
-            "6": "VI",
-            "7": "VII",
-            "8": "VIII",
-            "9": "IX",
-            "10": "X",
+            "1": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4",
+            "5": "5",
+            "6": "6",
+            "7": "7",
+            "8": "8",
+            "9": "9",
+            "10": "10",
             "default": "•"
         }
     },
