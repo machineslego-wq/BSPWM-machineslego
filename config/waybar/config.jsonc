@@ -99,9 +99,9 @@
         "tooltip": true,
         "tooltip-format": "Профиль: {profile}\nДрайвер: {driver}",
         "format-icons": {
-            "performance": "󰓅",
-            "balanced": "󰒓",
-            "power-saver": "󰾆",
+            "performance": "󰓅 PERF",
+            "balanced": "󰒓 BAL",
+            "power-saver": "󰾆 ECO",
             "default": "󰒓"
         }
     },

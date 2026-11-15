@@ -83,6 +83,7 @@ Picom автоматически выбирает профиль по `powerprof
 
 ### Waybar (Sway)
 - `config/waybar/config.jsonc` + `config/waybar/style.css` → `~/.config/waybar`. Панель только для Sway; в BSPWM работает Polybar.
+- Палитра — в начале `style.css` блоком `@define-color` (имена как в `config/polybar/config.ini`: `bg`, `bg-mid`, `fg`, `primary`, `alert` и т.д.), в правилах только `@имя`. `:root` и `var()` GTK-CSS не понимает: waybar пишет `Invalid name of pseudo-class` и молча отбрасывает правило, поэтому переменные — только через `@define-color`.
 - Композиция: слева `sway/workspaces`, `sway/mode`, `sway/scratchpad`; в центре группа `group/center` — яркость, часы, батарея; справа группа `group/right` — трей, профиль питания, сеть, звук и кнопка питания, открывающая `powermenu-sway`. Заголовка окна (`sway/window`) нет: панель не пересказывает название приложения.
 - Островки: фон `#1f2335` и скругление 5 px рисует сама группа, а модули внутри — без фона и внешних отступов (только горизонтальный padding), поэтому блок выглядит цельным, без пустых промежутков. В CSS группа `group/center` — это **`#center`** (GTK-имя без префикса `group/`), а не `#group-center`. Панель, кнопки столов и тултипы остаются с прямыми углами.
 - Рабочие столы — цифры 1–10 через `format-icons` (`default` — `•` для нестандартных имён).
