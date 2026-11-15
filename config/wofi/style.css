@@ -17,42 +17,45 @@
    фон окна рисует `#outer-box`.
    ========================================================== */
 
+/* --- Палитра --- */
+@define-color bg           #1a1b26;  /* фон окна */
+@define-color bg-alt       #24283b;  /* поле ввода */
+@define-color primary      #7aa2f7;  /* акцент: выбранная строка, prompt */
+@define-color fg           #c0caf5;  /* основной текст */
+@define-color muted        #a9b1d6;  /* приглушённый текст */
+@define-color placeholder  #565f89;  /* placeholder */
+@define-color urgent       #f7768e;  /* срочное */
+
 * {
     font-family: "JetBrainsMono Nerd Font";
-    font-size: 12px;
+    font-size: 14px;
 }
 
-/* Корень окна. Внутренние отступы (12 px) заданы не здесь, а у полей
-   и строк: padding на корне прибавлялся бы к `--width`, и окно выходило
-   бы на 24 px шире заказанного. */
 #outer-box {
     margin: 0;
-    padding: 0;
-    border: none;
+    padding: 8px;
+    /* border: 2px solid @primary; */
     border-radius: 0;
-    background-color: #1a1b26;
-    color: #c0caf5;
+    background-color: @bg;
+    color: @fg;
 }
 
-/* Поле поиска (inputbar в Rofi) */
 #input {
-    margin: 12px 12px 10px 12px;
-    padding: 10px 12px;
+    margin: 8px 8px 10px 8px;   /* снизу 12 → 10: зазор до списка чуть меньше */
+    padding: 8px 10px;           /* 8 + 18 + 8 = 34px */
     border: none;
-    border-radius: 0;
-    background-color: #24283b;
-    color: #c0caf5;
+    border-radius: 2px;
+    background-color: @bg-alt;
+    color: @fg;
 }
 
-/* Prompt/значок поиска — акцентный, как prompt в Rofi */
 #input image {
-    color: #7aa2f7;
+    color: @primary;
 }
 
-/* Контейнеры списка */
 #inner-box {
     margin: 0;
-    padding: 0 0 12px 0;
+    padding: 0;
     background-color: transparent;
 }
 
@@ -63,31 +66,29 @@
     background-color: transparent;
 }
 
-/* Строки списка (element в Rofi): отступ 12 px по краям окна */
 #entry {
-    margin: 0 12px;
-    padding: 8px 10px;
-    border-radius: 0;
+    margin: 0 8px;
+    padding: 6px 10px;           /* 6 + 18 + 6 = 30px — плотнее строк */
+    border-radius: 2px;
     background-color: transparent;
 }
 
-/* Выбранная строка — синяя, текст тёмный (инверсия, как в Rofi) */
 #entry:selected {
-    background-color: #7aa2f7;
+    background-color: @primary;
+    border-radius: 2px;
 }
 
 #text {
     margin: 0;
     padding: 0;
-    color: #c0caf5;
+    color: @fg;
 }
 
 #text:selected {
-    color: #1a1b26;
+    color: @bg;
 }
 
-/* Иконка приложения/строки: отступ до текста, как spacing в Rofi */
 #img {
-    padding: 0 10px 0 0;
+    padding: 0 12px 0 0;
     background-color: transparent;
 }

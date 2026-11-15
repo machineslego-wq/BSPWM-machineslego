@@ -20,6 +20,10 @@
     "spacing": 0,
     "fixed-center": true,
     "reload_style_on_change": true,
+    "margin-top": 0,
+    "margin-bottom": 0,
+    "margin-left": 0,
+    "margin-right": 0,
 
     // --- Раскладка островков ---
     "modules-left":   ["custom/debian", "group/left"],
@@ -79,7 +83,7 @@
     },
 
     "sway/mode": {
-        "format": "<span style=\"italic\">{}</span>"
+        "format": "<span style=\"italic\">󰩨 resize</span>"
     },
 
     "sway/scratchpad": {
@@ -186,7 +190,7 @@
     // Только ОДИН плейсхолдер {…} на format (ограничение waybar),
     // дата и время внутри одного спецификатора.
     "clock": {
-        "interval": 60,
+        "interval": 1,
         "format": "{:%H:%M  󰃭 %a, %d %b}",
         "format-alt": "{:%H:%M:%S  󰃭 %d.%m.%Y}",
         "tooltip": false

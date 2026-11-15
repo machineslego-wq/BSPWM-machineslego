@@ -30,9 +30,9 @@ height=140
 # Отступ от края экрана. Mako — layer-shell поверхность: waybar
 # резервирует свою зону, поэтому окно и так встаёт под панелью.
 # outer-margin сверху 0, а зазор до панели задаёт margin (8 px).
-outer-margin=0,10,10,10
+outer-margin=8
 # Отступ между уведомлениями в стопке.
-margin=8
+margin=0
 padding=8
 
 # --- Оформление ---
@@ -40,10 +40,10 @@ background-color=#1a1b26
 text-color=#c0caf5
 border-size=2
 border-color=#7aa2f7
-border-radius=0
+border-radius=2
 
 # Полоса прогресса (таймер закрытия) — акцент Tokyo Night.
-progress-color=over #7aa2f7
+progress-color=over #1c305b
 
 # Иконки выключены: только текст (как в Dunst).
 icons=0

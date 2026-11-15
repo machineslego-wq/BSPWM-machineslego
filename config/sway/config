@@ -35,7 +35,7 @@ default_floating_border pixel 2
 
 # Отступы между окнами (window_gap 4). Внешние не нужны: место под waybar
 # резервирует layer-shell, панель не перекрывает окна.
-gaps inner 4
+gaps inner 0
 gaps outer 0
 smart_gaps off
 smart_borders off

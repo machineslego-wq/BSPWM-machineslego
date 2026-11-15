@@ -114,10 +114,12 @@ window#waybar.hidden {
     background-color: transparent;
     color: @warning;
     font-weight: bold;
+    padding: 0 8px;
 }
 
 #scratchpad {
     color: @secondary;
+    padding: 0 8px;
 }
 
 #scratchpad.empty {
