@@ -22,10 +22,12 @@
     font-size: 12px;
 }
 
-/* Корень окна: отступ как mainbox padding в Rofi */
+/* Корень окна. Внутренние отступы (12 px) заданы не здесь, а у полей
+   и строк: padding на корне прибавлялся бы к `--width`, и окно выходило
+   бы на 24 px шире заказанного. */
 #outer-box {
     margin: 0;
-    padding: 12px;
+    padding: 0;
     border: none;
     border-radius: 0;
     background-color: #1a1b26;
@@ -34,7 +36,7 @@
 
 /* Поле поиска (inputbar в Rofi) */
 #input {
-    margin: 0 0 10px 0;
+    margin: 12px 12px 10px 12px;
     padding: 10px 12px;
     border: none;
     border-radius: 0;
@@ -50,7 +52,7 @@
 /* Контейнеры списка */
 #inner-box {
     margin: 0;
-    padding: 0;
+    padding: 0 0 12px 0;
     background-color: transparent;
 }
 
@@ -61,8 +63,9 @@
     background-color: transparent;
 }
 
-/* Строки списка (element в Rofi) */
+/* Строки списка (element в Rofi): отступ 12 px по краям окна */
 #entry {
+    margin: 0 12px;
     padding: 8px 10px;
     border-radius: 0;
     background-color: transparent;

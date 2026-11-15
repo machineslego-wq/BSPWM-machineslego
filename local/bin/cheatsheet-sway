@@ -22,6 +22,7 @@ cat <<EOF | wofi --dmenu --allow-markup --cache-file /dev/null \
 󰕾 Super + A                        Микшер звука                   <span foreground="#1a1b26">[звук, громкость, audio, наушники]</span>
 󰖩 Super + Alt + N                  Wi-Fi (wofi)                   <span foreground="#1a1b26">[сеть, wifi, интернет, хотспот, nmcli]</span>
 󰓅 Super + Alt + P                  Профиль питания (wofi)         <span foreground="#1a1b26">[питание, профиль, батарея, power, performance, eco]</span>
+󰁹 Super + Alt + B                  Батарея: заряд и здоровье      <span foreground="#1a1b26">[батарея, заряд, battery, здоровье, энергия]</span>
  Super + Alt + T                  Telegram (flatpak) + Proxy     <span foreground="#1a1b26">[телеграм, чат, messenger, прокси, proxy]</span>
 󰔏 Super + X                        Датчики (foot)                 <span foreground="#1a1b26">[датчики, сенсоры, нагрев, sensors, watch]</span>
 󰑓 Super + Escape                   Перечитать конфиг Sway         <span foreground="#1a1b26">[рестарт, конфиг, reload, reload]</span>

@@ -26,7 +26,7 @@ list=$(swaymsg -t get_tree -r | jq -r '
 [ -n "$list" ] || exit 0
 
 choice=$(printf '%s\n' "$list" | wofi --dmenu --cache-file /dev/null \
-    --prompt "󰖯 Окна" --width 720 --height 480)
+    --prompt "󰖯 Окна" --width 800 --height 480)
 
 # Esc — ничего не выбрано.
 [ -n "$choice" ] || exit 0

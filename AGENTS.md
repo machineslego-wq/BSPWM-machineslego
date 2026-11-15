@@ -33,7 +33,7 @@ Dotfiles + установщик BSPWM-окружения для Debian 13 Trixie
 Скрипты и команды в git имеют режим 755; новые файлы в `local/bin/` и `*.sh` тоже должны быть executable (`chmod +x`). `link.sh` выставляет `+x` при линковке.
 
 ### Команды и хелперы
-- Пользовательские команды — в `local/bin/` → `~/.local/bin` (PATH): `battery`, `cheatsheet-bspwm`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `volume`, `wifi`, `rice-check`, `rice-help`; набор Sway — `cheatsheet-sway`, `screenshot-sway`, `sway-display`, `sway-session`, `sway-switch`, `wifi-sway`, `powermenu-sway`, `power-profile-sway`. Без расширения `.sh`, с шебангом.
+- Пользовательские команды — в `local/bin/` → `~/.local/bin` (PATH): `battery`, `cheatsheet-bspwm`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `volume`, `wifi`, `rice-check`, `rice-help`; набор Sway — `cheatsheet-sway`, `screenshot-sway`, `sway-display`, `sway-session`, `sway-switch`, `wifi-sway`, `powermenu-sway`, `power-profile-sway`, `battery-sway`. Без расширения `.sh`, с шебангом.
 - Машинные команды — там же: `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas`, `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. По умолчанию — быстрый запуск; первичная установка и обслуживание — флагами. Команда с обязательным аргументом без него печатает справку и выходит с кодом 1.
 - Хоткей-«клей» BSPWM остаётся в `config/sxhkd/scripts/`: `flag.sh`, `to-preselect.sh`, `preselect-cancel-all.sh`. Они действуют на focused-окно и вне хоткея смысла не имеют.
 - `config/polybar/launch.sh` — часть конфига панели (запускается из `bspwmrc`), а не команда.
@@ -95,15 +95,16 @@ Picom автоматически выбирает профиль по `powerprof
 - `show=drun`, окно `600x400` по центру, `no_actions=true` (без кнопок Launch/Close), `layer=overlay`.
 - Фон окна рисует **`#outer-box`**, а не `window`/`#window`: эти селекторы wofi игнорирует. Само окно прозрачное, но прозрачности у панели нет — `#outer-box` непрозрачный.
 - Стиль повторяет `config/rofi/config.rasi`: отступ 12 px, поле ввода `#24283b`, выбранная строка — акцент `#7aa2f7` с тёмным текстом, углы прямые (скруглений нет ни у окна, ни у поля, ни у строк).
+- `--width` задаёт ширину окна целиком, поэтому отступы 12 px вынесены из `#outer-box` на `#input` и `#entry`: `padding` на корне прибавлялся бы к ширине, и окно выходило бы на 24 px шире заказанного. Ширины меню совпадают с Rofi: `powermenu` 380, `power-profile` 420, `wifi` 480 (список сетей и скрытая — 580), `battery` 580, `sway-switch` 800, `cheatsheet-sway` 960.
 - Меню подстраиваются под содержимое: `dynamic_lines=true` в конфиге (аналог `fixed-height: false` в Rofi), `--lines` считает и поле ввода, поэтому в скриптах передаётся «пунктов + 2».
 - Стиль читается при каждом запуске: фон `#1a1b26`, акцент `#7aa2f7`.
 - Запуск: `wofi --show drun` (хоткей Sway — `Super+D`), `--show run` — команды. `--show window` под Sway не работает: он требует `wlr-foreign-toplevel-management`, которого в Sway нет; переключение окон — `sway-switch` (список из дерева Sway + `wofi --dmenu`, фокус по `con_id`).
-- Меню команд — `--dmenu` с `--cache-file /dev/null` (иначе wofi сортирует пункты по частоте выбора): `wifi-sway`, `powermenu-sway`, `power-profile-sway`.
+- Меню команд — `--dmenu` с `--cache-file /dev/null` (иначе wofi сортирует пункты по частоте выбора): `wifi-sway`, `powermenu-sway`, `power-profile-sway`, `battery-sway`.
 
 ### Mako (Sway)
 - `config/mako/config` → `~/.config/mako`. Уведомления для Sway; в BSPWM остаётся `dunst` (`config/dunst/dunstrc`).
-- Оформление повторяет dunst: фон `#1a1b26`, текст `#c0caf5`, рамка 2 px `#7aa2f7`, радиус 10, ширина 360, прогресс-бар акцентом, иконки выключены (`icons=0`), критические уведомления без таймаута и с красной рамкой `#f7768e`.
-- Геометрия переведена с dunst: `origin top-right` → `anchor=top-right`, `offset (10, 44)` → `outer-margin=44,10,10,10` (44 сверху — место под waybar), `gap_size 8` → `margin=8`.
+- Оформление повторяет dunst: фон `#1a1b26`, текст `#c0caf5`, рамка 2 px `#7aa2f7`, ширина 360, прогресс-бар акцентом, иконки выключены (`icons=0`), критические уведомления без таймаута и с красной рамкой `#f7768e`. Скруглений нет (`border-radius=0`).
+- Геометрия переведена с dunst: `origin top-right` → `anchor=top-right`, `gap_size 8` → `margin=8`. `outer-margin` по бокам 10, сверху 0: mako — layer-shell поверхность, waybar резервирует свою зону, поэтому уведомления и так встают под панелью, а зазор до неё задаёт `margin` (8 px).
 - Мышь: ЛКМ — `dismiss`, СКМ — `invoke-default-action`, ПКМ — `dismiss-all`. Важно: `on-button-left` принимает действие `dismiss`, а не `close` (с `close` mako не стартует).
 - Применение: `pkill -HUP -x mako` (перечитывает конфиг). Проверка синтаксиса — `timeout 3 dbus-run-session -- mako --config config/mako/config` (пустой вывод = ok).
 
@@ -114,7 +115,7 @@ Picom автоматически выбирает профиль по `powerprof
 - Запуск: из TTY — `sway-session`; из GDM — `./scripts/install-sway.sh --session` (GDM читает только `/usr/share/wayland-sessions`, пользовательские каталоги сессий не сканирует, поэтому файл создаётся с sudo и абсолютным `Exec`).
 - `local/bin/sway-display` — мониторы и обои. В конфиге Sway нет условий по hostname, поэтому ветвление `lamer-deb` (DP-1 1920x1080@144 + HDMI-A-3 слева с `transform 90`, portrait-обои) и фолбэк ноутбука (`output *` + landscape) живут в скрипте. Вызывается как `exec_always`, поэтому раскладка переприменяется при reload; обои ставит сам sway через `output ... bg` (спавнит и убивает `swaybg`). Скрипт ждёт готовности IPC, потому что `exec` при старте может опередить `swaymsg`.
 - Автозапуск: `exec pgrep -x waybar >/dev/null || waybar`, то же для `mako`, `lxpolkit`, `swayidle` (10 минут → `swaylock -f -c 1a1b26`) — reload не плодит дубли.
-- Хоткеи повторяют bspwm там, где это осмысленно: `$mod+Return` — `foot`, `$mod+d` — `wofi --show drun`, `$mod+/` — `cheatsheet-sway`, `$mod+F1..F4` и `$mod+Shift+S` — `screenshot-sway`, `$mod+Escape` — reload, `$mod+w` — kill, `$mod+Alt+L` — `swaylock`, `$mod+Alt+N` — `wifi-sway`, `$mod+Alt+P` — `power-profile-sway --menu`, `$mod+Shift+Q` — `powermenu-sway`, `$mod+Shift+E` — выход через `swaynag`. Preselect/monocle/picom-аналогов нет.
+- Хоткеи повторяют bspwm там, где это осмысленно: `$mod+Return` — `foot`, `$mod+d` — `wofi --show drun`, `$mod+/` — `cheatsheet-sway`, `$mod+F1..F4` и `$mod+Shift+S` — `screenshot-sway`, `$mod+Escape` — reload, `$mod+w` — kill, `$mod+Alt+L` — `swaylock`, `$mod+Alt+N` — `wifi-sway`, `$mod+Alt+P` — `power-profile-sway --menu`, `$mod+Alt+B` — `battery-sway`, `$mod+Shift+Q` — `powermenu-sway`, `$mod+Shift+E` — выход через `swaynag`. Preselect/monocle/picom-аналогов нет.
 - Раскладка `us,ru` с `grp:caps_toggle` и автоповтором 250/30 задана через `input "type:keyboard"`; тачпад — `tap`/`dwt`.
 - Все `bindsym` объявлены с `--to-code`: Sway переводит keysym в keycode по первой раскладке (`us`), поэтому хоткеи и вызовы wofi (`Super+d`, `Super+Alt+n` и остальные) срабатывают и в русской раскладке. Без флага keysym привязан к текущей раскладке и в RU-режиме не совпадает.
 - Применение: `Super+Escape` или `Super+Shift+C` (`swaymsg reload`). `~/.config/sway` — симлинк, правки сразу в репозитории.

@@ -3,11 +3,11 @@
 # ==========================================================
 # Живёт в репозитории: config/mako -> ~/.config/mako
 # Эталон — config/dunst/dunstrc: тот же фон, текст, рамка
-# 2px, ширина 360, скругление 10, прогресс-бар акцентом,
-# иконки выключены, критичные уведомления не закрываются.
+# 2px, ширина 360, прогресс-бар акцентом, иконки выключены,
+# критичные уведомления не закрываются. Скруглений нет.
 #
 # Отличия Dunst -> mako:
-#   offset (10, 44)  -> outer-margin 44,10,10,10 (место под waybar)
+#   offset (10, 44)  -> outer-margin (waybar сам резервирует место)
 #   gap_size 8       -> margin 8
 #   stack_duplicates -> group-by=app-name,summary
 #   history_length   -> max-history
@@ -27,8 +27,10 @@ text-alignment=left
 width=360
 height=140
 
-# Отступ от края экрана: top=44 (под панель), остальные 10.
-outer-margin=44,10,10,10
+# Отступ от края экрана. Mako — layer-shell поверхность: waybar
+# резервирует свою зону, поэтому окно и так встаёт под панелью.
+# outer-margin сверху 0, а зазор до панели задаёт margin (8 px).
+outer-margin=0,10,10,10
 # Отступ между уведомлениями в стопке.
 margin=8
 padding=8
@@ -38,7 +40,7 @@ background-color=#1a1b26
 text-color=#c0caf5
 border-size=2
 border-color=#7aa2f7
-border-radius=10
+border-radius=0
 
 # Полоса прогресса (таймер закрытия) — акцент Tokyo Night.
 progress-color=over #7aa2f7

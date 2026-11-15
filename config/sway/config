@@ -120,6 +120,9 @@ exec pgrep -x swayidle >/dev/null || swayidle -w \
     # Профиль питания (power-profiles-daemon + wofi)
     bindsym --to-code $mod+Alt+p exec power-profile-sway --menu
 
+    # Батарея: заряд, статус, здоровье (wofi)
+    bindsym --to-code $mod+Alt+b exec battery-sway
+
     # Telegram (flatpak) через WS-прокси
     bindsym --to-code $mod+Alt+t exec sh -c 'tg-ws-proxy & sleep 1 && flatpak run org.telegram.desktop'
 
