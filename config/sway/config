@@ -85,9 +85,9 @@ seat seat0 xcursor_theme Bibata-Modern-Ice 24
 exec_always sway-display
 
 # Панель, уведомления, polkit. pgrep — чтобы reload не плодил дубли.
-exec pgrep -x waybar >/dev/null || waybar
-exec pgrep -x mako >/dev/null || mako
-exec pgrep -x lxpolkit >/dev/null || lxpolkit
+exec_always pgrep -x waybar >/dev/null || waybar
+exec_always pgrep -x mako >/dev/null || mako
+exec_always pgrep -x lxpolkit >/dev/null || lxpolkit
 
 # Блокировка по бездействию: 10 минут, как xset s 600 в bspwmrc.
 exec pgrep -x swayidle >/dev/null || swayidle -w \

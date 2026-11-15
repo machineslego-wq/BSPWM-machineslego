@@ -13,6 +13,7 @@
 // ==========================================================
 
 {
+    // --- Геометрия и поведение панели ---
     "layer": "top",
     "position": "top",
     "height": 32,
@@ -20,37 +21,30 @@
     "fixed-center": true,
     "reload_style_on_change": true,
 
-    // Слева логотип Debian (клик — wofi drun), дальше островок
-    // с рабочими столами, режимом и scratchpad.
-    "modules-left": [
-        "custom/debian",
-        "group/left"
-    ],
-    "modules-center": [
-        "group/center"
-    ],
-    "modules-right": [
-        "group/right"
-    ],
+    // --- Раскладка островков ---
+    "modules-left":   ["custom/debian", "group/left"],
+    "modules-center": ["group/center"],
+    "modules-right":  ["group/right"],
 
-    // Островки: фон и скругление рисует группа, внутри — модули.
-    // Слева: рабочие столы, режим, scratchpad.
+    // Слева: рабочие столы, режим, scratchpad
     "group/left": {
         "orientation": "horizontal",
         "modules": ["sway/workspaces", "sway/mode", "sway/scratchpad"]
     },
 
-    // Центр: яркость, дата, батарея.
+    // Центр: яркость, часы, батарея
     "group/center": {
         "orientation": "horizontal",
         "modules": ["backlight", "clock", "battery"]
     },
 
-    // Справа: трей, профиль питания, сеть, звук, кнопка powermenu-sway.
+    // Справа: трей, Caps Lock, раскладка, питание, сеть, звук, выход
     "group/right": {
         "orientation": "horizontal",
         "modules": [
             "tray",
+            "keyboard-state",
+            "sway/language",
             "power-profiles-daemon",
             "network",
             "wireplumber",
@@ -58,35 +52,28 @@
         ]
     },
 
-    // Логотип Debian: глиф U+F306, как в Polybar. Клик открывает
-    // wofi drun (то же, что Super+D); под Wayland rofi не работает.
+    // --- Кастомные модули ---
+    // Логотип Debian (клик — wofi drun)
     "custom/debian": {
         "format": "\uf306",
         "tooltip": false,
         "on-click": "wofi --show drun"
     },
 
+    // Кнопка питания (powermenu-sway)
     "custom/powermenu": {
         "format": "󰐥",
         "tooltip": false,
         "on-click": "powermenu-sway"
     },
 
-    // Рабочие столы: цифры 1–10 как в Polybar, fallback — точка.
+    // --- Sway: рабочие столы, режим, scratchpad ---
     "sway/workspaces": {
         "disable-scroll": true,
         "format": "{icon}",
         "format-icons": {
-            "1": "1",
-            "2": "2",
-            "3": "3",
-            "4": "4",
-            "5": "5",
-            "6": "6",
-            "7": "7",
-            "8": "8",
-            "9": "9",
-            "10": "10",
+            "1": "1",  "2": "2",  "3": "3",  "4": "4",  "5": "5",
+            "6": "6",  "7": "7",  "8": "8",  "9": "9",  "10": "10",
             "default": "•"
         }
     },
@@ -103,13 +90,36 @@
         "tooltip-format": "{app}: {title}"
     },
 
-    // Иконки трея чуть мельче, чем в Polybar (там 18): не раздувают островок
+    // Текущая раскладка (US/RU)
+    "sway/language": {
+        "format": "{short}",
+        "hide-single-layout": false,
+        "tooltip": true,
+        "tooltip-format": "{long}",
+        "expand": false
+    },
+
+    // --- Индикатор Caps Lock ---
+    // Если индикатор «залипает» при grp:caps_toggle, добавьте:
+    //   "binding-keys": [58, 1]   (58 = CapsLock, 1 = Escape)
+    "keyboard-state": {
+        "capslock": true,
+        "numlock": false,
+        "scrolllock": false,
+        "format": "{icon}",
+        "format-icons": {
+            "locked": "󰘲 Caps",
+            "unlocked": ""
+        }
+    },
+
+    // --- Системный трей ---
     "tray": {
         "icon-size": 16,
         "spacing": 10
     },
 
-    // Иконки как в local/bin/power-profile
+    // --- Профиль питания ---
     "power-profiles-daemon": {
         "format": "{icon}",
         "tooltip": true,
@@ -122,6 +132,7 @@
         }
     },
 
+    // --- Сеть (Wi-Fi + Ethernet) ---
     "network": {
         "interval": 3,
         "format-wifi": "{icon} {essid}",
@@ -132,23 +143,35 @@
         "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ifname} · {ipaddr}",
         "tooltip-format-ethernet": "{ifname} · {ipaddr}/{cidr}",
         "tooltip-format-disconnected": "Нет подключения",
-        "on-click": "nm-connection-editor"
+        "on-click": "nm-connection-editor",
+        "on-click-right": "wifi-sway"
     },
 
+    // --- Звук (PipeWire через wpctl) ---
+    "wireplumber": {
+        "format": "{icon} {volume}%",
+        "format-muted": "󰝟 MUTE",
+        "format-icons": ["󰕿", "󰖀", "󰕾"],
+        "scroll-step": 5,
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+        "on-click-right": "pavucontrol-qt",
+        "tooltip": true,
+        "tooltip-format": "{node_name} - {volume}%",
+        "max-volume": 100
+    },
+
+    // --- Яркость ---
     "backlight": {
         "format": "{icon} {percent}%",
         "format-icons": ["󰃞", "󰃟", "󰃠"],
         "tooltip": false
     },
 
-    // Пороги как в Polybar: иконки красные до 30%, жёлтые до 60%,
-    // дальше обычные. Порядок format-icons — от 0% к 100%, как ramp-capacity.
+    // --- Батарея ---
+    // warning 59% — жёлтый, critical 14% — мигающий красный
     "battery": {
         "interval": 30,
-        "states": {
-            "warning": 59,
-            "critical": 14
-        },
+        "states": { "warning": 59, "critical": 14 },
         "format": "{icon} {capacity}%",
         "format-charging": "{icon} {capacity}%",
         "format-plugged": "{icon} {capacity}%",
@@ -159,40 +182,9 @@
         ]
     },
 
-    // Звук через PipeWire (wpctl), pactl в системе не установлен.
-    // Родной wireplumber полоску не умеет, поэтому ярлык собирает
-    // local/bin/volume-sway: иконка, проценты и 5 точек, как
-    // bar-volume в Polybar. Клики и прокрутка остаются за waybar,
-    // после события он перезапускает скрипт (exec-on-event).
-
-    "wireplumber": {
-    // Основной формат вывода
-        "format": "{icon} {volume}%",
-        
-        // Формат при выключенном звуке
-        "format-muted": "󰝟 Muted",
-        
-        // Иконки (можно использовать те же, что и для pulseaudio)
-        // В документации показан простой пример с форматом и on-click
-        "format-icons": ["󰕿", "󰖀", "󰕾"],
-        
-        // Шаг прокрутки
-        "scroll-step": 5,
-        
-        // Действие по клику
-        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle", // или "pavucontrol"
-        "on-click-right": "pavucontrol-qt",
-        // Всплывающая подсказка
-        "tooltip": true,
-        "tooltip-format": "{node_name} - {volume}%",
-        
-        // Максимальная громкость
-        "max-volume": 100
-    },
-
-    // ВАЖНО: waybar допускает только один плейсхолдер {…} в формате.
-    // Дата и время пишутся внутри одного спецификатора, иначе
-    // "clock: format error: invalid arg-id in format string".
+    // --- Часы ---
+    // Только ОДИН плейсхолдер {…} на format (ограничение waybar),
+    // дата и время внутри одного спецификатора.
     "clock": {
         "interval": 60,
         "format": "{:%H:%M  󰃭 %a, %d %b}",

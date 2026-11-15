@@ -16,18 +16,19 @@
    ========================================================== */
 
 /* --- Палитра --- */
-@define-color bg #1a1b26;            /* фон панели, тултипы */
-@define-color bg-mid #1f2335;        /* мигание battery */
-@define-color bg-alt #24283b;        /* островки: столы, центр, справа */
-@define-color bg-highlight #292e42;  /* hover, рамка тултипа */
-@define-color fg #c0caf5;            /* основной текст */
-@define-color disabled #565f89;      /* неактивное */
-@define-color primary #7aa2f7;       /* акцент: фокус, кнопка, профиль */
-@define-color secondary #bb9af7;     /* scratchpad */
-@define-color success #9ece6a;       /* зарядка, power-saver */
-@define-color warning #e0af68;       /* батарея разряжается, urgent */
-@define-color alert #f7768e;         /* критично, ошибки */
+@define-color bg            #1a1b26;
+@define-color bg-mid        #1f2335;
+@define-color bg-alt        #24283b;
+@define-color bg-highlight  #292e42;
+@define-color fg            #c0caf5;
+@define-color disabled      #565f89;
+@define-color primary       #7aa2f7;
+@define-color secondary     #bb9af7;
+@define-color success       #9ece6a;
+@define-color warning       #e0af68;
+@define-color alert         #f7768e;
 
+/* --- База --- */
 * {
     font-family: "JetBrainsMono Nerd Font";
     font-size: 14px;
@@ -44,6 +45,33 @@ window#waybar.hidden {
     opacity: 0.2;
 }
 
+/* --- Островки ---
+   GTK-имя группы — без префикса group/: #left, #center, #right. */
+#left,
+#center,
+#right {
+    background-color: @bg-alt;
+    border-radius: 5px;
+    margin: 4px 6px;
+    padding: 0 2px;
+}
+
+/* Модули внутри островков — без своих пилюль */
+#power-profiles-daemon,
+#network,
+#backlight,
+#battery,
+#wireplumber,
+#clock,
+#language,
+#tray,
+#custom-powermenu {
+    padding: 0 10px;
+    margin: 0;
+    background-color: transparent;
+    color: @fg;
+}
+
 /* --- Рабочие столы --- */
 #workspaces {
     padding: 0 4px;
@@ -51,7 +79,7 @@ window#waybar.hidden {
 
 #workspaces button {
     padding: 0 6px;
-    margin: 0px 1px;
+    margin: 0 1px;
     border: none;
     background-color: transparent;
     box-shadow: none;
@@ -59,16 +87,11 @@ window#waybar.hidden {
     border-radius: 0;
 }
 
-#workspaces button.occupied {
-    color: @fg;
-}
-
+#workspaces button.occupied,
 #workspaces button.visible {
     color: @fg;
 }
 
-/* Активный стол — как label-focused в Polybar: акцентный текст
-   и подчёркивание, фон островка не меняется. */
 #workspaces button.focused {
     color: @primary;
     background-color: transparent;
@@ -86,44 +109,37 @@ window#waybar.hidden {
     box-shadow: none;
 }
 
-/* --- Островки: слева, центр и правый блок ---
-   Фон и скругление рисует сама группа. В waybar группа
-   `group/left` получает GTK-имя `left` (без префикса group/),
-   поэтому селекторы — #left, #center и #right. Модули внутри —
-   без своих «пилюль» и внешних отступов, поэтому внутри блока
-   нет пустых промежутков: только padding текста. */
-#left,
-#center,
-#right {
-    background-color: @bg-alt;
-    border-radius: 5px;
-    margin: 4px 6px;
-    padding: 0 2px;
-}
-
-/* Модули внутри островков: только горизонтальные отступы */
-#power-profiles-daemon,
-#network,
-#backlight,
-#battery,
-#custom-volume,
-#clock,
-#tray,
-#custom-powermenu {
-    padding: 0 8px;
-    margin: 0;
+/* --- Режим (resize) и scratchpad --- */
+#mode {
     background-color: transparent;
-    color: @fg;
+    color: @warning;
+    font-weight: bold;
 }
 
-/* Трей — без фона, только иконки */
-#tray {
-    padding: 0 4px;
+#scratchpad {
+    color: @secondary;
 }
 
-/* Кнопка питания: открывает powermenu-sway */
+#scratchpad.empty {
+    background-color: transparent;
+}
+
+/* --- Часы --- */
+#clock {
+    color: @primary;
+    font-weight: bold;
+}
+
+/* --- Логотип Debian (вне островка) --- */
+#custom-debian {
+    padding: 0 16px;
+    font-size: 17px;
+    font-weight: bold;
+    color: @primary;
+}
+
+/* --- Кнопка питания --- */
 #custom-powermenu {
-    padding: 0 9px;
     font-size: 14px;
     color: @primary;
 }
@@ -132,22 +148,9 @@ window#waybar.hidden {
     color: @fg;
 }
 
-/* Логотип Debian слева: вне островка, клик — wofi drun.
-   Жирный и крупнее текста, как font-2 и padding 2 в Polybar. */
-#custom-debian {
-    padding: 0 16px;
-    font-size: 17px;
-    font-weight: bold;
-    color: @primary;
-}
-
-/* Режим и scratchpad — внутри левого островка, без своего фона */
-#mode,
-#scratchpad {
-    padding: 0 10px;
-    margin: 0;
-    background-color: transparent;
-    color: @fg;
+/* --- Трей --- */
+#tray {
+    padding: 0 8px;
 }
 
 #tray > .passive {
@@ -158,35 +161,27 @@ window#waybar.hidden {
     -gtk-icon-effect: highlight;
 }
 
-/* --- Часы: акцентный текст внутри центрального островка --- */
-#clock {
+/* --- Раскладка и Caps Lock --- */
+#language {
     color: @primary;
-    font-weight: bold;
 }
 
-/* --- Режим (resize): текст предупреждения, без своей пилюли --- */
-#mode {
-    background-color: transparent;
+#keyboard-state label.locked {
     color: @warning;
-    font-weight: bold;
+    padding: 0 8px;
 }
 
-/* --- Scratchpad --- */
-#scratchpad {
-    color: @secondary;
-}
-
-#scratchpad.empty {
-    background-color: transparent;
-}
-
-/* --- Профиль питания и сеть: обычный текст, как в Polybar
-   (цвет @fg задан списком модулей островка выше) --- */
+/* --- Сеть --- */
 #network.disconnected {
     color: @alert;
 }
 
-/* --- Батарея: зарядка зелёная, низкий заряд жёлтый, критический красный --- */
+/* --- Звук --- */
+#wireplumber.muted {
+    color: @alert;
+}
+
+/* --- Батарея --- */
 #battery.charging,
 #battery.plugged {
     color: @success;
@@ -211,9 +206,6 @@ window#waybar.hidden {
     animation-iteration-count: infinite;
     animation-direction: alternate;
 }
-
-/* --- Звук: иконку, проценты и точки красит volume-sway
-   pango-разметкой, поэтому своих цветов здесь нет --- */
 
 /* --- Тултипы --- */
 tooltip {
