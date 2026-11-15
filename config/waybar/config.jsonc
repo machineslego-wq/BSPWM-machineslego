@@ -53,7 +53,7 @@
             "tray",
             "power-profiles-daemon",
             "network",
-            "custom/volume",
+            "wireplumber",
             "custom/powermenu"
         ]
     },
@@ -164,14 +164,30 @@
     // local/bin/volume-sway: иконка, проценты и 5 точек, как
     // bar-volume в Polybar. Клики и прокрутка остаются за waybar,
     // после события он перезапускает скрипт (exec-on-event).
-    "custom/volume": {
-        "exec": "volume-sway",
-        "interval": 1,
-        "format": "{text}",
-        "tooltip": false,
-        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
-        "on-scroll-up": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+",
-        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+
+    "wireplumber": {
+    // Основной формат вывода
+        "format": "{icon} {volume}%",
+        
+        // Формат при выключенном звуке
+        "format-muted": "󰝟 Muted",
+        
+        // Иконки (можно использовать те же, что и для pulseaudio)
+        // В документации показан простой пример с форматом и on-click
+        "format-icons": ["󰕿", "󰖀", "󰕾"],
+        
+        // Шаг прокрутки
+        "scroll-step": 5,
+        
+        // Действие по клику
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle", // или "pavucontrol"
+        "on-click-right": "pavucontrol-qt",
+        // Всплывающая подсказка
+        "tooltip": true,
+        "tooltip-format": "{node_name} - {volume}%",
+        
+        // Максимальная громкость
+        "max-volume": 100
     },
 
     // ВАЖНО: waybar допускает только один плейсхолдер {…} в формате.

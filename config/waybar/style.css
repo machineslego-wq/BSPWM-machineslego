@@ -30,7 +30,7 @@
 
 * {
     font-family: "JetBrainsMono Nerd Font";
-    font-size: 12px;
+    font-size: 14px;
     font-weight: normal;
     min-height: 0;
 }
@@ -50,8 +50,8 @@ window#waybar.hidden {
 }
 
 #workspaces button {
-    padding: 0 10px;
-    margin: 3px 1px;
+    padding: 0 6px;
+    margin: 0px 1px;
     border: none;
     background-color: transparent;
     box-shadow: none;
@@ -135,8 +135,8 @@ window#waybar.hidden {
 /* Логотип Debian слева: вне островка, клик — wofi drun.
    Жирный и крупнее текста, как font-2 и padding 2 в Polybar. */
 #custom-debian {
-    padding: 0 2px 0 10px;
-    font-size: 15px;
+    padding: 0 16px;
+    font-size: 17px;
     font-weight: bold;
     color: @primary;
 }
