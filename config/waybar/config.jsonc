@@ -47,7 +47,7 @@
         "orientation": "horizontal",
         "modules": [
             "tray",
-            "keyboard-state",
+            // "keyboard-state",
             "sway/language",
             "power-profiles-daemon",
             "network",
@@ -105,16 +105,16 @@
     // --- Индикатор Caps Lock ---
     // Если индикатор «залипает» при grp:caps_toggle, помогает
     // "binding-keys": [58, 1] (58 = CapsLock, 1 = Escape).
-    "keyboard-state": {
-        "capslock": true,
-        "numlock": false,
-        "scrolllock": false,
-        "format": "{icon}",
-        "format-icons": {
-            "locked": "󰘲 Caps",
-            "unlocked": ""
-        }
-    },
+    // "keyboard-state": {
+    //     "capslock": true,
+    //     "numlock": false,
+    //     "scrolllock": false,
+    //     "format": "{icon}",
+    //     "format-icons": {
+    //         "locked": "󰘲 Caps",
+    //         "unlocked": ""
+    //     }
+    // },
 
     // --- Системный трей ---
     "tray": {
@@ -180,7 +180,8 @@
         "format-icons": [
             "󰂃", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾",
             "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"
-        ]
+        ],
+        "on-click" : "battery-sway"
     },
 
     // --- Часы ---
