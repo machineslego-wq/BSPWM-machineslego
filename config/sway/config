@@ -256,8 +256,8 @@ bindsym --to-code $mod+m layout stacking
 # Плавающее окно.
 bindsym --to-code $mod+s floating toggle
 
-# Переключить фокус на плавающий слой
-bindsym $mod+c focus floating
+# Переключить фокус между плавающим и тайловым слоем (туда-обратно)
+bindsym --to-code $mod+c focus mode_toggle
 
 # На весь экран.
 bindsym --to-code $mod+f fullscreen toggle
