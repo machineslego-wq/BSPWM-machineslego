@@ -47,8 +47,8 @@
         "orientation": "horizontal",
         "modules": [
             "tray",
-            "keyboard-state",
             "sway/language",
+            "keyboard-state",
             "power-profiles-daemon",
             "wireplumber",
             "network",
