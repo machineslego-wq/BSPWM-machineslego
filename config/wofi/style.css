@@ -45,7 +45,7 @@
 
 #input {
     margin: 8px 8px 10px 8px;   /* снизу чуть меньше: зазор до списка */
-    padding: 8px 10px;          /* 8 + 18 + 8 = 34 px */
+    /* padding: 8px 10px; */          /* 8 + 18 + 8 = 34 px */
     border: none;
     border-radius: 2px;
     background-color: @bg-alt;  /* фолбэк: в проекте фон даёт gtk.css */
