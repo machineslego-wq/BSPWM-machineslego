@@ -50,8 +50,8 @@
             // "keyboard-state",
             "sway/language",
             "power-profiles-daemon",
-            "network",
             "wireplumber",
+            "network",
             "custom/powermenu"
         ]
     },

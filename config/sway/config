@@ -77,9 +77,12 @@ input "type:keyboard" {
 }
 
 # Тачпад ноутбука: тап и защита от случайных касаний при наборе.
+# natural_scroll — как NaturalScrolling в X11: тянешь пальцами вверх,
+# страница листается вниз. Без опции libinput крутит наоборот.
 input "type:touchpad" {
     tap enabled
     dwt enabled
+    natural_scroll enabled
 }
 
 # Курсор тот же, что выставляет sway-session.
