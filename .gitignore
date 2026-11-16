@@ -71,4 +71,6 @@ config/fish/completions/
 /config/GIMP/3.0/*
 !/config/GIMP/3.0/themes/
 
-/config/systemd/user/waybar.service
+# Разрешаем только sway-session.target
+/config/systemd/user/*
+!/config/systemd/user/sway-session.target

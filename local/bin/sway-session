@@ -98,4 +98,8 @@ dbus-update-activation-environment --systemd "${SESSION_ENV[@]}" 2>/dev/null || 
 
 systemctl --user start sway-session.target 2>/dev/null || true
 
+# Маска создаёт ~/.config/systemd/user/waybar.service -> /dev/null
+# Это блокирует и vendor-версию, и любые попытки enable
+systemctl --user mask waybar.service mako.service lxpolkit.service
+
 exec sway "$@"
