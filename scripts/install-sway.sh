@@ -5,6 +5,9 @@
 # Ставит только пакеты из requirements/sway.txt: конфиги не копирует
 # и сессию не включает (Sway-конфиг живёт в config/sway и линкуется
 # через link.sh). GDM после установки сам покажет сессию Sway.
+# Дополнительно добавляет пользователя в группу input: без неё
+# waybar-модуль keyboard-state не видит клавиатуру и не показывает
+# индикаторы Caps Lock / Num Lock.
 #
 # Использование (от обычного пользователя, sudo внутри):
 #   ./scripts/install-sway.sh            только пакеты
@@ -81,6 +84,21 @@ else
     log "Все пакеты уже установлены."
 fi
 
+# --- Группа input ---
+# waybar-модуль keyboard-state читает /dev/input/event* через libevdev:
+# без группы input он стартует, но клавиатуру не видит и индикаторы
+# Caps Lock / Num Lock остаются пустыми.
+log ""
+log "=== Группа input: индикаторы Caps Lock / Num Lock в waybar ==="
+if ! getent group input >/dev/null; then
+    log "  группа input не найдена — пропускаем"
+elif id -nG "$USER" | tr ' ' '\n' | grep -qx input; then
+    log "  $USER уже в группе input"
+else
+    sudo usermod -aG input "$USER"
+    log "  $USER добавлен в input; перелогинься, чтобы индикаторы заработали"
+fi
+
 # --- Сессия GDM (опционально) ---
 # GDM читает только /usr/share/wayland-sessions, пользовательские каталоги
 # сессий он не смотрит, поэтому файл создаётся с sudo.
@@ -117,6 +135,7 @@ log ""
 log "Конфиг Sway лежит в репозитории: config/sway/config"
 log "  линкуется в ~/.config/sway через ./scripts/link.sh"
 log "Мониторы и обои: sway-display, терминал: config/foot"
+log "Индикаторы Caps/Num Lock: waybar keyboard-state (группа input)"
 log ""
 log "Проверка конфига: sway -C -c ~/.config/sway/config"
 log "Запуск из TTY: sway-session"

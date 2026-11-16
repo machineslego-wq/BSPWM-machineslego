@@ -62,6 +62,7 @@ window#waybar.hidden {
 #backlight,
 #battery,
 #wireplumber,
+#keyboard-state,
 #clock,
 #language,
 #custom-powermenu {
@@ -158,14 +159,28 @@ window#waybar.hidden {
     -gtk-icon-effect: highlight;
 }
 
-/* --- Раскладка и Caps Lock --- */
+/* --- Раскладка и лок-клавиши --- */
 #language {
     color: @primary;
 }
 
-#keyboard-state label.locked {
+/* Caps Lock / Num Lock / Scroll Lock: у каждого включённого свой цвет,
+   выключенные — приглушённые. */
+#keyboard-state label {
+    color: @disabled;
+    padding: 0 2px;
+}
+
+#keyboard-state label.numlock.locked {
+    color: @primary;
+}
+
+#keyboard-state label.capslock.locked {
     color: @warning;
-    padding: 0 8px;
+}
+
+#keyboard-state label.scrolllock.locked {
+    color: @secondary;
 }
 
 /* --- Сеть --- */

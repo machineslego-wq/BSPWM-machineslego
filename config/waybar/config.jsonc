@@ -47,7 +47,7 @@
         "orientation": "horizontal",
         "modules": [
             "tray",
-            // "keyboard-state",
+            "keyboard-state",
             "sway/language",
             "power-profiles-daemon",
             "wireplumber",
@@ -69,6 +69,23 @@
         "format": "󰐥",
         "tooltip": false,
         "on-click": "wofi-powermenu"
+    },
+
+    // --- Caps Lock / Num Lock / Scroll Lock ---
+    // Состояние читается через libevdev из /dev/input/event*, поэтому
+    // пользователь должен быть в группе input (это делает install-sway.sh).
+    // Иконки: Num — md-numeric (123), Caps — md-keyboard_caps (стрелка
+    // вверх, как Shift), Scroll — ↕. Цвета в style.css: у каждого лока
+    // свой (@primary / @warning / @secondary), выключенные — @disabled.
+    "keyboard-state": {
+        "numlock": true,
+        "capslock": true,
+        "scrolllock": true,
+        "format": {
+            "numlock": "󰎠",
+            "capslock": "󰘲",
+            "scrolllock": "↕"
+        }
     },
 
     // --- Sway: рабочие столы, режим, scratchpad ---
@@ -101,20 +118,6 @@
         "tooltip": true,
         "tooltip-format": "{long}"
     },
-
-    // --- Индикатор Caps Lock ---
-    // Если индикатор «залипает» при grp:caps_toggle, помогает
-    // "binding-keys": [58, 1] (58 = CapsLock, 1 = Escape).
-    // "keyboard-state": {
-    //     "capslock": true,
-    //     "numlock": false,
-    //     "scrolllock": false,
-    //     "format": "{icon}",
-    //     "format-icons": {
-    //         "locked": "󰘲 Caps",
-    //         "unlocked": ""
-    //     }
-    // },
 
     // --- Системный трей ---
     "tray": {

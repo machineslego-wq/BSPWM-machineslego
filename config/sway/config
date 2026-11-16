@@ -65,6 +65,7 @@ floating_modifier $mod normal
 ### Устройства ввода
 #
 # Раскладка US/RU с переключением по Caps Lock — как setxkbmap в bspwmrc.
+# Shift+Caps Lock при этом включает и выключает сам Caps Lock.
 # Все хоткеи ниже объявлены с --to-code: Sway переводит keysym в keycode
 # по первой раскладке (us), поэтому Super+w и остальные работают и в
 # русской раскладке. Без этого флага в RU-режиме они не срабатывают.
