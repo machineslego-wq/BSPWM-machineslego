@@ -101,6 +101,9 @@ exec_always pgrep -x waybar >/dev/null || waybar
 exec_always pgrep -x mako >/dev/null || mako
 exec_always pgrep -x lxpolkit >/dev/null || lxpolkit
 
+# Запуск эквалайзера easyeffects
+exec --no-startup-id easyeffects --gapplication-service
+
 # Блокировка по бездействию: 10 минут (xset s 600 в bspwmrc).
 # swaylock сам читает config/swaylock, поэтому здесь только -f.
 exec pgrep -x swayidle >/dev/null || swayidle -w \
@@ -252,6 +255,9 @@ bindsym --to-code $mod+m layout stacking
 
 # Плавающее окно.
 bindsym --to-code $mod+s floating toggle
+
+# Переключить фокус на плавающий слой
+bindsym $mod+c focus floating
 
 # На весь экран.
 bindsym --to-code $mod+f fullscreen toggle
