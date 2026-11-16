@@ -1,13 +1,13 @@
 #!/bin/bash
 # ==========================================================
-# power-profile-sway — Профили питания для Sway (wofi)
+# wofi-power-profile — Профили питания для Sway (wofi)
 # ==========================================================
 # Аналог power-profile для BSPWM: меню рисует wofi, Picom
 # не перезапускается (под Sway его нет). Уведомления идут
 # через notify-send → mako.
 #
-# Вызов: power-profile-sway --menu   (Super + Alt + P)
-#        power-profile-sway          только статус (для панели)
+# Вызов: wofi-power-profile --menu   (Super + Alt + P)
+#        wofi-power-profile          только статус (для панели)
 # ==========================================================
 
 set -u

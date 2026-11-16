@@ -3,17 +3,17 @@
 [English](./README.md) | **Русский**
 
 ![Debian](https://img.shields.io/badge/Debian-13%20Trixie-A81D33?logo=debian&logoColor=white)
-![X11](https://img.shields.io/badge/X11-only-blue)
+![Wayland](https://img.shields.io/badge/Wayland-Sway-blue)
 ![PipeWire](https://img.shields.io/badge/PipeWire-Audio-blue?logo=pipewire&logoColor=white)
-![BSPWM](https://img.shields.io/badge/WM-BSPWM-black)
+![BSPWM](https://img.shields.io/badge/fallback-BSPWM-black)
 ![Fish](https://img.shields.io/badge/Shell-Fish-green)
 ![Neovim](https://img.shields.io/badge/Editor-Neovim-57A143?logo=neovim&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Status](https://img.shields.io/badge/status-maintained-brightgreen)
 
-Строгое, плоское рабочее окружение на базе BSPWM для Debian 13 Trixie в палитре Tokyo Night.
+Строгое, плоское рабочее окружение для Debian 13 Trixie в палитре Tokyo Night. Идёт постепенный переезд на Sway/Wayland; BSPWM/X11 остаётся запасной сессией.
 
-> **Статус:** окружение живёт на BSPWM/X11 и остаётся здесь надолго — стабильность Debian важнее, а нужные Wayland-композиторы обновляются роллингом. Ближайшие задачи и отвергнутые идеи — в [TODO.md](./TODO.md).
+> **Статус:** окружение потихоньку переезжает на Sway; BSPWM/X11 остаётся настроенным и запускается, когда Wayland ломается. Ближайшие задачи и отвергнутые идеи — в [TODO.md](./TODO.md).
 
 ---
 
@@ -43,7 +43,7 @@
 ## ✨ Особенности
 
 - **Native Modules First:** Polybar использует стоковые `internal/bspwm`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard` и `internal/date`. Ноль фоновых bash-циклов.
-- **Команды по требованию:** `wifi`, `powermenu`, `battery`, `screenshot`, `volume`, `cheatsheet-bspwm`, `rice-check` и `rice-help` лежат в `~/.local/bin` (PATH), там же набор Sway (`cheatsheet-sway`, `screenshot-sway`, `sway-display`, `sway-switch`, `sway-session`, `wifi-sway`, `powermenu-sway`, `power-profile-sway`, `battery-sway`); флаги окон — в `config/sxhkd/scripts`. Запускаются по хоткею и сразу завершаются.
+- **Команды по требованию:** `wifi`, `powermenu`, `battery`, `screenshot`, `volume`, `cheatsheet-bspwm`, `rice-check` и `rice-help` лежат в `~/.local/bin` (PATH), там же набор Sway (обвязка `sway-cheatsheet`, `sway-display`, `sway-screenshot`, `sway-session`, `sway-switch`, меню на wofi — `wofi-battery`, `wofi-powermenu`, `wofi-power-profile`, `wofi-wifi`); флаги окон — в `config/sxhkd/scripts`. Запускаются по хоткею и сразу завершаются.
 - **Машинные команды:** `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Docker/ROCm-команды рассчитаны на конкретную машину; проверяют демон и печатают справку, если не хватает аргумента.
 - **Автоопределение железа:** `polybar/launch.sh` сам находит батарею (`POLYBAR_BAT`), адаптер питания (`POLYBAR_AC`) и карту подсветки (`POLYBAR_BACKLIGHT`) в `/sys/class/…` — имена не захардкожены.
 - **Обои — только `feh`:** никакого скрипта-выборщика, state-файла и превью. Два статичных вызова `feh` в `bspwmrc`: landscape на основной монитор, portrait на повёрнутый. Сменить обои = поправить одну строку.
@@ -71,14 +71,20 @@ BSPWM-machineslego/
 │   ├── easyeffects/output/      # пресеты эквалайзера/эффектов
 │   ├── fastfetch/               # graphical.jsonc и tty.jsonc
 │   ├── fish/                    # config.fish, fish_plugins, rustup
+│   ├── foot/foot.ini            # терминал Sway: без отступов, Tokyo Night
 │   ├── GIMP/3.0/themes/         # тема TokyoNight для GIMP 3
 │   ├── gtk-3.0/ gtk-4.0/        # gtk.css: палитра Tokyo Night поверх Adwaita-dark
+│   ├── mako/config              # уведомления Sway: стиль dunst
 │   ├── nvim/                    # Lua-конфиг, vim.pack, CHEATSHEET.md
 │   ├── picom/                   # picom.conf + picom-eco.conf
 │   ├── polybar/                 # config.ini, launch.sh
 │   ├── qt5ct/ qt6ct/            # палитры tokyo-night.conf
 │   ├── rofi/config.rasi         # лаунчер/окна/команды
-│   └── sxhkd/                   # sxhkdrc + хелперы хоткеев (scripts/)
+│   ├── sway/config              # сессия Sway: рамки, хоткеи, автозапуск
+│   ├── swaylock/config          # экран блокировки: Tokyo Night, обои стола
+│   ├── sxhkd/                   # sxhkdrc + хелперы хоткеев (scripts/)
+│   ├── waybar/                  # config.jsonc + style.css: панель Sway
+│   └── wofi/                    # config + style.css: лаунчер и меню Sway
 ├── home/                        # симлинки в ~/*: .bashrc, .vimrc, .xinitrc, .xprofile, .Xresources
 ├── local/bin/                   # команды в ~/.local/bin: wifi, screenshot, volume, ...
 ├── local/share/mc/skins/        # скин Midnight Commander
@@ -95,7 +101,7 @@ BSPWM-machineslego/
 
 ## 📋 Требования
 
-- **ОС:** Debian 13 Trixie, **X11** (окружение не рассчитано на Wayland).
+- **ОС:** Debian 13 Trixie, **Wayland** (целевая сессия — Sway, BSPWM/X11 остаётся запасной).
 - **Утилиты:** `git`, `sudo`, интернет для первой установки.
 - **Аудио:** PipeWire (`pipewire`, `pipewire-audio`, `pipewire-pulse`, `wireplumber`). Модуль Polybar `internal/pulseaudio` работает через `pipewire-pulse`; скрипт громкости использует `wpctl` с фолбэком на `pactl`.
 - **Шрифты:** JetBrainsMono Nerd Font (ставит `install.sh`), Papirus-Dark и Bibata (ставятся из `apt.txt`).
@@ -115,9 +121,9 @@ chmod +x scripts/*.sh
 - **Только конфиги (без изменений в `/etc`):** `./scripts/link.sh`
 - **Дополнительный софт:** `./scripts/software.sh`
 - **Node.js / npm:** `./scripts/install-node.sh` (отдельно, см. ниже)
-- **Sway (эксперимент):** `./scripts/install-sway.sh` — только пакеты из `requirements/sway.txt`, конфиги не трогает; `--session` дополнительно добавляет сессию в GDM, которая запускает `sway-session` (обёртка с окружением: под Wayland `xinitrc`/`xprofile` не работают). Сам Sway настраивается в `config/sway`: только рамки (pixel 2), без отступов, цвета рамок Tokyo Night, терминал `foot` (`config/foot`), waybar вместо Polybar, wofi вместо Rofi, мониторы и обои — через `sway-display` (в конфиге Sway нет условий по hostname), блокировка — `swaylock` (`config/swaylock`: синее кольцо при вводе, оранжевые символы пароля, те же обои, что на рабочем столе), скриншоты — через `screenshot-sway`, меню Wi-Fi и питания — через `wifi-sway`, `powermenu-sway`, `power-profile-sway`, `battery-sway` (wofi в стиле Rofi, скругление 2 px), уведомления — `mako` (`config/mako`) в стиле `dunst`
+- **Sway (основная сессия):** `./scripts/install-sway.sh` — только пакеты из `requirements/sway.txt`, конфиги не трогает; `--session` дополнительно добавляет сессию в GDM, которая запускает `sway-session` (обёртка с окружением: под Wayland `xinitrc`/`xprofile` не работают). BSPWM при этом не удаляется: он остаётся запасной X11-сессией. Сам Sway настраивается в `config/sway`: только рамки (pixel 2), без отступов, цвета рамок Tokyo Night, терминал `foot` (`config/foot`), waybar вместо Polybar, wofi вместо Rofi, мониторы и обои — через `sway-display` (в конфиге Sway нет условий по hostname), блокировка — `swaylock` (`config/swaylock`: синее кольцо при вводе, оранжевые символы пароля, те же обои, что на рабочем столе), скриншоты — через `sway-screenshot`, меню Wi-Fi и питания — через `wofi-battery`, `wofi-powermenu`, `wofi-power-profile`, `wofi-wifi` (wofi в стиле Rofi, скругление 2 px), уведомления — `mako` (`config/mako`) в стиле `dunst`
 - **Откат:** `./scripts/unlink.sh`
-- **Запуск:** `startx` (или через LightDM).
+- **Запуск:** `sway-session` из TTY или сессия в GDM, добавленная `install-sway.sh --session`; `startx` по-прежнему поднимает запасной BSPWM.
 
 `install.sh` идемпотентен: повторный запуск не ломает уже установленное. `link.sh` можно запускать в любое время — он делает бэкап старых файлов в `~/.dotfiles-backup-YYYYMMDD-HHMMSS` и переставляет симлинки.
 
@@ -218,7 +224,7 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 
 ## ⌨️ Горячие клавиши
 
-**Полная шпаргалка:** `Super + /` — `cheatsheet-bspwm` (Rofi) в BSPWM, `cheatsheet-sway` (wofi) в Sway; обе с поиском по скрытым тегам. Шпаргалка по Neovim — `config/nvim/CHEATSHEET.md`, по Vim — комментарии в `~/.vimrc`.
+**Полная шпаргалка:** `Super + /` — `cheatsheet-bspwm` (Rofi) в BSPWM, `sway-cheatsheet` (wofi) в Sway; обе с поиском по скрытым тегам. Шпаргалка по Neovim — `config/nvim/CHEATSHEET.md`, по Vim — комментарии в `~/.vimrc`.
 
 ### Система и запуск
 
@@ -317,7 +323,7 @@ convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 
 ## 🗺 Планы
 
 - `1.7.0` выпущен. Заметки к текущему релизу — в [RELEASE.md](./RELEASE.md), история — в [Releases](https://github.com/machineslego-wq/BSPWM-machineslego/releases). Следующая точка — `1.8.0`.
-- Ветка BSPWM/X11 — основная и долгосрочная, переезд на Wayland не планируется: Debian стабилен, а Wayland-композиторы с нужными возможностями идут роллингом. Это осознанный выбор в пользу предсказуемости; подробности — в разделе «Отвергнуто» в [TODO.md](./TODO.md).
+- Окружение постепенно переезжает на Sway/Wayland. BSPWM/X11 никуда не уходит: он остаётся рабочей сессией, на которую можно откатиться, если Wayland сломается, — прежнее решение «не переезжать» отменено (см. [TODO.md](./TODO.md)).
 - Текущие задачи, «Сделано», отвергнутые идеи и известные ограничения — в [TODO.md](./TODO.md).
 
 ## 📄 Лицензия

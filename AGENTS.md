@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Dotfiles + установщик BSPWM-окружения для Debian 13 Trixie (X11, Tokyo Night).
+Dotfiles + установщик окружения BSPWM/Sway для Debian 13 Trixie (X11 + Wayland, Tokyo Night). Sway — направление переезда, BSPWM остаётся запасной X11-сессией.
 Сборки, тестов, линтера и CI нет: «продукт» — конфиги и shell-скрипты.
 
 ## Главное правило репозитория
@@ -25,7 +25,7 @@ Dotfiles + установщик BSPWM-окружения для Debian 13 Trixie
 - `scripts/unlink.sh` — безопасное удаление симлинков, созданных link.sh (только свои, не трогает чужие): `~/.config/*`, home-файлы, `~/.local/bin`, скины MC.
 - `scripts/software.sh` — установка дополнительного софта из `requirements/software.txt` (lazygit, ripgrep, mpv, gimp и т.д.). Запускается отдельно, install.sh только печатает подсказку.
 - `scripts/install-node.sh` — Node.js LTS из NodeSource, npm с prefix `~/.npm-global` (глобальные пакеты без sudo). Запускается отдельно, не из install.sh.
-- `scripts/install-sway.sh` — ставит Sway и окружение из `requirements/sway.txt` (sway, swaybg/idle/lock, waybar, wofi, foot, mako, grim/slurp, порталы, lxpolkit). По умолчанию только пакеты: конфиги не копирует и сессию не включает. С `--session` дополнительно пишет `/usr/share/wayland-sessions/sway-session.desktop` с `Exec=$HOME/.local/bin/sway-session`. Эксперимент, не часть райса.
+- `scripts/install-sway.sh` — ставит Sway и окружение из `requirements/sway.txt` (sway, swaybg/idle/lock, waybar, wofi, foot, mako, grim/slurp, порталы, lxpolkit). По умолчанию только пакеты: конфиги не копирует и сессию не включает. С `--session` дополнительно пишет `/usr/share/wayland-sessions/sway-session.desktop` с `Exec=$HOME/.local/bin/sway-session`. BSPWM при этом не удаляется: он остаётся запасной X11-сессией.
 
 Не запускай `install.sh` и `unlink.sh` без явной просьбы. `link.sh` — безопасен для запуска в любое время.
 
@@ -33,7 +33,7 @@ Dotfiles + установщик BSPWM-окружения для Debian 13 Trixie
 Скрипты и команды в git имеют режим 755; новые файлы в `local/bin/` и `*.sh` тоже должны быть executable (`chmod +x`). `link.sh` выставляет `+x` при линковке.
 
 ### Команды и хелперы
-- Пользовательские команды — в `local/bin/` → `~/.local/bin` (PATH): `battery`, `cheatsheet-bspwm`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `volume`, `wifi`, `rice-check`, `rice-help`; набор Sway — `cheatsheet-sway`, `screenshot-sway`, `sway-display`, `sway-session`, `sway-switch`, `wifi-sway`, `powermenu-sway`, `power-profile-sway`, `battery-sway`. Без расширения `.sh`, с шебангом.
+- Пользовательские команды — в `local/bin/` → `~/.local/bin` (PATH): `battery`, `cheatsheet-bspwm`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `volume`, `wifi`, `rice-check`, `rice-help`; набор Sway — обвязка `sway-cheatsheet`, `sway-display`, `sway-screenshot`, `sway-session`, `sway-switch`, меню на wofi — `wofi-battery`, `wofi-powermenu`, `wofi-power-profile`, `wofi-wifi`. Без расширения `.sh`, с шебангом.
 - Машинные команды — там же: `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas`, `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. По умолчанию — быстрый запуск; первичная установка и обслуживание — флагами. Команда с обязательным аргументом без него печатает справку и выходит с кодом 1.
 - Хоткей-«клей» BSPWM остаётся в `config/sxhkd/scripts/`: `flag.sh`, `to-preselect.sh`, `preselect-cancel-all.sh`. Они действуют на focused-окно и вне хоткея смысла не имеют.
 - `config/polybar/launch.sh` — часть конфига панели (запускается из `bspwmrc`), а не команда.
@@ -84,11 +84,11 @@ Picom автоматически выбирает профиль по `powerprof
 ### Waybar (Sway)
 - `config/waybar/config.jsonc` + `config/waybar/style.css` → `~/.config/waybar`. Панель только для Sway; в BSPWM работает Polybar.
 - Палитра — в начале `style.css` блоком `@define-color` (имена как в `config/polybar/config.ini`: `bg`, `bg-mid`, `fg`, `primary`, `alert` и т.д.), в правилах только `@имя`. `:root` и `var()` GTK-CSS не понимает: waybar пишет `Invalid name of pseudo-class` и молча отбрасывает правило, поэтому переменные — только через `@define-color`.
-- Композиция: слева `custom/debian` (логотип Debian, клик — `wofi --show drun`) и группа `group/left` — рабочие столы, режим, scratchpad; в центре группа `group/center` — яркость, часы, батарея; справа группа `group/right` — трей, Caps Lock (`keyboard-state`), раскладка (`sway/language`), профиль питания, сеть, звук и кнопка питания, открывающая `powermenu-sway`. Заголовка окна (`sway/window`) нет: панель не пересказывает название приложения.
+- Композиция: слева `custom/debian` (логотип Debian, клик — `wofi --show drun`) и группа `group/left` — рабочие столы, режим, scratchpad; в центре группа `group/center` — яркость, часы, батарея; справа группа `group/right` — трей, Caps Lock (`keyboard-state`), раскладка (`sway/language`), профиль питания, сеть, звук и кнопка питания, открывающая `wofi-powermenu`. Заголовка окна (`sway/window`) нет: панель не пересказывает название приложения.
 - Островки: фон `@bg-alt` (`#24283b`) и скругление 5 px рисует сама группа, а модули внутри — без фона и внешних отступов (только горизонтальный padding), поэтому блок выглядит цельным, без пустых промежутков. В CSS группа `group/left` — это **`#left`** (GTK-имя без префикса `group/`), а не `#group-left`. Панель, кнопки столов и тултипы остаются с прямыми углами.
 - Рабочие столы — цифры 1–10 через `format-icons` (`default` — `•` для нестандартных имён). Активный — акцентный текст и подчёркивание 2 px, как `label-focused` в Polybar; занятый — обычный текст, пустой — приглушённый, срочный — фон `@warning`.
 - Цвета как в Polybar: часы `@primary` жирным, профиль питания и сеть — обычный текст, зарядка `@success`, низкий заряд `@warning` (`states.warning = 59`), критический `@alert` с миганием (`states.critical = 14`), кнопка питания `@primary`.
-- Звук — родной `wireplumber` (`wpctl`, `pactl` в системе нет): `{icon} {volume}%`, иконки `󰕿`/`󰖀`/`󰕾`, при муте — `󰝟 MUTE` красным. ЛКМ — mute, ПКМ — `pavucontrol-qt`, прокрутка — 5%. Тултип показывает имя узла. Сеть — `network` (ЛКМ — `nm-connection-editor`, ПКМ — `wifi-sway`). rofi-команды не используются: они X11-only.
+- Звук — родной `wireplumber` (`wpctl`, `pactl` в системе нет): `{icon} {volume}%`, иконки `󰕿`/`󰖀`/`󰕾`, при муте — `󰝟 MUTE` красным. ЛКМ — mute, ПКМ — `pavucontrol-qt`, прокрутка — 5%. Тултип показывает имя узла. Сеть — `network` (ЛКМ — `nm-connection-editor`, ПКМ — `wofi-wifi`). rofi-команды не используются: они X11-only.
 - Трей — `icon-size: 16` (в Polybar 18): иконки чуть мельче, островок не раздувается.
 - Панель непрозрачная: `#1a1b26`, островки `#24283b`, акцент `#7aa2f7`.
 - В формате модуля допустим только **один** плейсхолдер `{…}`: `"{:%H:%M} {:%d %b}"` даёт `clock: format error: invalid arg-id`, поэтому дата и время пишутся внутри одного спецификатора — `"{:%H:%M  󰃭 %a, %d %b}"`.
@@ -100,11 +100,11 @@ Picom автоматически выбирает профиль по `powerprof
 - Фон окна рисует **`#outer-box`**, а не `window`/`#window`: эти селекторы wofi игнорирует. Само окно прозрачное, но прозрачности у панели нет — `#outer-box` непрозрачный.
 - Стиль повторяет `config/rofi/config.rasi`: отступ 8 px, выбранная строка — акцент `#7aa2f7` с тёмным текстом. Окно без скруглений, поле ввода и строки — 2 px.
 - Поле ввода в живой системе того же цвета, что окно (`#1a1b26`): wofi добавляет свой CSS с приоритетом APPLICATION, а GTK-тема проекта (`config/gtk-3.0/gtk.css`, правило `entry`) — с приоритетом USER, и приоритет провайдера важнее специфичности. Поэтому `background-color` у `#input`/`#entry` тема перекрывает, поле отделяют только отступы; значения в `style.css` — фолбэк для системы без пользовательской GTK-темы.
-- `--width` задаёт ширину окна целиком. Ширины меню совпадают с Rofi: `powermenu` 380, `power-profile` 420, `wifi` 480 (список сетей и скрытая — 580), `battery` 580, `sway-switch` 800, `cheatsheet-sway` 960.
+- `--width` задаёт ширину окна целиком. Ширины меню совпадают с Rofi: `powermenu` 380, `power-profile` 420, `wifi` 480 (список сетей и скрытая — 580), `battery` 580, `sway-switch` 800, `sway-cheatsheet` 960.
 - Меню подстраиваются под содержимое: `dynamic_lines=true` в конфиге (аналог `fixed-height: false` в Rofi), `--lines` считает и поле ввода, поэтому в скриптах передаётся «пунктов + 2».
 - Стиль читается при каждом запуске: фон `#1a1b26`, акцент `#7aa2f7`.
 - Запуск: `wofi --show drun` (хоткей Sway — `Super+D`), `--show run` — команды. `--show window` под Sway не работает: он требует `wlr-foreign-toplevel-management`, которого в Sway нет; переключение окон — `sway-switch` (список из дерева Sway + `wofi --dmenu`, фокус по `con_id`).
-- Меню команд — `--dmenu` с `--cache-file /dev/null` (иначе wofi сортирует пункты по частоте выбора): `wifi-sway`, `powermenu-sway`, `power-profile-sway`, `battery-sway`.
+- Меню команд — `--dmenu` с `--cache-file /dev/null` (иначе wofi сортирует пункты по частоте выбора): `wofi-battery`, `wofi-powermenu`, `wofi-power-profile`, `wofi-wifi`.
 
 ### Mako (Sway)
 - `config/mako/config` → `~/.config/mako`. Уведомления для Sway; в BSPWM остаётся `dunst` (`config/dunst/dunstrc`).
@@ -114,14 +114,14 @@ Picom автоматически выбирает профиль по `powerprof
 - OSD громкости: dunst красит его по хинтам `frcolor`/`hlcolor`, mako такие хинты не знает, поэтому `local/bin/volume` кладёт уровень в `category` (`volume-mute/low/mid/high/overflow`), а цвета задают критерии `[category=volume-*]` в конце `config/mako/config`: `border-color` — рамка, `progress-color` — заливка по хинту `value` (альфа `0x26`: у mako она занимает всю высоту уведомления, а не полоску снизу). Секции обязаны идти после `[urgency=*]`, иначе синяя рамка обычной важности их перекроет.
 - Применение: `pkill -HUP -x mako` (перечитывает конфиг). Проверка синтаксиса — `timeout 3 dbus-run-session -- mako --config config/mako/config` (пустой вывод = ok).
 
-### Sway (эксперимент)
+### Sway (переезд с BSPWM)
 - `config/sway/config` — конфиг в репозитории, линкуется как `~/.config/sway`; `include /etc/sway/config.d/*` внутри остаётся абсолютным (оттуда приходит `50-systemd-user.conf`). Стоковый `bar { ... }` (swaybar) удалён, его роль играет waybar.
 - Оформление как в bspwm: `default_border pixel 2` / `default_floating_border pixel 2` — у окна только рамка без заголовка; `gaps inner 0`, `gaps outer 0` (внешние не нужны, место под панель резервирует layer-shell), `smart_borders on` (рамка только когда окон несколько); `client.focused #6b8dd6`, `client.unfocused`/`focused_inactive` `#24283b`. В режиме `pixel` рамку рисует `child_border`, поэтому он продублирован в каждом `client.*`. `focus_follows_mouse no`, `mouse_warping none` — как в bspwm.
 - `local/bin/sway-session` — обёртка запуска вместо `sway`: PATH (`~/.local/bin`, `~/.npm-global/bin`), `XDG_*` сессии (`sway`/`wayland`), курсор `Bibata-Modern-Ice` 24, Qt (`qt6ct`, `QT_QPA_PLATFORM=wayland;xcb`), GTK (`GDK_BACKEND=wayland,x11`), `SAL_USE_VCLPLUGIN=gtk3`, `MOZ_ENABLE_WAYLAND`, Electron и Java; затем импорт этих переменных в systemd/dbus и `exec sway "$@"`. `GTK_THEME` не задаёт — тему дают `settings.ini` и `gtk.css`.
 - Запуск: из TTY — `sway-session`; из GDM — `./scripts/install-sway.sh --session` (GDM читает только `/usr/share/wayland-sessions`, пользовательские каталоги сессий не сканирует, поэтому файл создаётся с sudo и абсолютным `Exec`).
 - `local/bin/sway-display` — мониторы и обои. В конфиге Sway нет условий по hostname, поэтому ветвление `lamer-deb` (DP-1 1920x1080@144 + HDMI-A-3 слева с `transform 90`, portrait-обои) и фолбэк ноутбука (`output *` + landscape) живут в скрипте. Вызывается как `exec_always`, поэтому раскладка переприменяется при reload; обои ставит сам sway через `output ... bg` (спавнит и убивает `swaybg`). Скрипт ждёт готовности IPC, потому что `exec` при старте может опередить `swaymsg`.
 - Автозапуск: `exec pgrep -x waybar >/dev/null || waybar`, то же для `mako`, `lxpolkit`; `swayidle` (10 минут и перед сном → `swaylock -f`) — reload не плодит дубли.
-- Хоткеи повторяют bspwm там, где это осмысленно: `$mod+Return` — `foot`, `$mod+d` — `wofi --show drun`, `$mod+/` — `cheatsheet-sway`, `$mod+F1..F4` и `$mod+Shift+S` — `screenshot-sway`, `$mod+Escape` — reload, `$mod+w` — kill, `$mod+Alt+L` — `swaylock -f`, `$mod+Alt+N` — `wifi-sway`, `$mod+Alt+P` — `power-profile-sway --menu`, `$mod+Alt+B` — `battery-sway`, `$mod+Shift+Q` — `powermenu-sway`, `$mod+Shift+E` — выход через `swaynag`. Preselect/monocle/picom-аналогов нет.
+- Хоткеи повторяют bspwm там, где это осмысленно: `$mod+Return` — `foot`, `$mod+d` — `wofi --show drun`, `$mod+/` — `sway-cheatsheet`, `$mod+F1..F4` и `$mod+Shift+S` — `sway-screenshot`, `$mod+Escape` — reload, `$mod+w` — kill, `$mod+Alt+L` — `swaylock -f`, `$mod+Alt+N` — `wofi-wifi`, `$mod+Alt+P` — `wofi-power-profile --menu`, `$mod+Alt+B` — `wofi-battery`, `$mod+Shift+Q` — `wofi-powermenu`, `$mod+Shift+E` — выход через `swaynag`. Preselect/monocle/picom-аналогов нет.
 - Раскладка `us,ru` с `grp:caps_toggle` и автоповтором 250/30 задана через `input "type:keyboard"`; тачпад — `tap`/`dwt`.
 - Все `bindsym` объявлены с `--to-code`: Sway переводит keysym в keycode по первой раскладке (`us`), поэтому хоткеи и вызовы wofi (`Super+d`, `Super+Alt+n` и остальные) срабатывают и в русской раскладке. Без флага keysym привязан к текущей раскладке и в RU-режиме не совпадает.
 - Применение: `Super+Escape` или `Super+Shift+C` (`swaymsg reload`). `~/.config/sway` — симлинк, правки сразу в репозитории.
@@ -133,7 +133,7 @@ Picom автоматически выбирает профиль по `powerprof
 - Живого перечитывания нет: правка действует со следующего запуска. Проверка синтаксиса — `foot -C -c ~/.config/foot/foot.ini`.
 
 ### Swaylock (Sway)
-- `config/swaylock/config` → `~/.config/swaylock`. Swaylock 1.8.2 сам читает этот путь, поэтому все вызовы — `swaylock -f` (`swayidle` на 10 минут и `before-sleep`, хоткей `Super+Alt+L`, `powermenu-sway`).
+- `config/swaylock/config` → `~/.config/swaylock`. Swaylock 1.8.2 сам читает этот путь, поэтому все вызовы — `swaylock -f` (`swayidle` на 10 минут и `before-sleep`, хоткей `Super+Alt+L`, `wofi-powermenu`).
 - Обои — те же, что ставит `sway-display`: `image=` без выхода даёт горизонтальные `wallpapers/tokyo-night-girl-landscape.jpg` всем мониторам, `image=HDMI-A-3:$HOME/.../tokyo-night-girl-portrait.jpg` — вертикальные для повёрнутого HDMI-A-3 на `lamer-deb`. `select_image()` берёт образ с точным именем выхода, иначе последний образ без имени, поэтому порядок строк не важен. `scaling=fill` совпадает с `bg ... fill`; `color=1a1b26` — заглушка, если файл не найдётся.
 - Стиль Tokyo Night: при вводе кольцо синее `#7aa2f7`, набранные символы оранжевые `#ff9e64`, стёртые (backspace) — красные `#f7768e`, разделители тёмные `#1a1b26`; внутри полупрозрачный `#1a1b26d9` (`line-uses-inside` убирает обводку). Состояния: пустой ввод — `#565f89`, проверка — `#bb9af7`, ошибка — `#f7768e`, Caps Lock — `#e0af68`. `show-keyboard-layout` показывает us/ru при наборе.
 - Индикатор: `indicator-radius=90`, `indicator-thickness=8`, `font-size=20`, `JetBrainsMono Nerd Font`; в покое скрыт.
@@ -277,7 +277,7 @@ Whitelist: отслеживаются только `config/ home/ local/ require
 
 ## Дальние планы
 
-- Ветка BSPWM/X11 — основная и долгосрочная: переезд на Wayland не планируется. Debian стабилен, а Wayland-композиторы с нужными возможностями идут роллингом — это противоречит политике проекта (см. «Отвергнуто» в `TODO.md`).
+- Sway/Wayland — направление переезда: окружение переносится постепенно, а BSPWM/X11 остаётся рабочей сессией на случай поломок Wayland. Прежнее решение «на Wayland не переезжаем» отменено.
 - `1.7.0` выпущен; следующая — `1.8.0`.
 
 ## Релизы

@@ -1,12 +1,12 @@
 # ==============================================================================
-# Sway — конфиг BSPWM-machineslego (эксперимент)
+# Sway — конфиг BSPWM-machineslego (переезд с BSPWM)
 # ==============================================================================
 # Основа — стоковый /etc/sway/config, переписанный под райс:
 # те же цвета, отступы и хоткеи, где это осмысленно под Wayland.
 #
 # Запуск: sway-session (TTY) или сессия GDM от install-sway.sh --session.
 # Применение: Super + Escape (reload) или Super + Shift + C.
-# Шпаргалка: Super + / (cheatsheet-sway).
+# Шпаргалка: Super + / (sway-cheatsheet).
 #
 # Соседние конфиги Sway: waybar (панель), wofi (лаунчер), mako (уведомления),
 # foot (терминал), swaylock (блокировка).
@@ -121,16 +121,16 @@ bindsym --to-code $mod+a exec pavucontrol-qt
 bindsym --to-code $mod+x exec foot -e watch -n 1 sensors
 
 # Шпаргалка по хоткеям Sway.
-bindsym --to-code $mod+slash exec cheatsheet-sway
+bindsym --to-code $mod+slash exec sway-cheatsheet
 
 # Wi-Fi (nmcli + wofi; пароль спрашивается в foot).
-bindsym --to-code $mod+Alt+n exec wifi-sway
+bindsym --to-code $mod+Alt+n exec wofi-wifi
 
 # Профиль питания (power-profiles-daemon + wofi).
-bindsym --to-code $mod+Alt+p exec power-profile-sway --menu
+bindsym --to-code $mod+Alt+p exec wofi-power-profile --menu
 
 # Батарея: заряд, статус, здоровье (wofi).
-bindsym --to-code $mod+Alt+b exec battery-sway
+bindsym --to-code $mod+Alt+b exec wofi-battery
 
 # Telegram (flatpak) через WS-прокси.
 bindsym --to-code $mod+Alt+t exec sh -c 'tg-ws-proxy & sleep 1 && flatpak run org.telegram.desktop'
@@ -145,7 +145,7 @@ bindsym --to-code $mod+Shift+c reload
 bindsym --to-code $mod+Alt+l exec swaylock -f
 
 # Меню питания: блокировка / выключить / выйти / перезагрузить.
-bindsym --to-code $mod+Shift+q exec powermenu-sway
+bindsym --to-code $mod+Shift+q exec wofi-powermenu
 
 # Выход из Sway с подтверждением.
 bindsym --to-code $mod+Shift+e exec swaynag -t warning \
@@ -155,16 +155,16 @@ bindsym --to-code $mod+Shift+e exec swaynag -t warning \
 ### Клавиши: скриншоты
 #
 # Super+F1..F4 как в bspwm: экран / окно / задержка / монитор.
-bindsym --to-code $mod+F1 exec screenshot-sway full
-bindsym --to-code $mod+F2 exec screenshot-sway window
-bindsym --to-code $mod+F3 exec screenshot-sway delayed
-bindsym --to-code $mod+F4 exec screenshot-sway monitor
+bindsym --to-code $mod+F1 exec sway-screenshot full
+bindsym --to-code $mod+F2 exec sway-screenshot window
+bindsym --to-code $mod+F3 exec sway-screenshot delayed
+bindsym --to-code $mod+F4 exec sway-screenshot monitor
 
 # Выделенная область.
-bindsym --to-code $mod+Shift+s exec screenshot-sway region
+bindsym --to-code $mod+Shift+s exec sway-screenshot region
 
 # Print — весь экран.
-bindsym --to-code --locked Print exec screenshot-sway full
+bindsym --to-code --locked Print exec sway-screenshot full
 
 ### Клавиши: звук и яркость
 #

@@ -5,7 +5,7 @@
 # Swaylock 1.8.2 сам ищет $XDG_CONFIG_HOME/swaylock/config,
 # поэтому во всех вызовах достаточно `swaylock -f`:
 #   swayidle (10 минут и перед сном), Super + Alt + L,
-#   powermenu-sway.
+#   wofi-powermenu.
 #
 # Обои — те же, что ставит sway-display:
 #   все выходы              — горизонтальные (образ без output);

@@ -1,11 +1,11 @@
 #!/bin/bash
 # ==========================================================
-# screenshot-sway — скриншоты под Wayland (grim), копия в буфер
+# sway-screenshot — скриншоты под Wayland (grim), копия в буфер
 # ==========================================================
 # Аналог screenshot для BSPWM/X11: maim заменён на grim,
 # область — на slurp, буфер — на wl-copy.
 #
-# Использование: screenshot-sway {full|window|region|delayed|monitor}
+# Использование: sway-screenshot {full|window|region|delayed|monitor}
 #   full     весь экран
 #   window   активное окно (по геометрии из дерева Sway)
 #   region   выделенная область (slurp, Esc — отмена)

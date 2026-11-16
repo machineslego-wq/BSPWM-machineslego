@@ -26,7 +26,7 @@ filter_rate=100
 matching=fuzzy
 key_expand=Tab
 
-# Внешний вид списка. allow_markup нужен cheatsheet-sway:
+# Внешний вид списка. allow_markup нужен sway-cheatsheet:
 # подсказки там написаны цветом фона.
 allow_images=true
 image_size=22
