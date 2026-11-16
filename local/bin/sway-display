@@ -9,6 +9,10 @@
 #
 # Вызывается из config/sway/config: exec_always sway-display
 # Вручную: sway-display (внутри сессии Sway)
+#
+# Примечание по именам выходов: в X11 (xrandr) это были
+# DisplayPort-1 / HDMI-A-3, а в Sway (wlroots, DRM) те же
+# физические порты называются DP-2 / HDMI-A-4.
 # ==========================================================
 
 set -u
@@ -28,16 +32,19 @@ if [ -z "${SWAYSOCK:-}" ]; then
 fi
 
 # При старте сессии Sway выполняет exec до готовности IPC.
-# Ждём, пока swaymsg начнёт отвечать.
+# Ждём, пока swaymsg начнёт отвечать и вернёт непустой список выходов
+# (в начале старта возможен валидный ответ "[]").
 outputs=""
 for _ in $(seq 1 20); do
     outputs=$(swaymsg -t get_outputs -r 2>/dev/null) || true
-    [ -n "$outputs" ] && break
+    if [ -n "$outputs" ] && [ "$outputs" != "[]" ]; then
+        break
+    fi
     sleep 0.25
 done
 
-if [ -z "$outputs" ]; then
-    echo "sway-display: swaymsg не отвечает" >&2
+if [ -z "$outputs" ] || [ "$outputs" = "[]" ]; then
+    echo "sway-display: swaymsg не отвечает или нет выходов" >&2
     exit 1
 fi
 
@@ -52,15 +59,16 @@ run() {
 # Все подключённые выходы включены.
 run "output * enable"
 
-if [ "$(hostname)" = "lamer-deb" ] && has_output DisplayPort-1 && has_output HDMI-A-3; then
-    # ПК: DP-1 — основной 1920x1080@144, HDMI-A-3 — слева, повёрнут на 90°.
+if [ "$(hostname)" = "lamer-deb" ] && has_output DP-2 && has_output HDMI-A-4; then
+    # ПК: DP-2 — основной 1920x1080@144, HDMI-A-4 — слева, повёрнут на 90°.
     # Геометрия как в bspwmrc: HDMI занимает 1080 px по X, DP стоит правее.
-    run "output DisplayPort-1 mode 1920x1080@144Hz position 1080 250"
-    run "output HDMI-A-3 transform 90 position 0 0"
+    # В Sway координаты position задаются через ПРОБЕЛ: X Y.
+    run "output DP-2 mode 1920x1080@144Hz position 1080 250"
+    run "output HDMI-A-4 transform 90 position 0 0"
 
     # Горизонтальные обои на основной, вертикальные — на повёрнутый.
-    run "output DisplayPort-1 bg $LAND fill"
-    run "output HDMI-A-3 bg $PORT fill"
+    run "output DP-2 bg $LAND fill"
+    run "output HDMI-A-4 bg $PORT fill"
 else
     # Ноутбуки и всё остальное: один экран (или зеркало) — горизонтальные
     # обои на каждый выход. Имена выходов не хардкодим.
