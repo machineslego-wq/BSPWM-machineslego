@@ -1,0 +1,79 @@
+# Theme: tokyo-night
+# Палитра как в Polybar / Waybar: bg #1a1b26, bg-alt #24283b,
+# текст #c0caf5, акцент #7aa2f7, comment #565f89.
+# Формат btop++ (совместим с bpytop/bashtop).
+
+# Основной фон и текст
+theme[main_bg]="#1a1b26"
+theme[main_fg]="#c0caf5"
+
+# Заголовки блоков и подсветка горячих клавиш
+theme[title]="#7aa2f7"
+theme[hi_fg]="#7dcfff"
+
+# Выделенная строка в списке процессов
+theme[selected_bg]="#33467c"
+theme[selected_fg]="#c0caf5"
+
+# Неактивный текст
+theme[inactive_fg]="#565f89"
+
+# Подписи на графиках и фон шкал
+theme[graph_text]="#565f89"
+theme[meter_bg]="#24283b"
+
+# Мелочи в блоке процессов: мини-графики, детали, статус
+theme[proc_misc]="#7dcfff"
+
+# Рамки блоков
+theme[cpu_box]="#565f89"
+theme[mem_box]="#565f89"
+theme[net_box]="#565f89"
+theme[proc_box]="#565f89"
+
+# Разделители и линии внутри блоков
+theme[div_line]="#3b4261"
+
+# Температура: зелёный → жёлтый → красный
+theme[temp_start]="#9ece6a"
+theme[temp_mid]="#e0af68"
+theme[temp_end]="#f7768e"
+
+# CPU: синий → фиолетовый → красный (как градиент cava)
+theme[cpu_start]="#7aa2f7"
+theme[cpu_mid]="#bb9af7"
+theme[cpu_end]="#f7768e"
+
+# Свободное место: мало — красный, много — зелёный
+theme[free_start]="#f7768e"
+theme[free_mid]="#e0af68"
+theme[free_end]="#9ece6a"
+
+# Кэш: голубой → синий → фиолетовый
+theme[cached_start]="#7dcfff"
+theme[cached_mid]="#7aa2f7"
+theme[cached_end]="#bb9af7"
+
+# Доступно: мало — красный, много — зелёный
+theme[available_start]="#f7768e"
+theme[available_mid]="#e0af68"
+theme[available_end]="#9ece6a"
+
+# Занято: мало — зелёный, много — красный
+theme[used_start]="#9ece6a"
+theme[used_mid]="#e0af68"
+theme[used_end]="#f7768e"
+
+# Сеть: загрузка — голубой/синий, отдача — фиолетовый/красный
+theme[download_start]="#7dcfff"
+theme[download_mid]="#7aa2f7"
+theme[download_end]="#bb9af7"
+
+theme[upload_start]="#bb9af7"
+theme[upload_mid]="#f7768e"
+theme[upload_end]="#ff9e64"
+
+# График процессов: как CPU
+theme[process_start]="#7aa2f7"
+theme[process_mid]="#bb9af7"
+theme[process_end]="#f7768e"

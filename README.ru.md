@@ -51,7 +51,7 @@
 - **Современная оболочка:** Fish + промпт Tide (Fisher). Автодополнения, подсветка синтаксиса, git-статус без фоновых демонов. `eza` для списков файлов, `fastfetch` с отдельными конфигами для X11 и TTY.
 - **Плавность и плоский дизайн:** Picom с анимациями окон, скруглениями и тенями, без blur и без затемнения неактивных окон. Строгие цвета Tokyo Night.
 - **Профили питания:** Performance / Balanced / Power Saver через PPD. В `power-saver` Picom автоматически переключается на `picom-eco.conf` — без анимаций и теней.
-- **Единый стиль:** Polybar, Rofi, Dunst, Picom, Alacritty, Fish, Cava, GTK3/GTK4, Qt5/Qt6, GIMP 3, CopyQ, Midnight Commander и Telegram оформлены в Tokyo Night.
+- **Единый стиль:** Polybar, Rofi, Dunst, Picom, Alacritty, Fish, Cava, Btop, GTK3/GTK4, Qt5/Qt6, GIMP 3, CopyQ, Midnight Commander и Telegram оформлены в Tokyo Night.
 - **Workflow:** история буфера (CopyQ + меню команд), история уведомлений (Rofi), скриншоты сразу в буфер CopyQ, шпаргалки по хоткеям (Rofi для BSPWM, wofi для Sway), Neovim в стиле базового VS Code со своей шпаргалкой.
 - **Запасной Vim:** обычный `vim` из `apt.txt` без плагинов — подсветка синтаксиса почти для всего, гибридная нумерация (абсолютный номер на строке курсора, относительные вокруг) и постоянная история изменений. Конфиг — `~/.vimrc` (`home/vimrc`).
 - **Стабильность:** автозапуск в `bspwmrc` защищён от дублей через `pgrep`/`pkill`, поэтому `Super + Alt + R` и полный рестарт сессии не плодят процессы.
@@ -65,6 +65,7 @@ BSPWM-machineslego/
 │   ├── alacritty/               # терминал: палитра Tokyo Night, шрифт 10
 │   ├── bash/themes/             # пресеты промпта: tokyo-night, tokyo-night-minimal
 │   ├── bspwm/bspwmrc            # автозапуск, мониторы, обои, рамки окон
+│   ├── btop/                    # системный монитор: конфиг + тема Tokyo Night
 │   ├── cava/config              # спектр: 60 fps, градиент Tokyo Night
 │   ├── copyq/                   # тема Tokyo Night + меню команд
 │   ├── dunst/dunstrc            # уведомления: стек 7, история 20
@@ -204,6 +205,7 @@ sudo systemctl kill -s HUP systemd-logind
 - **GIMP 3:** `config/GIMP/3.0/themes/TokyoNight/` подхватывается как пользовательская тема — включи её в GIMP: Preferences → Interface → Theme.
 - **CopyQ:** тема `tokyo-night.ini` + меню команд (закрепить, метки). История и геометрия окна в git не попадают.
 - **Cava:** `config/cava/config` — спектр в терминале. 60 fps для мгновенной реакции, `noise_reduction = 40`: подъём без задержки, спад резкий, но плавный. Один моно-спектр по всей ширине — низкие частоты слева, высокие справа; градиент по высоте столбика — синий → голубой → фиолетовый → коралловый. Запуск — `cava` (в Alacritty), конфиг читается при старте.
+- **Btop:** `config/btop/btop.conf` + `config/btop/themes/tokyo-night.theme`. Тема на той же палитре, что Polybar/Waybar: фон `#1a1b26`, текст `#c0caf5`, акцент `#7aa2f7`, приглушённый `#565f89`. Графики CPU и процессов идут синий → фиолетовый → коралловый, температура и диски — зелёный → жёлтый → красный. `color_theme = "tokyo-night"` ищет тему в пользовательском каталоге, системный путь не захардкожен. Запуск — `btop`; конфиг читается при старте.
 - **EasyEffects:** пресеты в `config/easyeffects/output/*.json`. Сервис запускается из `bspwmrc`, если бинарник установлен; для эффектов может понадобиться `calf-plugins` из `requirements/software.txt`.
 - **Telegram:** `themes/telegram/tokyo-night.tdesktop-palette` (Tokyo Night с оранжевым акцентом). Автоустановки нет, чтобы не ломать пути Flatpak:
   1. скопируй файл в `~/.var/app/org.telegram.desktop/data/TelegramDesktop/tdata/theme/` (Flatpak) или `~/.local/share/TelegramDesktop/tdata/theme/` (обычная версия);

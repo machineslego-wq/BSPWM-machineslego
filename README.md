@@ -52,7 +52,7 @@ Every line of code and every running process must justify its existence. This ru
 - **Modern Shell:** Fish + Tide prompt (Fisher). Autosuggestions, syntax highlighting, git status without background daemons. `eza` for file listings, `fastfetch` with separate X11 and TTY configs.
 - **Smooth & Flat:** Picom with window animations, rounded corners, and shadows; no blur and no dimming of inactive windows. Strict Tokyo Night colors.
 - **Power Profiles:** Performance / Balanced / Power Saver via PPD. In `power-saver` Picom automatically switches to `picom-eco.conf` — no animations, no shadows.
-- **One Consistent Style:** Polybar, Rofi, Dunst, Picom, Alacritty, Fish, Cava, GTK3/GTK4, Qt5/Qt6, GIMP 3, CopyQ, Midnight Commander, and Telegram are all themed in Tokyo Night.
+- **One Consistent Style:** Polybar, Rofi, Dunst, Picom, Alacritty, Fish, Cava, Btop, GTK3/GTK4, Qt5/Qt6, GIMP 3, CopyQ, Midnight Commander, and Telegram are all themed in Tokyo Night.
 - **Workflow:** clipboard history (CopyQ with custom commands), notification history (Rofi), screenshots straight into the CopyQ clipboard, keybinding cheatsheets (Rofi for BSPWM, wofi for Sway), and a Neovim setup styled after base VS Code with its own cheatsheet.
 - **Stock Vim as a fallback:** plain `vim` from `apt.txt` with no plugins — syntax highlighting for nearly everything, hybrid numbering (absolute number on the cursor line, relative around it), and persistent undo. Config: `~/.vimrc` (`home/vimrc`).
 - **Stability:** autostart in `bspwmrc` is guarded against duplicates via `pgrep`/`pkill`, so `Super + Alt + R` and a full session restart never spawn extra processes.
@@ -66,6 +66,7 @@ BSPWM-machineslego/
 │   ├── alacritty/               # terminal: Tokyo Night palette, font size 10
 │   ├── bash/themes/             # prompt presets: tokyo-night, tokyo-night-minimal
 │   ├── bspwm/bspwmrc            # autostart, monitors, wallpapers, window borders
+│   ├── btop/                    # system monitor: config + Tokyo Night theme
 │   ├── cava/config              # spectrum: 60 fps, Tokyo Night gradient
 │   ├── copyq/                   # Tokyo Night theme + command menu
 │   ├── dunst/dunstrc            # notifications: stack 7, history 20
@@ -205,6 +206,7 @@ A plugin-free fallback editor: `home/vimrc` → `~/.vimrc`. Syntax highlighting 
 - **GIMP 3:** `config/GIMP/3.0/themes/TokyoNight/` is picked up as a user theme — enable it in GIMP: Preferences → Interface → Theme.
 - **CopyQ:** `tokyo-night.ini` theme plus a command menu (pin, tags). History and window geometry never reach git.
 - **Cava:** `config/cava/config` — a terminal spectrum. 60 fps for instant response, `noise_reduction = 40`: bars rise without delay and fall sharply but smoothly. One mono spectrum across the width — low frequencies on the left, high on the right; the gradient follows bar height — blue → cyan → purple → coral. Run `cava` (in Alacritty); the config is read at startup.
+- **Btop:** `config/btop/btop.conf` plus `config/btop/themes/tokyo-night.theme`. The theme uses the same palette as Polybar/Waybar: background `#1a1b26`, text `#c0caf5`, accent `#7aa2f7`, muted `#565f89`. CPU and process graphs run blue → purple → coral, temperature and disk meters green → yellow → red. `color_theme = "tokyo-night"` resolves to the user theme directory, so no system path is hardcoded. Run `btop`; the config is read at startup.
 - **EasyEffects:** presets in `config/easyeffects/output/*.json`. The service starts from `bspwmrc` if the binary exists; some effects may need `calf-plugins` from `requirements/software.txt`.
 - **Telegram:** `themes/telegram/tokyo-night.tdesktop-palette` (Tokyo Night with an orange accent). No automated install, to avoid breaking Flatpak paths:
   1. copy the file to `~/.var/app/org.telegram.desktop/data/TelegramDesktop/tdata/theme/` (Flatpak) or `~/.local/share/TelegramDesktop/tdata/theme/` (native);

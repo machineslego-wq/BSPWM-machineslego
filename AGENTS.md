@@ -192,6 +192,14 @@ Picom автоматически выбирает профиль по `powerprof
 - Градиент по высоте: `#7aa2f7` → `#7dcfff` → `#bb9af7` → `#f7768e`, фон `#1a1b26`.
 - Применение: перезапуск `cava` (конфиг читается при старте).
 
+### Btop
+- `config/btop/` → `~/.config/btop`: `btop.conf` и `themes/tokyo-night.theme`. Пакет `btop` — в `requirements/software.txt`.
+- `color_theme = "tokyo-night"` — btop ищет тему по имени (stem) в `~/.config/btop/themes` и в системном каталоге; пользовательский каталог проверяется первым, поэтому системный путь не хардкодится.
+- Палитра как в Polybar/Waybar: `main_bg #1a1b26`, `main_fg #c0caf5`, `title #7aa2f7`, `hi_fg #7dcfff`, `inactive_fg #565f89`, `meter_bg #24283b`, рамки `#565f89`, `div_line #3b4261`.
+- Градиенты: CPU и processes `#7aa2f7` → `#bb9af7` → `#f7768e`; температура и used `#9ece6a` → `#e0af68` → `#f7768e`; free/available наоборот (красный при нехватке, зелёный при запасе); cached и download — голубой → синий → фиолетовый.
+- `btop.conf` — пользовательские настройки раскладки и процессов; при выходе btop перезаписывает файл сам, поэтому правки вносятся через меню `F2` или в репозитории.
+- Применение: перезапуск `btop` (конфиг и тема читаются при старте).
+
 ### Telegram
 - `themes/telegram/tokyo-night.tdesktop-palette` — тема Tokyo Night с оранжевым акцентом. Хранится вручную, автоматической установки нет (чтобы не ломать пути Flatpak).
 - Установка: положить файл в `~/.var/app/org.telegram.desktop/data/TelegramDesktop/tdata/theme/` и выбрать в настройках Telegram.
