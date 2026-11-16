@@ -193,9 +193,13 @@
     // --- Часы ---
     // Только ОДИН плейсхолдер {…} на format (ограничение waybar),
     // дата и время внутри одного спецификатора.
+    // locale — как `locale = ru_RU.UTF-8` в Polybar; префикс L сразу
+    // после {`: без него %a/%b печатаются по-английски. Форма %La/%Lb
+    // не работает: fmt отвечает `invalid specifier in chrono-specs`.
     "clock": {
+        "locale": "ru_RU.UTF-8",
         "interval": 1,
-        "format": "{:%H:%M  󰃭 %a, %d %b}",
+        "format": "{:L%H:%M  󰃭 %a, %d %b}",
         "format-alt": "{:%H:%M:%S  󰃭 %d.%m.%Y}",
         "tooltip": false
     }

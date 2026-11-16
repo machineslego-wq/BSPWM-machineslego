@@ -105,6 +105,14 @@ spinbutton:focus:not(.vertical) {
     box-shadow: inset 0 0 0 1px #7aa2f7;
 }
 
+/* Поле поиска wofi: это GtkSearchEntry с именем #input внутри
+   #outer-box. Свой CSS wofi ставит с приоритетом APPLICATION (600),
+   а этот файл — USER (800), поэтому id-селектор здесь возвращает
+   полю фон bg-alt; общее правило entry выше его не перекрывает. */
+#outer-box #input {
+    background-color: #24283b;
+}
+
 entry:disabled,
 spinbutton:disabled:not(.vertical) {
     color: #565f89;
