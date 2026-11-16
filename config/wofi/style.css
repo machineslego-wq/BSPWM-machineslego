@@ -3,28 +3,32 @@
    ==========================================================
    Живёт в репозитории: config/wofi/style.css
    Палитра как в Rofi / Polybar / Waybar:
-     #1a1b26 — фон окна       #24283b — поле ввода
+     #1a1b26 — фон окна       #24283b — поле ввода (фолбэк)
      #7aa2f7 — акцент (выбранная строка, prompt)
-     #c0caf5 — текст          #a9b1d6 — приглушённый
-     #565f89 — placeholder    #f7768e — срочное
+     #c0caf5 — текст
 
-   Внешний вид повторяет config/rofi/config.rasi: отступ 12px,
-   поле ввода чуть светлее фона, выбранная строка — синяя с
-   тёмным текстом. Углы прямые: скруглений нет ни у окна,
-   ни у поля ввода, ни у строк.
+   Внешний вид повторяет config/rofi/config.rasi: отступ 8 px,
+   выбранная строка — синяя с тёмным текстом. Окно без
+   скруглений, поле и строки — 2 px.
 
    ВАЖНО: селектор `window` (и `#window`) wofi игнорирует —
    фон окна рисует `#outer-box`.
+
+   ВАЖНО: свой CSS wofi ставит с приоритетом APPLICATION, а
+   GTK-тема проекта (config/gtk-3.0/gtk.css, правило `entry`) —
+   с приоритетом USER, и приоритет провайдера важнее
+   специфичности. Поэтому `background-color` у `#input` и
+   `#entry` тема перекрывает: в живой системе поле ввода и
+   строки получают её `#1a1b26`, то есть цвет окна, и поле
+   отделяется только отступами. Свои значения ниже остаются
+   фолбэком для системы без пользовательской GTK-темы.
    ========================================================== */
 
 /* --- Палитра --- */
-@define-color bg           #1a1b26;  /* фон окна */
-@define-color bg-alt       #24283b;  /* поле ввода */
-@define-color primary      #7aa2f7;  /* акцент: выбранная строка, prompt */
-@define-color fg           #c0caf5;  /* основной текст */
-@define-color muted        #a9b1d6;  /* приглушённый текст */
-@define-color placeholder  #565f89;  /* placeholder */
-@define-color urgent       #f7768e;  /* срочное */
+@define-color bg       #1a1b26;  /* фон окна */
+@define-color bg-alt   #24283b;  /* поле ввода */
+@define-color primary  #7aa2f7;  /* акцент: выбранная строка, prompt */
+@define-color fg       #c0caf5;  /* основной текст */
 
 * {
     font-family: "JetBrainsMono Nerd Font";
@@ -34,18 +38,17 @@
 #outer-box {
     margin: 0;
     padding: 8px;
-    /* border: 2px solid @primary; */
     border-radius: 0;
     background-color: @bg;
     color: @fg;
 }
 
 #input {
-    margin: 8px 8px 10px 8px;   /* снизу 12 → 10: зазор до списка чуть меньше */
-    padding: 8px 10px;           /* 8 + 18 + 8 = 34px */
+    margin: 8px 8px 10px 8px;   /* снизу чуть меньше: зазор до списка */
+    padding: 8px 10px;          /* 8 + 18 + 8 = 34 px */
     border: none;
     border-radius: 2px;
-    background-color: @bg-alt;
+    background-color: @bg-alt;  /* в проекте перекрыто темой: см. шапку */
     color: @fg;
 }
 
@@ -68,14 +71,14 @@
 
 #entry {
     margin: 0 8px;
-    padding: 6px 10px;           /* 6 + 18 + 6 = 30px — плотнее строк */
+    padding: 6px 10px;           /* 6 + 18 + 6 = 30 px — плотнее строк */
     border-radius: 2px;
-    background-color: transparent;
+    background-color: transparent;  /* фолбэк: в проекте строки красит тема */
 }
 
 #entry:selected {
     background-color: @primary;
-    border-radius: 2px;
+    outline: none;
 }
 
 #text {

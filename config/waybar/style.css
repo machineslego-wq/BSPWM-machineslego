@@ -56,7 +56,7 @@ window#waybar.hidden {
     padding: 0 2px;
 }
 
-/* Модули внутри островков — без своих пилюль */
+/* Модули внутри островков — без своих пилюль: только padding */
 #power-profiles-daemon,
 #network,
 #backlight,
@@ -64,7 +64,6 @@ window#waybar.hidden {
 #wireplumber,
 #clock,
 #language,
-#tray,
 #custom-powermenu {
     padding: 0 10px;
     margin: 0;
@@ -120,10 +119,6 @@ window#waybar.hidden {
 #scratchpad {
     color: @secondary;
     padding: 0 8px;
-}
-
-#scratchpad.empty {
-    background-color: transparent;
 }
 
 /* --- Часы --- */

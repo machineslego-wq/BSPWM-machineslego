@@ -3,14 +3,15 @@
 # ==========================================================
 # Живёт в репозитории: config/mako -> ~/.config/mako
 # Эталон — config/dunst/dunstrc: тот же фон, текст, рамка
-# 2px, ширина 360, прогресс-бар акцентом, иконки выключены,
-# критичные уведомления не закрываются. Скруглений нет.
+# 2 px, ширина 360, прогресс-бар тёмно-синий, иконки выключены,
+# критичные уведомления не закрываются. Скругление 2 px.
 #
 # Отличия Dunst -> mako:
-#   offset (10, 44)  -> outer-margin (waybar сам резервирует место)
-#   gap_size 8       -> margin 8
+#   offset (10, 44)  -> outer-margin 8 (waybar резервирует место)
+#   gap_size 8       -> margin 0 (уведомления разделяет рамка)
 #   stack_duplicates -> group-by=app-name,summary
 #   history_length   -> max-history
+#   frcolor/hlcolor  -> критерии по category (OSD громкости)
 #
 # Применение: mako перечитывает конфиг по SIGHUP
 #   pkill -HUP -x mako
@@ -28,10 +29,10 @@ width=360
 height=140
 
 # Отступ от края экрана. Mako — layer-shell поверхность: waybar
-# резервирует свою зону, поэтому окно и так встаёт под панелью.
-# outer-margin сверху 0, а зазор до панели задаёт margin (8 px).
+# резервирует свою зону, поэтому уведомления встают под панелью,
+# а зазор до краёв задаёт outer-margin.
 outer-margin=8
-# Отступ между уведомлениями в стопке.
+# Отступ между соседними уведомлениями: 0, их разделяет рамка.
 margin=0
 padding=8
 
@@ -42,7 +43,8 @@ border-size=2
 border-color=#7aa2f7
 border-radius=2
 
-# Полоса прогресса (таймер закрытия) — акцент Tokyo Night.
+# Полоса прогресса (хинт value — громкость и т.п.) — тёмно-синяя,
+# как bg-alt. OSD громкости перекрывает её своими критериями ниже.
 progress-color=over #1c305b
 
 # Иконки выключены: только текст (как в Dunst).
@@ -82,3 +84,33 @@ background-color=#1a1b26
 text-color=#f7768e
 border-color=#f7768e
 default-timeout=0
+
+# --- OSD громкости (local/bin/volume) ---
+# Dunst красит OSD по хинтам frcolor/hlcolor, mako их не понимает.
+# Поэтому volume помечает уведомление категорией, а цвета задаются
+# критериями, как frame_color и highlight в dunst: border-color —
+# рамка, progress-color — заливка по value hint (сама громкость).
+# У mako заливка занимает всю высоту уведомления, а не полоску
+# снизу, поэтому она идёт с альфой 0x26: видно уровень, но текст
+# остаётся на тёмном фоне.
+# Секции идут ПОСЛЕ [urgency=*]: там тоже задан border-color, и
+# последнее совпадение в файле выигрывает.
+[category=volume-mute]
+border-color=#565f89
+progress-color=over #565f8926
+
+[category=volume-low]
+border-color=#7aa2f7
+progress-color=over #7aa2f726
+
+[category=volume-mid]
+border-color=#e0af68
+progress-color=over #e0af6826
+
+[category=volume-high]
+border-color=#f7768e
+progress-color=over #f7768e26
+
+[category=volume-overflow]
+border-color=#ff0000
+progress-color=over #ff000026

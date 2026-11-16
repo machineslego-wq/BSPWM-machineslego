@@ -3,7 +3,9 @@
 # ==========================================================
 # Живёт в репозитории: config/wofi -> ~/.config/wofi
 # Запуск из Sway: wofi --show drun   (хоткей Super+D)
-# Другие режимы: wofi --show run | wofi --show window
+# Команды: wofi --show run
+# Список открытых окон — sway-switch: `wofi --show window` под
+# Sway не работает, ему нужен wlr-foreign-toplevel-management.
 # Стиль — style.css рядом, читается при каждом запуске.
 # ==========================================================
 
@@ -11,7 +13,7 @@
 show=drun
 prompt=Запуск
 
-# Размер и положение окна
+# Размер окна по умолчанию. Меню-команды передают свой --width.
 width=600
 height=400
 location=center
@@ -24,7 +26,8 @@ filter_rate=100
 matching=fuzzy
 key_expand=Tab
 
-# Внешний вид списка
+# Внешний вид списка. allow_markup нужен cheatsheet-sway:
+# подсказки там написаны цветом фона.
 allow_images=true
 image_size=22
 allow_markup=true
@@ -34,8 +37,8 @@ hide_scroll=true
 # (аналог fixed-height: false в Rofi). Максимум задают width/height.
 dynamic_lines=true
 
-# Кнопки действий (Launch/Close) не нужны: выбор по Enter
+# Кнопки действий (Launch/Close) не нужны: выбор по Enter.
 no_actions=true
 
-# Слой отрисовки поверх окон
+# Слой отрисовки поверх окон.
 layer=overlay

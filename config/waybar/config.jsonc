@@ -99,13 +99,12 @@
         "format": "{short}",
         "hide-single-layout": false,
         "tooltip": true,
-        "tooltip-format": "{long}",
-        "expand": false
+        "tooltip-format": "{long}"
     },
 
     // --- Индикатор Caps Lock ---
-    // Если индикатор «залипает» при grp:caps_toggle, добавьте:
-    //   "binding-keys": [58, 1]   (58 = CapsLock, 1 = Escape)
+    // Если индикатор «залипает» при grp:caps_toggle, помогает
+    // "binding-keys": [58, 1] (58 = CapsLock, 1 = Escape).
     "keyboard-state": {
         "capslock": true,
         "numlock": false,
@@ -160,8 +159,7 @@
         "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
         "on-click-right": "pavucontrol-qt",
         "tooltip": true,
-        "tooltip-format": "{node_name} - {volume}%",
-        "max-volume": 100
+        "tooltip-format": "{node_name} - {volume}%"
     },
 
     // --- Яркость ---
@@ -172,13 +170,12 @@
     },
 
     // --- Батарея ---
-    // warning 59% — жёлтый, critical 14% — мигающий красный
+    // warning 59% — жёлтый, critical 14% — мигающий красный.
+    // format-charging и format-plugged не заданы: waybar берёт format.
     "battery": {
         "interval": 30,
         "states": { "warning": 59, "critical": 14 },
         "format": "{icon} {capacity}%",
-        "format-charging": "{icon} {capacity}%",
-        "format-plugged": "{icon} {capacity}%",
         "tooltip-format": "{timeTo}",
         "format-icons": [
             "󰂃", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾",

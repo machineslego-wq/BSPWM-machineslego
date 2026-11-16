@@ -1,0 +1,82 @@
+# ==========================================================
+# swaylock — блокировка экрана Sway (Tokyo Night)
+# ==========================================================
+# Живёт в репозитории: config/swaylock -> ~/.config/swaylock.
+# Swaylock 1.8.2 сам ищет $XDG_CONFIG_HOME/swaylock/config,
+# поэтому во всех вызовах достаточно `swaylock -f`:
+#   swayidle (10 минут и перед сном), Super + Alt + L,
+#   powermenu-sway.
+#
+# Обои — те же, что ставит sway-display:
+#   все выходы              — горизонтальные (образ без output);
+#   HDMI-A-3 на lamer-deb   — вертикальные: он повёрнут на 90°.
+# Для каждого выхода swaylock сначала ищет образ с его именем и
+# только потом берёт образ по умолчанию, поэтому порядок строк
+# не важен.
+#
+# Цвета записываются без '#': строка, начинающаяся с решётки, —
+# это комментарий, а inline-комментарии не поддерживаются вовсе.
+# ==========================================================
+
+# --- Обои ---
+image=$HOME/BSPWM-machineslego/wallpapers/tokyo-night-girl-landscape.jpg
+image=HDMI-A-3:$HOME/BSPWM-machineslego/wallpapers/tokyo-night-girl-portrait.jpg
+
+# fill — как `bg ... fill` в sway-display: картинка заполняет
+# экран без полей, лишнее обрезается.
+scaling=fill
+
+# Цвет вместо картинки, если файл не найдётся (фон Tokyo Night).
+color=1a1b26
+
+# --- Индикатор ---
+font=JetBrainsMono Nerd Font
+font-size=20
+indicator-radius=90
+indicator-thickness=8
+
+# Ввод: кольцо — синий акцент, набранные символы — оранжевые,
+# стёртые (backspace) — красные. Разделители тёмные: они отделяют
+# сегменты друг от друга и не спорят с текстом.
+ring-color=7aa2f7
+key-hl-color=ff9e64
+separator-color=1a1b26
+bs-hl-color=f7768e
+
+# Внутри — тёмный полупрозрачный диск: обои просвечивают.
+# line-uses-inside убирает светлую обводку между диском и кольцом.
+inside-color=1a1b26d9
+inside-clear-color=1a1b26d9
+inside-caps-lock-color=1a1b26d9
+inside-ver-color=1a1b26d9
+inside-wrong-color=1a1b26d9
+line-uses-inside
+
+text-color=ff9e64
+
+# --- Состояния ---
+# Пустой ввод — приглушённое кольцо.
+ring-clear-color=565f89
+text-clear-color=565f89
+
+# Проверка пароля — второй акцент палитры (purple), чтобы
+# отличать её от синего кольца ввода.
+ring-ver-color=bb9af7
+text-ver-color=bb9af7
+
+# Неверный пароль — красный.
+ring-wrong-color=f7768e
+text-wrong-color=f7768e
+
+# Caps Lock — жёлтый, как предупреждения в остальных конфигах.
+ring-caps-lock-color=e0af68
+text-caps-lock-color=e0af68
+caps-lock-key-hl-color=e0af68
+caps-lock-bs-hl-color=f7768e
+
+# --- Раскладка ---
+# Показывать us/ru при наборе: в системе две раскладки.
+show-keyboard-layout
+layout-bg-color=1a1b26d9
+layout-border-color=ff9e64
+layout-text-color=c0caf5

@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==========================================================
-# volume — Управление громкостью с OSD (Dunst)
+# volume — Управление громкостью с OSD (Dunst / mako)
 # ==========================================================
 
 ACTION="$1"
@@ -31,33 +31,39 @@ else
     MUTED=$(pactl get-sink-mute @DEFAULT_SINK@ | awk '{print $2}')
 fi
 
-# --- Выбор цвета и текста в зависимости от громкости ---
+# --- Цвет OSD и категория по уровню громкости ---
+# Dunst красит рамку и полосу прогресса по хинтам frcolor/hlcolor,
+# mako такие хинты не понимает: он выбирает цвета критериями из
+# config/mako/config. Поэтому уровень уезжает ещё и в category, а
+# mako по ней берёт border-color и progress-color — те же цвета,
+# что Dunst получает хинтами.
 if [ -n "$MUTED" ]; then
-    FRAME_COLOR="#565f89"
-    HIGHLIGHT_COLOR="#565f89"
+    CATEGORY="volume-mute"
+    COLOR="#565f89"
     MSG="Звук выключен"
 elif [ "$VOL" -gt 100 ]; then
-    FRAME_COLOR="#ff0000"
-    HIGHLIGHT_COLOR="#ff0000"
+    CATEGORY="volume-overflow"
+    COLOR="#ff0000"
     MSG="Громкость: ${VOL}% (OVERFLOW!)"
 elif [ "$VOL" -gt 85 ]; then
-    FRAME_COLOR="#f7768e"
-    HIGHLIGHT_COLOR="#f7768e"
+    CATEGORY="volume-high"
+    COLOR="#f7768e"
     MSG="Громкость: ${VOL}%"
 elif [ "$VOL" -gt 55 ]; then
-    FRAME_COLOR="#e0af68"
-    HIGHLIGHT_COLOR="#e0af68"
+    CATEGORY="volume-mid"
+    COLOR="#e0af68"
     MSG="Громкость: ${VOL}%"
 else
-    FRAME_COLOR="#7aa2f7"
-    HIGHLIGHT_COLOR="#7aa2f7"
+    CATEGORY="volume-low"
+    COLOR="#7aa2f7"
     MSG="Громкость: ${VOL}%"
 fi
 
 # --- Отправка уведомления ---
 notify-send -h string:x-canonical-private-synchronous:volume \
             -h int:value:"${VOL}" \
-            -h string:frcolor:"${FRAME_COLOR}" \
-            -h string:hlcolor:"${HIGHLIGHT_COLOR}" \
+            -h string:frcolor:"${COLOR}" \
+            -h string:hlcolor:"${COLOR}" \
+            -c "${CATEGORY}" \
             -a "Volume" -t 1500 \
             "$MSG"

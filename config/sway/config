@@ -8,46 +8,53 @@
 # Применение: Super + Escape (reload) или Super + Shift + C.
 # Шпаргалка: Super + / (cheatsheet-sway).
 #
+# Соседние конфиги Sway: waybar (панель), wofi (лаунчер), mako (уведомления),
+# foot (терминал), swaylock (блокировка).
+#
 # Что здесь НЕ как в BSPWM:
 #   - нет picom: тени и скругления — отдельный композитор, Sway их не умеет;
 #   - нет preselect: у Sway другая модель дерева;
-#   - вместо rofi — wofi, вместо Polybar — waybar, вместо sxhkd — сам Sway.
+#   - вместо rofi — wofi, вместо Polybar — waybar, вместо sxhkd — сам Sway,
+#     вместо i3lock-fancy — swaylock.
 # ==============================================================================
 
 ### Переменные
 #
-# Logo key. Use Mod1 for Alt.
+# Logo-клавиша — Super; для Alt использовать Mod1.
 set $mod Mod4
-# Home row direction keys, like vim
+# Направления на домашнем ряду, как в Vim.
 set $left h
 set $down j
 set $up k
 set $right l
-# Терминал и лаунчер
+# Терминал и лаунчер.
 set $term foot
 set $menu wofi --show drun
 
 ### Оформление окон
 #
-# pixel 2 — у окна только рамка в 2 px, без заголовка (как border_width в bspwm).
+# pixel 2 — у окна только рамка 2 px, без заголовка (border_width в bspwm).
 default_border pixel 2
 default_floating_border pixel 2
 
-# Отступы между окнами (window_gap 4). Внешние не нужны: место под waybar
-# резервирует layer-shell, панель не перекрывает окна.
+# Отступы между окнами — 0 внутри и снаружи. Внешние не нужны: место под
+# waybar резервирует layer-shell, панель окна не перекрывает.
 gaps inner 0
 gaps outer 0
 smart_gaps off
-smart_borders off
+# smart_borders: рамка только когда окон несколько, одиночное окно
+# занимает весь экран без обводки.
+smart_borders on
 
-# Рамки — цвета bspwm: normal #24283b, focused #6b8dd6.
-# child_border — это и есть рамка вокруг самого окна в режиме pixel.
+# Рамки — цвета bspwm: focused #6b8dd6, остальные #24283b.
+# В режиме pixel рамку вокруг окна рисует child_border, поэтому он
+# продублирован в каждой строке.
 client.focused          #6b8dd6 #1f2335 #c0caf5 #6b8dd6 #6b8dd6
 client.focused_inactive #24283b #1f2335 #a9b1d6 #24283b #24283b
 client.unfocused        #24283b #1a1b26 #a9b1d6 #24283b #24283b
 client.urgent           #e0af68 #e0af68 #1a1b26 #e0af68 #e0af68
 
-# Фокус не прыгает за мышью (в bspwm focus_follows_pointer false).
+# Фокус не прыгает за мышью (focus_follows_pointer false в bspwm).
 focus_follows_mouse no
 # Указатель не переезжает при смене фокуса (pointer_follows_focus false).
 mouse_warping none
@@ -59,8 +66,8 @@ floating_modifier $mod normal
 #
 # Раскладка US/RU с переключением по Caps Lock — как setxkbmap в bspwmrc.
 # Все хоткеи ниже объявлены с --to-code: Sway переводит keysym в keycode
-# по первой раскладке (us), поэтому Super+w и остальные работают и на
-# русской раскладке. Без флага --to-code в RU-режиме они не срабатывают.
+# по первой раскладке (us), поэтому Super+w и остальные работают и в
+# русской раскладке. Без этого флага в RU-режиме они не срабатывают.
 input "type:keyboard" {
     xkb_layout us,ru
     xkb_options grp:caps_toggle
@@ -80,8 +87,9 @@ seat seat0 xcursor_theme Bibata-Modern-Ice 24
 
 ### Автозапуск
 #
-# Sway не умеет условий по hostname, поэтому мониторы и обои — в скрипте.
-# exec_always: раскладка переприменяется и при reload (после стыковки монитора).
+# Мониторы и обои. У Sway нет условий по hostname, поэтому ветвление
+# (lamer-deb: DisplayPort-1 + повёрнутый HDMI-A-3) живёт в скрипте.
+# exec_always — раскладка переприменяется и при reload.
 exec_always sway-display
 
 # Панель, уведомления, polkit. pgrep — чтобы reload не плодил дубли.
@@ -89,162 +97,164 @@ exec_always pgrep -x waybar >/dev/null || waybar
 exec_always pgrep -x mako >/dev/null || mako
 exec_always pgrep -x lxpolkit >/dev/null || lxpolkit
 
-# Блокировка по бездействию: 10 минут, как xset s 600 в bspwmrc.
+# Блокировка по бездействию: 10 минут (xset s 600 в bspwmrc).
+# swaylock сам читает config/swaylock, поэтому здесь только -f.
 exec pgrep -x swayidle >/dev/null || swayidle -w \
-    timeout 600 'swaylock -f -c 1a1b26' \
-    before-sleep 'swaylock -f -c 1a1b26'
+    timeout 600 'swaylock -f' \
+    before-sleep 'swaylock -f'
 
 ### Клавиши: запуск приложений
 #
-    # Терминал (foot)
-    bindsym --to-code $mod+Return exec $term
+# Терминал (foot).
+bindsym --to-code $mod+Return exec $term
 
-    # Лаунчер (wofi)
-    bindsym --to-code $mod+d exec $menu
+# Лаунчер (wofi).
+bindsym --to-code $mod+d exec $menu
 
-    # Браузер, редактор, файлы, микшер
-    bindsym --to-code $mod+b exec firefox
-    bindsym --to-code $mod+v exec code
-    bindsym --to-code $mod+e exec thunar
-    bindsym --to-code $mod+a exec pavucontrol-qt
+# Браузер, редактор, файлы, микшер.
+bindsym --to-code $mod+b exec firefox
+bindsym --to-code $mod+v exec code
+bindsym --to-code $mod+e exec thunar
+bindsym --to-code $mod+a exec pavucontrol-qt
 
-    # Датчики в терминале
-    bindsym --to-code $mod+x exec foot -e watch -n 1 sensors
+# Датчики в терминале.
+bindsym --to-code $mod+x exec foot -e watch -n 1 sensors
 
-    # Шпаргалка по хоткеям Sway
-    bindsym --to-code $mod+slash exec cheatsheet-sway
+# Шпаргалка по хоткеям Sway.
+bindsym --to-code $mod+slash exec cheatsheet-sway
 
-    # Wi-Fi (nmcli + wofi; пароль спрашивается в foot)
-    bindsym --to-code $mod+Alt+n exec wifi-sway
+# Wi-Fi (nmcli + wofi; пароль спрашивается в foot).
+bindsym --to-code $mod+Alt+n exec wifi-sway
 
-    # Профиль питания (power-profiles-daemon + wofi)
-    bindsym --to-code $mod+Alt+p exec power-profile-sway --menu
+# Профиль питания (power-profiles-daemon + wofi).
+bindsym --to-code $mod+Alt+p exec power-profile-sway --menu
 
-    # Батарея: заряд, статус, здоровье (wofi)
-    bindsym --to-code $mod+Alt+b exec battery-sway
+# Батарея: заряд, статус, здоровье (wofi).
+bindsym --to-code $mod+Alt+b exec battery-sway
 
-    # Telegram (flatpak) через WS-прокси
-    bindsym --to-code $mod+Alt+t exec sh -c 'tg-ws-proxy & sleep 1 && flatpak run org.telegram.desktop'
+# Telegram (flatpak) через WS-прокси.
+bindsym --to-code $mod+Alt+t exec sh -c 'tg-ws-proxy & sleep 1 && flatpak run org.telegram.desktop'
 
 ### Клавиши: конфиг, блокировка, выход
 #
-    # Перечитать конфиг (аналог pkill -USR1 -x sxhkd)
-    bindsym --to-code $mod+Escape reload
-    bindsym --to-code $mod+Shift+c reload
+# Перечитать конфиг (аналог pkill -USR1 -x sxhkd).
+bindsym --to-code $mod+Escape reload
+bindsym --to-code $mod+Shift+c reload
 
-    # Заблокировать экран (в bspwm — i3lock-fancy)
-    bindsym --to-code $mod+Alt+l exec swaylock -f -c 1a1b26
+# Заблокировать экран. Стиль и обои — config/swaylock.
+bindsym --to-code $mod+Alt+l exec swaylock -f
 
-    # Меню питания: блокировка / выключить / выйти / перезагрузить
-    bindsym --to-code $mod+Shift+q exec powermenu-sway
+# Меню питания: блокировка / выключить / выйти / перезагрузить.
+bindsym --to-code $mod+Shift+q exec powermenu-sway
 
-    # Выход из Sway с подтверждением
-    bindsym --to-code $mod+Shift+e exec swaynag -t warning \
-        -m 'Выйти из Sway? Сессия Wayland завершится.' \
-        -B 'Да, выйти' 'swaymsg exit'
+# Выход из Sway с подтверждением.
+bindsym --to-code $mod+Shift+e exec swaynag -t warning \
+    -m 'Выйти из Sway? Сессия Wayland завершится.' \
+    -B 'Да, выйти' 'swaymsg exit'
 
 ### Клавиши: скриншоты
 #
-    # Super+F1..F4 как в bspwm: экран / окно / задержка / монитор
-    bindsym --to-code $mod+F1 exec screenshot-sway full
-    bindsym --to-code $mod+F2 exec screenshot-sway window
-    bindsym --to-code $mod+F3 exec screenshot-sway delayed
-    bindsym --to-code $mod+F4 exec screenshot-sway monitor
+# Super+F1..F4 как в bspwm: экран / окно / задержка / монитор.
+bindsym --to-code $mod+F1 exec screenshot-sway full
+bindsym --to-code $mod+F2 exec screenshot-sway window
+bindsym --to-code $mod+F3 exec screenshot-sway delayed
+bindsym --to-code $mod+F4 exec screenshot-sway monitor
 
-    # Выделенная область
-    bindsym --to-code $mod+Shift+s exec screenshot-sway region
+# Выделенная область.
+bindsym --to-code $mod+Shift+s exec screenshot-sway region
 
-    # Print — весь экран
-    bindsym --to-code --locked Print exec screenshot-sway full
+# Print — весь экран.
+bindsym --to-code --locked Print exec screenshot-sway full
 
 ### Клавиши: звук и яркость
 #
-    bindsym --to-code --locked XF86AudioRaiseVolume exec volume up
-    bindsym --to-code --locked XF86AudioLowerVolume exec volume down
-    bindsym --to-code --locked XF86AudioMute exec volume mute
-    bindsym --to-code --locked XF86MonBrightnessUp exec brightnessctl set 5%+
-    bindsym --to-code --locked XF86MonBrightnessDown exec brightnessctl set 5%-
+# Звук — local/bin/volume (wpctl, OSD через mako).
+bindsym --to-code --locked XF86AudioRaiseVolume exec volume up
+bindsym --to-code --locked XF86AudioLowerVolume exec volume down
+bindsym --to-code --locked XF86AudioMute exec volume mute
+bindsym --to-code --locked XF86MonBrightnessUp exec brightnessctl set 5%+
+bindsym --to-code --locked XF86MonBrightnessDown exec brightnessctl set 5%-
 
 ### Клавиши: фокус и перемещение окон
 #
-    # Фокус: стрелки и h/j/k/l
-    bindsym --to-code $mod+Left focus left
-    bindsym --to-code $mod+Down focus down
-    bindsym --to-code $mod+Up focus up
-    bindsym --to-code $mod+Right focus right
-    bindsym --to-code $mod+$left focus left
-    bindsym --to-code $mod+$down focus down
-    bindsym --to-code $mod+$up focus up
-    bindsym --to-code $mod+$right focus right
+# Фокус: стрелки и h/j/k/l.
+bindsym --to-code $mod+Left focus left
+bindsym --to-code $mod+Down focus down
+bindsym --to-code $mod+Up focus up
+bindsym --to-code $mod+Right focus right
+bindsym --to-code $mod+$left focus left
+bindsym --to-code $mod+$down focus down
+bindsym --to-code $mod+$up focus up
+bindsym --to-code $mod+$right focus right
 
-    # Перемещение окна (свап с соседом в терминах bspwm)
-    bindsym --to-code $mod+Shift+Left move left
-    bindsym --to-code $mod+Shift+Down move down
-    bindsym --to-code $mod+Shift+Up move up
-    bindsym --to-code $mod+Shift+Right move right
-    bindsym --to-code $mod+Shift+$left move left
-    bindsym --to-code $mod+Shift+$down move down
-    bindsym --to-code $mod+Shift+$up move up
-    bindsym --to-code $mod+Shift+$right move right
+# Перемещение окна (свап с соседом в терминах bspwm).
+bindsym --to-code $mod+Shift+Left move left
+bindsym --to-code $mod+Shift+Down move down
+bindsym --to-code $mod+Shift+Up move up
+bindsym --to-code $mod+Shift+Right move right
+bindsym --to-code $mod+Shift+$left move left
+bindsym --to-code $mod+Shift+$down move down
+bindsym --to-code $mod+Shift+$up move up
+bindsym --to-code $mod+Shift+$right move right
 
-    # Закрыть окно (в bspwm — Super+W)
-    bindsym --to-code $mod+w kill
+# Закрыть окно (в bspwm — Super+W).
+bindsym --to-code $mod+w kill
 
 ### Клавиши: столы
 #
-    # Переключить стол
-    bindsym --to-code $mod+1 workspace number 1
-    bindsym --to-code $mod+2 workspace number 2
-    bindsym --to-code $mod+3 workspace number 3
-    bindsym --to-code $mod+4 workspace number 4
-    bindsym --to-code $mod+5 workspace number 5
-    bindsym --to-code $mod+6 workspace number 6
-    bindsym --to-code $mod+7 workspace number 7
-    bindsym --to-code $mod+8 workspace number 8
-    bindsym --to-code $mod+9 workspace number 9
-    bindsym --to-code $mod+0 workspace number 10
+# Переключить стол.
+bindsym --to-code $mod+1 workspace number 1
+bindsym --to-code $mod+2 workspace number 2
+bindsym --to-code $mod+3 workspace number 3
+bindsym --to-code $mod+4 workspace number 4
+bindsym --to-code $mod+5 workspace number 5
+bindsym --to-code $mod+6 workspace number 6
+bindsym --to-code $mod+7 workspace number 7
+bindsym --to-code $mod+8 workspace number 8
+bindsym --to-code $mod+9 workspace number 9
+bindsym --to-code $mod+0 workspace number 10
 
-    # Перенести окно на стол
-    bindsym --to-code $mod+Shift+1 move container to workspace number 1
-    bindsym --to-code $mod+Shift+2 move container to workspace number 2
-    bindsym --to-code $mod+Shift+3 move container to workspace number 3
-    bindsym --to-code $mod+Shift+4 move container to workspace number 4
-    bindsym --to-code $mod+Shift+5 move container to workspace number 5
-    bindsym --to-code $mod+Shift+6 move container to workspace number 6
-    bindsym --to-code $mod+Shift+7 move container to workspace number 7
-    bindsym --to-code $mod+Shift+8 move container to workspace number 8
-    bindsym --to-code $mod+Shift+9 move container to workspace number 9
-    bindsym --to-code $mod+Shift+0 move container to workspace number 10
+# Перенести окно на стол.
+bindsym --to-code $mod+Shift+1 move container to workspace number 1
+bindsym --to-code $mod+Shift+2 move container to workspace number 2
+bindsym --to-code $mod+Shift+3 move container to workspace number 3
+bindsym --to-code $mod+Shift+4 move container to workspace number 4
+bindsym --to-code $mod+Shift+5 move container to workspace number 5
+bindsym --to-code $mod+Shift+6 move container to workspace number 6
+bindsym --to-code $mod+Shift+7 move container to workspace number 7
+bindsym --to-code $mod+Shift+8 move container to workspace number 8
+bindsym --to-code $mod+Shift+9 move container to workspace number 9
+bindsym --to-code $mod+Shift+0 move container to workspace number 10
 
-    # Соседний стол / предыдущий стол (Super + [ / ] / Tab)
-    bindsym --to-code $mod+bracketleft workspace prev_on_output
-    bindsym --to-code $mod+bracketright workspace next_on_output
-    bindsym --to-code $mod+Tab workspace back_and_forth
+# Соседний стол / предыдущий стол (Super + [ / ] / Tab).
+bindsym --to-code $mod+bracketleft workspace prev_on_output
+bindsym --to-code $mod+bracketright workspace next_on_output
+bindsym --to-code $mod+Tab workspace back_and_forth
 
-    # Поиск по открытым окнам (Alt + Tab; wofi --show window в Sway не
-    # работает — нет wlr-foreign-toplevel-management, поэтому свой список)
-    bindsym --to-code Alt+Tab exec sway-switch
+# Поиск по открытым окнам (Alt + Tab). wofi --show window в Sway не
+# работает — нет wlr-foreign-toplevel-management, поэтому свой список.
+bindsym --to-code Alt+Tab exec sway-switch
 
 ### Клавиши: раскладки, полноэкранный, скретчпад
 #
-    # «Тайловый» режим: переключение horizontal/vertical
-    bindsym --to-code $mod+t layout toggle split
+# «Тайловый» режим: переключение horizontal/vertical.
+bindsym --to-code $mod+t layout toggle split
 
-    # Вкладки
-    bindsym --to-code $mod+Shift+t layout tabbed
+# Вкладки.
+bindsym --to-code $mod+Shift+t layout tabbed
 
-    # Стопка (ближайший аналог monocle из bspwm)
-    bindsym --to-code $mod+m layout stacking
+# Стопка (ближайший аналог monocle из bspwm).
+bindsym --to-code $mod+m layout stacking
 
-    # Плавающее окно
-    bindsym --to-code $mod+s floating toggle
+# Плавающее окно.
+bindsym --to-code $mod+s floating toggle
 
-    # На весь экран
-    bindsym --to-code $mod+f fullscreen toggle
+# На весь экран.
+bindsym --to-code $mod+f fullscreen toggle
 
-    # Скретчпад: спрятать / показать
-    bindsym --to-code $mod+Shift+minus move scratchpad
-    bindsym --to-code $mod+minus scratchpad show
+# Скретчпад: спрятать / показать.
+bindsym --to-code $mod+Shift+minus move scratchpad
+bindsym --to-code $mod+minus scratchpad show
 
 ### Режим изменения размера
 #
@@ -268,5 +278,5 @@ bindsym --to-code $mod+r mode "resize"
 #
 # /etc/sway/config.d/50-systemd-user.conf прокидывает WAYLAND_DISPLAY и
 # SWAYSOCK в systemd/dbus — без него порталы не видят сессию.
-# Панели swaybar здесь нет: её роль играет waybar (exec выше).
+# Стокового bar { ... } (swaybar) нет: его роль играет waybar (exec выше).
 include /etc/sway/config.d/*

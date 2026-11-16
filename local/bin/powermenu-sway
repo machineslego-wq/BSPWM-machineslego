@@ -3,8 +3,9 @@
 # powermenu-sway — Меню питания для Sway (wofi)
 # ==========================================================
 # Аналог powermenu для BSPWM: тот же список действий,
-# меню рисует wofi (rofi — X11). Блокировка — swaylock,
-# выход — swaymsg exit вместо bspc quit.
+# меню рисует wofi (rofi — X11). Блокировка — swaylock
+# (стиль и обои берутся из config/swaylock), выход —
+# swaymsg exit вместо bspc quit.
 #
 # Вызов: Super + Shift + Q в Sway.
 # ==========================================================
@@ -23,7 +24,7 @@ CHOICE=$(printf '󰌾 Заблокировать\n󰐥 Выключить\n󰍃 
 # --- ЛОГИКА (БЕЗ ПОДТВЕРЖДЕНИЯ) ---
 case "$CHOICE" in
     *"Заблокировать"*)
-        sleep 0.3 && swaylock -f -c 1a1b26
+        sleep 0.3 && swaylock -f
         ;;
     *"Выключить"*)
         systemctl poweroff
