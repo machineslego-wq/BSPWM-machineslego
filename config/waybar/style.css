@@ -168,7 +168,7 @@ window#waybar.hidden {
    выключенные — приглушённые. */
 #keyboard-state label {
     color: @disabled;
-    padding: 0 2px;
+    padding: 0 8px;
 }
 
 #keyboard-state label.numlock.locked {

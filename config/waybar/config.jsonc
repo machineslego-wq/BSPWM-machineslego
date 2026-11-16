@@ -80,7 +80,7 @@
     "keyboard-state": {
         "numlock": true,
         "capslock": true,
-        "scrolllock": true,
+        "scrolllock": false,
         "format": {
             "numlock": "󰎠",
             "capslock": "󰘲",
