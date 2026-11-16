@@ -16,6 +16,8 @@ Dotfiles + установщик окружения BSPWM/Sway для Debian 13 T
 - `local/bin/<команда>` → симлинк `~/.local/bin/<команда>` (поштучно: там же лежат nvim, tree-sitter, zed — их не трогать)
 - `local/share/mc/skins/*.ini` → симлинк `~/.local/share/mc/skins/<файл>`
 - `system/**` → копируется в `/etc/**` с бэкапом в `/etc/dotfiles-backup-YYYYMMDD-HHMMSS`
+- config/systemd/user/sway-session.target → ~/.config/systemd/user/sway-session.target
+- config/xdg-desktop-portal/portals.conf → ~/.config/xdg-desktop-portal/portals.conf
 
 Правка файла в репозитории сразу меняет живую систему (симлинк), отдельного шага синхронизации нет.
 
@@ -127,6 +129,53 @@ Picom автоматически выбирает профиль по `powerprof
 - Все `bindsym` объявлены с `--to-code`: Sway переводит keysym в keycode по первой раскладке (`us`), поэтому хоткеи и вызовы wofi (`Super+d`, `Super+Alt+n` и остальные) срабатывают и в русской раскладке. Без флага keysym привязан к текущей раскладке и в RU-режиме не совпадает.
 - Применение: `Super+Escape` или `Super+Shift+C` (`swaymsg reload`). `~/.config/sway` — симлинк, правки сразу в репозитории.
 - `home/xinitrc` и `home/xprofile` под Wayland не выполняются: их переменные перенесены в `sway-session` (сессия из TTY) или в `--session`-обёртку из GDM.
+
+### Sway: порталы (OBS, демонстрация экрана, ScreenCast)
+
+Скриншоты и запись экрана через PipeWire в Sway идут не напрямую, а через
+`xdg-desktop-portal-wlr`. На Debian 13 эта цепочка ломается без двух
+дополнительных файлов, которых нет в стоковом Sway:
+
+1. **`config/systemd/user/sway-session.target`** → `~/.config/systemd/user/sway-session.target`.
+   `graphical-session.target` имеет `RefuseManualStart=yes` — его нельзя
+   запустить ни через `systemctl --user start`, ни через `enable` (вернёт
+   `Operation refused`). Поэтому создаётся свой `sway-session.target` с
+   `BindsTo=graphical-session.target`; когда `sway-session` запускает его,
+   systemd автоматически тянет за собой `graphical-session.target`, а тот
+   открывает «допуск» для порталов. До появления этого target
+   `xdg-desktop-portal` 1.21+ отказывается поднимать любые бэкенды,
+   включая `wlr`, — отсюда `inactive (dead)` у `xdg-desktop-portal-wlr`
+   и чёрный кадр в OBS.
+
+2. **`config/xdg-desktop-portal/portals.conf`** → `~/.config/xdg-desktop-portal/portals.conf`.
+   Начиная с `xdg-desktop-portal` 1.17 убран неявный fallback: если
+   бэкенд не прописан явно, портал не предоставляет интерфейс.
+   Конфиг маршрутизирует только два интерфейса на wlr, остальное — на gtk:
+
+   [preferred]
+   default=gtk
+   org.freedesktop.impl.portal.ScreenCast=wlr
+   org.freedesktop.impl.portal.Screenshot=wlr
+
+   `default=wlr` использовать нельзя: `xdg-desktop-portal-wlr` реализует
+   только ScreenCast и Screenshot, остальные функции (файловые диалоги,
+   уведомления) перестанут работать.
+
+3. **Проброс `WAYLAND_DISPLAY` и `SWAYSOCK`**. Стандартно это делает
+   `/etc/sway/config.d/50-systemd-user.conf`, но в Debian 13 при установке
+   не из стандартного пакета файла может не быть. `local/bin/sway-session`
+   пробрасывает `XDG_CURRENT_DESKTOP` до старта Sway, а
+   `WAYLAND_DISPLAY`/`SWAYSOCK` доезжают до systemd уже после старта
+   через `exec` в конфиге Sway. Флаг `--all` работает, но тянет лишнее —
+   лучше точечно: `dbus-update-activation-environment --systemd WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP`.
+
+4. **OBS должен быть Wayland-клиентом.** `QT_QPA_PLATFORM=wayland;xcb` из
+   `sway-session` для OBS работает. Если запускать OBS из терминала без
+   переменной, он уйдёт в XWayland и источник ScreenCast не заработает.
+
+5. **`slurp`** — не жёсткая зависимость пакета `xdg-desktop-portal-wlr` в
+   Debian, но без него портал не показывает диалог выбора монитора.
+   Добавить в `requirements/sway.txt`.
 
 ### Foot (Sway)
 - `config/foot/foot.ini` → `~/.config/foot`. Терминал Sway, аналог `config/alacritty`: `JetBrainsMono Nerd Font:size=10`, `pad=0x0` (внутренних отступов нет), `initial-window-size-chars=100x28`, `shell=/usr/bin/fish`, буфер 10000 строк.

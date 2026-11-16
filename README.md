@@ -57,6 +57,7 @@ Every line of code and every running process must justify its existence. This ru
 - **Stock Vim as a fallback:** plain `vim` from `apt.txt` with no plugins — syntax highlighting for nearly everything, hybrid numbering (absolute number on the cursor line, relative around it), and persistent undo. Config: `~/.vimrc` (`home/vimrc`).
 - **Stability:** autostart in `bspwmrc` is guarded against duplicates via `pgrep`/`pkill`, so `Super + Alt + R` and a full session restart never spawn extra processes.
 - **Multi-machine:** hostname branches in `bspwmrc` and `wifi` (a dual-monitor desktop and laptops); easy to trim down to a single machine.
+- **Screen capture & OBS (Sway):** screenshots and screen recording go through `xdg-desktop-portal-wlr` + PipeWire. On Debian 13 this needs a user-level `sway-session.target` and a `portals.conf` that routes `ScreenCast`/`Screenshot` to `wlr`; both ship in the repo. OBS must run as a native Wayland client.
 
 ## 📦 Structure
 
@@ -84,6 +85,8 @@ BSPWM-machineslego/
 │   ├── rofi/config.rasi         # launcher/windows/commands
 │   ├── sway/config              # Sway session: borders, hotkeys, autostart
 │   ├── swaylock/config          # lock screen: Tokyo Night, desktop wallpapers
+│   ├── systemd/user/            # sway-session.target: portals and graphical session
+│   ├── xdg-desktop-portal/      # portals.conf: ScreenCast/Screenshot → wlr
 │   ├── sxhkd/                   # sxhkdrc + hotkey helpers (scripts/)
 │   ├── waybar/                  # config.jsonc + style.css: Sway panel
 │   └── wofi/                    # config + style.css: Sway launcher and menus
@@ -224,6 +227,13 @@ A plugin-free fallback editor: `home/vimrc` → `~/.vimrc`. Syntax highlighting 
 ```bash
 convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 /path/to/tokyo-night-wallpaper.jpg
 ```
+**Sway portals (OBS, screen sharing, PipeWire).**
+`xdg-desktop-portal` 1.17+ does not pick a backend implicitly, and Sway on Debian 13 does not start `graphical-session.target`. Two files shipped in the repo close the gap:
+
+- `config/systemd/user/sway-session.target` → `~/.config/systemd/user/sway-session.target`. `sway-session` starts this target, and systemd pulls `graphical-session.target` through `BindsTo=`.
+- `config/xdg-desktop-portal/portals.conf` → `~/.config/xdg-desktop-portal/portals.conf`. Routes `ScreenCast` and `Screenshot` to `wlr`, everything else to `gtk`.
+
+Launch OBS as a Wayland client — `QT_QPA_PLATFORM=wayland obs` — otherwise it falls back to XWayland. `slurp` must be installed.
 
 ## ⌨️ Keybindings
 
@@ -322,6 +332,7 @@ Configs live as symlinks: editing a file in the repo changes the live system imm
 - **AMD Sleep:** on Ryzen 7000-series, suspend may fail. Add `mem_sleep_default=s2idle` to GRUB if the laptop shuts down instead of sleeping.
 - **Dunst on multiple monitors:** notifications appear only on monitor `0` (`monitor = 0` in `dunstrc`).
 - **`window-height` in Picom:** the unary minus is not parsed — rules must use `"0 - window-height"` written by hand.
+- **Sway portals on Debian 13:** `graphical-session.target` is `RefuseManualStart=yes` and Sway does not activate it. Without the bundled `sway-session.target` + `portals.conf`, `xdg-desktop-portal-wlr` stays `inactive (dead)` and OBS has no ScreenCast source.
 
 ## 🗺 Plans
 

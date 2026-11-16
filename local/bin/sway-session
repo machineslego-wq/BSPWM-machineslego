@@ -80,11 +80,22 @@ SESSION_ENV=(
     MOZ_ENABLE_WAYLAND ELECTRON_OZONE_PLATFORM_HINT _JAVA_AWT_WM_NONREPARENTING
 )
 
-if command -v dbus-update-activation-environment >/dev/null 2>&1; then
-    dbus-update-activation-environment --systemd "${SESSION_ENV[@]}" 2>/dev/null || true
-fi
-if command -v systemctl >/dev/null 2>&1; then
-    systemctl --user import-environment "${SESSION_ENV[@]}" 2>/dev/null || true
-fi
+dbus-update-activation-environment --systemd "${SESSION_ENV[@]}" 2>/dev/null || true
+
+# --- Активация графической сессии ---
+# Sway сам не запускает graphical-session.target, а свежие версии
+# xdg-desktop-portal без него не поднимают бэкенды (включая wlr —
+# отсюда «inactive (dead)» у xdg-desktop-portal-wlr и чёрный кадр
+# в OBS / демонстрации экрана). Портал wlr dbus-активируется по
+# запросу, поэтому target достаточно поднять здесь, до старта Sway:
+# WAYLAND_DISPLAY/SWAYSOCK добавит 50-systemd-user.conf уже после
+# старта, а к моменту реальной активации портала они будут в
+# systemd-user. systemctl start на уже активный юнит — no-op,
+# так что повторный вызов при reload безвреден.
+# if command -v systemctl >/dev/null 2>&1; then
+#     systemctl --user start graphical-session.target 2>/dev/null || true
+# fi
+
+systemctl --user start sway-session.target 2>/dev/null || true
 
 exec sway "$@"
