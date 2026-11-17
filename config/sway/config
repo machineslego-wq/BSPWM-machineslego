@@ -103,10 +103,11 @@ exec sh -c 'command -v dbus-update-activation-environment >/dev/null && dbus-upd
 # exec_always — раскладка переприменяется и при reload.
 exec_always sway-display
 
-# Панель, уведомления, polkit. pgrep — чтобы reload не плодил дубли.
+# Панель, уведомления, polkit, bluetooth. pgrep — чтобы reload не плодил дубли.
 exec_always pgrep -x waybar >/dev/null || waybar
 exec_always pgrep -x mako >/dev/null || mako
 exec_always pgrep -x lxpolkit >/dev/null || lxpolkit
+exec_always pgrep -x blueman-applet >/dev/null || blueman-applet
 
 # Запуск эквалайзера easyeffects
 exec --no-startup-id easyeffects --gapplication-service
