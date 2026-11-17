@@ -9,7 +9,9 @@
 #
 # Обои — те же, что ставит sway-display:
 #   все выходы              — горизонтальные (образ без output);
-#   HDMI-A-3 на lamer-deb   — вертикальные: он повёрнут на 90°.
+#   HDMI-A-4 на lamer-deb   — вертикальные: он повёрнут на 90°.
+# В Sway (wlroots) тот же порт, что X11 зовёт HDMI-A-3, называется
+# HDMI-A-4, поэтому имя берётся из вывода `swaymsg -t get_outputs`.
 # Для каждого выхода swaylock сначала ищет образ с его именем и
 # только потом берёт образ по умолчанию, поэтому порядок строк
 # не важен.
@@ -20,7 +22,7 @@
 
 # --- Обои ---
 image=$HOME/BSPWM-machineslego/wallpapers/tokyo-night-girl-landscape.jpg
-image=HDMI-A-3:$HOME/BSPWM-machineslego/wallpapers/tokyo-night-girl-portrait.jpg
+image=HDMI-A-4:$HOME/BSPWM-machineslego/wallpapers/tokyo-night-girl-portrait.jpg
 
 # fill — как `bg ... fill` в sway-display: картинка заполняет
 # экран без полей, лишнее обрезается.
