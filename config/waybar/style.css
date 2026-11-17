@@ -172,12 +172,12 @@ window#waybar.hidden {
 
 #keyboard-state label.numlock {
     padding: 0 6px 0 2px; /* сделал так костыльно, т.к. '󰎠' данный символ по ширине не подходит */
-    margin-left: 3px;
+    margin-left: 3px; /* <-- !!! paddign ни в коем случае не трогаем, только margin !!! */
     /* border: 2px solid @disabled; */
 }
 #keyboard-state label.capslock {
     padding: 0 4px 0 0; /* Здесь по аналогии выше, пришлсь для виду через border смотреть как вписывается и делать*/
-    margin-right: 3px;
+    margin-right: 3px; /* <-- !!! paddign ни в коем случае не трогаем, только margin !!! */
     /* border: 2px solid @disabled; */
 }
 
