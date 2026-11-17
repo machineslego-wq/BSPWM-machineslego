@@ -65,7 +65,8 @@ window#waybar.hidden {
 #keyboard-state,
 #clock,
 #language,
-#custom-powermenu {
+#custom-powermenu,
+#bluetooth {
     padding: 0 8px;
     margin: 0;
     background-color: transparent;
@@ -227,6 +228,17 @@ window#waybar.hidden {
     animation-timing-function: steps(12);
     animation-iteration-count: infinite;
     animation-direction: alternate;
+}
+
+/* --- Bluetooth --- */
+#bluetooth.off,
+#bluetooth.disabled,
+#bluetooth.discovering {
+    color: @disabled;
+}
+
+#bluetooth.connected {
+    color: @primary;
 }
 
 /* --- Тултипы --- */
