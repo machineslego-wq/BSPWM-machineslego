@@ -3,8 +3,9 @@
 # sway-session — запуск Sway с окружением из дотфайлов
 # ==========================================================
 # Заменяет home/xinitrc и home/xprofile для Wayland: выставляет
-# PATH, темы Qt/GTK, курсор, переменные XDG-сессии, прокидывает
-# окружение в systemd/dbus (порталы, Flatpak) и запускает sway.
+# PATH, темы Qt/GTK, курсор, переменные XDG-сессии и запускает sway.
+# В systemd/dbus окружение прокидывает config/sway/config — от этого
+# зависят порталы (ScreenCast, файловые диалоги Flatpak).
 #
 # Использование:
 #   sway-session              из TTY (после логина)
@@ -67,39 +68,13 @@ export MOZ_ENABLE_WAYLAND=1
 export ELECTRON_OZONE_PLATFORM_HINT=auto
 export _JAVA_AWT_WM_NONREPARENTING=1
 
-# --- Проброс окружения в systemd и D-Bus ---
-# Без этого порталы (скринкасты, файловые диалоги Flatpak) и
-# dbus-активируемые сервисы не видят WAYLAND_DISPLAY и темы.
-# WAYLAND_DISPLAY и SWAYSOCK добавит сам Sway через
-# /etc/sway/config.d/50-systemd-user.conf.
-SESSION_ENV=(
-    PATH XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP DESKTOP_SESSION
-    XCURSOR_THEME XCURSOR_SIZE
-    QT_QPA_PLATFORMTHEME QT_STYLE_OVERRIDE QT_QPA_PLATFORM
-    GDK_BACKEND SAL_USE_VCLPLUGIN
-    MOZ_ENABLE_WAYLAND ELECTRON_OZONE_PLATFORM_HINT _JAVA_AWT_WM_NONREPARENTING
-)
-
-dbus-update-activation-environment --systemd "${SESSION_ENV[@]}" 2>/dev/null || true
-
-# --- Активация графической сессии ---
-# Sway сам не запускает graphical-session.target, а свежие версии
-# xdg-desktop-portal без него не поднимают бэкенды (включая wlr —
-# отсюда «inactive (dead)» у xdg-desktop-portal-wlr и чёрный кадр
-# в OBS / демонстрации экрана). Портал wlr dbus-активируется по
-# запросу, поэтому target достаточно поднять здесь, до старта Sway:
-# WAYLAND_DISPLAY/SWAYSOCK добавит 50-systemd-user.conf уже после
-# старта, а к моменту реальной активации портала они будут в
-# systemd-user. systemctl start на уже активный юнит — no-op,
-# так что повторный вызов при reload безвреден.
-# if command -v systemctl >/dev/null 2>&1; then
-#     systemctl --user start graphical-session.target 2>/dev/null || true
-# fi
-
-systemctl --user start sway-session.target 2>/dev/null || true
-
-# Маска создаёт ~/.config/systemd/user/waybar.service -> /dev/null
-# Это блокирует и vendor-версию, и любые попытки enable
-systemctl --user mask waybar.service mako.service lxpolkit.service
+# --- systemd ---
+# Окружение в systemd/dbus прокидывает сам Sway: config/sway/config,
+# строка exec dbus-update-activation-environment --systemd --all.
+# Это нужно порталам (ScreenCast/Screenshot) и dbus-сервисам.
+#
+# Маска создаёт ~/.config/systemd/user/waybar.service -> /dev/null.
+# Это блокирует и vendor-версию, и любые попытки enable.
+systemctl --user mask waybar.service mako.service lxpolkit.service 2>/dev/null || true
 
 exec sway "$@"

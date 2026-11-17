@@ -70,7 +70,3 @@ config/fish/completions/
 # GIMP: игнорируем всё, кроме нашей темы
 /config/GIMP/3.0/*
 !/config/GIMP/3.0/themes/
-
-# Разрешаем только sway-session.target
-/config/systemd/user/*
-!/config/systemd/user/sway-session.target
