@@ -16,8 +16,6 @@ Dotfiles + установщик окружения BSPWM/Sway для Debian 13 T
 - `local/bin/<команда>` → симлинк `~/.local/bin/<команда>` (поштучно: там же лежат nvim, tree-sitter, zed — их не трогать)
 - `local/share/mc/skins/*.ini` → симлинк `~/.local/share/mc/skins/<файл>`
 - `system/**` → копируется в `/etc/**` с бэкапом в `/etc/dotfiles-backup-YYYYMMDD-HHMMSS`
-- config/systemd/user/sway-session.target → ~/.config/systemd/user/sway-session.target
-- config/xdg-desktop-portal/portals.conf → ~/.config/xdg-desktop-portal/portals.conf
 
 Правка файла в репозитории сразу меняет живую систему (симлинк), отдельного шага синхронизации нет.
 
@@ -120,10 +118,10 @@ Picom автоматически выбирает профиль по `powerprof
 ### Sway (переезд с BSPWM)
 - `config/sway/config` — конфиг в репозитории, линкуется как `~/.config/sway`; `include /etc/sway/config.d/*` внутри остаётся абсолютным (оттуда приходит `50-systemd-user.conf`). Стоковый `bar { ... }` (swaybar) удалён, его роль играет waybar.
 - Оформление как в bspwm: `default_border pixel 2` / `default_floating_border pixel 2` — у окна только рамка без заголовка; `gaps inner 0`, `gaps outer 0` (внешние не нужны, место под панель резервирует layer-shell), `smart_borders on` (рамка только когда окон несколько); `client.focused #6b8dd6`, `client.unfocused`/`focused_inactive` `#1a1b26` (фон Tokyo Night, рамка сливается с окном и панелью). В режиме `pixel` рамку рисует `child_border`, поэтому он продублирован в каждом `client.*`. `focus_follows_mouse no`, `mouse_warping none` — как в bspwm.
-- `local/bin/sway-session` — обёртка запуска вместо `sway`: PATH (`~/.local/bin`, `~/.npm-global/bin`), `XDG_*` сессии (`sway`/`wayland`), курсор `Bibata-Modern-Ice` 24, Qt (`qt6ct`, `QT_QPA_PLATFORM=wayland;xcb`), GTK (`GDK_BACKEND=wayland,x11`), `SAL_USE_VCLPLUGIN=gtk3`, `MOZ_ENABLE_WAYLAND`, Electron и Java; затем импорт этих переменных в systemd/dbus и `exec sway "$@"`. `GTK_THEME` не задаёт — тему дают `settings.ini` и `gtk.css`.
+- `local/bin/sway-session` — обёртка запуска вместо `sway`: PATH (`~/.local/bin`, `~/.npm-global/bin`), `XDG_*` сессии (`sway`/`wayland`), курсор `Bibata-Modern-Ice` 24, Qt (`qt6ct`, `QT_QPA_PLATFORM=wayland;xcb`), GTK (`GDK_BACKEND=wayland,x11`), `SAL_USE_VCLPLUGIN=gtk3`, `MOZ_ENABLE_WAYLAND`, Electron и Java; затем `exec sway "$@"`. В systemd/dbus эти переменные импортирует уже сам Sway (`config/sway/config`, строка `dbus-update-activation-environment --systemd --all`). `GTK_THEME` не задаёт — тему дают `settings.ini` и `gtk.css`.
 - Запуск: из TTY — `sway-session`; из GDM — `./scripts/install-sway.sh --session` (GDM читает только `/usr/share/wayland-sessions`, пользовательские каталоги сессий не сканирует, поэтому файл создаётся с sudo и абсолютным `Exec`).
 - `local/bin/sway-display` — мониторы и обои. В конфиге Sway нет условий по hostname, поэтому ветвление `lamer-deb` (DP-1 1920x1080@144 + HDMI-A-3 слева с `transform 90`, portrait-обои) и фолбэк ноутбука (`output *` + landscape) живут в скрипте. Вызывается как `exec_always`, поэтому раскладка переприменяется при reload; обои ставит сам sway через `output ... bg` (спавнит и убивает `swaybg`). Скрипт ждёт готовности IPC, потому что `exec` при старте может опередить `swaymsg`.
-- Автозапуск: `exec pgrep -x waybar >/dev/null || waybar`, то же для `mako`, `lxpolkit`; `swayidle` (10 минут и перед сном → `swaylock -f`) — reload не плодит дубли.
+- Автозапуск: `exec_always pgrep -x waybar >/dev/null || waybar`, то же для `mako`, `lxpolkit`; `swayidle` (10 минут и перед сном → `swaylock -f`) — reload не плодит дубли.
 - Хоткеи повторяют bspwm там, где это осмысленно: `$mod+Return` — `foot`, `$mod+d` — `wofi --show drun`, `$mod+/` — `sway-cheatsheet`, `$mod+F1..F4` и `$mod+Shift+S` — `sway-screenshot`, `$mod+Escape` — reload, `$mod+w` — kill, `$mod+Alt+L` — `swaylock -f`, `$mod+Alt+N` — `wofi-wifi`, `$mod+Alt+P` — `wofi-power-profile --menu`, `$mod+Alt+B` — `wofi-battery`, `$mod+Shift+Q` — `wofi-powermenu`, `$mod+Shift+E` — выход через `swaynag`. Preselect/monocle/picom-аналогов нет.
 - Раскладка `us,ru` с `grp:caps_toggle` и автоповтором 250/30 задана через `input "type:keyboard"`; сам Caps Lock включается через Shift+Caps Lock (штатное поведение опции), поэтому индикатор Caps в waybar рабочий. Тачпад — `tap`, `dwt` и `natural_scroll enabled` (как `NaturalScrolling` в X11: пальцы вверх — страница вниз).
 - Все `bindsym` объявлены с `--to-code`: Sway переводит keysym в keycode по первой раскладке (`us`), поэтому хоткеи и вызовы wofi (`Super+d`, `Super+Alt+n` и остальные) срабатывают и в русской раскладке. Без флага keysym привязан к текущей раскладке и в RU-режиме не совпадает.
@@ -132,25 +130,29 @@ Picom автоматически выбирает профиль по `powerprof
 
 ### Sway: порталы (OBS, демонстрация экрана, ScreenCast)
 
-Скриншоты и запись экрана через PipeWire в Sway идут не напрямую, а через
-`xdg-desktop-portal-wlr`. На Debian 13 эта цепочка ломается без двух
-дополнительных файлов, которых нет в стоковом Sway:
+Скриншоты и запись экрана идут через `xdg-desktop-portal` +
+`xdg-desktop-portal-wlr` и PipeWire. Отдельный `graphical-session.target`
+для них не нужен: портал запускается по D-Bus при первом запросе. Ломается
+цепочка из-за окружения — у `xdg-desktop-portal-wlr.service` стоит
+`ConditionEnvironment=WAYLAND_DISPLAY`, а `systemd --user` не знает
+переменных Sway, пока их туда не импортируют. Тогда юнит молча
+пропускается (`inactive (dead)`), и в OBS нет источника ScreenCast.
 
-1. **`config/systemd/user/sway-session.target`** → `~/.config/systemd/user/sway-session.target`.
-   `graphical-session.target` имеет `RefuseManualStart=yes` — его нельзя
-   запустить ни через `systemctl --user start`, ни через `enable` (вернёт
-   `Operation refused`). Поэтому создаётся свой `sway-session.target` с
-   `BindsTo=graphical-session.target`; когда `sway-session` запускает его,
-   systemd автоматически тянет за собой `graphical-session.target`, а тот
-   открывает «допуск» для порталов. До появления этого target
-   `xdg-desktop-portal` 1.21+ отказывается поднимать любые бэкенды,
-   включая `wlr`, — отсюда `inactive (dead)` у `xdg-desktop-portal-wlr`
-   и чёрный кадр в OBS.
+1. **Окружение в systemd/dbus.** `config/sway/config` при старте выполняет
+   `exec sh -c 'command -v dbus-update-activation-environment >/dev/null && dbus-update-activation-environment --systemd --all'`: в systemd и
+   dbus попадают `WAYLAND_DISPLAY`, `SWAYSOCK`, `DISPLAY`,
+   `XDG_CURRENT_DESKTOP` и переменные тем/курсора из `sway-session`.
+   Штатный `/etc/sway/config.d/50-systemd-user.conf` делает то же для
+   четырёх переменных; строка в конфиге нужна, если файла нет (сборка не
+   из пакета). Проверка: `systemctl --user show-environment | grep WAYLAND`
+   должен показать `WAYLAND_DISPLAY=wayland-1`.
 
 2. **`config/xdg-desktop-portal/portals.conf`** → `~/.config/xdg-desktop-portal/portals.conf`.
-   Начиная с `xdg-desktop-portal` 1.17 убран неявный fallback: если
-   бэкенд не прописан явно, портал не предоставляет интерфейс.
-   Конфиг маршрутизирует только два интерфейса на wlr, остальное — на gtk:
+   `xdg-desktop-portal` умеет выбирать бэкенд сам (через `UseIn` и
+   `sway-portals.conf` из пакета), но в системе может стоять
+   `xdg-desktop-portal-hyprland`, чей `.portal` тоже заявляет `sway` в
+   `UseIn`. Конфиг явно направляет ScreenCast/Screenshot на wlr, остальное —
+   на gtk:
 
    [preferred]
    default=gtk
@@ -161,21 +163,28 @@ Picom автоматически выбирает профиль по `powerprof
    только ScreenCast и Screenshot, остальные функции (файловые диалоги,
    уведомления) перестанут работать.
 
-3. **Проброс `WAYLAND_DISPLAY` и `SWAYSOCK`**. Стандартно это делает
-   `/etc/sway/config.d/50-systemd-user.conf`, но в Debian 13 при установке
-   не из стандартного пакета файла может не быть. `local/bin/sway-session`
-   пробрасывает `XDG_CURRENT_DESKTOP` до старта Sway, а
-   `WAYLAND_DISPLAY`/`SWAYSOCK` доезжают до systemd уже после старта
-   через `exec` в конфиге Sway. Флаг `--all` работает, но тянет лишнее —
-   лучше точечно: `dbus-update-activation-environment --systemd WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP`.
-
-4. **OBS должен быть Wayland-клиентом.** `QT_QPA_PLATFORM=wayland;xcb` из
+3. **OBS должен быть Wayland-клиентом.** `QT_QPA_PLATFORM="wayland;xcb"` из
    `sway-session` для OBS работает. Если запускать OBS из терминала без
    переменной, он уйдёт в XWayland и источник ScreenCast не заработает.
 
-5. **`slurp`** — не жёсткая зависимость пакета `xdg-desktop-portal-wlr` в
+4. **`slurp`** — не жёсткая зависимость пакета `xdg-desktop-portal-wlr` в
    Debian, но без него портал не показывает диалог выбора монитора.
-   Добавить в `requirements/sway.txt`.
+   Пакет есть в `requirements/sway.txt`.
+
+Проверка портала без OBS:
+
+```bash
+systemctl --user is-active xdg-desktop-portal-wlr
+gdbus call --session --dest org.freedesktop.portal.Desktop \
+    --object-path /org/freedesktop/portal/desktop \
+    --method org.freedesktop.DBus.Properties.Get \
+    org.freedesktop.portal.ScreenCast version
+```
+
+Первая команда после запроса должна вернуть `active`, вторая — версию
+интерфейса (например, `(<uint32 5>,)`). Если `wlr` не стартует, смотреть
+`systemctl --user status xdg-desktop-portal-wlr` — чаще всего это
+`unmet condition check ConditionEnvironment=WAYLAND_DISPLAY`.
 
 ### Foot (Sway)
 - `config/foot/foot.ini` → `~/.config/foot`. Терминал Sway, аналог `config/alacritty`: `JetBrainsMono Nerd Font:size=10`, `pad=0x0` (внутренних отступов нет), `initial-window-size-chars=100x28`, `shell=/usr/bin/fish`, буфер 10000 строк.
