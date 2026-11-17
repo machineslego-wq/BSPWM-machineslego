@@ -5,31 +5,19 @@
 
 ACTION="$1"
 
-if pgrep -x pipewire >/dev/null; then
-    # --- PipeWire ---
-    case "$ACTION" in
-        up)   wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+ ;;
-        down) wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%- ;;
-        mute) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
-    esac
-    
-    # Заставляем awk использовать точку (C-локаль), чтобы 0.50 не превращалось в 0
-    VOL=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | LC_ALL=C awk '{print int($2 * 100)}')
-    [ -z "$VOL" ] && VOL=0
-    
-    MUTED=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -o "MUTED")
-else
-    # --- PulseAudio (фолбэк) ---
-    case "$ACTION" in
-        up)   pactl set-sink-volume @DEFAULT_SINK@ +2% ;;
-        down) pactl set-sink-volume @DEFAULT_SINK@ -2% ;;
-        mute) pactl set-sink-mute @DEFAULT_SINK@ toggle ;;
-    esac
-    
-    VOL=$(pactl get-sink-volume @DEFAULT_SINK@ | awk '{print $5}' | head -n 1 | tr -d '%')
-    [ -z "$VOL" ] && VOL=0
-    MUTED=$(pactl get-sink-mute @DEFAULT_SINK@ | awk '{print $2}')
-fi
+# --- PipeWire (wpctl) ---
+case "$ACTION" in
+    up)   wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+ ;;
+    down) wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%- ;;
+    mute) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
+esac
+
+# Один вызов: "Volume: 0.50" или "Volume: 0.50 [MUTED]".
+# LC_ALL=C — чтобы 0.50 не превращалось в 0 в локали с запятой.
+OUT=$(wpctl get-volume @DEFAULT_AUDIO_SINK@)
+VOL=$(LC_ALL=C awk '{print int($2 * 100)}' <<<"$OUT")
+[ -z "$VOL" ] && VOL=0
+MUTED=$(grep -o MUTED <<<"$OUT")
 
 # --- Цвет OSD и категория по уровню громкости ---
 # Dunst красит рамку и полосу прогресса по хинтам frcolor/hlcolor,

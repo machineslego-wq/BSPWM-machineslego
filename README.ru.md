@@ -106,7 +106,7 @@ BSPWM-machineslego/
 
 - **ОС:** Debian 13 Trixie, **Wayland** (целевая сессия — Sway, BSPWM/X11 остаётся запасной).
 - **Утилиты:** `git`, `sudo`, интернет для первой установки.
-- **Аудио:** PipeWire (`pipewire`, `pipewire-audio`, `pipewire-pulse`, `wireplumber`). Модуль Polybar `internal/pulseaudio` работает через `pipewire-pulse`; скрипт громкости использует `wpctl` с фолбэком на `pactl`.
+- **Аудио:** PipeWire (`pipewire`, `pipewire-audio`, `pipewire-pulse`, `wireplumber`). Модуль Polybar `internal/pulseaudio` работает через `pipewire-pulse`; скрипт громкости использует `wpctl`.
 - **Шрифты:** JetBrainsMono Nerd Font (ставит `install.sh`), Papirus-Dark и Bibata (ставятся из `apt.txt`).
 - **Flatpak:** опционально. Ставится `install.sh` вместе с Flathub; `link.sh` выдаёт Flatpak-приложениям доступ к темам.
 - **Neovim:** `ripgrep` для Telescope (`find_files`, `live_grep`) — есть в `requirements/software.txt`.
