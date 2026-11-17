@@ -81,7 +81,21 @@ chmod +x "$HOME/.config/sxhkd/scripts/"*.sh 2>/dev/null
 chmod +x "$HOME/.config/polybar/launch.sh" 2>/dev/null
 chmod +x "$HOME/.config/bspwm/bspwmrc" 2>/dev/null
 
-# 6. Применяем темы для Flatpak (если Flatpak установлен)
+# 6. Курсор GTK через gsettings
+# GTK3/GTK4 в Debian берут тему курсора из gsettings/dconf: значения из
+# settings.ini перекрываются, а GTK4 файл не читает вовсе. Без явной
+# настройки GTK-приложения (LibreOffice Writer) рисуют курсор схемы
+# 'default' (Adwaita), и он не совпадает с Bibata в Sway и XWayland.
+# Размер тот же, что XCURSOR_SIZE в xinitrc и sway-session.
+# Только от пользователя: под root dconf-база в его ~/.config стала бы
+# root-owned.
+if [ "$(id -u)" -ne 0 ] && command -v gsettings >/dev/null 2>&1; then
+    echo "--- Setting GTK cursor theme (Курсор GTK) ---"
+    gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Ice'
+    gsettings set org.gnome.desktop.interface cursor-size 24
+fi
+
+# 7. Применяем темы для Flatpak (если Flatpak установлен)
 if command -v flatpak >/dev/null 2>&1; then
     echo "--- Applying Flatpak theme overrides ---"
     # Доступ к CSS-файлам GTK3/GTK4

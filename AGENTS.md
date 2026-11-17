@@ -21,7 +21,7 @@ Dotfiles + установщик окружения BSPWM/Sway для Debian 13 T
 
 ### Скрипты
 - `scripts/install.sh` — полная установка: Neovim AppImage и `tree-sitter` CLI в `~/.local/bin`, шрифт, линковка, Fish/Tide, пакеты из `requirements/apt.txt` и `apt-system.txt`, PPD/Flatpak, системные конфиги, поведение крышки. Запускается только при первичной настройке.
-- `scripts/link.sh` — идемпотентный линковщик: делает бэкап в `~/.dotfiles-backup-*`, ставит симлинки (конфиги, home-файлы, команды в `~/.local/bin`, скины MC). Меняет уже установленные пакеты.
+- `scripts/link.sh` — идемпотентный линковщик: делает бэкап в `~/.dotfiles-backup-*`, ставит симлинки (конфиги, home-файлы, команды в `~/.local/bin`, скины MC). Меняет уже установленные пакеты. Дополнительно выставляет тему курсора GTK в gsettings (`Bibata-Modern-Ice`, 24) — см. раздел GTK3 / GTK4.
 - `scripts/unlink.sh` — безопасное удаление симлинков, созданных link.sh (только свои, не трогает чужие): `~/.config/*`, home-файлы, `~/.local/bin`, скины MC.
 - `scripts/software.sh` — установка дополнительного софта из `requirements/software.txt` (lazygit, ripgrep, mpv, gimp и т.д.). Запускается отдельно, install.sh только печатает подсказку.
 - `scripts/install-node.sh` — Node.js LTS из NodeSource, npm с prefix `~/.npm-global` (глобальные пакеты без sudo). Запускается отдельно, не из install.sh.
@@ -209,6 +209,7 @@ gdbus call --session --dest org.freedesktop.portal.Desktop \
 - `config/gtk-3.0/gtk.css` — полный пользовательский CSS поверх `Adwaita-dark`: `@define-color` для именованных цветов + прямые селекторы по виджетам.
 - `config/gtk-4.0/gtk.css` — только переменные libadwaita (`:root` с `--*-color`) и слой `@define-color` для совместимости; прямых селекторов нет.
 - `gtk-theme-name` в `settings.ini` не меняется (`Adwaita-dark`). Меняются только цвета: геометрия, отступы и размеры — штатные от Adwaita.
+- Курсор берётся из gsettings (`org.gnome.desktop.interface cursor-theme` / `cursor-size`), а не из `settings.ini`: dconf перекрывает файл, а GTK4 значения оттуда не подхватывает. `link.sh` выставляет `Bibata-Modern-Ice` 24 — тот же курсор, что `XCURSOR_THEME` / `XCURSOR_SIZE` в `xinitrc` и `sway-session`. Без этого GTK-приложения (LibreOffice Writer) рисуют стоковый Adwaita, пока Sway и XWayland показывают Bibata, и курсор «скачет» между ними.
 - Приложения без libadwaita (тема `Default`) читают только `@define-color`-имена; полной перекраски там нет.
 - GTK3: Adwaita рисует `background-image` / `box-shadow` в hover/active/checked/disabled/backdrop — в user CSS их надо сбрасывать явно, иначе остаются светлые пятна.
 - GTK3: фон infobar — на `infobar > revealer > box`, а не на самом `infobar`. Toolbar/searchbar (`searchbar > revealer > box`, `.toolbar`) по умолчанию серые (`#353535` / `#2d2d2d`).
