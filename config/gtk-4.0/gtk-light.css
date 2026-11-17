@@ -1,0 +1,84 @@
+/* ==========================================================
+   Tokyo Night Day для GTK4 / libadwaita
+   Светлый вариант gtk.css: та же структура и те же переменные,
+   только палитра. :root — основной механизм для GTK4,
+   @define-color — для совместимости.
+   ========================================================== */
+
+/* ---------- 1. Основной механизм: CSS-переменные ---------- */
+:root {
+  /* Акцент и статусы */
+  --accent-color: #2b6fd4;
+  --accent-bg-color: #2b6fd4;
+  --accent-fg-color: #ffffff;
+  --destructive-color: #bb2947;
+  --destructive-bg-color: #bb2947;
+  --destructive-fg-color: #ffffff;
+  --success-color: #4c652f;
+  --success-bg-color: #4c652f;
+  --success-fg-color: #ffffff;
+  --warning-color: #9a4f00;
+  --warning-bg-color: #9a4f00;
+  --warning-fg-color: #ffffff;
+  --error-color: #bb2947;
+  --error-bg-color: #bb2947;
+  --error-fg-color: #ffffff;
+
+  /* Окна и поверхности */
+  --window-bg-color: #e1e2e7;
+  --window-fg-color: #3760bf;
+  --view-bg-color: #e1e2e7;
+  --view-fg-color: #3760bf;
+  --headerbar-bg-color: #f4f5f9;
+  --headerbar-fg-color: #3760bf;
+  --headerbar-backdrop-color: #e1e2e7;
+  --sidebar-bg-color: #d9dde8;
+  --sidebar-fg-color: #3760bf;
+  --sidebar-backdrop-color: #d9dde8;
+  --card-bg-color: #dfe2eb;
+  --card-fg-color: #3760bf;
+  --popover-bg-color: #f4f5f9;
+  --popover-fg-color: #3760bf;
+  --dialog-bg-color: #f4f5f9;
+  --dialog-fg-color: #3760bf;
+
+  /* Служебные */
+  --borders: #aab3c7;
+  --insensitive-bg-color: #dfe2eb;
+  --insensitive-fg-color: #848cb5;
+  --scrollbar-outline-color: rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- 2. Слой совместимости: @define-color ----------
+   Нужен для тех мест libadwaita 1.x, которые ещё не перешли
+   на var(). */
+@define-color accent_color #2b6fd4;
+@define-color accent_bg_color #2b6fd4;
+@define-color accent_fg_color #ffffff;
+@define-color window_bg_color #e1e2e7;
+@define-color window_fg_color #3760bf;
+@define-color view_bg_color #e1e2e7;
+@define-color view_fg_color #3760bf;
+@define-color headerbar_bg_color #f4f5f9;
+@define-color headerbar_fg_color #3760bf;
+@define-color headerbar_backdrop_color #e1e2e7;
+@define-color sidebar_bg_color #d9dde8;
+@define-color sidebar_fg_color #3760bf;
+@define-color sidebar_backdrop_color #d9dde8;
+@define-color card_bg_color #dfe2eb;
+@define-color card_fg_color #3760bf;
+@define-color popover_bg_color #f4f5f9;
+@define-color popover_fg_color #3760bf;
+@define-color dialog_bg_color #f4f5f9;
+@define-color dialog_fg_color #3760bf;
+@define-color destructive_bg_color #bb2947;
+@define-color destructive_fg_color #ffffff;
+@define-color success_bg_color #4c652f;
+@define-color success_fg_color #ffffff;
+@define-color warning_bg_color #9a4f00;
+@define-color warning_fg_color #ffffff;
+@define-color error_bg_color #bb2947;
+@define-color error_fg_color #ffffff;
+@define-color insensitive_bg_color #dfe2eb;
+@define-color insensitive_fg_color #848cb5;
+@define-color borders #aab3c7;
