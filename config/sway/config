@@ -107,7 +107,10 @@ exec_always sway-display
 exec_always pgrep -x waybar >/dev/null || waybar
 exec_always pgrep -x mako >/dev/null || mako
 exec_always pgrep -x lxpolkit >/dev/null || lxpolkit
-exec_always pgrep -x blueman-applet >/dev/null || blueman-applet
+# exec_always pgrep -x blueman-applet >/dev/null || blueman-applet
+
+# Bluetooth-агент для подтверждения подключений
+# exec --no-startup-id bt-agent --capability=DisplayOnly
 
 # Запуск эквалайзера easyeffects
 exec --no-startup-id easyeffects --gapplication-service
