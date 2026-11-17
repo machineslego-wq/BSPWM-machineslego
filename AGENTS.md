@@ -233,9 +233,13 @@ gdbus call --session --dest org.freedesktop.portal.Desktop \
 
 ### Qt (qt5ct / qt6ct)
 - `config/qt5ct/colors/tokyo-night.conf`, `config/qt6ct/colors/tokyo-night.conf` — 21 роль `QPalette` в порядке enum, формат цвета `#AARRGGBB`.
+- `tokyo-night-day.conf` в обеих папках — светлый вариант один-в-один: те же 21 роль, палитра Tokyo Night Day (окно `#e1e2e7`, база/поля `#e1e2e7`, текст `#3760bf`, акцент `#2b6fd4`, текст на акценте `#ffffff`). Роли Fusion перевёрнуты по яркости: `Light` `#ffffff` > `Midlight` `#f4f5f9` > `Button` `#dfe2eb` > `Mid` `#c6ccdb` > `Dark` `#bcc4d6`, иначе объёмная рамка Fusion рисуется наоборот.
+  - Включить светлую: `sed -i 's|tokyo-night.conf|tokyo-night-day.conf|' config/qt5ct/qt5ct.conf config/qt6ct/qt6ct.conf` и `icon_theme=Papirus` там же (у `Papirus-Dark` символы светлые и на светлом фоне пропадают). Вернуть тёмную — `git checkout -- config/qt5ct/qt5ct.conf config/qt6ct/qt6ct.conf`.
+  - В GUI то же самое: `qt5ct` / `qt6ct` → Appearance → Color scheme.
+  - Цвет текста прогресс-бара Fusion берёт из `ButtonText`, а не из `HighlightedText`, поэтому на светлой заливке подпись синяя — так же, как в тёмной теме, отдельной роли под это в `QPalette` нет.
 - `qt5ct.conf` / `qt6ct.conf`: `color_scheme_path=~/.config/qt<5|6>ct/colors/tokyo-night.conf`, `custom_palette=true`, `style=Fusion`, `icon_theme=Papirus-Dark`.
 - `home/xinitrc`: `export QT_QPA_PLATFORMTHEME=qt6ct` (Qt5-приложения тоже идут через qt6ct).
-- Применение: `qt5ct` / `qt6ct` или перезапуск приложения.
+- Применение: `qt5ct` / `qt6ct` или перезапуск приложения (палитра читается при старте).
 
 ### Flatpak и темы
 - `link.sh` при наличии Flatpak выдаёт override'ы: read-only доступ к `xdg-config/gtk-3.0`, `gtk-4.0`, `xdg-config/qt5ct`, `qt6ct`, `xdg-data/themes` и `QT_QPA_PLATFORMTHEME=qt5ct`.

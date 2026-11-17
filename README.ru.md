@@ -80,7 +80,7 @@ BSPWM-machineslego/
 │   ├── nvim/                    # Lua-конфиг, vim.pack, CHEATSHEET.md
 │   ├── picom/                   # picom.conf + picom-eco.conf
 │   ├── polybar/                 # config.ini, launch.sh
-│   ├── qt5ct/ qt6ct/            # палитры tokyo-night.conf
+│   ├── qt5ct/ qt6ct/            # палитры tokyo-night.conf + tokyo-night-day.conf
 │   ├── rofi/config.rasi         # лаунчер/окна/команды
 │   ├── sway/config              # сессия Sway: рамки, хоткеи, автозапуск
 │   ├── swaylock/config          # экран блокировки: Tokyo Night, обои стола
@@ -203,7 +203,7 @@ sudo systemctl kill -s HUP systemd-logind
 
 **Темы.**
 - **GTK3/GTK4:** `config/gtk-3.0/gtk.css` — полный CSS поверх `Adwaita-dark`: `@define-color` плюс прямые селекторы (Adwaita жёстко прописывает цвета, их приходится переопределять вручную). `config/gtk-4.0/gtk.css` — только переменные libadwaita (`:root` с `--*-color`) и слой `@define-color` для совместимости. `gtk-light.css` в обеих папках — светлый вариант один-в-один поверх `Adwaita` (фон `#e1e2e7`, текст `#3760bf`, акцент `#2b6fd4`), по умолчанию выключен: чтобы включить, скопируйте его на место `gtk.css` и переключите `gtk-theme` / `color-scheme` в gsettings. `gtk-theme-name` не меняется, перекрашиваются только цвета. Применение — перезапуск приложения; Flatpak-приложения подхватывают CSS после повторного `link.sh`.
-- **Qt5/Qt6:** палитры `config/qt5ct/colors/tokyo-night.conf` и `config/qt6ct/colors/tokyo-night.conf` (21 роль `QPalette`, формат `#AARRGGBB`), `style=Fusion`, иконки Papirus-Dark. `QT_QPA_PLATFORMTHEME=qt6ct` из `xinitrc` действует и на Qt5-приложения. Применение: `qt5ct`/`qt6ct` или перезапуск приложения.
+- **Qt5/Qt6:** палитры `config/qt5ct/colors/tokyo-night.conf` и `config/qt6ct/colors/tokyo-night.conf` (21 роль `QPalette`, формат `#AARRGGBB`), `style=Fusion`, иконки Papirus-Dark. `tokyo-night-day.conf` — светлый вариант с теми же ролями (окно `#e1e2e7`, текст `#3760bf`, акцент `#2b6fd4`); включается подменой `color_scheme_path` на этот файл и `icon_theme=Papirus`. `QT_QPA_PLATFORMTHEME=qt6ct` из `xinitrc` действует и на Qt5-приложения. Применение: `qt5ct`/`qt6ct` или перезапуск приложения.
 - **GIMP 3:** `config/GIMP/3.0/themes/TokyoNight/` подхватывается как пользовательская тема — включи её в GIMP: Preferences → Interface → Theme.
 - **CopyQ:** тема `tokyo-night.ini` + меню команд (закрепить, метки). История и геометрия окна в git не попадают.
 - **Cava:** `config/cava/config` — спектр в терминале. 60 fps для мгновенной реакции, `noise_reduction = 40`: подъём без задержки, спад резкий, но плавный. Один моно-спектр по всей ширине — низкие частоты слева, высокие справа; градиент по высоте столбика — синий → голубой → фиолетовый → коралловый. Запуск — `cava` (в Alacritty), конфиг читается при старте.

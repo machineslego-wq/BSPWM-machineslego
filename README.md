@@ -81,7 +81,7 @@ BSPWM-machineslego/
 │   ├── nvim/                    # Lua config, vim.pack, CHEATSHEET.md
 │   ├── picom/                   # picom.conf + picom-eco.conf
 │   ├── polybar/                 # config.ini, launch.sh
-│   ├── qt5ct/ qt6ct/            # tokyo-night.conf palettes
+│   ├── qt5ct/ qt6ct/            # tokyo-night.conf + tokyo-night-day.conf palettes
 │   ├── rofi/config.rasi         # launcher/windows/commands
 │   ├── sway/config              # Sway session: borders, hotkeys, autostart
 │   ├── swaylock/config          # lock screen: Tokyo Night, desktop wallpapers
@@ -204,7 +204,7 @@ A plugin-free fallback editor: `home/vimrc` → `~/.vimrc`. Syntax highlighting 
 
 **Themes.**
 - **GTK3/GTK4:** `config/gtk-3.0/gtk.css` is a full stylesheet over `Adwaita-dark`: `@define-color` plus direct selectors (Adwaita hardcodes its colors, so they have to be overridden by hand). `config/gtk-4.0/gtk.css` contains only libadwaita variables (`:root` with `--*-color`) and a compatibility `@define-color` layer. `gtk-light.css` in both folders is a 1:1 light variant over `Adwaita` (background `#e1e2e7`, text `#3760bf`, accent `#2b6fd4`) and is off by default: copy it over `gtk.css` and switch `gtk-theme` / `color-scheme` in gsettings to enable it. `gtk-theme-name` is unchanged, only colors are repainted. Apply by restarting the app; Flatpak apps pick up the CSS after re-running `link.sh`.
-- **Qt5/Qt6:** palettes in `config/qt5ct/colors/tokyo-night.conf` and `config/qt6ct/colors/tokyo-night.conf` (21 `QPalette` roles, `#AARRGGBB` format), `style=Fusion`, Papirus-Dark icons. `QT_QPA_PLATFORMTHEME=qt6ct` from `xinitrc` also applies to Qt5 apps. Apply with `qt5ct`/`qt6ct` or by restarting the app.
+- **Qt5/Qt6:** palettes in `config/qt5ct/colors/tokyo-night.conf` and `config/qt6ct/colors/tokyo-night.conf` (21 `QPalette` roles, `#AARRGGBB` format), `style=Fusion`, Papirus-Dark icons. `tokyo-night-day.conf` is the matching light palette (same roles: window `#e1e2e7`, text `#3760bf`, accent `#2b6fd4`); enable it by pointing `color_scheme_path` at that file and switching `icon_theme` to `Papirus`. `QT_QPA_PLATFORMTHEME=qt6ct` from `xinitrc` also applies to Qt5 apps. Apply with `qt5ct`/`qt6ct` or by restarting the app.
 - **GIMP 3:** `config/GIMP/3.0/themes/TokyoNight/` is picked up as a user theme — enable it in GIMP: Preferences → Interface → Theme.
 - **CopyQ:** `tokyo-night.ini` theme plus a command menu (pin, tags). History and window geometry never reach git.
 - **Cava:** `config/cava/config` — a terminal spectrum. 60 fps for instant response, `noise_reduction = 40`: bars rise without delay and fall sharply but smoothly. One mono spectrum across the width — low frequencies on the left, high on the right; the gradient follows bar height — blue → cyan → purple → coral. Run `cava` (in Alacritty); the config is read at startup.
