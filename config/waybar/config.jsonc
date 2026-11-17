@@ -183,13 +183,13 @@
         "states": { "warning": 59, "critical": 14 },
         "format": "{icon} {capacity}%",
         "tooltip-format": "{timeTo}",
-        // "format-icons": [
-        //     "󰂃", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾",
-        //     "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"
-        // ],
         "format-icons": [
-            "", "", "", "", ""
+            "󰂃", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾",
+            "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"
         ],
+        // "format-icons": [
+        //     "", "", "", "", ""
+        // ],
         "on-click" : "wofi-battery"
     },
 
