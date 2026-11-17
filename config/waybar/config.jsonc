@@ -181,7 +181,7 @@
     // notify-send не вызвать, поэтому состояние видно только в панели.
     // format-charging и format-plugged не заданы: waybar берёт format.
     "battery": {
-        "interval": 30,
+        "interval": 3,
         "states": { "warning": 59, "critical": 14 },
         "format": "{icon} {capacity}%",
         "tooltip-format": "{timeTo}",
