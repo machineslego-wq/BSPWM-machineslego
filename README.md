@@ -57,7 +57,7 @@ Every line of code and every running process must justify its existence. This ru
 - **Stock Vim as a fallback:** plain `vim` from `apt.txt` with no plugins — syntax highlighting for nearly everything, hybrid numbering (absolute number on the cursor line, relative around it), and persistent undo. Config: `~/.vimrc` (`home/vimrc`).
 - **Stability:** autostart in `bspwmrc` is guarded against duplicates via `pgrep`/`pkill`, so `Super + Alt + R` and a full session restart never spawn extra processes.
 - **Multi-machine:** hostname branches in `bspwmrc` and `wifi` (a dual-monitor desktop and laptops); easy to trim down to a single machine.
-- **Screen capture & OBS (Sway):** screenshots and screen recording go through `xdg-desktop-portal-wlr` + PipeWire. Sway exports its environment to systemd/dbus on startup, and `portals.conf` routes `ScreenCast`/`Screenshot` to `wlr`; no graphical-session target is needed. OBS must run as a native Wayland client.
+- **Screen capture & OBS (Sway):** hotkey screenshots use `grim`/`slurp` directly; screen recording and screen sharing go through `xdg-desktop-portal-wlr` + PipeWire. Sway exports its environment to systemd/dbus on startup, and `portals.conf` routes `ScreenCast`/`Screenshot` to `wlr`; no graphical-session target is needed. OBS must run as a native Wayland client.
 
 ## 📦 Structure
 

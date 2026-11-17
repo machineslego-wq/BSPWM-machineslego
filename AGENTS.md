@@ -130,13 +130,16 @@ Picom автоматически выбирает профиль по `powerprof
 
 ### Sway: порталы (OBS, демонстрация экрана, ScreenCast)
 
-Скриншоты и запись экрана идут через `xdg-desktop-portal` +
-`xdg-desktop-portal-wlr` и PipeWire. Отдельный `graphical-session.target`
-для них не нужен: портал запускается по D-Bus при первом запросе. Ломается
-цепочка из-за окружения — у `xdg-desktop-portal-wlr.service` стоит
-`ConditionEnvironment=WAYLAND_DISPLAY`, а `systemd --user` не знает
-переменных Sway, пока их туда не импортируют. Тогда юнит молча
-пропускается (`inactive (dead)`), и в OBS нет источника ScreenCast.
+Скриншоты по хоткеям (`sway-screenshot`) снимаются напрямую через `grim` и
+`slurp` и портал не используют. Через `xdg-desktop-portal` +
+`xdg-desktop-portal-wlr` и PipeWire идёт запись/демонстрация экрана (OBS) и
+запросы `Screenshot` от сторонних приложений. Отдельный
+`graphical-session.target` для этого не нужен: портал запускается по D-Bus
+при первом запросе. Ломается цепочка из-за окружения — у
+`xdg-desktop-portal-wlr.service` стоит `ConditionEnvironment=WAYLAND_DISPLAY`,
+а `systemd --user` не знает переменных Sway, пока их туда не импортируют.
+Тогда юнит молча пропускается (`inactive (dead)`), и в OBS нет источника
+ScreenCast.
 
 1. **Окружение в systemd/dbus.** `config/sway/config` при старте выполняет
    `exec sh -c 'command -v dbus-update-activation-environment >/dev/null && dbus-update-activation-environment --systemd --all'`: в systemd и
