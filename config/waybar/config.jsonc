@@ -82,7 +82,9 @@
         "capslock": true,
         "scrolllock": false,
         "format": {
+            // "numlock": "num",
             "numlock": "󰎠",
+            // "capslock": "caps",
             "capslock": "󰘲",
             "scrolllock": "↕"
         }
