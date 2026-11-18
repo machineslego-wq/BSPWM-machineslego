@@ -11,7 +11,7 @@
 # ==========================================================
 
 cat <<EOF | wofi --dmenu --allow-markup --cache-file /dev/null \
-    --prompt "󰌌 Горячие клавиши" --width 1200 --height 650
+    --prompt "󰌌 Горячие клавиши" --width 960 --height 650
 <b>󰒓 СИСТЕМА И ЗАПУСК</b>
 󰌌 Super + /                        Шпаргалка                      <span foreground="#1a1b26">[помощь, хелп, help, клавиши]</span>
 󰆍 Super + Return                   Терминал (foot)                <span foreground="#1a1b26">[консоль, cmd, shell, terminal]</span>
@@ -29,7 +29,7 @@ cat <<EOF | wofi --dmenu --allow-markup --cache-file /dev/null \
 
 <b>󰐥 ПИТАНИЕ И БЛОКИРОВКА</b>
 󰌾 Super + Alt + L                  Заблокировать экран            <span foreground="#1a1b26">[lock, блокировка, пароль, swaylock]</span>
-󰤆 Super + Shift + Q                Меню питания (wofi)            <span foreground="#1a1b26">[питание, выключить, перезагрузка, выход, powermenu]</span>
+󰤆 Super + Shift + Q                Меню питания (wofi)            <span foreground="#1a1b26">[выключить, перезагрузка, выход, powermenu]</span>
 󰜉 Super + Shift + E                Выход из Sway                  <span foreground="#1a1b26">[выход, quit, exit, logout, swaynag]</span>
 󰒲 Бездействие 10 мин               Автоблокировка (swayidle)      <span foreground="#1a1b26">[idle, таймаут, блокировка, swayidle]</span>
 
@@ -39,11 +39,11 @@ cat <<EOF | wofi --dmenu --allow-markup --cache-file /dev/null \
 󰔛 Super + F3                       Экран (задержка 3с)            <span foreground="#1a1b26">[скриншот, screenshot, таймер, delay]</span>
 󰍹 Super + F4                       Активный монитор               <span foreground="#1a1b26">[скриншот, screenshot, монитор, экран, monitor]</span>
 󰩭 Super + Shift + S                Выделенная область             <span foreground="#1a1b26">[скриншот, screenshot, регион, зона, slurp]</span>
-󰏫 Super + Shift + A                Редактор скриншота (swappy)    <span foreground="#1a1b26">[скриншот, screenshot, редактор, пометки, annotate, swappy]</span>
+󰏫 Super + Shift + A                Редактор скриншота (swappy)    <span foreground="#1a1b26">[скриншот, screenshot, пометки, annotate]</span>
 󰹑 Print                            Весь экран                     <span foreground="#1a1b26">[скриншот, screenshot, print, снять]</span>
 
 <b>󰑊 ЗАПИСЬ ЭКРАНА</b>
-󰑊 Super + Shift + R                Запись: весь экран вкл/выкл    <span foreground="#1a1b26">[запись, запись экрана, record, видео, wf-recorder]</span>
+󰑊 Super + Shift + R                Запись: весь экран вкл/выкл    <span foreground="#1a1b26">[record, видео, wf-recorder]</span>
 󰑊 Super + Shift + Alt + R          Запись: область вкл/выкл       <span foreground="#1a1b26">[запись, область, регион, record, видео]</span>
 
 <b>󰅇 БУФЕР ОБМЕНА</b>
@@ -57,7 +57,7 @@ cat <<EOF | wofi --dmenu --allow-markup --cache-file /dev/null \
 <b>󰖯 УПРАВЛЕНИЕ ОКНАМИ</b>
 󰁔 Super + Стрелки                  Смена фокуса                   <span foreground="#1a1b26">[окно, window, фокус, focus]</span>
 󰁔 Super + H / J / K / L            Смена фокуса (Vim)             <span foreground="#1a1b26">[окно, window, фокус, focus, vim]</span>
-󰓾 Super + C                        Фокус: плавающее ↔ тайл        <span foreground="#1a1b26">[окно, window, focus, floating, tiling, toggle, плавающее, тайлинг, слой]</span>
+󰓾 Super + C                        Фокус: плавающее ↔ тайл        <span foreground="#1a1b26">[окно, window, focus, floating, tiling, toggle]</span>
 󰩨 Super + Shift + Стрелки          Переместить окно               <span foreground="#1a1b26">[окно, window, move, свап, swap]</span>
 󰩨 Super + Shift + H / J / K / L    Переместить окно (Vim)         <span foreground="#1a1b26">[окно, window, move, vim]</span>
 󰍹 Super + 1..9, 0                  Переключить стол               <span foreground="#1a1b26">[стол, workspace, десктоп]</span>
