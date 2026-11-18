@@ -215,9 +215,9 @@
     // ЛКМ/ПКМ .
     "bluetooth": {
         "format": "{}",
-        "format-disabled": "󰂲 Disabled",
-        "format-off": "󰂲 Off",
-        "format-on": "󰂯 On",
+        "format-disabled": "󰂲 DISABLED",
+        "format-off": "󰂲 OFF",
+        "format-on": "󰂯 ON",
         "format-connected": "󰂱 {num_connections}",
         "format-no-controller": "",
         "on-click": "bluetoothctl power on",
