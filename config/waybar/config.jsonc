@@ -51,7 +51,7 @@
             "keyboard-state",
             "power-profiles-daemon",
             "wireplumber",
-            // "bluetooth",
+            "bluetooth",
             "network",
             "custom/powermenu"
         ]
@@ -212,18 +212,18 @@
 
     // --- Bluetooth ---
     // Стоковый модуль waybar слушает DBus BlueZ.
-    // ЛКМ/ПКМ открывает blueman-manager (вместо blueman-applet).
-    // "bluetooth": {
-    //     "format": "{}",
-    //     "format-disabled": "󰂲",
-    //     "format-off": "󰂲",
-    //     "format-on": "󰂯",
-    //     "format-connected": "󰂱 {num_connections}",
-    //     "format-no-controller": "",
-    //     "on-click": "wofi-bluetooth",
-    //     "on-click-right": "blueman-manager",
-    //     "tooltip-format": "{controller_alias}",
-    //     "tooltip-format-connected": "{controller_alias}\n{num_connections} подключено\n{device_enumerate}",
-    //     "tooltip-format-enumerate-connected": "{device_alias}"
-    // }
+    // ЛКМ/ПКМ .
+    "bluetooth": {
+        "format": "{}",
+        "format-disabled": "󰂲 Disabled",
+        "format-off": "󰂲 Off",
+        "format-on": "󰂯 On",
+        "format-connected": "󰂱 {num_connections}",
+        "format-no-controller": "",
+        "on-click": "bluetoothctl power on",
+        "on-click-right": "bluetoothctl power off",
+        "tooltip-format": "Bluetooth: {controller_alias}\nЛКМ — включить\nПКМ — выключить",
+        "tooltip-format-connected": "{controller_alias}\n{num_connections} подключено\n{device_enumerate}",
+        "tooltip-format-enumerate-connected": "{device_alias}"
+    }
 }
