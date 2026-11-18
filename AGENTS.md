@@ -25,7 +25,7 @@ Dotfiles + установщик окружения BSPWM/Sway для Debian 13 T
 - `scripts/unlink.sh` — безопасное удаление симлинков, созданных link.sh (только свои, не трогает чужие): `~/.config/*`, home-файлы, `~/.local/bin`, скины MC.
 - `scripts/software.sh` — установка дополнительного софта из `requirements/software.txt` (lazygit, ripgrep, mpv, gimp и т.д.). Запускается отдельно, install.sh только печатает подсказку.
 - `scripts/install-node.sh` — Node.js LTS из NodeSource, npm с prefix `~/.npm-global` (глобальные пакеты без sudo). Запускается отдельно, не из install.sh.
-- `scripts/install-sway.sh` — ставит Sway и окружение из `requirements/sway.txt` (sway, swaybg/idle/lock, waybar, wofi, foot, mako, grim/slurp, порталы, lxpolkit) и добавляет пользователя в группу `input` (нужна waybar-модулю `keyboard-state` для индикаторов Caps/Num Lock). По умолчанию только пакеты: конфиги не копирует и сессию не включает. С `--session` дополнительно пишет `/usr/share/wayland-sessions/sway-session.desktop` с `Exec=$HOME/.local/bin/sway-session`. BSPWM при этом не удаляется: он остаётся запасной X11-сессией.
+- `scripts/install-sway.sh` — ставит Sway и окружение из `requirements/sway.txt` (sway, swaybg/idle/lock, waybar, wofi, foot, mako, grim/slurp, swappy, wf-recorder, cliphist, порталы, lxpolkit) и добавляет пользователя в группу `input` (нужна waybar-модулю `keyboard-state` для индикаторов Caps/Num Lock). По умолчанию только пакеты: конфиги не копирует и сессию не включает. С `--session` дополнительно пишет `/usr/share/wayland-sessions/sway-session.desktop` с `Exec=$HOME/.local/bin/sway-session`. BSPWM при этом не удаляется: он остаётся запасной X11-сессией.
 
 Не запускай `install.sh` и `unlink.sh` без явной просьбы. `link.sh` — безопасен для запуска в любое время.
 
@@ -33,7 +33,7 @@ Dotfiles + установщик окружения BSPWM/Sway для Debian 13 T
 Скрипты и команды в git имеют режим 755; новые файлы в `local/bin/` и `*.sh` тоже должны быть executable (`chmod +x`). `link.sh` выставляет `+x` при линковке.
 
 ### Команды и хелперы
-- Пользовательские команды — в `local/bin/` → `~/.local/bin` (PATH): `battery`, `cheatsheet-bspwm`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `volume`, `wifi`, `rice-check`, `rice-help`; набор Sway — обвязка `sway-cheatsheet`, `sway-display`, `sway-screenshot`, `sway-session`, меню на wofi — `wofi-battery`, `wofi-powermenu`, `wofi-wifi`. Без расширения `.sh`, с шебангом.
+- Пользовательские команды — в `local/bin/` → `~/.local/bin` (PATH): `battery`, `cheatsheet-bspwm`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `volume`, `wifi`, `rice-check`, `rice-help`; набор Sway — обвязка `sway-cheatsheet`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, меню на wofi — `wofi-battery`, `wofi-clipboard`, `wofi-powermenu`, `wofi-wifi`. Без расширения `.sh`, с шебангом.
 - Машинные команды — там же: `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas`, `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. По умолчанию — быстрый запуск; первичная установка и обслуживание — флагами. Команда с обязательным аргументом без него печатает справку и выходит с кодом 1.
 - Хоткей-«клей» BSPWM остаётся в `config/sxhkd/scripts/`: `flag.sh`, `to-preselect.sh`, `preselect-cancel-all.sh`. Они действуют на focused-окно и вне хоткея смысла не имеют.
 - `config/polybar/launch.sh` — часть конфига панели (запускается из `bspwmrc`), а не команда.
@@ -121,8 +121,8 @@ Picom автоматически выбирает профиль по `powerprof
 - `local/bin/sway-session` — обёртка запуска вместо `sway`: PATH (`~/.local/bin`, `~/.npm-global/bin`), `XDG_*` сессии (`sway`/`wayland`), курсор `Bibata-Modern-Ice` 24, Qt (`qt6ct`, `QT_QPA_PLATFORM=wayland;xcb`), GTK (`GDK_BACKEND=wayland,x11`), `SAL_USE_VCLPLUGIN=gtk3`, `MOZ_ENABLE_WAYLAND`, Electron и Java; затем `exec sway "$@"`. В systemd/dbus эти переменные импортирует уже сам Sway (`config/sway/config`, строка `dbus-update-activation-environment --systemd --all`). `GTK_THEME` не задаёт — тему дают `settings.ini` и `gtk.css`.
 - Запуск: из TTY — `sway-session`; из GDM — `./scripts/install-sway.sh --session` (GDM читает только `/usr/share/wayland-sessions`, пользовательские каталоги сессий не сканирует, поэтому файл создаётся с sudo и абсолютным `Exec`).
 - `local/bin/sway-display` — мониторы и обои. В конфиге Sway нет условий по hostname, поэтому ветвление `lamer-deb` (DP-2 1920x1080@144 + HDMI-A-4 слева с `transform 90`, portrait-обои) и фолбэк ноутбука (`output *` + landscape) живут в скрипте. Имена выходов в Sway отличаются от X11: там же, где `xrandr` видит `DisplayPort-1`/`HDMI-A-3`, wlroots показывает `DP-2`/`HDMI-A-4`. Вызывается как `exec_always`, поэтому раскладка переприменяется при reload; обои ставит сам sway через `output ... bg` (спавнит и убивает `swaybg`). Скрипт ждёт готовности IPC, потому что `exec` при старте может опередить `swaymsg`.
-- Автозапуск: `exec_always pgrep -x waybar >/dev/null || waybar`, то же для `mako`, `lxpolkit`; `swayidle` (10 минут и перед сном → `swaylock -f`) — reload не плодит дубли.
-- Хоткеи повторяют bspwm там, где это осмысленно: `$mod+Return` — `foot`, `$mod+d` — `wofi --show drun`, `$mod+/` — `sway-cheatsheet`, `$mod+F1..F4` и `$mod+Shift+S` — `sway-screenshot`, `$mod+Escape` — reload, `$mod+w` — kill, `$mod+Alt+L` — `swaylock -f`, `$mod+Alt+N` — `wofi-wifi`, `$mod+Alt+B` — `wofi-battery`, `$mod+Shift+Q` — `wofi-powermenu`, `$mod+Shift+E` — выход через `swaynag`. Профиль питания переключается кликом по модулю `power-profiles-daemon` в waybar (свой `wofi-power-profile` убран как дубль). `Alt+Tab` и `sway-switch` убраны: список окон дублировал то, что Sway делает сам. Preselect/monocle/picom-аналогов нет.
+- Автозапуск: `exec_always pgrep -x waybar >/dev/null || waybar`, то же для `mako`, `lxpolkit`; `swayidle` (10 минут и перед сном → `swaylock -f`) — reload не плодит дубли. История буфера: `wl-paste --watch cliphist -max-items 100 store` под тем же `pgrep`-стражем.
+- Хоткеи повторяют bspwm там, где это осмысленно: `$mod+Return` — `foot`, `$mod+d` — `wofi --show drun`, `$mod+/` — `sway-cheatsheet`, `$mod+F1..F4` и `$mod+Shift+S` — `sway-screenshot`, `$mod+Shift+A` — редактор скриншота (`sway-screenshot annotate` → swappy), `$mod+Shift+R` — запись всего экрана, `$mod+Shift+Alt+R` — запись области (`sway-record`, повторное нажатие останавливает), `$mod+Shift+V` — история буфера (`wofi-clipboard`), `$mod+Escape` — reload, `$mod+w` — kill, `$mod+Alt+L` — `swaylock -f`, `$mod+Alt+N` — `wofi-wifi`, `$mod+Alt+B` — `wofi-battery`, `$mod+Shift+Q` — `wofi-powermenu`, `$mod+Shift+E` — выход через `swaynag`. Профиль питания переключается кликом по модулю `power-profiles-daemon` в waybar (свой `wofi-power-profile` убран как дубль). `Alt+Tab` и `sway-switch` убраны: список окон дублировал то, что Sway делает сам. Preselect/monocle/picom-аналогов нет.
 - Раскладка `us,ru` с `grp:caps_toggle` и автоповтором 250/30 задана через `input "type:keyboard"`; сам Caps Lock включается через Shift+Caps Lock (штатное поведение опции), поэтому индикатор Caps в waybar рабочий. Тачпад — `tap`, `dwt` и `natural_scroll enabled` (как `NaturalScrolling` в X11: пальцы вверх — страница вниз).
 - Все `bindsym` объявлены с `--to-code`: Sway переводит keysym в keycode по первой раскладке (`us`), поэтому хоткеи и вызовы wofi (`Super+d`, `Super+Alt+n` и остальные) срабатывают и в русской раскладке. Без флага keysym привязан к текущей раскладке и в RU-режиме не совпадает.
 - Применение: `Super+Escape` или `Super+Shift+C` (`swaymsg reload`). `~/.config/sway` — симлинк, правки сразу в репозитории.
@@ -188,6 +188,57 @@ gdbus call --session --dest org.freedesktop.portal.Desktop \
 интерфейса (например, `(<uint32 5>,)`). Если `wlr` не стартует, смотреть
 `systemctl --user status xdg-desktop-portal-wlr` — чаще всего это
 `unmet condition check ConditionEnvironment=WAYLAND_DISPLAY`.
+
+### Sway: запись экрана и буфер обмена
+
+- `local/bin/sway-record {full|region}` — запись через `wf-recorder` (пакет
+  из `requirements/sway.txt`), не через портал: wlr-screencopy работает
+  напрямую и OBS не мешает. Повторный вызов **любого** режима останавливает
+  текущую запись: mp4 корректно закрывается только по `SIGINT`, поэтому в
+  скрипте `pkill -INT -x wf-recorder`, а не `kill`. Один хоткей на старт и
+  стоп, как `screenshot` в X11.
+- Файлы — `~/Videos/Screencasts/YYYY-MM-DD_HH-MM-SS.mp4`. Хоткеи:
+  `Super+Shift+R` — весь экран, `Super+Shift+Alt+R` — область (геометрия из
+  `slurp`, Esc — отмена). Область округляется вниз до чётных сторон:
+  `libx264` и VAAPI не принимают нечётные размеры, а slurp может дать 101x101.
+- Звук — всегда, но это **монитор текущего выхода** (системный звук), а не
+  `-a`: `-a` берёт источник по умолчанию, а на этой машине это веб-камера
+  `icspring camera`. Скрипт читает `node.name` через
+  `wpctl inspect @DEFAULT_AUDIO_SINK@` и передаёт
+  `--audio="<sink>.monitor"`; если sink не определился — фолбэк на `-a`.
+- Кодек — `h264_vaapi` только для полного экрана и только на
+  `amdgpu`/`i915`/`xe` (драйвер `renderD128`): `-d /dev/dri/renderD128`
+  плюс `-F scale_vaapi=format=nv12`. На NVIDIA и прочих — `libx264`.
+  Область всегда `libx264`: VAAPI у AMD не умеет меньше 128x128
+  (`Hardware does not support encoding at size 112x112`) и падает на
+  маленьком выделении, а `libx264` пишет любой размер. Размер кадра
+  дополнительно ужимается до чётного.
+- `local/bin/sway-screenshot annotate` — редактор: берёт из буфера картинку
+  (`wl-paste --list-types` → первый `image/*`) и открывает `swappy -f -`.
+  Работает после любого режима скриншота, потому что все они кладут PNG в
+  буфер. Если в буфере текст — уведомление «В буфере нет изображения» и
+  выход 1. Хоткей `Super+Shift+A`.
+- `config/swappy/config` → `~/.config/swappy`: `save_dir=$HOME/Screenshots`
+  (тот же каталог, что у `sway-screenshot`), формат имени с датой, панель
+  инструментов, `text_font=JetBrainsMono Nerd Font 11`, `early_exit=false`
+  (можно и сохранить, и скопировать). Инструменты swappy: `b` кисть,
+  `t` текст, `r` прямоугольник, `o` эллипс, `a` стрелка, `d` блюр;
+  Ctrl+S — сохранить, Ctrl+C — в буфер, Esc — выход.
+- `local/bin/wofi-clipboard` — история буфера: `cliphist list` → `wofi
+  --dmenu --cache-file /dev/null` → `cliphist decode <id> | wl-copy`.
+  Хоткей `Super+Shift+V`. Под Wayland CopyQ не используется (нестабилен,
+  стартует только из `bspwmrc`); в BSPWM остаётся CopyQ.
+- `cliphist` хранит последние 100 записей (`-max-items 100` — глобальный
+  флаг **до** подкоманды `store`, иначе не разберёт). Превью в `list`
+  обрезается до 100 символов, но `decode` отдаёт запись целиком: блок кода
+  на 1500+ строк вставляется полностью. `cliphist wipe` очищает историю.
+  Пароли и токены туда тоже попадают — `wl-clipboard` не помечает их
+  sensitive; это принято осознанно.
+- Индикатора REC в waybar нет: стокового модуля записи не существует, а
+  `custom/recording` с `exec-if=pgrep` — лишний костыль. Статус виден по
+  уведомлению mako при старте/стопе.
+- Применение: `swaymsg reload` (хоткеи, watcher). `swappy` читает конфиг
+  при старте; у `wf-recorder` своего конфига нет — всё передаёт скрипт.
 
 ### Foot (Sway)
 - `config/foot/foot.ini` → `~/.config/foot`. Терминал Sway, аналог `config/alacritty`: `JetBrainsMono Nerd Font:size=10`, `pad=0x0` (внутренних отступов нет), `initial-window-size-chars=100x28`, `shell=/usr/bin/fish`, буфер 10000 строк.
@@ -358,7 +409,7 @@ Whitelist: отслеживаются только `config/ home/ local/ require
 ## Дальние планы
 
 - Sway/Wayland — направление переезда: окружение переносится постепенно, а BSPWM/X11 остаётся рабочей сессией на случай поломок Wayland. Прежнее решение «на Wayland не переезжаем» отменено.
-- `1.7.0` выпущен; следующая — `1.8.0`.
+- `1.8.0` выпущен; следующая — `1.9.0`.
 
 ## Релизы
 
