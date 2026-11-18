@@ -11,7 +11,7 @@
 # ==========================================================
 
 cat <<EOF | wofi --dmenu --allow-markup --cache-file /dev/null \
-    --prompt "󰌌 Горячие клавиши" --width 640 --height 650
+    --prompt "󰌌 Горячие клавиши" --width 1200 --height 650
 <b>󰒓 СИСТЕМА И ЗАПУСК</b>
 󰌌 Super + /                        Шпаргалка                      <span foreground="#1a1b26">[помощь, хелп, help, клавиши]</span>
 󰆍 Super + Return                   Терминал (foot)                <span foreground="#1a1b26">[консоль, cmd, shell, terminal]</span>
