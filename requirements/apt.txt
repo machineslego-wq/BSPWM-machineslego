@@ -31,11 +31,13 @@ gvfs
 gvfs-backends
 gvfs-fuse
 alacritty
+firefox-esr
 i3lock-fancy
 libnotify-bin
 fish
 eza
 curl
+git
 fontconfig
 wget
 unzip
@@ -45,6 +47,8 @@ jq
 imagemagick
 xdg-utils
 xdg-user-dirs
+xdg-desktop-portal
+xdg-desktop-portal-gtk
 xdotool
 fastfetch
 pipewire

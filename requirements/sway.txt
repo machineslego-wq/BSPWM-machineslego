@@ -12,6 +12,10 @@ waybar
 wofi
 foot
 
+# Qt-приложения под Wayland (sway-session выставляет QT_QPA_PLATFORM="wayland;xcb")
+qt6-wayland
+qtwayland5
+
 # Уведомления
 mako-notifier
 

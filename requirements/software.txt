@@ -13,6 +13,7 @@ tty-clock
 tmux
 mousepad
 udiskie
+nfs-common
 lxrandr
 redshift
 gnome-disk-utility
@@ -33,3 +34,7 @@ libreoffice-gtk3
 cava
 easyeffects
 calf-plugins
+
+# Вручную (нет в репозиториях Debian):
+#   code        — VS Code, deb с code.visualstudio.com (хоткей Super + V)
+#   tg-ws-proxy — локальный deb для Telegram (хоткей Super + Alt + T)
