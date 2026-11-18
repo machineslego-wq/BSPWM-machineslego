@@ -9,8 +9,8 @@
 # Повторный вызов любого режима останавливает текущую запись:
 # wf-recorder корректно закрывает файл только по SIGINT.
 #
-# Звук — монитор текущего выхода (системный звук), не микрофон.
-# Кодек — VAAPI на amdgpu/i915/xe, иначе libx264 (NVIDIA и прочее).
+# Звук — только монитор активного выхода (системный звук), не микрофон.
+# Кодек — VAAPI на amdgpu, у остальных (Intel, NVIDIA) libx264.
 # Файлы: ~/Videos/Screencasts/YYYY-MM-DD_HH-MM-SS.mp4
 # ==========================================================
 
@@ -36,26 +36,27 @@ DIR="$HOME/Videos/Screencasts"
 mkdir -p "$DIR"
 FILE="$DIR/$(date +%Y-%m-%d_%H-%M-%S).mp4"
 
-# --- Звук: монитор текущего выхода, а не микрофон по умолчанию ---
+# --- Звук: только монитор активного выхода (системный звук) ---
+# Микрофон не используется: если активный выход не определился,
+# запись не стартует, чтобы вместо звука системы не писать тишину/микрофон.
 SINK=$(wpctl inspect @DEFAULT_AUDIO_SINK@ 2>/dev/null \
     | sed -n 's/.*node.name = "\(.*\)"/\1/p' | head -n 1)
-if [ -n "$SINK" ]; then
-    AUDIO=(--audio="$SINK.monitor")
-else
-    AUDIO=(-a)
+if [ -z "$SINK" ]; then
+    notify-send -a "Record" -u critical "Запись" "Нет активного выхода звука"
+    exit 1
 fi
+AUDIO=(--audio="$SINK.monitor")
 
-# --- Кодек: аппаратный на AMD/Intel для всего экрана, иначе libx264 ---
-# VAAPI у AMD требует минимум 128x128, поэтому небольшая область пишется
-# программно: так запись не падает на маленьком или нечётном выделении.
+# --- Кодек: VAAPI только на amdgpu, остальные (Intel, NVIDIA) — libx264 ---
+# На Intel iGPU аппаратный путь h264_vaapi падает, поэтому он оставлен
+# только для проверенной связки amdgpu. Область и так всегда libx264:
+# VAAPI у AMD требует минимум 128x128, а slurp может дать меньше.
 CODEC=(-c libx264)
 if [ "$MODE" = full ]; then
     DRIVER=$(basename "$(readlink -f /sys/class/drm/renderD128/device/driver 2>/dev/null)" 2>/dev/null)
-    case "$DRIVER" in
-        amdgpu|i915|xe)
-            CODEC=(-c h264_vaapi -d /dev/dri/renderD128 -F scale_vaapi=format=nv12)
-            ;;
-    esac
+    if [ "$DRIVER" = amdgpu ]; then
+        CODEC=(-c h264_vaapi -d /dev/dri/renderD128 -F scale_vaapi=format=nv12)
+    fi
 fi
 
 ARGS=(-f "$FILE" "${AUDIO[@]}" "${CODEC[@]}")

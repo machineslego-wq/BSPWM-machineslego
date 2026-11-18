@@ -24,8 +24,8 @@ Sway becomes the everyday session, with BSPWM kept intact as the X11 fallback. T
 ## 🎥 Recording, annotations & clipboard
 
 - `Super + Shift + R` records the whole screen; `Super + Shift + Alt + R` records a selected region. Pressing either hotkey again stops the recording and finalizes the MP4 in `~/Videos/Screencasts`.
-- Recording always captures audio, but from the output monitor rather than the default source: on this machine the default source is the webcam, so `-a` alone would record the microphone. The script reads the default sink from `wpctl` and records its monitor.
-- VAAPI (`h264_vaapi`) is used for full-screen recording on AMD/Intel GPUs; NVIDIA and everything else fall back to `libx264`. Region recording always uses `libx264`, because AMD's encoder rejects frames smaller than 128×128 and the region is rounded down to even dimensions.
+- Recording captures audio only from the monitor of the active output; the microphone is never used. On this machine the default source is the webcam, so `-a` alone would record the microphone: the script resolves the default sink from `wpctl` and records its monitor, and refuses to start if there is no sink.
+- VAAPI (`h264_vaapi`) is used for full-screen recording on AMD GPUs only; Intel, NVIDIA and everything else use `libx264`. Region recording also uses `libx264`, because AMD's encoder rejects frames smaller than 128×128 and the region is rounded down to even dimensions.
 - `Super + Shift + A` opens the screenshot that is already in the clipboard in swappy. It works after any capture mode — `F1…F4`, `Shift + S` or `Print` — and saves annotations to `~/Screenshots`. Tools: `a` arrow, `t` text, `r` rectangle, `o` ellipse, `b` brush, `d` blur; `Ctrl+S` saves, `Ctrl+C` copies, `Esc` quits.
 - `Super + Shift + V` opens clipboard history: cliphist keeps the last 100 entries, images included, and the wofi menu decodes the selected one back into the clipboard. Previews are cut to 100 characters, but full content is restored — a 1500-line code block pastes intact. CopyQ stays in BSPWM; under Wayland it was unreliable.
 - History is not filtered: passwords and tokens copied from a password manager will land there. `cliphist wipe` clears everything.
@@ -107,8 +107,8 @@ Sway становится повседневной сессией, а BSPWM ос
 ## 🎥 Запись, пометки и буфер обмена
 
 - `Super + Shift + R` пишет весь экран, `Super + Shift + Alt + R` — выделенную область. Повторное нажатие останавливает запись и корректно закрывает MP4 в `~/Videos/Screencasts`.
-- Звук пишется всегда, но с монитора выхода, а не с источника по умолчанию: на этой машине источник по умолчанию — веб-камера, поэтому одного `-a` мало. Скрипт берёт sink из `wpctl` и записывает его monitor.
-- VAAPI (`h264_vaapi`) используется для записи всего экрана на AMD/Intel; NVIDIA и остальные получают `libx264`. Область всегда пишется через `libx264`: аппаратный энкодер AMD не принимает кадры меньше 128×128, а размеры области округляются вниз до чётных.
+- Звук пишется всегда, но только с монитора активного выхода; микрофон не используется. На этой машине источник по умолчанию — веб-камера, поэтому `-a` записал бы микрофон: скрипт берёт sink из `wpctl` и пишет его monitor, а без sink запись не стартует.
+- VAAPI (`h264_vaapi`) используется для записи всего экрана только на AMD; Intel, NVIDIA и остальные получают `libx264`. Область тоже всегда пишется через `libx264`: аппаратный энкодер AMD не принимает кадры меньше 128×128, а размеры области округляются вниз до чётных.
 - `Super + Shift + A` открывает в swappy скриншот, который уже лежит в буфере. Работает после любого режима — `F1…F4`, `Shift + S` или `Print` — и сохраняет пометки в `~/Screenshots`. Инструменты: `a` стрелка, `t` текст, `r` прямоугольник, `o` эллипс, `b` кисть, `d` блюр; `Ctrl+S` сохраняет, `Ctrl+C` копирует, `Esc` выходит.
 - `Super + Shift + V` открывает историю буфера: cliphist хранит последние 100 записей, включая картинки, а меню wofi возвращает выбранную запись в буфер. Превью обрезается до 100 символов, но содержимое восстанавливается целиком — блок кода на 1500 строк вставляется полностью. В BSPWM остаётся CopyQ; под Wayland он вёл себя нестабильно.
 - История не фильтруется: пароли и токены из менеджера паролей туда тоже попадут. `cliphist wipe` очищает всё.

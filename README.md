@@ -57,7 +57,7 @@ Every line of code and every running process must justify its existence. This ru
 - **Stock Vim as a fallback:** plain `vim` from `apt.txt` with no plugins — syntax highlighting for nearly everything, hybrid numbering (absolute number on the cursor line, relative around it), and persistent undo. Config: `~/.vimrc` (`home/vimrc`).
 - **Stability:** autostart in `bspwmrc` is guarded against duplicates via `pgrep`/`pkill`, so `Super + Alt + R` and a full session restart never spawn extra processes.
 - **Multi-machine:** hostname branches in `bspwmrc` and `wifi` (a dual-monitor desktop and laptops); easy to trim down to a single machine.
-- **Screen capture & OBS (Sway):** hotkey screenshots use `grim`/`slurp` directly; quick recording uses `wf-recorder` (`Super + Shift + R` — full screen, `Super + Shift + Alt + R` — region, pressing again stops), audio always captures the current output monitor, and the codec is VAAPI on AMD/Intel with `libx264` elsewhere. Heavy recording and screen sharing go through `xdg-desktop-portal-wlr` + PipeWire; Sway exports its environment to systemd/dbus on startup, and `portals.conf` routes `ScreenCast`/`Screenshot` to `wlr`. OBS must run as a native Wayland client. Screenshot annotations are handled by `swappy` (`Super + Shift + A`), clipboard history by `cliphist` (`Super + Shift + V`, last 100 entries).
+- **Screen capture & OBS (Sway):** hotkey screenshots use `grim`/`slurp` directly; quick recording uses `wf-recorder` (`Super + Shift + R` — full screen, `Super + Shift + Alt + R` — region, pressing again stops), audio always captures only the active output monitor (the microphone is never used), and the codec is VAAPI on AMD with `libx264` on Intel and everything else. Heavy recording and screen sharing go through `xdg-desktop-portal-wlr` + PipeWire; Sway exports its environment to systemd/dbus on startup, and `portals.conf` routes `ScreenCast`/`Screenshot` to `wlr`. OBS must run as a native Wayland client. Screenshot annotations are handled by `swappy` (`Super + Shift + A`), clipboard history by `cliphist` (`Super + Shift + V`, last 100 entries).
 
 ## 📦 Structure
 
@@ -286,7 +286,7 @@ Screenshots are saved to `~/Screenshots` and copied to the CopyQ clipboard (fall
 | `Super + Shift + Alt + R` | Record a region on/off |
 | `Super + Shift + V` | Clipboard history (cliphist) |
 
-Screenshots go to `~/Screenshots`, recordings to `~/Videos/Screencasts`. In swappy, `Ctrl+S` saves, `Ctrl+C` copies to the clipboard, `Esc` quits; tools are `a` arrow, `t` text, `r` rectangle, `o` ellipse, `b` brush, `d` blur. Recording always captures system audio (the output monitor), not the microphone. Clipboard history keeps the last 100 entries, images included.
+Screenshots go to `~/Screenshots`, recordings to `~/Videos/Screencasts`. In swappy, `Ctrl+S` saves, `Ctrl+C` copies to the clipboard, `Esc` quits; tools are `a` arrow, `t` text, `r` rectangle, `o` ellipse, `b` brush, `d` blur. Recording always captures only system audio (the active output monitor); the microphone is never used. Clipboard history keeps the last 100 entries, images included.
 
 ### Windows & workspaces
 
