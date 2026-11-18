@@ -20,6 +20,7 @@
 - [x] **Sway: история буфера** — `cliphist` + `wofi-clipboard` (`Super + Shift + V`): последние 100 записей, картинки, блоки кода любой длины. CopyQ остаётся в BSPWM.
 - [x] **Скриншоты в README — WebP.** Пять актуальных снимков вместо девяти PNG, ссылки обновлены; старые blob'ы остаются в истории git, поэтому размер существующего клона не уменьшился.
 - [x] **Релиз `v1.8.0`** — Sway как основная сессия, Waybar/Wofi/Mako/Foot/Swaylock, порталы, светлые темы Tokyo Night Day, btop/cava, запись/пометки/буфер.
+- [x] **Релиз `v1.8.1`** — патч записи: на Intel полный экран пишется через `libx264`, звук — только с монитора активного выхода, фолбэк на микрофон убран.
 
 - [x] **Qt: светлая палитра** — `config/qt5ct/colors/tokyo-night-day.conf` и `config/qt6ct/colors/tokyo-night-day.conf`: те же 21 роль `QPalette`, палитра Tokyo Night Day. Роли объёма Fusion (`Light`/`Midlight`/`Mid`/`Dark`) перевёрнуты по яркости под светлый фон. Включение ручное — `color_scheme_path` в `qt5ct.conf`/`qt6ct.conf` и `icon_theme=Papirus`; проверено живым рендером Qt5-приложения.
 - [x] **GTK: светлые варианты** — `config/gtk-3.0/gtk-light.css` и `config/gtk-4.0/gtk-light.css` один-в-один повторяют тёмные (те же селекторы и переменные), отличается только палитра Tokyo Night Day (фон `#e1e2e7`, текст `#3760bf`, акцент `#2b6fd4`) и базис — `Adwaita` вместо `Adwaita-dark`. Переключение ручное: файл копируется на место `gtk.css`, базовая тема и `color-scheme` меняются через gsettings; скрипта и автопереключения нет.
