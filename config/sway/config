@@ -144,9 +144,6 @@ bindsym --to-code $mod+slash exec sway-cheatsheet
 # Wi-Fi (nmcli + wofi; пароль спрашивается в foot).
 bindsym --to-code $mod+Alt+n exec wofi-wifi
 
-# Профиль питания (power-profiles-daemon + wofi).
-bindsym --to-code $mod+Alt+p exec wofi-power-profile --menu
-
 # Батарея: заряд, статус, здоровье (wofi).
 bindsym --to-code $mod+Alt+b exec wofi-battery
 
@@ -248,10 +245,6 @@ bindsym --to-code $mod+Shift+0 move container to workspace number 10
 bindsym --to-code $mod+bracketleft workspace prev_on_output
 bindsym --to-code $mod+bracketright workspace next_on_output
 bindsym --to-code $mod+Tab workspace back_and_forth
-
-# Поиск по открытым окнам (Alt + Tab). wofi --show window в Sway не
-# работает — нет wlr-foreign-toplevel-management, поэтому свой список.
-bindsym --to-code Alt+Tab exec sway-switch
 
 ### Клавиши: раскладки, полноэкранный, скретчпад
 #

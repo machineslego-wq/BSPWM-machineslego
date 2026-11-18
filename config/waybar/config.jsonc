@@ -8,8 +8,9 @@
 // style.css подхватывается на лету (reload_style_on_change).
 //
 // Модули rofi (powermenu, power-profile, wifi) здесь не используются:
-// под Wayland rofi не работает. Их аналоги на wofi — wofi-wifi,
-// wofi-power-profile, wofi-powermenu (кнопка питания справа).
+// под Wayland rofi не работает. Профиль питания показывает родной
+// модуль power-profiles-daemon, меню на wofi — wofi-wifi и
+// wofi-powermenu (кнопка питания справа).
 // ==========================================================
 
 {

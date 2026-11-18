@@ -4,8 +4,6 @@
 # Живёт в репозитории: config/wofi -> ~/.config/wofi
 # Запуск из Sway: wofi --show drun   (хоткей Super+D)
 # Команды: wofi --show run
-# Список открытых окон — sway-switch: `wofi --show window` под
-# Sway не работает, ему нужен wlr-foreign-toplevel-management.
 # Стиль — style.css рядом, читается при каждом запуске.
 # ==========================================================
 

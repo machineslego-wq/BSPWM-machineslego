@@ -21,7 +21,6 @@ cat <<EOF | wofi --dmenu --allow-markup --cache-file /dev/null \
 󰉋 Super + E                        Файлы (Thunar)                 <span foreground="#1a1b26">[файлы, проводник, папки, explorer]</span>
 󰕾 Super + A                        Микшер звука                   <span foreground="#1a1b26">[звук, громкость, audio, наушники]</span>
 󰖩 Super + Alt + N                  Wi-Fi (wofi)                   <span foreground="#1a1b26">[сеть, wifi, интернет, хотспот, nmcli]</span>
-󰓅 Super + Alt + P                  Профиль питания (wofi)         <span foreground="#1a1b26">[питание, профиль, батарея, power, performance, eco]</span>
 󰁹 Super + Alt + B                  Батарея: заряд и здоровье      <span foreground="#1a1b26">[батарея, заряд, battery, здоровье, энергия]</span>
  Super + Alt + T                  Telegram (flatpak) + Proxy     <span foreground="#1a1b26">[телеграм, чат, messenger, прокси, proxy]</span>
 󰔏 Super + X                        Датчики (foot)                 <span foreground="#1a1b26">[датчики, сенсоры, нагрев, sensors, watch]</span>
@@ -58,7 +57,6 @@ cat <<EOF | wofi --dmenu --allow-markup --cache-file /dev/null \
 󰁔 Super + [                        Предыдущий стол                <span foreground="#1a1b26">[стол, workspace, prev]</span>
 󰁔 Super + ]                        Следующий стол                 <span foreground="#1a1b26">[стол, workspace, next]</span>
 󰓾 Super + Tab                      Предыдущий стол                <span foreground="#1a1b26">[стол, workspace, back, and, forth]</span>
-󰖯 Alt + Tab                        Поиск по открытым окнам        <span foreground="#1a1b26">[окно, window, поиск, switch, alt-tab, wofi]</span>
 󰅖 Super + W                        Закрыть окно                   <span foreground="#1a1b26">[окно, window, close, quit, выход]</span>
 󰊓 Super + F                        На весь экран                  <span foreground="#1a1b26">[окно, window, fullscreen, развернуть]</span>
 
