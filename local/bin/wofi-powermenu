@@ -16,7 +16,7 @@ set -u
 # Блокировка, Выключить и Выйти сверху, Перезагрузить внизу
 CHOICE=$(printf '󰌾 Заблокировать\n󰐥 Выключить\n󰍃 Выйти\n󰜉 Перезагрузить' | \
     wofi --dmenu --cache-file /dev/null --insensitive \
-        --prompt "󰤆 Питание" --width 380 --lines 6)
+        --prompt "󰤆 Питание" --width 340 --lines 6)
 
 # Esc — меню закрылось пустым, выходим
 [ -z "$CHOICE" ] && exit 0

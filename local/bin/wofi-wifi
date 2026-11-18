@@ -54,7 +54,7 @@ else
 fi
 
 CHOICE=$(printf "$TOGGLE_TEXT\n󰤨 Подключиться к сети\n󰈈 Скрытая сеть\n󰀂 Включить хотспот\n󰅖 Выключить хотспот" | \
-    menu 480 7 "󰖩 Wi-Fi")
+    menu 380 7 "󰖩 Wi-Fi")
 
 case "$CHOICE" in
     *"Включить Wi-Fi"*)
@@ -94,7 +94,7 @@ case "$CHOICE" in
             exit 1
         fi
 
-        NET_CHOICE=$(printf '%s\n' "$NETWORKS" | menu 580 14 "Выбор сети")
+        NET_CHOICE=$(printf '%s\n' "$NETWORKS" | menu 440 14 "Выбор сети")
 
         if [ -n "$NET_CHOICE" ]; then
             # Отрезаем две иконки и два пробела, оставляя только SSID
@@ -117,7 +117,7 @@ case "$CHOICE" in
         fi
 
         # Пустой stdin → wofi показывает только поле ввода
-        HIDDEN_SSID=$(printf '' | menu 580 3 "SSID скрытой сети")
+        HIDDEN_SSID=$(printf '' | menu 440 3 "SSID скрытой сети")
 
         if [ -n "$HIDDEN_SSID" ]; then
             notify "Подождите..." "Подключение к скрытой сети..."

@@ -3,7 +3,7 @@
 # wofi-battery — Подробности о батарее в wofi
 # ==========================================================
 # Аналог battery для BSPWM: те же данные из /sys, меню рисует
-# wofi (rofi — X11). Ширина 580 px — как 29em в Rofi.
+# wofi (rofi — X11). Ширина 400 px — по самой длинной строке батареи.
 #
 # Вызов: Super + Alt + B в Sway.
 # Показывает меню с деталями (заряд, статус, здоровье).
@@ -19,7 +19,7 @@ done
 if [ -z "$BAT" ]; then
     echo "Питание: стационарный ПК (батареи нет)" | \
         wofi --dmenu --cache-file /dev/null --insensitive \
-            --prompt "󰚥 Питание" --width 580 --lines 3
+            --prompt "󰚥 Питание" --width 400 --lines 3
     exit 0
 fi
 
@@ -109,4 +109,4 @@ fi
 n=$(printf '%s\n' "$lines" | grep -c .)
 echo "$lines" | \
     wofi --dmenu --cache-file /dev/null --insensitive \
-        --prompt "󰁹 Батарея" --width 580 --lines $((n + 2))
+        --prompt "󰁹 Батарея" --width 400 --lines $((n + 2))

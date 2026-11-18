@@ -18,7 +18,7 @@ if [ -z "$LIST" ]; then
 fi
 
 CHOICE=$(printf '%s\n' "$LIST" | wofi --dmenu --cache-file /dev/null \
-    --prompt "󰅇 Буфер" --width 600 --lines 15)
+    --prompt "󰅇 Буфер" --width 860 --lines 15)
 
 [ -z "$CHOICE" ] && exit 0
 
