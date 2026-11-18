@@ -34,7 +34,7 @@
     // Слева: рабочие столы, режим, scratchpad
     "group/left": {
         "orientation": "horizontal",
-        "modules": ["sway/workspaces", "sway/mode", "sway/scratchpad"]
+        "modules": ["sway/workspaces", "sway/mode", "sway/scratchpad", "sway/window"]
     },
 
     // Центр: яркость, часы, батарея
@@ -226,5 +226,19 @@
         "tooltip-format": "Bluetooth: {controller_alias}\nЛКМ — включить\nПКМ — выключить",
         "tooltip-format-connected": "{controller_alias}\n{num_connections} подключено\n{device_enumerate}",
         "tooltip-format-enumerate-connected": "{device_alias}"
+    },
+
+    // --- Активное окно ---
+    // Стоковый модуль sway/window. Показывает заголовок (title) фокусного окна.
+    // max-length жестко ограничивает длину строки (Waybar сам добавит «…»),
+    // чтобы на экране 1366×768 левый островок не разъезжался и не давил на центр.
+    // separate-outputs: true гарантирует, что на каждом мониторе отображается
+    // окно, активное именно на этом экране, а не глобально для всех.
+    "sway/window": {
+        "format": "{}",
+        "max-length": 30,
+        "separate-outputs": true,
+        "tooltip": true,
+        "tooltip-format": "{title}"
     }
 }
