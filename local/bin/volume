@@ -29,10 +29,10 @@ if [ -n "$MUTED" ]; then
     CATEGORY="volume-mute"
     COLOR="#565f89"
     MSG="Звук выключен"
-elif [ "$VOL" -gt 100 ]; then
-    CATEGORY="volume-overflow"
-    COLOR="#ff0000"
-    MSG="Громкость: ${VOL}% (OVERFLOW!)"
+# elif [ "$VOL" -gt 100 ]; then
+#     CATEGORY="volume-overflow"
+#     COLOR="#ff0000"
+#     MSG="Громкость: ${VOL}% (OVERFLOW!)"
 elif [ "$VOL" -gt 85 ]; then
     CATEGORY="volume-high"
     COLOR="#f7768e"
