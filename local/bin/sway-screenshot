@@ -5,27 +5,40 @@
 # Аналог screenshot для BSPWM/X11: maim заменён на grim,
 # область — на slurp, буфер — на wl-copy.
 #
-# Использование: sway-screenshot {full|window|region|delayed|monitor}
+# Использование: sway-screenshot {full|window|region|delayed|monitor|annotate}
 #   full     весь экран
 #   window   активное окно (по геометрии из дерева Sway)
 #   region   выделенная область (slurp, Esc — отмена)
 #   delayed  весь экран через 3 секунды
 #   monitor  монитор с фокусом
+#   annotate открыть в swappy картинку из буфера (после любого скриншота)
 #
 # CopyQ под Wayland ведёт себя нестабильно, поэтому история
 # буфера не пополняется — только системный буфер (Ctrl+V).
+# История буфера — отдельно через cliphist (Super + Shift + V).
 # ==========================================================
 
 set -u
 
 MODE="${1:-}"
 case "$MODE" in
-    full|window|region|delayed|monitor) ;;
+    full|window|region|delayed|monitor|annotate) ;;
     *)
-        echo "usage: $0 {full|window|region|delayed|monitor}" >&2
+        echo "usage: $0 {full|window|region|delayed|monitor|annotate}" >&2
         exit 1
         ;;
 esac
+
+# --- Редактор: правит картинку, которая уже лежит в буфере ---
+if [ "$MODE" = annotate ]; then
+    MIME=$(wl-paste --list-types 2>/dev/null | awk '/^image\// { print; exit }')
+    if [ -z "$MIME" ]; then
+        notify-send -a "Screenshot" -u low "Скриншот" "В буфере нет изображения"
+        exit 1
+    fi
+    wl-paste -t "$MIME" | swappy -f -
+    exit 0
+fi
 
 DIR="$HOME/Screenshots"
 mkdir -p "$DIR"

@@ -43,7 +43,7 @@
 ## ✨ Особенности
 
 - **Native Modules First:** Polybar использует стоковые `internal/bspwm`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard` и `internal/date`. Ноль фоновых bash-циклов.
-- **Команды по требованию:** `wifi`, `powermenu`, `battery`, `screenshot`, `volume`, `cheatsheet-bspwm`, `rice-check` и `rice-help` лежат в `~/.local/bin` (PATH), там же набор Sway (обвязка `sway-cheatsheet`, `sway-display`, `sway-screenshot`, `sway-session`, меню на wofi — `wofi-battery`, `wofi-powermenu`, `wofi-wifi`); флаги окон — в `config/sxhkd/scripts`. Запускаются по хоткею и сразу завершаются.
+- **Команды по требованию:** `wifi`, `powermenu`, `battery`, `screenshot`, `volume`, `cheatsheet-bspwm`, `rice-check` и `rice-help` лежат в `~/.local/bin` (PATH), там же набор Sway (обвязка `sway-cheatsheet`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, меню на wofi — `wofi-battery`, `wofi-clipboard`, `wofi-powermenu`, `wofi-wifi`); флаги окон — в `config/sxhkd/scripts`. Запускаются по хоткею и сразу завершаются.
 - **Машинные команды:** `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Docker/ROCm-команды рассчитаны на конкретную машину; проверяют демон и печатают справку, если не хватает аргумента.
 - **Автоопределение железа:** `polybar/launch.sh` сам находит батарею (`POLYBAR_BAT`), адаптер питания (`POLYBAR_AC`) и карту подсветки (`POLYBAR_BACKLIGHT`) в `/sys/class/…` — имена не захардкожены.
 - **Обои — только `feh`:** никакого скрипта-выборщика, state-файла и превью. Два статичных вызова `feh` в `bspwmrc`: landscape на основной монитор, portrait на повёрнутый. Сменить обои = поправить одну строку.
@@ -52,11 +52,11 @@
 - **Плавность и плоский дизайн:** Picom с анимациями окон, скруглениями и тенями, без blur и без затемнения неактивных окон. Строгие цвета Tokyo Night.
 - **Профили питания:** Performance / Balanced / Power Saver через PPD. В `power-saver` Picom автоматически переключается на `picom-eco.conf` — без анимаций и теней.
 - **Единый стиль:** Polybar, Rofi, Dunst, Picom, Alacritty, Fish, Cava, Btop, GTK3/GTK4, Qt5/Qt6, GIMP 3, CopyQ, Midnight Commander и Telegram оформлены в Tokyo Night.
-- **Workflow:** история буфера (CopyQ + меню команд), история уведомлений (Rofi), скриншоты сразу в буфер CopyQ, шпаргалки по хоткеям (Rofi для BSPWM, wofi для Sway), Neovim в стиле базового VS Code со своей шпаргалкой.
+- **Workflow:** история буфера (CopyQ в BSPWM, cliphist + wofi в Sway), история уведомлений (Rofi), скриншоты сразу в буфер, мгновенные пометки на скриншоте (swappy) и запись экрана по хоткею (wf-recorder), шпаргалки по хоткеям (Rofi для BSPWM, wofi для Sway), Neovim в стиле базового VS Code со своей шпаргалкой.
 - **Запасной Vim:** обычный `vim` из `apt.txt` без плагинов — подсветка синтаксиса почти для всего, гибридная нумерация (абсолютный номер на строке курсора, относительные вокруг) и постоянная история изменений. Конфиг — `~/.vimrc` (`home/vimrc`).
 - **Стабильность:** автозапуск в `bspwmrc` защищён от дублей через `pgrep`/`pkill`, поэтому `Super + Alt + R` и полный рестарт сессии не плодят процессы.
 - **Несколько машин:** hostname-ветвления в `bspwmrc` и `wifi` (десктоп с двумя мониторами и ноутбуки), но при желании конфиг сводится к одной машине.
-- **Запись экрана и OBS (Sway):** скриншоты по хоткеям снимаются напрямую через `grim`/`slurp`; запись и демонстрация экрана идут через `xdg-desktop-portal-wlr` + PipeWire. Sway сам экспортирует окружение в systemd/dbus при старте, а `portals.conf` направляет `ScreenCast`/`Screenshot` на `wlr`; отдельный target графической сессии не нужен. OBS должен быть запущен как нативный Wayland-клиент.
+- **Запись экрана и OBS (Sway):** скриншоты по хоткеям снимаются напрямую через `grim`/`slurp`; быстрая запись — `wf-recorder` (`Super + Shift + R` — экран, `Super + Shift + Alt + R` — область, повторное нажатие останавливает), звук всегда снимается с монитора текущего выхода, кодек — VAAPI на AMD/Intel и `libx264` на остальных. Тяжёлая запись и демонстрация экрана — через `xdg-desktop-portal-wlr` + PipeWire; Sway сам экспортирует окружение в systemd/dbus, а `portals.conf` направляет `ScreenCast`/`Screenshot` на `wlr`. OBS должен быть запущен как нативный Wayland-клиент. Аннотации к скриншотам — `swappy` (`Super + Shift + A`), история буфера — `cliphist` (`Super + Shift + V`, последние 100 записей).
 
 ## 📦 Структура
 
@@ -82,6 +82,7 @@ BSPWM-machineslego/
 │   ├── polybar/                 # config.ini, launch.sh
 │   ├── qt5ct/ qt6ct/            # палитры tokyo-night.conf + tokyo-night-day.conf
 │   ├── rofi/config.rasi         # лаунчер/окна/команды
+│   ├── swappy/config            # редактор скриншотов: сохранение в ~/Screenshots
 │   ├── sway/config              # сессия Sway: рамки, хоткеи, автозапуск
 │   ├── swaylock/config          # экран блокировки: Tokyo Night, обои стола
 │   ├── xdg-desktop-portal/      # portals.conf: ScreenCast/Screenshot → wlr
@@ -272,6 +273,19 @@ OBS нужно запускать как Wayland-клиент (`QT_QPA_PLATFORM=
 | `Fn + громкость` | OSD громкости ±2% |
 
 Скриншоты сохраняются в `~/Screenshots` и кладутся в буфер CopyQ (фолбэк — `xclip`).
+
+### Sway: скриншоты, запись и буфер
+
+| Комбинация | Действие |
+|---|---|
+| `Super + Shift + S` | Выделенная область |
+| `Print` | Весь экран |
+| `Super + Shift + A` | Редактор скриншота из буфера (swappy) |
+| `Super + Shift + R` | Запись всего экрана вкл/выкл |
+| `Super + Shift + Alt + R` | Запись области вкл/выкл |
+| `Super + Shift + V` | История буфера (cliphist) |
+
+Скриншоты — `~/Screenshots`, записи — `~/Videos/Screencasts`. В swappy `Ctrl+S` сохраняет, `Ctrl+C` копирует в буфер, `Esc` выходит; инструменты — `a` стрелка, `t` текст, `r` прямоугольник, `o` эллипс, `b` кисть, `d` блюр. Запись всегда идёт со звуком системы (монитор выхода), а не с микрофона. История буфера хранит последние 100 записей, включая картинки.
 
 ### Окна и столы
 

@@ -19,10 +19,13 @@ qtwayland5
 # Уведомления
 mako-notifier
 
-# Скриншоты и буфер обмена
+# Скриншоты, запись экрана и буфер обмена
 grim
 slurp
 wl-clipboard
+swappy
+wf-recorder
+cliphist
 
 # Портал скринкастов и X11-приложения
 xdg-desktop-portal

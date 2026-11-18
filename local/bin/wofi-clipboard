@@ -1,0 +1,27 @@
+#!/bin/bash
+# ==========================================================
+# wofi-clipboard — история буфера обмена (cliphist) в wofi
+# ==========================================================
+# Аналог истории CopyQ для BSPWM: cliphist хранит последние
+# 100 записей (текст и картинки), меню рисует wofi.
+#
+# Вызов: Super + Shift + V в Sway.
+# Очистка истории: cliphist wipe.
+# ==========================================================
+
+set -u
+
+LIST=$(cliphist list 2>/dev/null)
+if [ -z "$LIST" ]; then
+    notify-send -a "Clipboard" -u low "Буфер" "История пуста"
+    exit 0
+fi
+
+CHOICE=$(printf '%s\n' "$LIST" | wofi --dmenu --cache-file /dev/null \
+    --prompt "󰅇 Буфер" --width 600 --lines 15)
+
+[ -z "$CHOICE" ] && exit 0
+
+# Строка cliphist: <id><TAB><превью до 100 символов>.
+ID=${CHOICE%%$'\t'*}
+cliphist decode "$ID" | wl-copy

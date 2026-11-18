@@ -44,7 +44,7 @@ Every line of code and every running process must justify its existence. This ru
 ## ✨ Features
 
 - **Native Modules First:** Polybar uses stock `internal/bspwm`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard`, and `internal/date`. Zero background bash loops.
-- **On-Demand Commands:** `wifi`, `powermenu`, `battery`, `screenshot`, `volume`, `cheatsheet-bspwm`, `rice-check`, and `rice-help` live in `~/.local/bin` (PATH); the Sway set (`sway-cheatsheet`, `sway-display`, `sway-screenshot`, `sway-session`, plus the wofi menus `wofi-battery`, `wofi-powermenu`, `wofi-wifi`) lives there too; window flags — in `config/sxhkd/scripts`. They run on a hotkey and exit immediately.
+- **On-Demand Commands:** `wifi`, `powermenu`, `battery`, `screenshot`, `volume`, `cheatsheet-bspwm`, `rice-check`, and `rice-help` live in `~/.local/bin` (PATH); the Sway set (`sway-cheatsheet`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, plus the wofi menus `wofi-battery`, `wofi-clipboard`, `wofi-powermenu`, `wofi-wifi`) lives there too; window flags — in `config/sxhkd/scripts`. They run on a hotkey and exit immediately.
 - **Machine Utilities:** `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Docker/ROCm commands are machine-specific; they check for the daemon and print usage when an argument is missing.
 - **Hardware Autodetection:** `polybar/launch.sh` finds the battery (`POLYBAR_BAT`), AC adapter (`POLYBAR_AC`), and backlight device (`POLYBAR_BACKLIGHT`) in `/sys/class/…` — no hardcoded names.
 - **Wallpapers — `feh` only:** no picker script, no state file, no previews. Two static `feh` calls in `bspwmrc`: landscape on the main monitor, portrait on the rotated one. Change a wallpaper = edit one line.
@@ -53,11 +53,11 @@ Every line of code and every running process must justify its existence. This ru
 - **Smooth & Flat:** Picom with window animations, rounded corners, and shadows; no blur and no dimming of inactive windows. Strict Tokyo Night colors.
 - **Power Profiles:** Performance / Balanced / Power Saver via PPD. In `power-saver` Picom automatically switches to `picom-eco.conf` — no animations, no shadows.
 - **One Consistent Style:** Polybar, Rofi, Dunst, Picom, Alacritty, Fish, Cava, Btop, GTK3/GTK4, Qt5/Qt6, GIMP 3, CopyQ, Midnight Commander, and Telegram are all themed in Tokyo Night.
-- **Workflow:** clipboard history (CopyQ with custom commands), notification history (Rofi), screenshots straight into the CopyQ clipboard, keybinding cheatsheets (Rofi for BSPWM, wofi for Sway), and a Neovim setup styled after base VS Code with its own cheatsheet.
+- **Workflow:** clipboard history (CopyQ on BSPWM, cliphist + wofi on Sway), notification history (Rofi), screenshots straight into the clipboard, instant screenshot annotations (swappy), hotkey screen recording (wf-recorder), keybinding cheatsheets (Rofi for BSPWM, wofi for Sway), and a Neovim setup styled after base VS Code with its own cheatsheet.
 - **Stock Vim as a fallback:** plain `vim` from `apt.txt` with no plugins — syntax highlighting for nearly everything, hybrid numbering (absolute number on the cursor line, relative around it), and persistent undo. Config: `~/.vimrc` (`home/vimrc`).
 - **Stability:** autostart in `bspwmrc` is guarded against duplicates via `pgrep`/`pkill`, so `Super + Alt + R` and a full session restart never spawn extra processes.
 - **Multi-machine:** hostname branches in `bspwmrc` and `wifi` (a dual-monitor desktop and laptops); easy to trim down to a single machine.
-- **Screen capture & OBS (Sway):** hotkey screenshots use `grim`/`slurp` directly; screen recording and screen sharing go through `xdg-desktop-portal-wlr` + PipeWire. Sway exports its environment to systemd/dbus on startup, and `portals.conf` routes `ScreenCast`/`Screenshot` to `wlr`; no graphical-session target is needed. OBS must run as a native Wayland client.
+- **Screen capture & OBS (Sway):** hotkey screenshots use `grim`/`slurp` directly; quick recording uses `wf-recorder` (`Super + Shift + R` — full screen, `Super + Shift + Alt + R` — region, pressing again stops), audio always captures the current output monitor, and the codec is VAAPI on AMD/Intel with `libx264` elsewhere. Heavy recording and screen sharing go through `xdg-desktop-portal-wlr` + PipeWire; Sway exports its environment to systemd/dbus on startup, and `portals.conf` routes `ScreenCast`/`Screenshot` to `wlr`. OBS must run as a native Wayland client. Screenshot annotations are handled by `swappy` (`Super + Shift + A`), clipboard history by `cliphist` (`Super + Shift + V`, last 100 entries).
 
 ## 📦 Structure
 
@@ -83,6 +83,7 @@ BSPWM-machineslego/
 │   ├── polybar/                 # config.ini, launch.sh
 │   ├── qt5ct/ qt6ct/            # tokyo-night.conf + tokyo-night-day.conf palettes
 │   ├── rofi/config.rasi         # launcher/windows/commands
+│   ├── swappy/config            # screenshot editor: saves to ~/Screenshots
 │   ├── sway/config              # Sway session: borders, hotkeys, autostart
 │   ├── swaylock/config          # lock screen: Tokyo Night, desktop wallpapers
 │   ├── xdg-desktop-portal/      # portals.conf: ScreenCast/Screenshot → wlr
@@ -273,6 +274,19 @@ Launch OBS as a Wayland client — `QT_QPA_PLATFORM=wayland obs` — otherwise i
 | `Fn + volume` | Volume OSD ±2% |
 
 Screenshots are saved to `~/Screenshots` and copied to the CopyQ clipboard (fallback: `xclip`).
+
+### Sway: screenshots, recording & clipboard
+
+| Keybinding | Action |
+|---|---|
+| `Super + Shift + S` | Selected area |
+| `Print` | Whole screen |
+| `Super + Shift + A` | Edit the screenshot in the clipboard (swappy) |
+| `Super + Shift + R` | Record the whole screen on/off |
+| `Super + Shift + Alt + R` | Record a region on/off |
+| `Super + Shift + V` | Clipboard history (cliphist) |
+
+Screenshots go to `~/Screenshots`, recordings to `~/Videos/Screencasts`. In swappy, `Ctrl+S` saves, `Ctrl+C` copies to the clipboard, `Esc` quits; tools are `a` arrow, `t` text, `r` rectangle, `o` ellipse, `b` brush, `d` blur. Recording always captures system audio (the output monitor), not the microphone. Clipboard history keeps the last 100 entries, images included.
 
 ### Windows & workspaces
 

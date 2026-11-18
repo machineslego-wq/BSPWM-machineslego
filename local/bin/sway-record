@@ -1,0 +1,84 @@
+#!/bin/bash
+# ==========================================================
+# sway-record — запись экрана под Wayland (wf-recorder)
+# ==========================================================
+# Использование: sway-record {full|region}
+#   full     весь экран
+#   region   выделенная область (slurp, Esc — отмена)
+#
+# Повторный вызов любого режима останавливает текущую запись:
+# wf-recorder корректно закрывает файл только по SIGINT.
+#
+# Звук — монитор текущего выхода (системный звук), не микрофон.
+# Кодек — VAAPI на amdgpu/i915/xe, иначе libx264 (NVIDIA и прочее).
+# Файлы: ~/Videos/Screencasts/YYYY-MM-DD_HH-MM-SS.mp4
+# ==========================================================
+
+set -u
+
+MODE="${1:-}"
+case "$MODE" in
+    full|region) ;;
+    *)
+        echo "usage: $0 {full|region}" >&2
+        exit 1
+        ;;
+esac
+
+# --- Повторный вызов: остановить запись ---
+if pgrep -x wf-recorder >/dev/null; then
+    pkill -INT -x wf-recorder
+    notify-send -a "Record" -u low -t 2000 "Запись" "Остановлена"
+    exit 0
+fi
+
+DIR="$HOME/Videos/Screencasts"
+mkdir -p "$DIR"
+FILE="$DIR/$(date +%Y-%m-%d_%H-%M-%S).mp4"
+
+# --- Звук: монитор текущего выхода, а не микрофон по умолчанию ---
+SINK=$(wpctl inspect @DEFAULT_AUDIO_SINK@ 2>/dev/null \
+    | sed -n 's/.*node.name = "\(.*\)"/\1/p' | head -n 1)
+if [ -n "$SINK" ]; then
+    AUDIO=(--audio="$SINK.monitor")
+else
+    AUDIO=(-a)
+fi
+
+# --- Кодек: аппаратный на AMD/Intel для всего экрана, иначе libx264 ---
+# VAAPI у AMD требует минимум 128x128, поэтому небольшая область пишется
+# программно: так запись не падает на маленьком или нечётном выделении.
+CODEC=(-c libx264)
+if [ "$MODE" = full ]; then
+    DRIVER=$(basename "$(readlink -f /sys/class/drm/renderD128/device/driver 2>/dev/null)" 2>/dev/null)
+    case "$DRIVER" in
+        amdgpu|i915|xe)
+            CODEC=(-c h264_vaapi -d /dev/dri/renderD128 -F scale_vaapi=format=nv12)
+            ;;
+    esac
+fi
+
+ARGS=(-f "$FILE" "${AUDIO[@]}" "${CODEC[@]}")
+LABEL="весь экран"
+
+# --- Область: h264 требует чётных сторон, slurp может дать нечётные ---
+if [ "$MODE" = region ]; then
+    GEOM=$(slurp 2>/dev/null) || exit 1
+    [ -n "$GEOM" ] || exit 1
+
+    X=${GEOM%%,*}
+    REST=${GEOM#*,}
+    Y=${REST%% *}
+    SIZE=${GEOM##* }
+    W=${SIZE%x*}
+    H=${SIZE#*x}
+    W=$((W - W % 2))
+    H=$((H - H % 2))
+    [ "$W" -ge 2 ] && [ "$H" -ge 2 ] || exit 1
+
+    ARGS+=(-g "$X,$Y ${W}x${H}")
+    LABEL="область"
+fi
+
+setsid wf-recorder "${ARGS[@]}" >/dev/null 2>&1 &
+notify-send -a "Record" -u low -t 2000 "Запись" "REC ($LABEL) → $FILE"

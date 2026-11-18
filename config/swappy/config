@@ -1,0 +1,10 @@
+[Default]
+save_dir=$HOME/Screenshots
+save_filename_format=screenshot-%Y-%m-%d_%H-%M-%S.png
+show_panel=true
+line_size=4
+text_size=18
+text_font=JetBrainsMono Nerd Font 11
+paint_mode=brush
+early_exit=false
+fill_shape=false

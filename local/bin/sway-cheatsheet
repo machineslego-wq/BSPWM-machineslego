@@ -39,7 +39,15 @@ cat <<EOF | wofi --dmenu --allow-markup --cache-file /dev/null \
 󰔛 Super + F3                       Экран (задержка 3с)            <span foreground="#1a1b26">[скриншот, screenshot, таймер, delay]</span>
 󰍹 Super + F4                       Активный монитор               <span foreground="#1a1b26">[скриншот, screenshot, монитор, экран, monitor]</span>
 󰩭 Super + Shift + S                Выделенная область             <span foreground="#1a1b26">[скриншот, screenshot, регион, зона, slurp]</span>
+󰏫 Super + Shift + A                Редактор скриншота (swappy)    <span foreground="#1a1b26">[скриншот, screenshot, редактор, пометки, annotate, swappy]</span>
 󰹑 Print                            Весь экран                     <span foreground="#1a1b26">[скриншот, screenshot, print, снять]</span>
+
+<b>󰑊 ЗАПИСЬ ЭКРАНА</b>
+󰑊 Super + Shift + R                Запись: весь экран вкл/выкл    <span foreground="#1a1b26">[запись, запись экрана, record, видео, wf-recorder]</span>
+󰑊 Super + Shift + Alt + R          Запись: область вкл/выкл       <span foreground="#1a1b26">[запись, область, регион, record, видео]</span>
+
+<b>󰅇 БУФЕР ОБМЕНА</b>
+󰅇 Super + Shift + V                История буфера (cliphist)      <span foreground="#1a1b26">[буфер, clipboard, история, вставка, cliphist]</span>
 
 <b>󰃠 ЯРКОСТЬ И ЗВУК</b>
 󰃠 Fn + Яркость +/-                 Яркость +5% / -5%              <span foreground="#1a1b26">[яркость, brightness, экран]</span>

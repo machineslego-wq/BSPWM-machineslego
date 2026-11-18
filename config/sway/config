@@ -109,6 +109,10 @@ exec_always pgrep -x mako >/dev/null || mako
 exec_always pgrep -x lxpolkit >/dev/null || lxpolkit
 # exec_always pgrep -x blueman-applet >/dev/null || blueman-applet
 
+# История буфера обмена (cliphist): хранит последние 100 записей.
+# CopyQ остаётся в bspwm, под Wayland он ведёт себя нестабильно.
+exec_always pgrep -x wl-paste >/dev/null || wl-paste --watch cliphist -max-items 100 store
+
 # Bluetooth-агент для подтверждения подключений
 # exec --no-startup-id bt-agent --capability=DisplayOnly
 
@@ -150,6 +154,9 @@ bindsym --to-code $mod+Alt+b exec wofi-battery
 # Telegram (flatpak) через WS-прокси.
 bindsym --to-code $mod+Alt+t exec sh -c 'tg-ws-proxy & sleep 1 && flatpak run org.telegram.desktop'
 
+# История буфера обмена (cliphist; в BSPWM — CopyQ).
+bindsym --to-code $mod+Shift+v exec wofi-clipboard
+
 ### Клавиши: конфиг, блокировка, выход
 #
 # Перечитать конфиг (аналог pkill -USR1 -x sxhkd).
@@ -178,8 +185,17 @@ bindsym --to-code $mod+F4 exec sway-screenshot monitor
 # Выделенная область.
 bindsym --to-code $mod+Shift+s exec sway-screenshot region
 
+# Редактор: правит в swappy картинку из буфера (после любого скриншота).
+bindsym --to-code $mod+Shift+a exec sway-screenshot annotate
+
 # Print — весь экран.
 bindsym --to-code --locked Print exec sway-screenshot full
+
+### Клавиши: запись экрана
+#
+# wf-recorder: повторное нажатие останавливает запись.
+bindsym --to-code $mod+Shift+r exec sway-record full
+bindsym --to-code $mod+Shift+Alt+r exec sway-record region
 
 ### Клавиши: звук и яркость
 #
