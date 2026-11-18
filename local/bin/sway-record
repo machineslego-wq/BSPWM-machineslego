@@ -36,15 +36,48 @@ DIR="$HOME/Videos/Screencasts"
 mkdir -p "$DIR"
 FILE="$DIR/$(date +%Y-%m-%d_%H-%M-%S).mp4"
 
+# --- Монитор для записи ---
+# Без -o wf-recorder спрашивает номер выхода в терминале. Под хоткеем
+# stdin/stdout перенаправлены, ответить некому — на мультимониторе запись
+# молча не стартует (на ноутбуке выход один, поэтому там не воспроизводится).
+# Для полного экрана берём монитор с фокусом, для области — тот, где она
+# начинается; wf-recorder пишет только один монитор за раз.
+output_at() {
+    swaymsg -t get_outputs -r 2>/dev/null | jq -r --argjson x "$1" --argjson y "$2" '
+        .[] | select(.active)
+        | select($x >= .rect.x and $x < (.rect.x + .rect.width)
+             and $y >= .rect.y and $y < (.rect.y + .rect.height))
+        | .name' 2>/dev/null | head -n 1
+}
+
+focused_output() {
+    swaymsg -t get_outputs -r 2>/dev/null |
+        jq -r '.[] | select(.active and .focused) | .name' 2>/dev/null | head -n 1
+}
+
 # --- Кодек: VAAPI только на amdgpu, остальные (Intel, NVIDIA) — libx264 ---
 # На Intel iGPU аппаратный путь h264_vaapi падает, поэтому он оставлен
 # только для проверенной связки amdgpu. Область и так всегда libx264:
 # VAAPI у AMD требует минимум 128x128, а slurp может дать меньше.
+amdgpu_render_node() {
+    local node
+    for node in /dev/dri/renderD*; do
+        [ -e "$node" ] || continue
+        if [ "$(basename "$(readlink -f "/sys/class/drm/$(basename "$node")/device/driver" 2>/dev/null)" 2>/dev/null)" = amdgpu ]; then
+            printf '%s' "$node"
+            return 0
+        fi
+    done
+    return 1
+}
+
 CODEC=(-c libx264)
 if [ "$MODE" = full ]; then
-    DRIVER=$(basename "$(readlink -f /sys/class/drm/renderD128/device/driver 2>/dev/null)" 2>/dev/null)
-    if [ "$DRIVER" = amdgpu ]; then
-        CODEC=(-c h264_vaapi -d /dev/dri/renderD128 -F scale_vaapi=format=nv12)
+    # Номер render-узла не фиксирован: на ПК с i5 + RX 7700 XT renderD128 —
+    # это Intel i915, а amdgpu получает renderD129. Поэтому узел ищем
+    # по драйверу, а не по номеру.
+    if VAAPI_DEV=$(amdgpu_render_node); then
+        CODEC=(-c h264_vaapi -d "$VAAPI_DEV" -F scale_vaapi=format=nv12)
     fi
 fi
 
@@ -66,9 +99,14 @@ if [ "$MODE" = region ]; then
     H=$((H - H % 2))
     [ "$W" -ge 2 ] && [ "$H" -ge 2 ] || exit 1
 
-    ARGS+=(-g "$X,$Y ${W}x${H}")
+    ARGS+=(-g "$X,$Y ${W}x$H")
     LABEL="область"
+    OUTPUT=$(output_at "$X" "$Y")
+else
+    OUTPUT=$(focused_output)
 fi
+# Выход не определился (нет jq/swaymsg) — оставляем выбор wf-recorder.
+[ -n "${OUTPUT:-}" ] && ARGS+=(-o "$OUTPUT")
 
 setsid wf-recorder "${ARGS[@]}" >/dev/null 2>&1 &
 notify-send -a "Record" -u low -t 2000 "Запись" "REC ($LABEL) → $FILE"
