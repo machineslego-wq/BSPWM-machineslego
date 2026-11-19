@@ -1,170 +1,807 @@
 #!/bin/bash
 # ==========================================================
-# start-llm — Ollama + OpenWebUI в Docker (ROCm)
+# start-llm — llama.cpp (ROCm/Vulkan) + opencode: запуск, модели, статус, тюнинг
 # ==========================================================
 # Использование:
-#   start-llm              быстрый запуск (создаст контейнеры при необходимости)
-#   start-llm --recreate   пересоздать контейнеры с актуальными настройками
-#   start-llm --models     дотянуть модели Qwen 3.5 9B и 4B
-#   start-llm --status     состояние контейнеров и загруженных моделей
-#   start-llm --stop       остановить Ollama и OpenWebUI
-#   start-llm --logs       последние строки логов
+#   start-llm              быстрый запуск llama-server (API + WebUI)
+#   start-llm --setup [слоты]  с нуля: проверка + образ + модели + запуск + opencode
+#   start-llm --models [слоты|all]  скачать GGUF (по умолчанию: coder chat fast reason)
+#   start-llm --list       слоты: что скачано, размеры, репозитории
+#   start-llm --status     контейнер, модели, VRAM
+#   start-llm --stop       остановить сервер
+#   start-llm --logs [-f]  логи (-f = следить)
+#   start-llm --check      preflight: GPU, группы, диск, swap, скорость
+#   start-llm --bench [слот]  замер скорости tg/pp
+#   start-llm --tune [слот]   автоподбор n-cpu-moe под VRAM
+#   start-llm --opencode   записать конфиг и агентов opencode
+#   start-llm --recreate   пересоздать контейнер (пресеты сохраняются)
+#   start-llm --update     обновить образ
+#   start-llm --vulkan     маленький образ ~0.5 ГБ (по умолчанию)
+#   start-llm --rocm       полный ROCm-образ ~18 ГБ
+#   start-llm --ollama     взять llama-server из локального ollama-образа (0 ГБ)
+#   start-llm --build      собрать Vulkan-образ локально (ghcr не нужен)
+#   start-llm --hf-mirror  качать модели через hf-mirror.com
+#   start-llm --speed N    порог скорости МБ/с (ниже — обрыв зеркала), default 2
+#   start-llm --cleanup-old  удалить старые ollama/openwebui (comfy/portainer целы)
 #
 # Без аргументов — быстрый запуск. Без флага --models модели не качаются.
+# Строка 3 (описание) парсится rice-help — не менять её позицию.
 # ==========================================================
 
 set -u
 
-OLLAMA=ollama
-WEBUI=openwebui
-MODELS=(qwen3.5:9b qwen3.5:4b)
-OLLAMA_CTX=32768
-OLLAMA_MODELS_DIR="$HOME/ollama_models"
-WEBUI_DATA_DIR="$HOME/openwebui/data"
+SERVER=llama
+PORT=8080
+FLAVOR="${FLAVOR:-vulkan}"                # vulkan (~0.5 ГБ) | rocm (~18 ГБ)
+SOURCE="${SOURCE:-auto}"                  # auto | ollama | pull | build
+IMAGE="${IMAGE:-ghcr.io/ggml-org/llama.cpp:server-$FLAVOR}"
+OLLAMA_IMAGE="${OLLAMA_IMAGE:-ollama/ollama:rocm}"
+PROBE="${PROBE:-5}"                       # сек между замерами
+GRACE="${GRACE:-15}"                      # сек разогрева до вердикта
+MIN_SPEED_MB="${MIN_SPEED_MB:-2}"         # МБ/с: ниже — обрываем зеркало
+PULL_MAX="${PULL_MAX:-900}"               # жёсткий лимит на попытку, сек
+DEBIAN_BASE="${DEBIAN_BASE:-debian:trixie-slim}"
+HF_ENDPOINT="${HF_ENDPOINT:-}"
+MODELS_DIR="$HOME/llm_models"
+CONFIG_DIR="$HOME/llm_config"
+PRESETS="$CONFIG_DIR/presets.ini"
+HF_VENV="$HOME/.local/share/hf-cli-venv"
+OC_DIR="$HOME/.config/opencode"
+API="http://127.0.0.1:$PORT"
+STACK_REV="2026-11-llm-v6"
+VRAM_LIMIT="${VRAM_LIMIT:-10800}"
+MIN_SPEED=$((MIN_SPEED_MB * 1048576))
+
+MIRRORS=(
+    "ghcr.nju.edu.cn"
+    "m.daocloud.io/ghcr.io"
+    "ghcr.m.daocloud.io"
+    "swr.cn-north-4.myhuaweicloud.com/ddn-k8s/ghcr.io"
+    "ghcr.io"
+)
+NAMES=(coder coder-std coder30 chat fast reason ornith chat-unc fast-unc gemma creative fim)
+DEFAULT_MODELS=(coder chat fast reason)
+GPU_ARGS=(); RUN_ENTRY=(); RUN_ENV=(); LLAMA_HELP=""; IMAGE_READY=0; SG_LOG=""; LABEL=""
 
 usage() {
     cat << 'EOF'
-Использование: start-llm [--recreate|--models|--status|--stop|--logs]
+Использование: start-llm [--setup|--models|--list|--status|--stop|--logs|--check|--bench|--tune|--opencode|--recreate|--update|--vulkan|--rocm|--ollama|--build|--hf-mirror|--speed N|--cleanup-old]
 
-  (без флагов)  быстрый запуск: Ollama + OpenWebUI
-  --recreate    пересоздать контейнеры с актуальными настройками
-  --models      дотянуть модели Qwen 3.5 9B и 4B
-  --status      состояние контейнеров и загруженных моделей
-  --stop        остановить Ollama и OpenWebUI
-  --logs        последние строки логов
+  (без флагов)   быстрый запуск llama-server (http://127.0.0.1:8080)
+  --setup [..]   с нуля: preflight + образ + модели + запуск + opencode
+  --models [..]  скачать GGUF (по умолчанию: coder chat fast reason)
+  --list         слоты: скачано/размер/репозиторий
+  --status       контейнер + модели + VRAM
+  --stop         остановить сервер
+  --logs [-f]    логи (-f = следить)
+  --check        preflight: GPU, группы, диск, swap, настройки скорости
+  --bench [слот] замер tg/pp
+  --tune [слот]  автоподбор n-cpu-moe (только MoE)
+  --opencode     записать конфиг + агентов opencode
+  --recreate     пересоздать контейнер (пресеты НЕ сбрасывает)
+  --update       обновить образ
+  --vulkan       образ ~0.5 ГБ (по умолчанию)
+  --rocm         образ ~18 ГБ (быстрее prefill)
+  --ollama       llama-server из локального ollama-образа, 0 ГБ
+  --build        локальная сборка Vulkan (без ghcr)
+  --hf-mirror    модели через hf-mirror.com
+  --speed N      порог МБ/с, ниже — обрыв зеркала (default 2)
+  --cleanup-old  снести ollama/openwebui (comfy/portainer целы)
+
+Модификаторы (--vulkan/--rocm/--ollama/--build/--hf-mirror/--speed) ставятся
+в любом месте: start-llm --models fast --hf-mirror --speed 1
+
+Слоты:
+  coder      Qwen3.6-35B-A3B-MTP   ~23 ГБ  основной агент (thinking+MTP)
+  coder-std  Qwen3.6-35B-A3B       ~22 ГБ  то же без MTP
+  coder30    Qwen3-Coder-30B-A3B   ~18 ГБ  быстрый кодер без think
+  chat       Qwen3.5-9B +vision     ~7 ГБ  повседнев
+  fast       Qwen3.5-4B +vision     ~3 ГБ  утилита, ~80 t/s
+  reason     gpt-oss-20b           ~12 ГБ  быстрый резерв, мало RAM
+  ornith     Ornith-1.5-35B-A3B    ~22 ГБ  экспериментальный coder-alt
+  chat-unc   DSv4-Pro-9B-heretic    ~6 ГБ  uncensored чат +vision
+  fast-unc   DSv4-Pro-4B-heretic    ~3 ГБ  uncensored быстрый +vision
+  gemma      gemma-4-26B-A4B-it    ~18 ГБ  daily-alt, ревью, vision
+  creative   DavidAU Defiant-9B     ~7 ГБ  тексты/креатив
+  fim        Qwen2.5-Coder-1.5B     ~2 ГБ  автодополнение (/infill)
 EOF
 }
 
 die() { echo "Ошибка: $*" >&2; exit 1; }
-
+warn() { echo "[!] $*" >&2; }
 exists() { [ -n "$(docker ps -aq -f "name=^${1}$")" ]; }
 running() { [ -n "$(docker ps -q -f "name=^${1}$")" ]; }
+mb() { echo $(( ${1:-0} / 1048576 )); }
 
-ollama_env_ok() {
-    docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$OLLAMA" 2>/dev/null \
-        | grep -qx "OLLAMA_CONTEXT_LENGTH=$OLLAMA_CTX"
+# ---------- watchdog скорости ----------
+meter_dir() { du -sb "$1" 2>/dev/null | awk '{print $1+0}'; }
+
+meter_pull() {
+    tr '\r' '\n' < "$SG_LOG" 2>/dev/null | awk '
+    function b(s,  n,u){ n=s+0; u=s; gsub(/[0-9.]/,"",u); u=tolower(u)
+        if(u ~ /^g/) return n*1073741824
+        if(u ~ /^m/) return n*1048576
+        if(u ~ /^k/) return n*1024
+        return n }
+    ($2=="Downloading" || $2=="Extracting") {
+        id=$1
+        for(i=1;i<=NF;i++) if ($i ~ /^[0-9.]+[A-Za-z]*\/[0-9.]+[A-Za-z]*$/) {
+            split($i,a,"/"); v=b(a[1]); if (v+0 > m[id]+0) m[id]=v
+        }
+    }
+    END{ s=0; for(k in m) s+=m[k]; printf "%.0f\n", s+0 }'
 }
 
-wait_for_ollama() {
-    local i
-    for i in $(seq 1 30); do
-        curl -sf --max-time 2 http://127.0.0.1:11434/api/version >/dev/null && return 0
-        sleep 1
-    done
-    return 1
-}
-
-ensure_ollama() {
-    if exists "$OLLAMA" && ! ollama_env_ok; then
-        echo "Контейнер Ollama создан с другими настройками — пересоздаю."
-        docker rm -f "$OLLAMA" >/dev/null
-    fi
-
-    if exists "$OLLAMA"; then
-        running "$OLLAMA" || { echo "Запускаю Ollama..."; docker start "$OLLAMA" >/dev/null; }
-    else
-        echo "Создаю контейнер Ollama..."
-        mkdir -p "$OLLAMA_MODELS_DIR"
-        docker run -d \
-            --name "$OLLAMA" \
-            --device=/dev/kfd \
-            --device=/dev/dri \
-            --group-add video \
-            --security-opt seccomp=unconfined \
-            -v "$OLLAMA_MODELS_DIR":/root/.ollama \
-            -p 11434:11434 \
-            --restart unless-stopped \
-            -e HSA_OVERRIDE_GFX_VERSION=11.0.1 \
-            -e OLLAMA_FLASH_ATTENTION=1 \
-            -e "OLLAMA_CONTEXT_LENGTH=$OLLAMA_CTX" \
-            -e OLLAMA_NUM_PARALLEL=1 \
-            -e OLLAMA_MAX_LOADED_MODELS=1 \
-            -e OLLAMA_KEEP_ALIVE=-1 \
-            ollama/ollama:rocm >/dev/null || die "не удалось создать контейнер Ollama"
-    fi
-}
-
-ensure_webui() {
-    if exists "$WEBUI"; then
-        running "$WEBUI" || { echo "Запускаю OpenWebUI..."; docker start "$WEBUI" >/dev/null; }
-    else
-        echo "Создаю контейнер OpenWebUI..."
-        mkdir -p "$WEBUI_DATA_DIR"
-        docker run -d \
-            --name "$WEBUI" \
-            --network host \
-            -v "$WEBUI_DATA_DIR":/app/backend/data \
-            -e USE_OLLAMA=false \
-            -e OLLAMA_BASE_URL=http://127.0.0.1:11434 \
-            -e AIOHTTP_CLIENT_TIMEOUT=1800 \
-            --restart unless-stopped \
-            openwebui/open-webui:latest >/dev/null || die "не удалось создать контейнер OpenWebUI"
-    fi
-}
-
-pull_models() {
-    ensure_ollama
-    wait_for_ollama || die "Ollama не отвечает, модели не скачать"
-    for model in "${MODELS[@]}"; do
-        echo "Скачиваю $model..."
-        docker exec "$OLLAMA" ollama pull "$model" || echo "Не удалось скачать $model"
-    done
-}
-
-show_status() {
-    docker ps -a --filter "name=^${OLLAMA}$" --filter "name=^${WEBUI}$" \
-        --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
-    if running "$OLLAMA"; then
-        echo
-        echo "Загруженные модели:"
-        docker exec "$OLLAMA" ollama ps 2>/dev/null || true
-    fi
-}
-
-stop_all() {
-    for name in "$OLLAMA" "$WEBUI"; do
-        if running "$name"; then
-            echo "Останавливаю $name..."
-            docker stop "$name" >/dev/null
+speed_guard() {  # $1=метр $2=цель меттра, далее команда; 99=медленно 98=таймаут
+    local meter="$1" target="$2"; shift 2
+    SG_LOG=$(mktemp)
+    "$@" >"$SG_LOG" 2>&1 &
+    local pid=$! t=0 last cur sp rc
+    last=$($meter "$target"); last=${last:-0}
+    while kill -0 "$pid" 2>/dev/null; do
+        sleep "$PROBE"; t=$((t + PROBE))
+        cur=$($meter "$target"); cur=${cur:-0}
+        sp=$(( (cur - last) / PROBE )); (( sp < 0 )) && sp=0
+        last=$cur
+        printf '\r    %-26s %4s МБ/с   всего %6s МБ   ' "$LABEL" "$(mb "$sp")" "$(mb "$cur")"
+        if (( t >= GRACE && sp < MIN_SPEED )); then
+            if ! grep -qE 'Pull complete|Image is up to date' "$SG_LOG" 2>/dev/null; then
+                kill "$pid" 2>/dev/null; wait "$pid" 2>/dev/null
+                printf '\n'; warn "$LABEL: $(mb "$sp") МБ/с < ${MIN_SPEED_MB} МБ/с — обрываю"
+                rm -f "$SG_LOG"; return 99
+            fi
+        fi
+        if (( t >= PULL_MAX )); then
+            kill "$pid" 2>/dev/null; wait "$pid" 2>/dev/null
+            printf '\n'; warn "$LABEL: лимит ${PULL_MAX}с — обрываю"
+            rm -f "$SG_LOG"; return 98
         fi
     done
+    wait "$pid"; rc=$?
+    printf '\n'
+    (( rc != 0 )) && tail -n 3 "$SG_LOG" >&2
+    rm -f "$SG_LOG"
+    return $rc
 }
 
-show_logs() {
-    for name in "$OLLAMA" "$WEBUI"; do
-        echo "=== $name ==="
-        docker logs --tail 40 "$name" 2>&1 || true
-        echo
+# ---------- система ----------
+CARD=""
+detect_card() { local f sz best=0; for f in /sys/class/drm/card*/device/mem_info_vram_total; do
+    [ -r "$f" ] || continue; sz=$(cat "$f"); (( sz > best )) && { best=$sz; CARD="${f%/device/*}"; }; done; }
+vram() { if [ -n "$CARD" ] && [ -r "$CARD/device/mem_info_vram_used" ]; then
+    echo $(( $(cat "$CARD/device/mem_info_vram_used") / 1048576 )); else echo 0; fi; }
+
+llama_env_ok() { local e
+    e=$(docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$SERVER" 2>/dev/null)
+    grep -qx "STACK_REV=$STACK_REV" <<<"$e" && grep -qx "LLAMA_IMAGE=$IMAGE" <<<"$e"; }
+has_flag() { grep -q -- "$1" <<<"$LLAMA_HELP"; }
+
+wait_for_llama() { local i; for i in $(seq 1 60); do
+    curl -sf --max-time 2 "$API/models" >/dev/null && return 0; sleep 1; done; return 1; }
+
+wait_loaded() { local i; for i in $(seq 1 90); do
+    curl -s --max-time 3 "$API/models" | python3 -c 'import json,sys
+try: d=json.load(sys.stdin)
+except Exception: sys.exit(1)
+sys.exit(0 if any(m.get("id")==sys.argv[1] and (m.get("status") or {}).get("value")=="loaded" for m in d.get("data",[])) else 1)' "$1" 2>/dev/null && return 0
+    sleep 2; done; return 1; }
+
+stop_port_conflicts() { local c
+    for c in openwebui ollama llama-moe llama-ornith ollama-ornith; do
+        running "$c" && { echo "Останавливаю $c (порт/VRAM)..."; docker stop "$c" >/dev/null; }
+    done; }
+
+check_disk() { local root avail
+    root=$(docker info --format '{{.DockerRootDir}}' 2>/dev/null || echo /var/lib/docker)
+    avail=$(df -Pk "$root" | awk 'NR==2{print $4}')
+    if [ "${avail:-0}" -lt 10485760 ]; then
+        warn "на $root свободно $((avail/1048576)) ГБ — мало даже для Vulkan"
+    elif [ "$FLAVOR" = rocm ] && [ "${avail:-0}" -lt 31457280 ]; then
+        warn "на $root свободно $((avail/1048576)) ГБ; ROCm-образ ~18 ГБ — впритык"
+    fi; }
+
+init_gpu_args() {
+    GPU_ARGS=(--security-opt seccomp=unconfined --ipc=host)
+    [ -e /dev/dri ] && GPU_ARGS+=(--device=/dev/dri)
+    [ -e /dev/kfd ] && GPU_ARGS+=(--device=/dev/kfd)
+    local g gid
+    for g in video render; do
+        gid=$(getent group "$g" | cut -d: -f3)
+        [ -n "$gid" ] && GPU_ARGS+=(--group-add "$gid")
+    done; }
+
+preflight() {
+    command -v docker >/dev/null || die "Docker не установлен (sudo apt install docker.io)"
+    docker info >/dev/null 2>&1 || die "Docker не запущен или нет доступа (группа docker + перелогин)"
+    [ -e /dev/dri ] || die "нет /dev/dri — проверь firmware-amd-graphics"
+    [ -e /dev/kfd ] || warn "нет /dev/kfd — ROCm не заработает (Vulkan не требует)"
+    local g
+    for g in video render; do
+        id -nG "$USER" | grep -qw "$g" || warn "$USER не в группе $g (sudo usermod -aG $g $USER + перелогин)"
     done
+    detect_card
+    [ -n "$CARD" ] && echo "GPU: $CARD, VRAM used $(vram) MiB" || warn "VRAM в sysfs не найден"
+    local swap=$(( $(grep SwapTotal /proc/meminfo | tr -dc 0-9) / 1048576 ))
+    (( swap > 0 )) || warn "swap=0 — при 20+ ГБ весов риск OOM (sudo apt install zram-tools)"
+    running comfyui && warn "comfyui запущен — не грузи тяжёлые модели и не запускай --tune"
+    check_disk
+    mkdir -p "$MODELS_DIR"
+    local avail=$(( $(df -Pk "$MODELS_DIR" | awk 'NR==2{print $4}') / 1048576 ))
+    (( avail < 30 )) && warn "на $MODELS_DIR свободно ${avail} ГБ (надо ~30+)"
+    echo "Образ: $SOURCE / $FLAVOR → $IMAGE"
+    if docker image inspect "$OLLAMA_IMAGE" >/dev/null 2>&1; then
+        echo "Локальный бинарь: есть ($OLLAMA_IMAGE) → доступен --ollama (0 ГБ)"
+    else
+        echo "Локальный бинарь: нет → доступны --vulkan / --rocm / --build"
+    fi
+    echo "Скорость: порог ${MIN_SPEED_MB} МБ/с, замер ${PROBE}с, разогрев ${GRACE}с, лимит ${PULL_MAX}с"
+    echo "HF endpoint: ${HF_ENDPOINT:-huggingface.co}"
+    echo "preflight ok"; }
+
+# ---------- образ ----------
+try_ollama() {
+    if ! docker image inspect "$OLLAMA_IMAGE" >/dev/null 2>&1; then
+        warn "образ $OLLAMA_IMAGE не найден локально (удалён через --cleanup-old?)"
+        return 1
+    fi
+    echo "Проверяю llama-server внутри $OLLAMA_IMAGE (0 ГБ загрузки)..."
+    local h
+    h=$(docker run --rm "${GPU_ARGS[@]}" --entrypoint /usr/lib/ollama/llama-server \
+        -e LD_LIBRARY_PATH=/usr/lib/ollama:/usr/lib/ollama/rocm_v7_2 \
+        "$OLLAMA_IMAGE" --help 2>&1)
+    grep -q -- '--models-preset' <<<"$h" || { warn "в $OLLAMA_IMAGE нет router-mode (--models-preset)"; return 1; }
+    IMAGE="$OLLAMA_IMAGE"
+    RUN_ENTRY=(--entrypoint /usr/lib/ollama/llama-server)
+    RUN_ENV=(-e LD_LIBRARY_PATH=/usr/lib/ollama:/usr/lib/ollama/rocm_v7_2 -e HSA_OVERRIDE_GFX_VERSION=11.0.1)
+    echo "ОК: llama-server (llama.cpp) из локального образа. Ollama-сервер не используется."
+    return 0; }
+
+pull_via_mirrors() { local f p cand host rc
+    for f in "$@"; do
+        for p in "${MIRRORS[@]}"; do
+            host="${p%%/*}"
+            if ! curl -s -o /dev/null --max-time 6 "https://$host/v2/"; then
+                warn "$host недоступен — пропуск"; continue
+            fi
+            cand="$p/ggml-org/llama.cpp:server-$f"
+            echo "→ $cand"
+            LABEL="$host"
+            speed_guard meter_pull - docker pull "$cand"; rc=$?
+            if (( rc == 0 )); then
+                IMAGE="ghcr.io/ggml-org/llama.cpp:server-$f"; FLAVOR="$f"
+                docker tag "$cand" "$IMAGE"
+                [ "$cand" != "$IMAGE" ] && docker rmi "$cand" >/dev/null 2>&1
+                echo "Образ получен: $IMAGE"; return 0
+            fi
+            (( rc == 99 || rc == 98 )) || warn "$host: ошибка pull"
+        done
+    done
+    return 1; }
+
+build_vulkan() {
+    echo "Собираю llama.cpp Vulkan локально (~10 мин, ghcr не нужен)..."
+    local d; d=$(mktemp -d)
+    cat > "$d/Dockerfile" <<'EOF'
+ARG BASE=debian:trixie-slim
+FROM ${BASE} AS build
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential cmake git ca-certificates pkg-config libvulkan-dev glslc libcurl4-openssl-dev \
+ && rm -rf /var/lib/apt/lists/*
+RUN git clone --depth 1 https://github.com/ggml-org/llama.cpp /src
+WORKDIR /src
+RUN cmake -B build -DGGML_VULKAN=ON -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF \
+      -DCMAKE_BUILD_TYPE=Release -DLLAMA_CURL=ON \
+ && cmake --build build -j"$(nproc)" --target llama-server
+FROM ${BASE}
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libvulkan1 mesa-vulkan-drivers libcurl4 libgomp1 ca-certificates curl \
+ && rm -rf /var/lib/apt/lists/*
+COPY --from=build /src/build/bin/llama-server /usr/local/bin/llama-server
+ENV VK_DRIVER_FILES=/usr/share/vulkan/icd.d/radeon_icd.x86_64.json
+ENTRYPOINT ["/usr/local/bin/llama-server"]
+EOF
+    if docker build --build-arg BASE="$DEBIAN_BASE" -t llama-local:vulkan "$d"; then
+        IMAGE=llama-local:vulkan; FLAVOR=vulkan; rm -rf "$d"; return 0
+    fi
+    rm -rf "$d"; return 1; }
+
+ensure_image() {
+    [ "$IMAGE_READY" = 1 ] && return 0
+    init_gpu_args
+    if [ "$SOURCE" != build ] && docker image inspect "$IMAGE" >/dev/null 2>&1; then
+        IMAGE_READY=1; return 0
+    fi
+    if [ "$SOURCE" = auto ] || [ "$SOURCE" = ollama ]; then
+        if try_ollama; then IMAGE_READY=1; return 0; fi
+        [ "$SOURCE" = ollama ] && die "нет $OLLAMA_IMAGE. Варианты: --vulkan (~0.5 ГБ), --build (локально), --rocm (~18 ГБ)"
+    fi
+    if [ "$SOURCE" != build ]; then
+        check_disk
+        if pull_via_mirrors "$FLAVOR" vulkan; then IMAGE_READY=1; return 0; fi
+        warn "зеркала медленные/недоступны — пробую локальную сборку"
+    fi
+    if build_vulkan; then IMAGE_READY=1; return 0; fi
+    die "образ не получен: start-llm --build или --speed 1 (снизить порог)"; }
+
+# ---------- модели ----------
+main_gguf() { local d="$MODELS_DIR/$1" pat f
+    for pat in '*Q4_K_XL*.gguf' '*Q4_K_M*.gguf' '*.gguf'; do
+        f=$(find "$d" -maxdepth 2 -type f -name "$pat" \
+            ! -name '*mmproj*' ! -name 'mtp-*' ! -name '*imatrix*' 2>/dev/null | sort | head -1)
+        [ -n "$f" ] && { echo "$f"; return 0; }
+    done; return 1; }
+present() { [ -n "$(main_gguf "$1")" ]; }
+
+dl_spec() { case "$1" in
+    coder)     echo "unsloth/Qwen3.6-35B-A3B-MTP-GGUF|Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf|" ;;
+    coder-std) echo "unsloth/Qwen3.6-35B-A3B-GGUF|Qwen3.6-35B-A3B-UD-Q4_K_XL.gguf|" ;;
+    coder30)   echo "unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF|Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf|" ;;
+    chat)      echo "unsloth/Qwen3.5-9B-GGUF|Qwen3.5-9B-Q4_K_M.gguf|mmproj-F16.gguf" ;;
+    fast)      echo "unsloth/Qwen3.5-4B-GGUF|Qwen3.5-4B-Q4_K_M.gguf|mmproj-F16.gguf" ;;
+    reason)    echo "ggml-org/gpt-oss-20b-GGUF|gpt-oss-20b-MXFP4.gguf|" ;;
+    ornith)    echo "ornith-ai/Ornith-1.5-35B-A3B-GGUF|Ornith-1.5-35B-Q4_K_M.gguf|" ;;
+    chat-unc)  echo "mradermacher/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic-GGUF|DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic.Q4_K_M.gguf|DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic.mmproj-Q8_0.gguf" ;;
+    fast-unc)  echo "mradermacher/DeepSeek-V4-Pro-Qwen3.5-4B-UNCENSORED-heretic-GGUF|DeepSeek-V4-Pro-Qwen3.5-4B-UNCENSORED-heretic.Q4_K_M.gguf|DeepSeek-V4-Pro-Qwen3.5-4B-UNCENSORED-heretic.mmproj-Q8_0.gguf" ;;
+    gemma)     echo "unsloth/gemma-4-26B-A4B-it-GGUF|gemma-4-26B-A4B-it-UD-Q4_K_XL.gguf|mmproj-F16.gguf" ;;
+    creative)  echo "DavidAU/Qwen3.5-9B-The-Defiant-Fable-Uncensored-Heretic-NEO-IMATRIX-MAX-MTP-GGUF|Qwen3.5-9B-The-Defiant-Fable-Uncnr-Heretic-NEO-MAX-MTP-Q4_K_M.gguf|" ;;
+    fim)       echo "Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF|qwen2.5-coder-1.5b-instruct-q8_0.gguf|" ;;
+    *) return 1 ;; esac; }
+
+slot_gb() { case "$1" in
+    coder) echo 23;; coder-std) echo 22;; coder30) echo 18;; chat) echo 7;;
+    fast) echo 3;; reason) echo 12;; ornith) echo 22;; chat-unc) echo 6;;
+    fast-unc) echo 3;; gemma) echo 18;; creative) echo 7;; fim) echo 2;; *) echo 0;; esac; }
+
+ensure_hf() { [ -x "$HF_VENV/bin/hf" ] && return 0
+    command -v python3 >/dev/null || die "нужен python3 (sudo apt install python3-venv)"
+    python3 -m venv "$HF_VENV" || die "venv не создался (sudo apt install python3-venv)"
+    "$HF_VENV/bin/pip" install -q --upgrade pip huggingface_hub hf_transfer || die "pip install не удался"; }
+
+pull_models() { ensure_hf; mkdir -p "$MODELS_DIR"
+    export HF_HUB_ENABLE_HF_TRANSFER=1
+    [ -n "$HF_ENDPOINT" ] && export HF_ENDPOINT
+    local targets=("$@"); [ ${#targets[@]} -eq 0 ] && targets=("${DEFAULT_MODELS[@]}")
+    [ "${targets[0]}" = "all" ] && targets=("${NAMES[@]}")
+    local t need=0
+    for t in "${targets[@]}"; do
+        dl_spec "$t" >/dev/null || die "неизвестный слот: $t (см. start-llm --list)"
+        present "$t" || need=$((need + $(slot_gb "$t")))
+    done
+    local avail=$(( $(df -Pk "$MODELS_DIR" | awk 'NR==2{print $4}') / 1048576 ))
+    echo "Нужно скачать ~${need} ГБ, свободно ${avail} ГБ"
+    (( avail < need + 5 )) && warn "места впритык — убери лишние слоты"
+    local repo glob mm rc old_ep
+    for t in "${targets[@]}"; do
+        IFS='|' read -r repo glob mm <<< "$(dl_spec "$t")"
+        echo; echo "=== $t ($repo) ==="; mkdir -p "$MODELS_DIR/$t"
+        local args=(download "$repo" --local-dir "$MODELS_DIR/$t" --include "$glob")
+        [ -n "$mm" ] && args+=(--include "$mm")
+        if present "$t"; then
+            "$HF_VENV/bin/hf" "${args[@]}" >/dev/null 2>&1 || warn "$t: проверка не прошла"
+            echo "  уже на диске"
+            continue
+        fi
+        LABEL="hf:$t"
+        speed_guard meter_dir "$MODELS_DIR/$t" "$HF_VENV/bin/hf" "${args[@]}"; rc=$?
+        if (( rc == 99 )) && [ -z "$HF_ENDPOINT" ]; then
+            echo "Пробую hf-mirror.com..."
+            old_ep="$HF_ENDPOINT"; export HF_ENDPOINT="https://hf-mirror.com"
+            LABEL="hf-mirror:$t"
+            speed_guard meter_dir "$MODELS_DIR/$t" "$HF_VENV/bin/hf" "${args[@]}"; rc=$?
+            export HF_ENDPOINT="$old_ep"; [ -z "$old_ep" ] && unset HF_ENDPOINT
+        fi
+        (( rc == 0 )) || warn "$t не докачан (код $rc) — повтори, докачается с места обрыва"
+    done
+    generate_presets; }
+
+generate_presets() { mkdir -p "$CONFIG_DIR"; local tmp="$PRESETS.tmp" n=0 t mm
+    cat > "$tmp" <<'EOF'
+version = 1
+[*]
+jinja = true
+flash-attn = on
+threads = 6
+threads-batch = 6
+n-gpu-layers = 99
+parallel = 1
+batch-size = 1024
+ubatch-size = 512
+cache-ram = 2048
+repeat-penalty = 1.0
+EOF
+    for t in "${NAMES[@]}"; do
+        present "$t" || continue
+        mm=$(find "$MODELS_DIR/$t" -maxdepth 2 -type f -name '*mmproj*.gguf' 2>/dev/null | sort | head -1)
+        { echo; echo "[$t]"; echo "model = /models/$t/$(basename "$(main_gguf "$t")")"
+          [ -n "$mm" ] && echo "mmproj = /models/$t/$(basename "$mm")"
+          case "$t" in
+            coder) cat <<'S'
+ctx-size = 65536
+n-cpu-moe = 34
+cache-type-k = q8_0
+cache-type-v = q8_0
+spec-type = draft-mtp
+spec-draft-n-max = 2
+temp = 0.6
+top-p = 0.95
+top-k = 20
+min-p = 0.0
+presence-penalty = 0.0
+load-on-startup = true
+S
+            ;;
+            coder-std) cat <<'S'
+ctx-size = 65536
+n-cpu-moe = 34
+cache-type-k = q8_0
+cache-type-v = q8_0
+temp = 0.6
+top-p = 0.95
+top-k = 20
+min-p = 0.0
+presence-penalty = 0.0
+S
+            ;;
+            coder30) cat <<'S'
+ctx-size = 65536
+n-cpu-moe = 34
+cache-type-k = q8_0
+cache-type-v = q8_0
+temp = 0.7
+top-p = 0.8
+top-k = 20
+min-p = 0.0
+presence-penalty = 0.0
+S
+            ;;
+            ornith) cat <<'S'
+ctx-size = 65536
+n-cpu-moe = 34
+cache-type-k = q8_0
+cache-type-v = q8_0
+temp = 0.6
+top-p = 0.95
+top-k = 20
+presence-penalty = 0.0
+; если тулзы сыплют сырым XML — раскомментируй фикс-шаблон:
+; chat-template-file = /models/ornith/chat_template.jinja
+S
+            ;;
+            chat) cat <<'S'
+ctx-size = 65536
+reasoning = on
+temp = 1.0
+top-p = 0.95
+top-k = 20
+S
+            ;;
+            fast) cat <<'S'
+ctx-size = 32768
+temp = 0.7
+top-p = 0.8
+top-k = 20
+presence-penalty = 1.5
+S
+            ;;
+            chat-unc|fast-unc) cat <<'S'
+ctx-size = 32768
+temp = 0.7
+top-p = 0.8
+top-k = 20
+presence-penalty = 0.0
+S
+            ;;
+            gemma) cat <<'S'
+ctx-size = 65536
+n-cpu-moe = 16
+cache-type-k = q8_0
+cache-type-v = q8_0
+temp = 1.0
+top-p = 0.95
+top-k = 64
+; MTP-драфт качается отдельно (0.46 ГБ), потом раскомментируй:
+; spec-type = draft-mtp
+; spec-draft-model = /models/gemma/mtp-gemma-4-26B-A4B-it.gguf
+S
+            ;;
+            reason) cat <<'S'
+ctx-size = 32768
+n-cpu-moe = 8
+temp = 1.0
+top-p = 1.0
+top-k = 0
+chat-template-kwargs = {"reasoning_effort": "medium"}
+S
+            ;;
+            creative) cat <<'S'
+ctx-size = 32768
+spec-type = draft-mtp
+spec-draft-n-max = 2
+temp = 0.7
+top-p = 0.95
+top-k = 20
+S
+            ;;
+            fim) cat <<'S'
+ctx-size = 8192
+jinja = false
+temp = 0.2
+top-p = 0.95
+S
+            ;;
+          esac
+          echo "; если вывод «каша» на гибриде — замени q8_0 на f16 в этой секции"
+        } >> "$tmp"
+        n=$((n+1))
+    done
+    mv "$tmp" "$PRESETS"; echo "presets.ini: моделей $n"; }
+
+set_ncmoe() { awk -v a="[$1]" -v v="$2" '
+    $0==a {insec=1; print; next}
+    /^\[/ {insec=0}
+    insec && /^n-cpu-moe = / {print "n-cpu-moe = " v; next}
+    {print}' "$PRESETS" > "$PRESETS.tmp" && mv "$PRESETS.tmp" "$PRESETS"; }
+
+ensure_server() { stop_port_conflicts
+    mkdir -p "$MODELS_DIR" "$CONFIG_DIR"
+    ensure_image
+    [ -f "$PRESETS" ] || generate_presets
+    if ! grep -q '^model = ' "$PRESETS" 2>/dev/null; then
+        echo
+        echo "Образ готов ($IMAGE), но GGUF-моделей нет. Скачай хотя бы одну:"
+        echo "  start-llm --models fast    # ~3 ГБ, смоук-тест"
+        echo "  start-llm --models         # ~45 ГБ, базовый набор"
+        return 0
+    fi
+    if exists "$SERVER" && ! llama_env_ok; then
+        echo "Конфигурация/образ изменились — пересоздаю $SERVER..."
+        docker rm -f "$SERVER" >/dev/null
+    fi
+    if exists "$SERVER"; then
+        running "$SERVER" || { echo "Запускаю $SERVER..."; docker start "$SERVER" >/dev/null; }
+        return
+    fi
+    LLAMA_HELP=$(docker run --rm "${GPU_ARGS[@]}" "${RUN_ENTRY[@]}" "${RUN_ENV[@]}" "$IMAGE" --help 2>&1 || true)
+    has_flag --models-preset || die "образ $IMAGE без router-mode: start-llm --build"
+    local sargs=(--host 0.0.0.0 --port 8080 --models-preset /config/presets.ini --models-max 1)
+    has_flag --models-memory-margin && sargs+=(--models-memory-margin 512)
+    has_flag --sleep-idle-seconds   && sargs+=(--sleep-idle-seconds 1800)
+    has_flag --metrics              && sargs+=(--metrics)
+    echo "Создаю контейнер $SERVER ($IMAGE)..."
+    docker run -d --name "$SERVER" "${GPU_ARGS[@]}" "${RUN_ENTRY[@]}" "${RUN_ENV[@]}" \
+        --log-opt max-size=20m --log-opt max-file=3 \
+        -v "$MODELS_DIR":/models:ro -v "$CONFIG_DIR":/config:ro \
+        -p "127.0.0.1:$PORT:8080" --restart unless-stopped \
+        -e "STACK_REV=$STACK_REV" -e "LLAMA_IMAGE=$IMAGE" "$IMAGE" "${sargs[@]}" >/dev/null \
+        || die "не удалось создать контейнер $SERVER"; }
+
+tune() { local alias="${1:-coder}" k best u start
+    running "$SERVER" || die "сервер не запущен (start-llm)"
+    running comfyui && die "останови comfyui перед тюнингом VRAM"
+    present "$alias" || die "слот $alias не скачан"
+    start=$(awk -v a="[$alias]" '$0==a{f=1;next}/^\[/{f=0}f&&/^n-cpu-moe = /{print $3}' "$PRESETS")
+    [ -n "$start" ] || die "у слота $alias нет n-cpu-moe (не MoE) — тюнить нечего"
+    detect_card; best=$start
+    for k in $(seq "$start" -4 8); do
+        set_ncmoe "$alias" "$k"
+        curl -s "$API/models?reload=1" >/dev/null
+        curl -s -X POST "$API/models/load" -H 'Content-Type: application/json' -d "{\"model\":\"$alias\"}" >/dev/null
+        wait_loaded "$alias" || { warn "n-cpu-moe=$k не загрузилась (OOM)"; break; }
+        u=$(vram); echo "n-cpu-moe=$k → VRAM ${u} MiB"
+        [ "$u" -gt "$VRAM_LIMIT" ] && break
+        best=$k
+        curl -s -X POST "$API/models/unload" -H 'Content-Type: application/json' -d "{\"model\":\"$alias\"}" >/dev/null
+        sleep 2
+    done
+    set_ncmoe "$alias" "$best"
+    curl -s "$API/models?reload=1" >/dev/null
+    curl -s -X POST "$API/models/load" -H 'Content-Type: application/json' -d "{\"model\":\"$alias\"}" >/dev/null
+    echo "ИТОГ: $alias n-cpu-moe=$best. Проверь: start-llm --bench $alias"; }
+
+bench() { local m="${1:-coder}"
+    running "$SERVER" || die "сервер не запущен"
+    present "$m" || die "слот $m не скачан"
+    echo "Бенч $m (первый запрос грузит модель, терпи)..."
+    curl -s --max-time 600 "$API/v1/chat/completions" -H 'Content-Type: application/json' \
+        -d "{\"model\":\"$m\",\"messages\":[{\"role\":\"user\",\"content\":\"Напиши функцию quicksort на Python и краткий тест.\"}],\"max_tokens\":256,\"stream\":false}" \
+        | python3 -c 'import json,sys
+d=json.load(sys.stdin); t=d.get("timings") or {}
+print("prompt: %.1f t/s | gen: %.1f t/s" % (t.get("prompt_per_second",0), t.get("predicted_per_second",0)))' 2>/dev/null \
+        || warn "не удалось снять timings (смотри start-llm --logs)"
+    detect_card; echo "VRAM used: $(vram) MiB"; }
+
+write_opencode() { mkdir -p "$OC_DIR/agents"
+    [ -f "$OC_DIR/opencode.json" ] && cp "$OC_DIR/opencode.json" "$OC_DIR/opencode.json.bak.$(date +%s)"
+    local primary="" t entries="" ctx img reason
+    for t in "${NAMES[@]}"; do present "$t" || continue; [ -n "$primary" ] || primary="$t"
+        case "$t" in coder|coder-std|coder30|ornith|gemma|chat) ctx=65536;; fim) ctx=8192;; *) ctx=32768;; esac
+        case "$t" in chat|fast|chat-unc|fast-unc|gemma) img='["text","image"]';; *) img='["text"]';; esac
+        case "$t" in coder|coder-std|ornith|chat|gemma|reason|creative) reason=',"compatibility":{"reasoningField":"reasoning_content"}';; *) reason='';; esac
+        entries+="{\"name\":\"$t\",\"capabilities\":{\"tools\":true,\"input\":$img,\"output\":[\"text\"]},\"limit\":{\"context\":$ctx,\"output\":16384}$reason},"
+    done
+    [ -n "$primary" ] || die "нет моделей для opencode (start-llm --models)"
+    cat > "$OC_DIR/opencode.json" <<EOF
+{
+  "\$schema": "https://opencode.ai/config.json",
+  "model": "local/$primary",
+  "default_agent": "build",
+  "plugins": ["-opencode.provider.ollama", "-opencode.provider.lmstudio", "-opencode.provider.vllm"],
+  "permissions": [
+    { "action": "shell", "resource": "sudo *", "effect": "deny" },
+    { "action": "shell", "resource": "rm -rf *", "effect": "deny" },
+    { "action": "shell", "resource": "git push*", "effect": "ask" }
+  ],
+  "providers": {
+    "local": {
+      "name": "llama.cpp (RX 7700 XT)",
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": { "baseURL": "$API/v1", "headerTimeout": 600000 },
+      "models": { ${entries%,} }
+    }
+  },
+  "agents": {
+    "build": { "model": "local/$primary", "request": { "body": { "temperature": 0.6, "top_p": 0.95 } } },
+    "plan": { "model": "local/$primary", "request": { "body": { "temperature": 0.6 } } },
+    "general": { "model": "local/$primary" },
+    "explore": { "model": "local/$primary" },
+    "title": { "model": "local/$primary" },
+    "summary": { "model": "local/$primary" },
+    "compaction": { "model": "local/$primary" }
+  }
 }
+EOF
+    cat > "$OC_DIR/agents/review.md" <<'EOF'
+---
+description: Ревью изменений — баги, регрессии, безопасность. Только чтение.
+mode: subagent
+permissions:
+  - action: edit
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "git diff*"
+    effect: allow
+  - action: shell
+    resource: "git log*"
+    effect: allow
+steps: 12
+---
+Ты строгий ревьюер. Смотри git diff и указанные файлы. Ищи логические ошибки, гонки,
+утечки, инъекции, необработанные ошибки, сломанные контракты, отсутствующие тесты.
+Формат: critical/major/minor, файл:строка, почему баг, минимальный фикс. Файлы не правь.
+EOF
+    cat > "$OC_DIR/agents/tests.md" <<'EOF'
+---
+description: Гоняет тесты и линтеры, чинит падения минимальными правками.
+mode: subagent
+permissions:
+  - action: shell
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "pytest*"
+    effect: allow
+  - action: shell
+    resource: "npm test*"
+    effect: allow
+  - action: shell
+    resource: "npm run lint*"
+    effect: allow
+  - action: shell
+    resource: "go test*"
+    effect: allow
+  - action: shell
+    resource: "cargo test*"
+    effect: allow
+steps: 16
+---
+Определи фреймворк, запусти тесты и линтер. При падениях найди причину, внеси
+минимальный фикс, перезапусти. Тесты не отключай и не удаляй. Отчёт: что запускал,
+что падало, что исправил.
+EOF
+    echo "opencode настроен: $OC_DIR (primary=$primary)"; }
 
-case "${1:-}" in
-    --help|-h|help) usage; exit 0 ;;
-esac
+list_slots() { local t sz
+    printf "%-10s %-12s %s\n" "СЛОТ" "НА ДИСКЕ" "РЕПОЗИТОРИЙ"
+    for t in "${NAMES[@]}"; do
+        if present "$t"; then sz=$(du -sh "$MODELS_DIR/$t" 2>/dev/null | cut -f1); else sz="—"; fi
+        printf "%-10s %-12s %s\n" "$t" "$sz" "$(dl_spec "$t" | cut -d'|' -f1)"
+    done
+    echo
+    echo "Скачать: start-llm --models <слоты|all>   (по умолчанию: ${DEFAULT_MODELS[*]})"
+    echo "Модели: $MODELS_DIR   Пресеты: $PRESETS"; }
 
+show_status() {
+    docker ps -a --filter "name=^${SERVER}$" --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+    if running "$SERVER"; then
+        echo; echo "Модели (router):"
+        curl -s --max-time 3 "$API/models" | python3 -c 'import json,sys
+try: d=json.load(sys.stdin)
+except Exception: sys.exit(0)
+for m in d.get("data",[]): print("  %-10s %s" % (m.get("id","?"), (m.get("status") or {}).get("value","?")))' 2>/dev/null || true
+        detect_card; echo; echo "VRAM used: $(vram) MiB"
+    fi; }
+
+stop_all() { running "$SERVER" && { echo "Останавливаю $SERVER..."; docker stop "$SERVER" >/dev/null; }; }
+show_logs() { if [ "${1:-}" = "-f" ]; then docker logs -f --tail 40 "$SERVER" 2>&1;
+    else docker logs --tail 40 "$SERVER" 2>&1; fi; }
+
+cleanup_old() {
+    warn "после удаления образа ollama путь --ollama (0 ГБ) станет недоступен"
+    echo "Удаляю ollama/openwebui (comfyui и portainer НЕ трогаю)..."
+    docker rm -f ollama openwebui 2>/dev/null || true
+    docker rmi ollama/ollama:rocm openwebui/open-webui:latest 2>/dev/null || true
+    echo "Готово. Место:"; df -h /var /home; }
+
+setup_all() {
+    preflight
+    ensure_image
+    pull_models "$@"
+    ensure_server
+    if running "$SERVER" && wait_for_llama; then
+        echo "llama-server работает."
+        write_opencode
+        echo
+        echo "WebUI: http://127.0.0.1:$PORT   API: $API/v1"
+        echo "Дальше: start-llm --bench ${1:-coder}  |  start-llm --tune ${1:-coder}"
+    else
+        echo "Сервер не поднялся — смотри: start-llm --logs"
+    fi; }
+
+case "${1:-}" in --help|-h|help) usage; exit 0 ;; esac
 command -v docker >/dev/null || die "Docker не установлен"
 docker info >/dev/null 2>&1 || die "Docker не запущен"
 
+# модификаторы можно ставить в любом месте
+ARGS=()
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --ollama|--reuse) SOURCE=ollama; shift ;;
+        --vulkan)  FLAVOR=vulkan; IMAGE="ghcr.io/ggml-org/llama.cpp:server-vulkan"; SOURCE=pull; shift ;;
+        --rocm)    FLAVOR=rocm;   IMAGE="ghcr.io/ggml-org/llama.cpp:server-rocm";   SOURCE=pull; shift ;;
+        --build)   SOURCE=build; shift ;;
+        --hf-mirror) HF_ENDPOINT="https://hf-mirror.com"; shift ;;
+        --speed)   shift; MIN_SPEED_MB="${1:-2}"; MIN_SPEED=$((MIN_SPEED_MB*1048576)); shift ;;
+        --image)   shift; [ $# -ge 1 ] || die "--image требует ref"; IMAGE="$1"; SOURCE=pull; shift ;;
+        *) ARGS+=("$1"); shift ;;
+    esac
+done
+set -- ${ARGS[@]+"${ARGS[@]}"}
+
 case "${1:-}" in
-    "")             ;;
-    --recreate)     docker rm -f "$OLLAMA" "$WEBUI" >/dev/null 2>&1; ;;
-    --models)       pull_models; exit 0 ;;
-    --status)       show_status; exit 0 ;;
-    --stop)         stop_all; exit 0 ;;
-    --logs)         show_logs; exit 0 ;;
-    *)              usage; exit 1 ;;
+    "")            ;;
+    --setup)       shift; setup_all "$@"; exit 0 ;;
+    --models)      shift; pull_models "$@"; exit 0 ;;
+    --list)        list_slots; exit 0 ;;
+    --check)       preflight; exit 0 ;;
+    --status)      show_status; exit 0 ;;
+    --stop)        stop_all; exit 0 ;;
+    --logs)        shift; show_logs "${1:-}"; exit 0 ;;
+    --bench)       shift; bench "${1:-coder}"; exit 0 ;;
+    --tune)        shift; tune "${1:-coder}"; exit 0 ;;
+    --opencode)    write_opencode; exit 0 ;;
+    --recreate)    docker rm -f "$SERVER" >/dev/null 2>&1 || true ;;
+    --update)      SOURCE=pull; IMAGE_READY=0; ensure_image; docker rm -f "$SERVER" >/dev/null 2>&1 || true ;;
+    --cleanup-old) cleanup_old; exit 0 ;;
+    *)             usage; exit 1 ;;
 esac
 
-ensure_ollama
-ensure_webui
+ensure_server
 
-if wait_for_ollama; then
-    echo "Ollama работает."
+if running "$SERVER"; then
+    if wait_for_llama; then
+        echo "llama-server работает."
+    else
+        echo "Внимание: сервер не отвечает, смотрите: start-llm --logs"
+    fi
+    echo
+    echo "WebUI:      http://127.0.0.1:$PORT"
+    echo "OpenAI API: $API/v1"
+    echo "Пресеты:    $PRESETS"
+    echo "Слоты:      start-llm --list   |   opencode: start-llm --opencode"
 else
-    echo "Внимание: Ollama не отвечает, смотрите: start-llm --logs"
+    echo "Контейнер не запущен — сначала скачай модель: start-llm --models fast"
 fi
-
-echo
-echo "OpenWebUI:  http://localhost:8080"
-echo "Ollama API: http://localhost:11434/v1"
-echo "Модели:     start-llm --models"
