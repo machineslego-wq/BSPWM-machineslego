@@ -197,7 +197,13 @@ gdbus call --session --dest org.freedesktop.portal.Desktop \
   текущую запись: mp4 корректно закрывается только по `SIGINT`, поэтому в
   скрипте `pkill -INT -x wf-recorder`, а не `kill`. Один хоткей на старт и
   стоп, как `screenshot` в X11.
-- Файлы — `~/Videos/Screencasts/YYYY-MM-DD_HH-MM-SS.mp4`. Хоткеи:
+- Файлы — `Screencasts/YYYY-MM-DD_HH-MM-SS.mp4` внутри системного каталога
+  видео. Путь берётся у `xdg-user-dir VIDEOS`, а не хардкодится: имя каталога
+  зависит от локали (`ru_RU` → `~/Видео`, `en_US` → `~/Videos`). Нет утилиты
+  или каталог не настроен (`xdg-user-dir` возвращает `$HOME`) — фолбэк
+  `~/Videos/Screencasts`. То же правило у скриншотов: `screenshot` и
+  `sway-screenshot` пишут в `Screenshots` внутри `xdg-user-dir PICTURES`
+  (`~/Изображения` при русской локали), фолбэк — `~/Screenshots`. Хоткеи:
   `Super+Shift+R` — весь экран, `Super+Shift+Alt+R` — область (геометрия из
   `slurp`, Esc — отмена). Область округляется вниз до чётных сторон:
   `libx264` и VAAPI не принимают нечётные размеры, а slurp может дать 101x101.
@@ -226,8 +232,12 @@ gdbus call --session --dest org.freedesktop.portal.Desktop \
   Работает после любого режима скриншота, потому что все они кладут PNG в
   буфер. Если в буфере текст — уведомление «В буфере нет изображения» и
   выход 1. Хоткей `Super+Shift+A`.
-- `config/swappy/config` → `~/.config/swappy`: `save_dir=$HOME/Screenshots`
-  (тот же каталог, что у `sway-screenshot`), формат имени с датой, панель
+- `config/swappy/config` → `~/.config/swappy`:
+  `save_dir=$XDG_PICTURES_DIR/Screenshots` (тот же каталог, что у
+  `sway-screenshot`). `swappy` разворачивает переменные окружения в
+  `save_dir`, но сам их не вычисляет, поэтому `sway-screenshot annotate`
+  экспортирует `XDG_PICTURES_DIR` перед запуском; без этого получится
+  `/Screenshots` в корне. Дальше — формат имени с датой, панель
   инструментов, `text_font=JetBrainsMono Nerd Font 11`, `early_exit=false`
   (можно и сохранить, и скопировать). Инструменты swappy: `b` кисть,
   `t` текст, `r` прямоугольник, `o` эллипс, `a` стрелка, `d` блюр;

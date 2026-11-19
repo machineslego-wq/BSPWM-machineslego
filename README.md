@@ -83,7 +83,7 @@ BSPWM-machineslego/
 │   ├── polybar/                 # config.ini, launch.sh
 │   ├── qt5ct/ qt6ct/            # tokyo-night.conf + tokyo-night-day.conf palettes
 │   ├── rofi/config.rasi         # launcher/windows/commands
-│   ├── swappy/config            # screenshot editor: saves to ~/Screenshots
+│   ├── swappy/config            # screenshot editor: saves to the Pictures folder
 │   ├── sway/config              # Sway session: borders, hotkeys, autostart
 │   ├── swaylock/config          # lock screen: Tokyo Night, desktop wallpapers
 │   ├── xdg-desktop-portal/      # portals.conf: ScreenCast/Screenshot → wlr
@@ -273,7 +273,7 @@ Launch OBS as a Wayland client — `QT_QPA_PLATFORM=wayland obs` — otherwise i
 | `Fn + brightness` | `brightnessctl` ±5% |
 | `Fn + volume` | Volume OSD ±2% |
 
-Screenshots are saved to `~/Screenshots` and copied to the CopyQ clipboard (fallback: `xclip`).
+Screenshots are saved to the `Screenshots` subfolder of the system Pictures folder (`~/Изображения/Screenshots` under a Russian locale — the path comes from `xdg-user-dir`, not hardcoded) and copied to the CopyQ clipboard (fallback: `xclip`).
 
 ### Sway: screenshots, recording & clipboard
 
@@ -286,7 +286,7 @@ Screenshots are saved to `~/Screenshots` and copied to the CopyQ clipboard (fall
 | `Super + Shift + Alt + R` | Record a region on/off |
 | `Super + Shift + V` | Clipboard history (cliphist) |
 
-Screenshots go to `~/Screenshots`, recordings to `~/Videos/Screencasts`. In swappy, `Ctrl+S` saves, `Ctrl+C` copies to the clipboard, `Esc` quits; tools are `a` arrow, `t` text, `r` rectangle, `o` ellipse, `b` brush, `d` blur. Quick recording is silent — use OBS for recording with sound. Clipboard history keeps the last 100 entries, images included.
+Screenshots go to the `Screenshots` subfolder of the system Pictures folder, recordings to `Screencasts` inside the system Videos folder — both resolved with `xdg-user-dir`, so a Russian locale gives `~/Изображения/Screenshots` and `~/Видео/Screencasts`. In swappy, `Ctrl+S` saves, `Ctrl+C` copies to the clipboard, `Esc` quits; tools are `a` arrow, `t` text, `r` rectangle, `o` ellipse, `b` brush, `d` blur. Quick recording is silent — use OBS for recording with sound. Clipboard history keeps the last 100 entries, images included.
 
 ### Windows & workspaces
 

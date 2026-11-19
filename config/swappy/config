@@ -1,5 +1,8 @@
 [Default]
-save_dir=$HOME/Screenshots
+# Путь разворачивается переменными окружения: XDG_PICTURES_DIR выставляет
+# sway-screenshot annotate, поэтому скриншоты попадают в тот же каталог, что
+# и у grim (системные «Изображения», имя зависит от локали).
+save_dir=$XDG_PICTURES_DIR/Screenshots
 save_filename_format=screenshot-%Y-%m-%d_%H-%M-%S.png
 show_panel=true
 line_size=4

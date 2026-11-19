@@ -12,7 +12,14 @@ case "$MODE" in
     *) echo "usage: $0 {full|window|region|delayed|monitor}" >&2; exit 1 ;;
 esac
 
-DIR="$HOME/Screenshots"
+# --- Каталог ---
+# Скриншоты лежат в подпапке Screenshots внутри системного каталога
+# изображений: его имя зависит от локали (ru_RU → ~/Изображения, en_US →
+# ~/Pictures), поэтому путь спрашиваем у xdg-user-dir, а не хардкодим.
+# Утилиты нет или каталог не настроен (вернёт $HOME) — ~/Screenshots.
+PICTURES=$(xdg-user-dir PICTURES 2>/dev/null)
+[ -n "$PICTURES" ] && [ "$PICTURES" != "$HOME" ] || PICTURES="$HOME"
+DIR="$PICTURES/Screenshots"
 mkdir -p "$DIR"
 FILE="$DIR/$(date +%Y-%m-%d_%H-%M-%S).png"
 

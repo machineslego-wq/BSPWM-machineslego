@@ -11,7 +11,8 @@
 #
 # Звук не пишется: быстрый клип тихий, запись со звуком — через OBS.
 # Кодек — VAAPI на amdgpu, у остальных (Intel, NVIDIA) libx264.
-# Файлы: ~/Videos/Screencasts/YYYY-MM-DD_HH-MM-SS.mp4
+# Файлы: <системные «Видео»>/Screencasts/YYYY-MM-DD_HH-MM-SS.mp4
+#        (ru_RU → ~/Видео/Screencasts, en_US → ~/Videos/Screencasts)
 # ==========================================================
 
 set -u
@@ -32,7 +33,14 @@ if pgrep -x wf-recorder >/dev/null; then
     exit 0
 fi
 
-DIR="$HOME/Videos/Screencasts"
+# --- Каталог ---
+# Записи лежат в подпапке Screencasts внутри системного каталога видео: его
+# имя зависит от локали (ru_RU → ~/Видео, en_US → ~/Videos), поэтому путь
+# спрашиваем у xdg-user-dir, а не хардкодим. Утилиты нет или каталог не
+# настроен (вернёт $HOME) — ~/Videos/Screencasts, как раньше.
+VIDEOS=$(xdg-user-dir VIDEOS 2>/dev/null)
+[ -n "$VIDEOS" ] && [ "$VIDEOS" != "$HOME" ] || VIDEOS="$HOME/Videos"
+DIR="$VIDEOS/Screencasts"
 mkdir -p "$DIR"
 FILE="$DIR/$(date +%Y-%m-%d_%H-%M-%S).mp4"
 
