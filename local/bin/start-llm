@@ -10,7 +10,7 @@
 #   start-llm --status     контейнер, модели, VRAM
 #   start-llm --stop       остановить сервер
 #   start-llm --logs [-f]  логи (-f = следить)
-#   start-llm --check      preflight: GPU, группы, диск, swap, скорость
+#   start-llm --check      preflight: GPU, группы, диск, swap, сеть
 #   start-llm --bench [слот]  замер скорости tg/pp
 #   start-llm --tune [слот]   автоподбор n-cpu-moe под VRAM
 #   start-llm --opencode   записать конфиг и агентов opencode
@@ -20,8 +20,7 @@
 #   start-llm --rocm       полный ROCm-образ ~18 ГБ
 #   start-llm --ollama     взять llama-server из локального ollama-образа (0 ГБ)
 #   start-llm --build      собрать Vulkan-образ локально (ghcr не нужен)
-#   start-llm --hf-mirror  качать модели через hf-mirror.com
-#   start-llm --speed N    порог скорости МБ/с (ниже — обрыв зеркала), default 2
+#   start-llm --hf-mirror  качать модели сначала с hf-mirror.com
 #   start-llm --cleanup-old  удалить старые ollama/openwebui (comfy/portainer целы)
 #
 # Без аргументов — быстрый запуск. Без флага --models модели не качаются.
@@ -32,26 +31,28 @@ set -u
 
 SERVER=llama
 PORT=8080
-FLAVOR="${FLAVOR:-vulkan}"                # vulkan (~0.5 ГБ) | rocm (~18 ГБ)
-SOURCE="${SOURCE:-auto}"                  # auto | ollama | pull | build
+FLAVOR="${FLAVOR:-vulkan}"                 # vulkan (~0.5 ГБ) | rocm (~18 ГБ)
+SOURCE="${SOURCE:-auto}"                   # auto | ollama | pull | build
 IMAGE="${IMAGE:-ghcr.io/ggml-org/llama.cpp:server-$FLAVOR}"
 OLLAMA_IMAGE="${OLLAMA_IMAGE:-ollama/ollama:rocm}"
-PROBE="${PROBE:-5}"                       # сек между замерами
-GRACE="${GRACE:-15}"                      # сек разогрева до вердикта
-MIN_SPEED_MB="${MIN_SPEED_MB:-2}"         # МБ/с: ниже — обрываем зеркало
-PULL_MAX="${PULL_MAX:-900}"               # жёсткий лимит на попытку, сек
-DEBIAN_BASE="${DEBIAN_BASE:-debian:trixie-slim}"
-HF_ENDPOINT="${HF_ENDPOINT:-}"
 MODELS_DIR="$HOME/llm_models"
 CONFIG_DIR="$HOME/llm_config"
 PRESETS="$CONFIG_DIR/presets.ini"
-HF_VENV="$HOME/.local/share/hf-cli-venv"
 OC_DIR="$HOME/.config/opencode"
 API="http://127.0.0.1:$PORT"
-STACK_REV="2026-11-llm-v6"
-VRAM_LIMIT="${VRAM_LIMIT:-10800}"
-MIN_SPEED=$((MIN_SPEED_MB * 1048576))
+STACK_REV="2026-11-llm-v7"
+VRAM_LIMIT="${VRAM_LIMIT:-10800}"          # MiB из ~12272
 
+# --- загрузки моделей (curl) ---
+MIN_SPEED="${MIN_SPEED:-102400}"           # 100 КБ/с: ниже — обрыв
+SPEED_TIME="${SPEED_TIME:-30}"             # ...в течение 30 с передачи
+HF_HOSTS=("https://huggingface.co" "https://hf-mirror.com")
+
+# --- загрузка образа (docker pull + watchdog) ---
+PULL_MIN_MB="${PULL_MIN_MB:-2}"            # МБ/с, ниже — меняем зеркало
+PROBE="${PROBE:-5}"; GRACE="${GRACE:-45}"
+NO_DATA_MAX="${NO_DATA_MAX:-90}"; PULL_MAX="${PULL_MAX:-1800}"
+DEBIAN_BASE="${DEBIAN_BASE:-debian:trixie-slim}"
 MIRRORS=(
     "ghcr.nju.edu.cn"
     "m.daocloud.io/ghcr.io"
@@ -59,37 +60,37 @@ MIRRORS=(
     "swr.cn-north-4.myhuaweicloud.com/ddn-k8s/ghcr.io"
     "ghcr.io"
 )
+
 NAMES=(coder coder-std coder30 chat fast reason ornith chat-unc fast-unc gemma creative fim)
 DEFAULT_MODELS=(coder chat fast reason)
-GPU_ARGS=(); RUN_ENTRY=(); RUN_ENV=(); LLAMA_HELP=""; IMAGE_READY=0; SG_LOG=""; LABEL=""
+GPU_ARGS=(); RUN_ENTRY=(); RUN_ENV=(); LLAMA_HELP=""; IMAGE_READY=0
+SG_LOG=""; CHILD_PGID=""; CARD=""
 
 usage() {
     cat << 'EOF'
-Использование: start-llm [--setup|--models|--list|--status|--stop|--logs|--check|--bench|--tune|--opencode|--recreate|--update|--vulkan|--rocm|--ollama|--build|--hf-mirror|--speed N|--cleanup-old]
+Использование: start-llm [--setup|--models|--list|--status|--stop|--logs|--check|--bench|--tune|--opencode|--recreate|--update|--vulkan|--rocm|--ollama|--build|--hf-mirror|--cleanup-old]
 
   (без флагов)   быстрый запуск llama-server (http://127.0.0.1:8080)
   --setup [..]   с нуля: preflight + образ + модели + запуск + opencode
-  --models [..]  скачать GGUF (по умолчанию: coder chat fast reason)
+  --models [..]  скачать GGUF через curl с докачкой (default: coder chat fast reason)
   --list         слоты: скачано/размер/репозиторий
   --status       контейнер + модели + VRAM
   --stop         остановить сервер
   --logs [-f]    логи (-f = следить)
-  --check        preflight: GPU, группы, диск, swap, настройки скорости
+  --check        preflight: GPU, группы, диск, swap, параметры сети
   --bench [слот] замер tg/pp
   --tune [слот]  автоподбор n-cpu-moe (только MoE)
-  --opencode     записать конфиг + агентов opencode
+  --opencode     записать конфиг V2 + агентов opencode
   --recreate     пересоздать контейнер (пресеты НЕ сбрасывает)
   --update       обновить образ
   --vulkan       образ ~0.5 ГБ (по умолчанию)
   --rocm         образ ~18 ГБ (быстрее prefill)
   --ollama       llama-server из локального ollama-образа, 0 ГБ
   --build        локальная сборка Vulkan (без ghcr)
-  --hf-mirror    модели через hf-mirror.com
-  --speed N      порог МБ/с, ниже — обрыв зеркала (default 2)
+  --hf-mirror    модели сначала с hf-mirror.com
   --cleanup-old  снести ollama/openwebui (comfy/portainer целы)
 
-Модификаторы (--vulkan/--rocm/--ollama/--build/--hf-mirror/--speed) ставятся
-в любом месте: start-llm --models fast --hf-mirror --speed 1
+Модификаторы ставятся в любом месте: start-llm --models fast --hf-mirror
 
 Слоты:
   coder      Qwen3.6-35B-A3B-MTP   ~23 ГБ  основной агент (thinking+MTP)
@@ -113,63 +114,34 @@ exists() { [ -n "$(docker ps -aq -f "name=^${1}$")" ]; }
 running() { [ -n "$(docker ps -q -f "name=^${1}$")" ]; }
 mb() { echo $(( ${1:-0} / 1048576 )); }
 
-# ---------- watchdog скорости ----------
-meter_dir() { du -sb "$1" 2>/dev/null | awk '{print $1+0}'; }
-
-meter_pull() {
-    tr '\r' '\n' < "$SG_LOG" 2>/dev/null | awk '
-    function b(s,  n,u){ n=s+0; u=s; gsub(/[0-9.]/,"",u); u=tolower(u)
-        if(u ~ /^g/) return n*1073741824
-        if(u ~ /^m/) return n*1048576
-        if(u ~ /^k/) return n*1024
-        return n }
-    ($2=="Downloading" || $2=="Extracting") {
-        id=$1
-        for(i=1;i<=NF;i++) if ($i ~ /^[0-9.]+[A-Za-z]*\/[0-9.]+[A-Za-z]*$/) {
-            split($i,a,"/"); v=b(a[1]); if (v+0 > m[id]+0) m[id]=v
-        }
-    }
-    END{ s=0; for(k in m) s+=m[k]; printf "%.0f\n", s+0 }'
-}
-
-speed_guard() {  # $1=метр $2=цель меттра, далее команда; 99=медленно 98=таймаут
-    local meter="$1" target="$2"; shift 2
-    SG_LOG=$(mktemp)
-    "$@" >"$SG_LOG" 2>&1 &
-    local pid=$! t=0 last cur sp rc
-    last=$($meter "$target"); last=${last:-0}
-    while kill -0 "$pid" 2>/dev/null; do
-        sleep "$PROBE"; t=$((t + PROBE))
-        cur=$($meter "$target"); cur=${cur:-0}
-        sp=$(( (cur - last) / PROBE )); (( sp < 0 )) && sp=0
-        last=$cur
-        printf '\r    %-26s %4s МБ/с   всего %6s МБ   ' "$LABEL" "$(mb "$sp")" "$(mb "$cur")"
-        if (( t >= GRACE && sp < MIN_SPEED )); then
-            if ! grep -qE 'Pull complete|Image is up to date' "$SG_LOG" 2>/dev/null; then
-                kill "$pid" 2>/dev/null; wait "$pid" 2>/dev/null
-                printf '\n'; warn "$LABEL: $(mb "$sp") МБ/с < ${MIN_SPEED_MB} МБ/с — обрываю"
-                rm -f "$SG_LOG"; return 99
-            fi
-        fi
-        if (( t >= PULL_MAX )); then
-            kill "$pid" 2>/dev/null; wait "$pid" 2>/dev/null
-            printf '\n'; warn "$LABEL: лимит ${PULL_MAX}с — обрываю"
-            rm -f "$SG_LOG"; return 98
-        fi
-    done
-    wait "$pid"; rc=$?
+on_stop() {
     printf '\n'
-    (( rc != 0 )) && tail -n 3 "$SG_LOG" >&2
-    rm -f "$SG_LOG"
-    return $rc
+    if [ -n "$CHILD_PGID" ]; then
+        kill -TERM -"$CHILD_PGID" 2>/dev/null
+        sleep 1
+        kill -KILL -"$CHILD_PGID" 2>/dev/null
+    fi
+    rm -f "${SG_LOG:-}"
+    echo "Прервано пользователем."
+    exit 130
 }
+trap on_stop INT TERM
 
 # ---------- система ----------
-CARD=""
 detect_card() { local f sz best=0; for f in /sys/class/drm/card*/device/mem_info_vram_total; do
     [ -r "$f" ] || continue; sz=$(cat "$f"); (( sz > best )) && { best=$sz; CARD="${f%/device/*}"; }; done; }
 vram() { if [ -n "$CARD" ] && [ -r "$CARD/device/mem_info_vram_used" ]; then
     echo $(( $(cat "$CARD/device/mem_info_vram_used") / 1048576 )); else echo 0; fi; }
+
+init_gpu_args() {
+    GPU_ARGS=(--security-opt seccomp=unconfined --ipc=host)
+    [ -e /dev/dri ] && GPU_ARGS+=(--device=/dev/dri)
+    [ -e /dev/kfd ] && GPU_ARGS+=(--device=/dev/kfd)
+    local g gid
+    for g in video render; do
+        gid=$(getent group "$g" | cut -d: -f3)
+        [ -n "$gid" ] && GPU_ARGS+=(--group-add "$gid")
+    done; }
 
 llama_env_ok() { local e
     e=$(docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$SERVER" 2>/dev/null)
@@ -200,19 +172,10 @@ check_disk() { local root avail
         warn "на $root свободно $((avail/1048576)) ГБ; ROCm-образ ~18 ГБ — впритык"
     fi; }
 
-init_gpu_args() {
-    GPU_ARGS=(--security-opt seccomp=unconfined --ipc=host)
-    [ -e /dev/dri ] && GPU_ARGS+=(--device=/dev/dri)
-    [ -e /dev/kfd ] && GPU_ARGS+=(--device=/dev/kfd)
-    local g gid
-    for g in video render; do
-        gid=$(getent group "$g" | cut -d: -f3)
-        [ -n "$gid" ] && GPU_ARGS+=(--group-add "$gid")
-    done; }
-
 preflight() {
     command -v docker >/dev/null || die "Docker не установлен (sudo apt install docker.io)"
     docker info >/dev/null 2>&1 || die "Docker не запущен или нет доступа (группа docker + перелогин)"
+    command -v curl >/dev/null || die "нужен curl (sudo apt install curl)"
     [ -e /dev/dri ] || die "нет /dev/dri — проверь firmware-amd-graphics"
     [ -e /dev/kfd ] || warn "нет /dev/kfd — ROCm не заработает (Vulkan не требует)"
     local g
@@ -230,13 +193,76 @@ preflight() {
     (( avail < 30 )) && warn "на $MODELS_DIR свободно ${avail} ГБ (надо ~30+)"
     echo "Образ: $SOURCE / $FLAVOR → $IMAGE"
     if docker image inspect "$OLLAMA_IMAGE" >/dev/null 2>&1; then
-        echo "Локальный бинарь: есть ($OLLAMA_IMAGE) → доступен --ollama (0 ГБ)"
+        echo "Локальный бинарь: есть → доступен --ollama (0 ГБ)"
     else
         echo "Локальный бинарь: нет → доступны --vulkan / --rocm / --build"
     fi
-    echo "Скорость: порог ${MIN_SPEED_MB} МБ/с, замер ${PROBE}с, разогрев ${GRACE}с, лимит ${PULL_MAX}с"
-    echo "HF endpoint: ${HF_ENDPOINT:-huggingface.co}"
+    echo "Модели: ${HF_HOSTS[*]}"
+    echo "curl: обрыв если < $((MIN_SPEED/1024)) КБ/с в течение ${SPEED_TIME}с"
+    echo "docker: порог ${PULL_MIN_MB} МБ/с, замер ${PROBE}с, разогрев ${GRACE}с"
     echo "preflight ok"; }
+
+# ---------- watchdog для docker pull ----------
+meter_pull() {
+    tr '\r' '\n' < "$SG_LOG" 2>/dev/null | awk '
+    function b(s,  n,u){ n=s+0; u=s; gsub(/[0-9.]/,"",u); u=tolower(u)
+        if(u ~ /^g/) return n*1073741824
+        if(u ~ /^m/) return n*1048576
+        if(u ~ /^k/) return n*1024
+        return n }
+    ($2=="Downloading" || $2=="Extracting") {
+        id=$1
+        for(i=1;i<=NF;i++) if ($i ~ /^[0-9.]+[A-Za-z]*\/[0-9.]+[A-Za-z]*$/) {
+            split($i,a,"/"); v=b(a[1]); if (v+0 > m[id]+0) m[id]=v
+        }
+    }
+    END{ s=0; for(k in m) s+=m[k]; printf "%.0f\n", s+0 }'
+}
+
+speed_guard() {   # $1=метр $2=цель, далее команда; 99=медленно 98=нет данных/лимит
+    local meter="$1" target="$2"; shift 2
+    SG_LOG=$(mktemp)
+    set -m
+    "$@" >"$SG_LOG" 2>&1 &
+    local pid=$!
+    set +m
+    CHILD_PGID=$pid
+    local t=0 last cur sp rc minb=$((PULL_MIN_MB * 1048576))
+    last=$($meter "$target"); last=${last:-0}
+    while kill -0 "$pid" 2>/dev/null; do
+        sleep "$PROBE"; t=$((t + PROBE))
+        cur=$($meter "$target"); cur=${cur:-0}
+        sp=$(( (cur - last) / PROBE )); (( sp < 0 )) && sp=0
+        last=$cur
+        printf '\r    %-26s %4s МБ/с   всего %6s МБ   ' "$LABEL" "$(mb "$sp")" "$(mb "$cur")"
+        if (( cur == 0 )); then
+            if (( t >= NO_DATA_MAX )); then
+                kill -TERM -"$pid" 2>/dev/null; wait "$pid" 2>/dev/null
+                printf '\n'; tail -n 5 "$SG_LOG" >&2
+                warn "$LABEL: нет данных ${NO_DATA_MAX}с — обрываю"
+                CHILD_PGID=""; rm -f "$SG_LOG"; return 98
+            fi
+        elif (( t >= GRACE && sp < minb )); then
+            if ! grep -qE 'Pull complete|Image is up to date' "$SG_LOG" 2>/dev/null; then
+                kill -TERM -"$pid" 2>/dev/null; wait "$pid" 2>/dev/null
+                printf '\n'; tail -n 5 "$SG_LOG" >&2
+                warn "$LABEL: $(mb "$sp") МБ/с < ${PULL_MIN_MB} МБ/с — обрываю"
+                CHILD_PGID=""; rm -f "$SG_LOG"; return 99
+            fi
+        fi
+        if (( t >= PULL_MAX )); then
+            kill -TERM -"$pid" 2>/dev/null; wait "$pid" 2>/dev/null
+            printf '\n'; warn "$LABEL: лимит ${PULL_MAX}с"
+            CHILD_PGID=""; rm -f "$SG_LOG"; return 98
+        fi
+    done
+    wait "$pid"; rc=$?
+    CHILD_PGID=""
+    printf '\n'
+    (( rc != 0 )) && tail -n 5 "$SG_LOG" >&2
+    rm -f "$SG_LOG"
+    return $rc
+}
 
 # ---------- образ ----------
 try_ollama() {
@@ -249,7 +275,7 @@ try_ollama() {
     h=$(docker run --rm "${GPU_ARGS[@]}" --entrypoint /usr/lib/ollama/llama-server \
         -e LD_LIBRARY_PATH=/usr/lib/ollama:/usr/lib/ollama/rocm_v7_2 \
         "$OLLAMA_IMAGE" --help 2>&1)
-    grep -q -- '--models-preset' <<<"$h" || { warn "в $OLLAMA_IMAGE нет router-mode (--models-preset)"; return 1; }
+    grep -q -- '--models-preset' <<<"$h" || { warn "в $OLLAMA_IMAGE нет router-mode"; return 1; }
     IMAGE="$OLLAMA_IMAGE"
     RUN_ENTRY=(--entrypoint /usr/lib/ollama/llama-server)
     RUN_ENV=(-e LD_LIBRARY_PATH=/usr/lib/ollama:/usr/lib/ollama/rocm_v7_2 -e HSA_OVERRIDE_GFX_VERSION=11.0.1)
@@ -313,7 +339,7 @@ ensure_image() {
     fi
     if [ "$SOURCE" = auto ] || [ "$SOURCE" = ollama ]; then
         if try_ollama; then IMAGE_READY=1; return 0; fi
-        [ "$SOURCE" = ollama ] && die "нет $OLLAMA_IMAGE. Варианты: --vulkan (~0.5 ГБ), --build (локально), --rocm (~18 ГБ)"
+        [ "$SOURCE" = ollama ] && die "нет $OLLAMA_IMAGE. Варианты: --vulkan (~0.5 ГБ), --build, --rocm (~18 ГБ)"
     fi
     if [ "$SOURCE" != build ]; then
         check_disk
@@ -321,7 +347,7 @@ ensure_image() {
         warn "зеркала медленные/недоступны — пробую локальную сборку"
     fi
     if build_vulkan; then IMAGE_READY=1; return 0; fi
-    die "образ не получен: start-llm --build или --speed 1 (снизить порог)"; }
+    die "образ не получен: start-llm --build или PULL_MIN_MB=1 start-llm"; }
 
 # ---------- модели ----------
 main_gguf() { local d="$MODELS_DIR/$1" pat f
@@ -352,14 +378,37 @@ slot_gb() { case "$1" in
     fast) echo 3;; reason) echo 12;; ornith) echo 22;; chat-unc) echo 6;;
     fast-unc) echo 3;; gemma) echo 18;; creative) echo 7;; fim) echo 2;; *) echo 0;; esac; }
 
-ensure_hf() { [ -x "$HF_VENV/bin/hf" ] && return 0
-    command -v python3 >/dev/null || die "нужен python3 (sudo apt install python3-venv)"
-    python3 -m venv "$HF_VENV" || die "venv не создался (sudo apt install python3-venv)"
-    "$HF_VENV/bin/pip" install -q --upgrade pip huggingface_hub hf_transfer || die "pip install не удался"; }
+fetch_file() {   # url dest — curl с докачкой и обрывом по скорости
+    local url="$1" dest="$2" rc=0 want have
+    if [ -s "$dest" ]; then echo "  ✓ $(basename "$dest") (уже есть)"; return 0; fi
+    echo "  ↓ $(basename "$dest")"
+    curl -L --fail --connect-timeout 15 --retry 3 --retry-delay 3 \
+         --speed-limit "$MIN_SPEED" --speed-time "$SPEED_TIME" \
+         -C - -o "$dest.part" "$url" || rc=$?
+    if (( rc == 33 )); then                       # сервер не умеет Range
+        rm -f "$dest.part"
+        curl -L --fail --connect-timeout 15 --retry 3 \
+             --speed-limit "$MIN_SPEED" --speed-time "$SPEED_TIME" \
+             -o "$dest.part" "$url" || rc=$?
+    fi
+    if (( rc == 0 )); then mv -f "$dest.part" "$dest"; return 0; fi
+    if [ -s "$dest.part" ]; then                  # возможно, уже докачано (416)
+        want=$(curl -sIL --max-time 20 "$url" | awk 'tolower($1)=="content-length:"{n=$2} END{gsub(/\r/,"",n); print n+0}')
+        have=$(stat -c%s "$dest.part" 2>/dev/null || echo 0)
+        if (( want > 0 && have >= want )); then mv -f "$dest.part" "$dest"; echo "  ✓ докачано"; return 0; fi
+    fi
+    case $rc in
+        28) warn "обрыв: < $((MIN_SPEED/1024)) КБ/с за ${SPEED_TIME}с";;
+        22) warn "HTTP-ошибка (404/403/416)";;
+        35|60) warn "TLS/сертификат";;
+        7)  warn "не соединился";;
+        *)  warn "curl rc=$rc";;
+    esac
+    return 1
+}
 
-pull_models() { ensure_hf; mkdir -p "$MODELS_DIR"
-    export HF_HUB_ENABLE_HF_TRANSFER=1
-    [ -n "$HF_ENDPOINT" ] && export HF_ENDPOINT
+pull_models() {
+    mkdir -p "$MODELS_DIR"
     local targets=("$@"); [ ${#targets[@]} -eq 0 ] && targets=("${DEFAULT_MODELS[@]}")
     [ "${targets[0]}" = "all" ] && targets=("${NAMES[@]}")
     local t need=0
@@ -370,27 +419,19 @@ pull_models() { ensure_hf; mkdir -p "$MODELS_DIR"
     local avail=$(( $(df -Pk "$MODELS_DIR" | awk 'NR==2{print $4}') / 1048576 ))
     echo "Нужно скачать ~${need} ГБ, свободно ${avail} ГБ"
     (( avail < need + 5 )) && warn "места впритык — убери лишние слоты"
-    local repo glob mm rc old_ep
+    local repo file mm host f ok
     for t in "${targets[@]}"; do
         IFS='|' read -r repo glob mm <<< "$(dl_spec "$t")"
+        file="$glob"
         echo; echo "=== $t ($repo) ==="; mkdir -p "$MODELS_DIR/$t"
-        local args=(download "$repo" --local-dir "$MODELS_DIR/$t" --include "$glob")
-        [ -n "$mm" ] && args+=(--include "$mm")
-        if present "$t"; then
-            "$HF_VENV/bin/hf" "${args[@]}" >/dev/null 2>&1 || warn "$t: проверка не прошла"
-            echo "  уже на диске"
-            continue
-        fi
-        LABEL="hf:$t"
-        speed_guard meter_dir "$MODELS_DIR/$t" "$HF_VENV/bin/hf" "${args[@]}"; rc=$?
-        if (( rc == 99 )) && [ -z "$HF_ENDPOINT" ]; then
-            echo "Пробую hf-mirror.com..."
-            old_ep="$HF_ENDPOINT"; export HF_ENDPOINT="https://hf-mirror.com"
-            LABEL="hf-mirror:$t"
-            speed_guard meter_dir "$MODELS_DIR/$t" "$HF_VENV/bin/hf" "${args[@]}"; rc=$?
-            export HF_ENDPOINT="$old_ep"; [ -z "$old_ep" ] && unset HF_ENDPOINT
-        fi
-        (( rc == 0 )) || warn "$t не докачан (код $rc) — повтори, докачается с места обрыва"
+        for f in "$file" $mm; do
+            ok=0
+            for host in "${HF_HOSTS[@]}"; do
+                if fetch_file "$host/$repo/resolve/main/$f" "$MODELS_DIR/$t/$f"; then ok=1; break; fi
+                warn "$host не отдал — пробую следующий"
+            done
+            (( ok )) || warn "$t: $f не скачан (повтори --models $t, докачается)"
+        done
     done
     generate_presets; }
 
@@ -499,7 +540,7 @@ cache-type-v = q8_0
 temp = 1.0
 top-p = 0.95
 top-k = 64
-; MTP-драфт качается отдельно (0.46 ГБ), потом раскомментируй:
+; MTP-драфт качается отдельно, потом раскомментируй:
 ; spec-type = draft-mtp
 ; spec-draft-model = /models/gemma/mtp-gemma-4-26B-A4B-it.gguf
 S
@@ -549,7 +590,7 @@ ensure_server() { stop_port_conflicts
     if ! grep -q '^model = ' "$PRESETS" 2>/dev/null; then
         echo
         echo "Образ готов ($IMAGE), но GGUF-моделей нет. Скачай хотя бы одну:"
-        echo "  start-llm --models fast    # ~3 ГБ, смоук-тест"
+        echo "  start-llm --models fast    # ~3 ГБ, ~13 мин на 4 МБ/с"
         echo "  start-llm --models         # ~45 ГБ, базовый набор"
         return 0
     fi
@@ -763,8 +804,7 @@ while [ $# -gt 0 ]; do
         --vulkan)  FLAVOR=vulkan; IMAGE="ghcr.io/ggml-org/llama.cpp:server-vulkan"; SOURCE=pull; shift ;;
         --rocm)    FLAVOR=rocm;   IMAGE="ghcr.io/ggml-org/llama.cpp:server-rocm";   SOURCE=pull; shift ;;
         --build)   SOURCE=build; shift ;;
-        --hf-mirror) HF_ENDPOINT="https://hf-mirror.com"; shift ;;
-        --speed)   shift; MIN_SPEED_MB="${1:-2}"; MIN_SPEED=$((MIN_SPEED_MB*1048576)); shift ;;
+        --hf-mirror) HF_HOSTS=("https://hf-mirror.com" "https://huggingface.co"); shift ;;
         --image)   shift; [ $# -ge 1 ] || die "--image требует ref"; IMAGE="$1"; SOURCE=pull; shift ;;
         *) ARGS+=("$1"); shift ;;
     esac
