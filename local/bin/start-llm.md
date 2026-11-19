@@ -127,18 +127,18 @@ DEBIAN_BASE=dockerhub.timeweb.cloud/library/debian:trixie-slim start-llm --build
 
 | Слот | Модель / квант | Размер | Роль | ctx |
 |---|---|---|---|---|
+| `ornith` | Ornith-1.5-35B-A3B Q4_K_M | 21.7 ГБ | экспериментальный coder-alt | 64k |
 | `coder` | Qwen3.6-35B-A3B **MTP** UD-Q4_K_XL | 22.9 ГБ | основной агент (thinking + MTP) | 64k |
 | `coder-std` | Qwen3.6-35B-A3B UD-Q4_K_XL | 22.4 ГБ | то же без MTP (запасной) | 64k |
-| `coder30` | Qwen3-Coder-30B-A3B-Instruct UD-Q4_K_XL | 17.7 ГБ | быстрый кодер без think | 64k |
-| `chat` | Qwen3.5-9B Q4_K_M + mmproj | 6.6 ГБ | повседнев, русский, vision | 64k |
-| `fast` | Qwen3.5-4B Q4_K_M + mmproj | 3.4 ГБ | утилита, ~80 t/s | 32k |
-| `reason` | gpt-oss-20b MXFP4 | 12.1 ГБ | быстрый резерв, мало RAM | 32k |
-| `ornith` | Ornith-1.5-35B-A3B Q4_K_M | 21.7 ГБ | экспериментальный coder-alt | 64k |
-| `chat-unc` | DSv4-Pro-Qwen3.5-9B-heretic + mmproj | 6.4 ГБ | uncensored чат + vision | 32k |
-| `fast-unc` | DSv4-Pro-Qwen3.5-4B-heretic + mmproj | 3.2 ГБ | uncensored быстрый | 32k |
 | `gemma` | gemma-4-26B-A4B-it UD-Q4_K_XL + mmproj | 18.2 ГБ | daily-alt, ревью, vision | 64k |
+| `coder30` | Qwen3-Coder-30B-A3B-Instruct UD-Q4_K_XL | 17.7 ГБ | быстрый кодер без think | 64k |
+| `reason` | gpt-oss-20b MXFP4 | 12.1 ГБ | быстрый резерв, мало RAM | 32k |
 | `creative` | DavidAU Defiant-Fable-9B MTP Q4_K_M | 7.0 ГБ | тексты/креатив | 32k |
+| `chat` | Qwen3.5-9B Q4_K_M + mmproj | 6.6 ГБ | повседнев, русский, vision | 64k |
+| `fast-unc` | DSv4-Pro-Qwen3.5-4B-heretic + mmproj | 3.2 ГБ | uncensored быстрый | 32k |
 | `fim` | Qwen2.5-Coder-1.5B-Instruct Q8_0 | 1.9 ГБ | автодополнение `/infill` | 8k |
+| `fast` | Qwen3.5-4B Q4_K_M + mmproj | 3.4 ГБ | утилита, ~80 t/s | 32k |
+| `chat-unc` | DSv4-Pro-Qwen3.5-9B-heretic + mmproj | 6.4 ГБ | uncensored чат + vision | 32k |
 
 Базовый набор (`--models` без аргументов) = `coder chat fast reason` ≈ **45 ГБ**.
 Все слоты (`--models all`) ≈ **140 ГБ**.
