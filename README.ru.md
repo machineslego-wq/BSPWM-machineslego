@@ -43,8 +43,8 @@
 ## ✨ Особенности
 
 - **Native Modules First:** Polybar использует стоковые `internal/bspwm`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard` и `internal/date`. Ноль фоновых bash-циклов.
-- **Команды по требованию:** `wifi`, `powermenu`, `battery`, `screenshot`, `volume`, `cheatsheet-bspwm`, `rice-check` и `rice-help` лежат в `~/.local/bin` (PATH), там же набор Sway (обвязка `sway-cheatsheet`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, меню на wofi — `wofi-battery`, `wofi-clipboard`, `wofi-powermenu`, `wofi-wifi`); флаги окон — в `config/sxhkd/scripts`. Запускаются по хоткею и сразу завершаются.
-- **Машинные команды:** `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Docker/ROCm-команды рассчитаны на конкретную машину; проверяют демон и печатают справку, если не хватает аргумента.
+- **Команды по требованию:** `wifi`, `powermenu`, `battery`, `power-profile`, `screenshot`, `volume`, `dunst-history`, `session-restart`, `cheatsheet-bspwm`, `rice-check` и `rice-help` лежат в `~/.local/bin` (PATH), там же набор Sway (обвязка `sway-cheatsheet`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, меню на wofi — `wofi-battery`, `wofi-clipboard`, `wofi-powermenu`, `wofi-wifi`); флаги окон — в `config/sxhkd/scripts`. Запускаются по хоткею и сразу завершаются.
+- **Машинные утилиты:** `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Команды Docker/ROCm машинно-специфичны: проверяют демон и печатают справку, если не хватает аргумента. Хелперы Apache — `vhost-add` / `vhost-remove`: создают и удаляют виртуальный хост (интерактивно, через `sudo`, правят `/etc/apache2` и `/etc/hosts`; `apache2` в `requirements/` не входит).
 - **Автоопределение железа:** `polybar/launch.sh` сам находит батарею (`POLYBAR_BAT`), адаптер питания (`POLYBAR_AC`) и карту подсветки (`POLYBAR_BACKLIGHT`) в `/sys/class/…` — имена не захардкожены.
 - **Обои — только `feh`:** никакого скрипта-выборщика, state-файла и превью. Два статичных вызова `feh` в `bspwmrc`: landscape на основной монитор, portrait на повёрнутый. Сменить обои = поправить одну строку.
 - **Блокировка экрана:** `xss-lock` + `i3lock-fancy` — через 10 минут бездействия, с гашением монитора по DPMS и корректной блокировкой перед сном (`--transfer-sleep-lock`).
@@ -145,6 +145,7 @@ chmod +x scripts/*.sh
 - `local/bin/<команда>` → `~/.local/bin/<команда>` — поштучно, чужие файлы в `~/.local/bin` (nvim, tree-sitter) не трогает
 - `local/share/mc/skins/*.ini` → `~/.local/share/mc/skins/`
 - выставляет `+x` командам из `local/bin`, скриптам SXHKD и `bspwmrc`
+- выставляет тему курсора GTK в gsettings (`Bibata-Modern-Ice`, 24) — без этого GTK-приложения рисуют стоковый Adwaita, пока Sway и XWayland показывают Bibata
 - при наличии Flatpak выдаёт override'ы: read-only доступ к `xdg-config/gtk-3.0`, `gtk-4.0`, `qt5ct`, `qt6ct`, `xdg-data/themes` и `QT_QPA_PLATFORMTHEME=qt5ct`
 
 ## ⚙️ После установки
@@ -197,7 +198,7 @@ sudo systemctl kill -s HUP systemd-logind
 Конфиг на Lua, плагины ставит встроенный `vim.pack` (Neovim 0.12), список — в `lua/plugins.lua`, версии фиксирует `nvim-pack-lock.json`. Первый запуск требует сети: `vim.pack` качает плагины, Mason — LSP-серверы в `~/.local/share/nvim/mason/bin`. Обновление плагинов: `:lua vim.pack.update()` и `:restart`; парсеры Treesitter — `:TSUpdate`. Полная шпаргалка — `config/nvim/CHEATSHEET.md`.
 
 **Vim.**
-Запасной редактор без плагинов: `home/vimrc` → `~/.vimrc`. Включены подсветка синтаксиса и `filetype plugin indent on`, гибридная нумерация (на строке курсора — абсолютный номер, вокруг — относительные), постоянная история изменений в `~/.vim/undo`, 4 пробела по умолчанию (2 для json/yaml/html/css/js) и типы файлов для конфигов без расширения (`sxhkdrc`, `bspwmrc`, `xinitrc`, `dunstrc`, `picom*.conf`, `qt5ct.conf`, `*.tdesktop-palette`). Цвета берутся из палитры терминала (Tokyo Night в Alacritty), тема не переопределяется. Изменения применяются через `:source ~/.vimrc`.
+Запасной редактор без плагинов: `home/vimrc` → `~/.vimrc`. Включены подсветка синтаксиса и `filetype plugin indent on`, гибридная нумерация (на строке курсора — абсолютный номер, вокруг — относительные), постоянная история изменений в `~/.vim/undo`, 4 пробела по умолчанию (2 для json/yaml/html/css/scss/js/ts/vue) и типы файлов для конфигов без расширения (`sxhkdrc`, `bspwmrc`, `xinitrc`, `dunstrc`, `picom*.conf`, `qt5ct.conf`, `qt6ct.conf`, `NetworkManager.conf`, `copyq*.conf`, `*.tdesktop-palette`). Цвета берутся из палитры терминала (Tokyo Night в Alacritty), тема не переопределяется. Изменения применяются через `:source ~/.vimrc`.
 
 **Node.js и npm.**
 `./scripts/install-node.sh` подключает NodeSource и ставит LTS. Переменные: `NODE_CHANNEL=lts|current|<major>` (по умолчанию `lts`), `UPDATE_NPM=1` — ещё и `npm@latest`. Глобальные пакеты ставятся в `~/.npm-global` (`prefix` в `~/.npmrc`), PATH добавляют и Fish, и bash. Если стоит NVM, он подключается в конце `~/.bashrc` и может переопределить `node`/`npm`.
@@ -238,7 +239,7 @@ OBS нужно запускать как Wayland-клиент (`QT_QPA_PLATFORM=
 
 **Полная шпаргалка:** `Super + /` — `cheatsheet-bspwm` (Rofi) в BSPWM, `sway-cheatsheet` (wofi) в Sway; обе с поиском по скрытым тегам. Шпаргалка по Neovim — `config/nvim/CHEATSHEET.md`, по Vim — комментарии в `~/.vimrc`.
 
-### Система и запуск
+### BSPWM: система и запуск
 
 | Комбинация | Действие |
 |---|---|
@@ -260,7 +261,7 @@ OBS нужно запускать как Wayland-клиент (`QT_QPA_PLATFORM=
 | `Super + Escape` | Перезагрузить конфиг SXHKD |
 | `Super + Alt + Shift + R` | Перезапуск всей сессии (SXHKD, BSPWM, Polybar, Dunst, Picom, аплеты) |
 
-### Скриншоты и медиа
+### BSPWM: скриншоты и медиа
 
 | Комбинация | Действие |
 |---|---|
@@ -278,6 +279,10 @@ OBS нужно запускать как Wayland-клиент (`QT_QPA_PLATFORM=
 
 | Комбинация | Действие |
 |---|---|
+| `Super + F1` | Весь экран |
+| `Super + F2` | Активное окно |
+| `Super + F3` | Экран через 3 секунды |
+| `Super + F4` | Активный монитор |
 | `Super + Shift + S` | Выделенная область |
 | `Print` | Весь экран |
 | `Super + Shift + A` | Редактор скриншота из буфера (swappy) |
@@ -287,7 +292,27 @@ OBS нужно запускать как Wayland-клиент (`QT_QPA_PLATFORM=
 
 Скриншоты — подпапка `Screenshots` в системных «Изображениях», записи — `Screencasts` в системных «Видео»: оба пути берутся у `xdg-user-dir`, поэтому при русской локали это `~/Изображения/Screenshots` и `~/Видео/Screencasts`. В swappy `Ctrl+S` сохраняет, `Ctrl+C` копирует в буфер, `Esc` выходит; инструменты — `a` стрелка, `t` текст, `r` прямоугольник, `o` эллипс, `b` кисть, `d` блюр. Быстрая запись идёт без звука — для записи со звуком используется OBS. История буфера хранит последние 100 записей, включая картинки.
 
-### Окна и столы
+### Sway: сессия и окна
+
+Клавиши запуска, медиа и буфера повторяют таблицы BSPWM выше — кроме переключателя окон `Alt + Tab`, которого в Sway нет. Полный список — `sway-cheatsheet` (`Super + /`); ниже то, что отличается в сессии и управлении окнами.
+
+| Комбинация | Действие |
+|---|---|
+| `Super + Escape` / `Super + Shift + C` | Перечитать конфиг Sway |
+| `Super + Shift + E` | Выход из Sway (swaynag) |
+| `Super + T` / `Super + Shift + T` | Тайл (гориз./верт.) / вкладки |
+| `Super + M` | Стопка (stacking) |
+| `Super + S` / `Super + F` | Плавающее окно / на весь экран |
+| `Super + C` | Фокус между плавающим и тайлом |
+| `Super + W` | Закрыть окно |
+| `Super + R` | Режим ресайза (стрелки или HJKL, выход — `Esc`) |
+| `Super + Minus` / `Super + Shift + Minus` | Показать скретчпад / спрятать в него |
+| `Super + стрелки` или `H/J/K/L` | Смена фокуса |
+| `Super + Shift + стрелки` или `Shift + H/J/K/L` | Переместить окно |
+| `Super + 1…0` / `Super + Shift + 1…0` | Переключить стол / перенести окно |
+| `Super + [` / `]` / `Tab` | Предыдущий / следующий / прошлый стол |
+
+### BSPWM: окна и столы
 
 | Комбинация | Действие |
 |---|---|
@@ -308,7 +333,7 @@ OBS нужно запускать как Wayland-клиент (`QT_QPA_PLATFORM=
 | `Super + G` | Поменять с самым большим окном |
 | `Super + Alt + Q` / `R` | Выйти из BSPWM / перезапустить BSPWM |
 
-### Preselect, флаги и размеры
+### BSPWM: preselect, флаги и размеры
 
 | Комбинация | Действие |
 |---|---|
@@ -348,7 +373,7 @@ OBS нужно запускать как Wayland-клиент (`QT_QPA_PLATFORM=
 
 ## 🗺 Планы
 
-- `1.7.0` выпущен. Заметки к текущему релизу — в [RELEASE.md](./RELEASE.md), история — в [Releases](https://github.com/machineslego-wq/BSPWM-machineslego/releases). Следующая точка — `1.8.0`.
+- `1.8.1` выпущен. Заметки к текущему релизу — в [RELEASE.md](./RELEASE.md), история — в [Releases](https://github.com/machineslego-wq/BSPWM-machineslego/releases). Следующая точка — `1.9.0`.
 - Окружение постепенно переезжает на Sway/Wayland. BSPWM/X11 никуда не уходит: он остаётся рабочей сессией, на которую можно откатиться, если Wayland сломается, — прежнее решение «не переезжать» отменено (см. [TODO.md](./TODO.md)).
 - Текущие задачи, «Сделано», отвергнутые идеи и известные ограничения — в [TODO.md](./TODO.md).
 

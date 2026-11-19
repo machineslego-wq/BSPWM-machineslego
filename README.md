@@ -44,8 +44,8 @@ Every line of code and every running process must justify its existence. This ru
 ## ✨ Features
 
 - **Native Modules First:** Polybar uses stock `internal/bspwm`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard`, and `internal/date`. Zero background bash loops.
-- **On-Demand Commands:** `wifi`, `powermenu`, `battery`, `screenshot`, `volume`, `cheatsheet-bspwm`, `rice-check`, and `rice-help` live in `~/.local/bin` (PATH); the Sway set (`sway-cheatsheet`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, plus the wofi menus `wofi-battery`, `wofi-clipboard`, `wofi-powermenu`, `wofi-wifi`) lives there too; window flags — in `config/sxhkd/scripts`. They run on a hotkey and exit immediately.
-- **Machine Utilities:** `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Docker/ROCm commands are machine-specific; they check for the daemon and print usage when an argument is missing.
+- **On-Demand Commands:** `wifi`, `powermenu`, `battery`, `power-profile`, `screenshot`, `volume`, `dunst-history`, `session-restart`, `cheatsheet-bspwm`, `rice-check`, and `rice-help` live in `~/.local/bin` (PATH); the Sway set (`sway-cheatsheet`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, plus the wofi menus `wofi-battery`, `wofi-clipboard`, `wofi-powermenu`, `wofi-wifi`) lives there too; window flags — in `config/sxhkd/scripts`. They run on a hotkey and exit immediately.
+- **Machine Utilities:** `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Docker/ROCm commands are machine-specific; they check for the daemon and print usage when an argument is missing. The Apache helpers `vhost-add` / `vhost-remove` create and delete a virtual host (interactive, need `sudo`, write to `/etc/apache2` and `/etc/hosts`; `apache2` is not in `requirements/`).
 - **Hardware Autodetection:** `polybar/launch.sh` finds the battery (`POLYBAR_BAT`), AC adapter (`POLYBAR_AC`), and backlight device (`POLYBAR_BACKLIGHT`) in `/sys/class/…` — no hardcoded names.
 - **Wallpapers — `feh` only:** no picker script, no state file, no previews. Two static `feh` calls in `bspwmrc`: landscape on the main monitor, portrait on the rotated one. Change a wallpaper = edit one line.
 - **Screen locking:** `xss-lock` + `i3lock-fancy` — after 10 minutes idle, with DPMS monitor blanking and proper locking before sleep (`--transfer-sleep-lock`).
@@ -146,6 +146,7 @@ chmod +x scripts/*.sh
 - `local/bin/<command>` → `~/.local/bin/<command>` — one link per file, foreign files in `~/.local/bin` (nvim, tree-sitter) stay untouched
 - `local/share/mc/skins/*.ini` → `~/.local/share/mc/skins/`
 - sets `+x` on `local/bin` commands, SXHKD scripts, and `bspwmrc`
+- sets the GTK cursor theme in gsettings (`Bibata-Modern-Ice`, 24) — without it GTK apps draw the default Adwaita cursor while Sway and XWayland show Bibata
 - with Flatpak installed, adds overrides: read-only access to `xdg-config/gtk-3.0`, `gtk-4.0`, `qt5ct`, `qt6ct`, `xdg-data/themes`, and `QT_QPA_PLATFORMTHEME=qt5ct`
 
 ## ⚙️ Post-Install
@@ -198,7 +199,7 @@ sudo systemctl kill -s HUP systemd-logind
 The config is written in Lua, plugins are managed by the built-in `vim.pack` (Neovim 0.12). The list lives in `lua/plugins.lua`, versions are pinned by `nvim-pack-lock.json`. The first launch needs network: `vim.pack` downloads plugins and Mason installs LSP servers into `~/.local/share/nvim/mason/bin`. Update plugins with `:lua vim.pack.update()` and `:restart`; Treesitter parsers with `:TSUpdate`. Full cheatsheet: `config/nvim/CHEATSHEET.md`.
 
 **Vim.**
-A plugin-free fallback editor: `home/vimrc` → `~/.vimrc`. Syntax highlighting and `filetype plugin indent on` are enabled, numbering is hybrid (absolute number on the cursor line, relative distances around it), persistent undo lives in `~/.vim/undo`, indentation is 4 spaces by default (2 for json/yaml/html/css/js), and extension-less configs get a filetype (`sxhkdrc`, `bspwmrc`, `xinitrc`, `dunstrc`, `picom*.conf`, `qt5ct.conf`, `*.tdesktop-palette`). Colors come from the terminal palette (Tokyo Night in Alacritty); no colorscheme is overridden. Apply changes with `:source ~/.vimrc`.
+A plugin-free fallback editor: `home/vimrc` → `~/.vimrc`. Syntax highlighting and `filetype plugin indent on` are enabled, numbering is hybrid (absolute number on the cursor line, relative distances around it), persistent undo lives in `~/.vim/undo`, indentation is 4 spaces by default (2 for json/yaml/html/css/scss/js/ts/vue), and extension-less configs get a filetype (`sxhkdrc`, `bspwmrc`, `xinitrc`, `dunstrc`, `picom*.conf`, `qt5ct.conf`, `qt6ct.conf`, `NetworkManager.conf`, `copyq*.conf`, `*.tdesktop-palette`). Colors come from the terminal palette (Tokyo Night in Alacritty); no colorscheme is overridden. Apply changes with `:source ~/.vimrc`.
 
 **Node.js and npm.**
 `./scripts/install-node.sh` adds the NodeSource repository and installs LTS. Variables: `NODE_CHANNEL=lts|current|<major>` (default `lts`), `UPDATE_NPM=1` also installs `npm@latest`. Global packages go to `~/.npm-global` (`prefix` in `~/.npmrc`), and PATH is added by both Fish and bash. If NVM is installed, it is sourced at the end of `~/.bashrc` and may shadow the NodeSource `node`/`npm`.
@@ -239,7 +240,7 @@ Launch OBS as a Wayland client — `QT_QPA_PLATFORM=wayland obs` — otherwise i
 
 **Full cheatsheet:** `Super + /` — `cheatsheet-bspwm` (Rofi) in BSPWM, `sway-cheatsheet` (wofi) in Sway; both are searchable through hidden tags. Neovim cheatsheet: `config/nvim/CHEATSHEET.md`; Vim cheatsheet: the comments in `~/.vimrc`.
 
-### System & launch
+### BSPWM: system & launch
 
 | Keybinding | Action |
 |---|---|
@@ -261,7 +262,7 @@ Launch OBS as a Wayland client — `QT_QPA_PLATFORM=wayland obs` — otherwise i
 | `Super + Escape` | Reload SXHKD config |
 | `Super + Alt + Shift + R` | Full session restart (SXHKD, BSPWM, Polybar, Dunst, Picom, applets) |
 
-### Screenshots & media
+### BSPWM: screenshots & media
 
 | Keybinding | Action |
 |---|---|
@@ -279,6 +280,10 @@ Screenshots are saved to the `Screenshots` subfolder of the system Pictures fold
 
 | Keybinding | Action |
 |---|---|
+| `Super + F1` | Whole screen |
+| `Super + F2` | Active window |
+| `Super + F3` | 3-second delay |
+| `Super + F4` | Active monitor |
 | `Super + Shift + S` | Selected area |
 | `Print` | Whole screen |
 | `Super + Shift + A` | Edit the screenshot in the clipboard (swappy) |
@@ -288,7 +293,27 @@ Screenshots are saved to the `Screenshots` subfolder of the system Pictures fold
 
 Screenshots go to the `Screenshots` subfolder of the system Pictures folder, recordings to `Screencasts` inside the system Videos folder — both resolved with `xdg-user-dir`, so a Russian locale gives `~/Изображения/Screenshots` and `~/Видео/Screencasts`. In swappy, `Ctrl+S` saves, `Ctrl+C` copies to the clipboard, `Esc` quits; tools are `a` arrow, `t` text, `r` rectangle, `o` ellipse, `b` brush, `d` blur. Quick recording is silent — use OBS for recording with sound. Clipboard history keeps the last 100 entries, images included.
 
-### Windows & workspaces
+### Sway: session & windows
+
+Launch, media and clipboard keys repeat the BSPWM tables above — except the `Alt + Tab` window switcher, which Sway does not have. The full list is `sway-cheatsheet` (`Super + /`); below are the session and window keys that differ.
+
+| Keybinding | Action |
+|---|---|
+| `Super + Escape` / `Super + Shift + C` | Reload the Sway config |
+| `Super + Shift + E` | Exit Sway (swaynag) |
+| `Super + T` / `Super + Shift + T` | Toggle split / tabbed layout |
+| `Super + M` | Stacking layout |
+| `Super + S` / `Super + F` | Floating / fullscreen |
+| `Super + C` | Toggle focus between floating and tiled |
+| `Super + W` | Close window |
+| `Super + R` | Resize mode (arrows or HJKL, `Esc` to leave) |
+| `Super + Minus` / `Super + Shift + Minus` | Show / move to the scratchpad |
+| `Super + arrows` or `H/J/K/L` | Focus a window |
+| `Super + Shift + arrows` or `Shift + H/J/K/L` | Move the window |
+| `Super + 1…0` / `Super + Shift + 1…0` | Switch workspace / move the window there |
+| `Super + [` / `]` / `Tab` | Previous / next / last workspace |
+
+### BSPWM: windows & workspaces
 
 | Keybinding | Action |
 |---|---|
@@ -309,7 +334,7 @@ Screenshots go to the `Screenshots` subfolder of the system Pictures folder, rec
 | `Super + G` | Swap with the biggest window |
 | `Super + Alt + Q` / `R` | Quit BSPWM / restart BSPWM |
 
-### Preselect, flags & resizing
+### BSPWM: preselect, flags & resizing
 
 | Keybinding | Action |
 |---|---|
@@ -349,7 +374,7 @@ Configs live as symlinks: editing a file in the repo changes the live system imm
 
 ## 🗺 Plans
 
-- `1.7.0` is out. Notes for the current release live in [RELEASE.md](./RELEASE.md), history — in [Releases](https://github.com/machineslego-wq/BSPWM-machineslego/releases). The next stop is `1.8.0`.
+- `1.8.1` is out. Notes for the current release live in [RELEASE.md](./RELEASE.md), history — in [Releases](https://github.com/machineslego-wq/BSPWM-machineslego/releases). The next stop is `1.9.0`.
 - The setup is moving to Sway/Wayland step by step. BSPWM/X11 is not going away: it stays as a working session to fall back on when Wayland breaks, so the earlier "no Wayland" decision has been reversed (see [TODO.md](./TODO.md)).
 - Current tasks, "Done", rejected ideas, and known limitations live in [TODO.md](./TODO.md).
 
