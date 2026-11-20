@@ -54,26 +54,16 @@
             "wireplumber",
             "bluetooth",
             "network",
-            "custom/control-center",
             "custom/powermenu"
         ]
     },
 
     // --- Кастомные модули ---
-    // Логотип Debian (клик — лаунчер wofi)
+    // Логотип Debian (клик — wofi drun)
     "custom/debian": {
         "format": "\uf306",
         "tooltip": false,
         "on-click": "wofi --show drun"
-    },
-
-    // Control Center (Quickshell): Wi-Fi, Bluetooth, батарея, яркость,
-    // профиль питания, меню питания. Стартует скрытой, клик — тумблер.
-    "custom/control-center": {
-        "format": "󰒓",
-        "tooltip": true,
-        "tooltip-format": "Control Center\nSuper+Ctrl+C — открыть/скрыть",
-        "on-click": "qs -c control-center ipc call control-center toggle"
     },
 
     // Кнопка питания (wofi-powermenu)

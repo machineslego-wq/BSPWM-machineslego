@@ -1,7 +1,0 @@
-# Общие виджеты и тема для всех модулей Quickshell.
-# Theme объявлен синглтоном: цвета/шрифт — Theme.bg, Theme.accent, Theme.mono ...
-singleton Theme 1.0 Theme.qml
-Txt 1.0 Txt.qml
-Card 1.0 Card.qml
-FlatButton 1.0 FlatButton.qml
-Toggle 1.0 Toggle.qml

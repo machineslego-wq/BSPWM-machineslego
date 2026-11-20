@@ -125,7 +125,7 @@ chmod +x scripts/*.sh
 - **Только конфиги (без изменений в `/etc`):** `./scripts/link.sh`
 - **Дополнительный софт:** `./scripts/software.sh`
 - **Node.js / npm:** `./scripts/install-node.sh` (отдельно, см. ниже)
-- **Sway (основная сессия):** `./scripts/install-sway.sh` — ставит пакеты из `requirements/sway.txt`, добавляет пользователя в группу `input` (индикаторы Caps/Num Lock в waybar), конфиги не трогает; `--session` дополнительно добавляет сессию в GDM, которая запускает `sway-session` (обёртка с окружением: под Wayland `xinitrc`/`xprofile` не работают). BSPWM при этом не удаляется: он остаётся запасной X11-сессией. Сам Sway настраивается в `config/sway`: только рамки (pixel 2), без отступов, цвета рамок Tokyo Night, терминал `foot` (`config/foot`), waybar вместо Polybar, wofi вместо Rofi, мониторы и обои — через `sway-display` (в конфиге Sway нет условий по hostname), блокировка — `swaylock` (`config/swaylock`: синее кольцо при вводе, оранжевые символы пароля, те же обои, что на рабочем столе), скриншоты — через `sway-screenshot`, меню Wi-Fi и батареи — через `wofi-battery`, `wofi-powermenu`, `wofi-wifi` (wofi в стиле Rofi, скругление 2 px), уведомления — `mako` (`config/mako`) в стиле `dunst`, Control Center — панель Quickshell (`config/quickshell/control-center`: Wi-Fi, Bluetooth, батарея, яркость, профиль питания, меню питания) по кнопке control-center в waybar или `Super + Ctrl + C`
+- **Sway (основная сессия):** `./scripts/install-sway.sh` — ставит пакеты из `requirements/sway.txt`, добавляет пользователя в группу `input` (индикаторы Caps/Num Lock в waybar), конфиги не трогает; `--session` дополнительно добавляет сессию в GDM, которая запускает `sway-session` (обёртка с окружением: под Wayland `xinitrc`/`xprofile` не работают). BSPWM при этом не удаляется: он остаётся запасной X11-сессией. Сам Sway настраивается в `config/sway`: только рамки (pixel 2), без отступов, цвета рамок Tokyo Night, терминал `foot` (`config/foot`), waybar вместо Polybar, wofi вместо Rofi, мониторы и обои — через `sway-display` (в конфиге Sway нет условий по hostname), блокировка — `swaylock` (`config/swaylock`: синее кольцо при вводе, оранжевые символы пароля, те же обои, что на рабочем столе), скриншоты — через `sway-screenshot`, меню Wi-Fi и батареи — через `wofi-battery`, `wofi-powermenu`, `wofi-wifi` (wofi в стиле Rofi, скругление 2 px), уведомления — `mako` (`config/mako`) в стиле `dunst`
 - **Откат:** `./scripts/unlink.sh`
 - **Запуск:** `sway-session` из TTY или сессия в GDM, добавленная `install-sway.sh --session`; `startx` по-прежнему поднимает запасной BSPWM.
 
@@ -311,7 +311,6 @@ OBS нужно запускать как Wayland-клиент (`QT_QPA_PLATFORM=
 | `Super + Shift + стрелки` или `Shift + H/J/K/L` | Переместить окно |
 | `Super + 1…0` / `Super + Shift + 1…0` | Переключить стол / перенести окно |
 | `Super + [` / `]` / `Tab` | Предыдущий / следующий / прошлый стол |
-| `Super + Ctrl + C` | Control Center (Quickshell): Wi-Fi, Bluetooth, батарея, яркость, профиль питания, меню питания |
 
 ### BSPWM: окна и столы
 
