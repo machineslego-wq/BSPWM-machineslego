@@ -13,7 +13,7 @@
 --   lsp         — LSP-серверы и хоткеи кода
 --   explorer    — дерево проекта (neo-tree)
 --   git         — git-хунки (gitsigns)
---   ui          — статуслайн (lualine) и which-key
+--   ui          — статуслайн (lualine)
 -- ==========================================================
 
 require("options")

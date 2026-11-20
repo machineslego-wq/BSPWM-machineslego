@@ -23,8 +23,6 @@ require("neo-tree").setup({
     },
 })
 
-vim.keymap.set("n", "<leader>e", "<cmd>Neotree toggle<cr>", { desc = "Файловый сайдбар" })
-
 -- Ширина сайдбара не меняется при открытии и закрытии сплитов
 vim.api.nvim_create_autocmd("FileType", {
     pattern = "neo-tree",

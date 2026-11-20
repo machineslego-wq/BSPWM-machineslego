@@ -1,6 +1,7 @@
 -- ==========================================================
--- ui.lua — lualine (статуслайн) и which-key
+-- ui.lua — lualine (статуслайн)
 -- Вкладок-буферов нет: одиночный буфер, файлы меняются через дерево.
+-- which-key убран — хоткеи смотрят в CHEATSHEET.md.
 -- ==========================================================
 
 require("lualine").setup({
@@ -19,11 +20,4 @@ require("lualine").setup({
         lualine_y = { "progress" },
         lualine_z = { "location" },
     },
-})
-
-require("which-key").setup({ preset = "modern" })
-
-require("which-key").add({
-    { "<leader>g", group = "Git" },
-    { "<leader>c", group = "Код" },
 })

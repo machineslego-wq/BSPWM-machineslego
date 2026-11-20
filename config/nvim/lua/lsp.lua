@@ -1,6 +1,10 @@
 -- ==========================================================
 -- lsp.lua — Mason + нативный LSP Neovim 0.11+
 -- ==========================================================
+-- Серверы ставятся один раз вручную: :Mason (UI) или
+--   :MasonInstall lua_ls bashls pyright ...
+-- Хоткеи кода — в keymaps.lua (M.lsp).
+-- ==========================================================
 
 local servers = {
     "lua_ls",
@@ -22,13 +26,8 @@ local servers = {
 -- local later = { "gopls" }
 
 require("mason").setup()
-require("mason-lspconfig").setup({
-    ensure_installed = servers,
-    automatic_enable = false,
-})
 
 local capabilities = require("blink.cmp").get_lsp_capabilities()
-
 vim.lsp.config("*", { capabilities = capabilities })
 
 vim.lsp.config("lua_ls", {
@@ -77,26 +76,6 @@ vim.diagnostic.config({
 
 vim.api.nvim_create_autocmd("LspAttach", {
     callback = function(event)
-        local map = function(keys, func, desc)
-            vim.keymap.set("n", keys, func, { buffer = event.buf, desc = desc })
-        end
-
-        map("gd", vim.lsp.buf.definition, "Перейти к определению")
-        map("gD", vim.lsp.buf.declaration, "Перейти к объявлению")
-        map("gr", vim.lsp.buf.references, "Ссылки")
-        map("gi", vim.lsp.buf.implementation, "Реализации")
-        map("K", vim.lsp.buf.hover, "Документация")
-        map("<leader>rn", vim.lsp.buf.rename, "Переименовать")
-        map("<leader>ca", vim.lsp.buf.code_action, "Действия кода")
-        map("<leader>f", function()
-            vim.lsp.buf.format({ async = true })
-        end, "Форматировать")
-        map("<leader>cd", vim.diagnostic.open_float, "Диагностика строки")
-        map("[d", function()
-            vim.diagnostic.jump({ count = -1, float = true })
-        end, "Предыдущая диагностика")
-        map("]d", function()
-            vim.diagnostic.jump({ count = 1, float = true })
-        end, "Следующая диагностика")
+        require("keymaps").lsp(event.buf)
     end,
 })
