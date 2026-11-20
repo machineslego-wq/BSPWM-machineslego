@@ -16,6 +16,7 @@ cat <<EOF | wofi --dmenu --allow-markup --cache-file /dev/null \
 󰌌 Super + /                        Шпаргалка                      <span foreground="#1a1b26">[помощь, хелп, help, клавиши]</span>
 󰆍 Super + Return                   Терминал (foot)                <span foreground="#1a1b26">[консоль, cmd, shell, terminal]</span>
 󰀻 Super + D                        Лаунчер (wofi)                 <span foreground="#1a1b26">[меню, пуск, запуск, search]</span>
+󰒓 Super + Ctrl + C                 Control Center                  <span foreground="#1a1b26">[панель, control center, настройки, яркость]</span>
 󰈹 Super + B                        Браузер (Firefox)              <span foreground="#1a1b26">[браузер, интернет, web, firefox]</span>
 󰨞 Super + V                        Редактор (VS Code)             <span foreground="#1a1b26">[код, редактор, vscode, ide]</span>
 󰉋 Super + E                        Файлы (Thunar)                 <span foreground="#1a1b26">[файлы, проводник, папки, explorer]</span>

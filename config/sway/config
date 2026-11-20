@@ -109,6 +109,10 @@ exec_always pgrep -x mako >/dev/null || mako
 exec_always pgrep -x lxpolkit >/dev/null || lxpolkit
 # exec_always pgrep -x blueman-applet >/dev/null || blueman-applet
 
+# Control Center (Quickshell): панель стартует скрытой, показывается
+# кнопкой control-center в waybar или по $mod+Ctrl+c.
+exec_always pgrep -x qs >/dev/null || qs -c control-center
+
 # История буфера обмена (cliphist): хранит последние 100 записей.
 # CopyQ остаётся в bspwm, под Wayland он ведёт себя нестабильно.
 exec_always pgrep -x wl-paste >/dev/null || wl-paste --watch cliphist -max-items 100 store
@@ -132,6 +136,11 @@ bindsym --to-code $mod+Return exec $term
 
 # Лаунчер (wofi).
 bindsym --to-code $mod+d exec $menu
+
+# Control Center — панель Quickshell (Wi-Fi, Bluetooth, батарея, яркость,
+# профиль питания, меню питания). Стартует скрытой; то же самое — кнопка
+# control-center в waybar. Конфиг — config/quickshell/control-center.
+bindsym --to-code $mod+Ctrl+c exec qs -c control-center ipc call control-center toggle
 
 # Браузер, редактор, файлы, микшер.
 bindsym --to-code $mod+b exec firefox

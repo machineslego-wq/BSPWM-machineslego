@@ -126,7 +126,7 @@ chmod +x scripts/*.sh
 - **Configs only (no `/etc` changes):** `./scripts/link.sh`
 - **Extra software:** `./scripts/software.sh`
 - **Node.js / npm:** `./scripts/install-node.sh` (separate, see below)
-- **Sway (main session):** `./scripts/install-sway.sh` — packages from `requirements/sway.txt`, adds your user to the `input` group (Caps/Num Lock indicators in waybar), configs untouched; `--session` also adds a GDM entry that starts `sway-session` (environment wrapper, no `xinitrc`/`xprofile` under Wayland). BSPWM is not removed: it stays the X11 fallback. Sway itself is configured in `config/sway`: pixel borders only, no gaps, Tokyo Night border colors, `foot` as the terminal (`config/foot`), waybar instead of Polybar, wofi instead of Rofi, monitors and wallpapers via `sway-display` (Sway has no hostname conditions in its config), screen locking via `swaylock` (`config/swaylock`: blue input ring, orange password text, the same wallpapers as the desktop), screenshots via `sway-screenshot`, and the wifi/battery menus via `wofi-battery`, `wofi-powermenu`, `wofi-wifi` (wofi styled after Rofi, 2 px rounding); notifications come from `mako` (`config/mako`) styled after `dunst`
+- **Sway (main session):** `./scripts/install-sway.sh` — packages from `requirements/sway.txt`, adds your user to the `input` group (Caps/Num Lock indicators in waybar), configs untouched; `--session` also adds a GDM entry that starts `sway-session` (environment wrapper, no `xinitrc`/`xprofile` under Wayland). BSPWM is not removed: it stays the X11 fallback. Sway itself is configured in `config/sway`: pixel borders only, no gaps, Tokyo Night border colors, `foot` as the terminal (`config/foot`), waybar instead of Polybar, wofi instead of Rofi, monitors and wallpapers via `sway-display` (Sway has no hostname conditions in its config), screen locking via `swaylock` (`config/swaylock`: blue input ring, orange password text, the same wallpapers as the desktop), screenshots via `sway-screenshot`, and the wifi/battery menus via `wofi-battery`, `wofi-powermenu`, `wofi-wifi` (wofi styled after Rofi, 2 px rounding); notifications come from `mako` (`config/mako`) styled after `dunst`, and the Control Center is a Quickshell panel (`config/quickshell/control-center`: Wi-Fi, Bluetooth, battery, brightness, power profile, power menu) opened from the control-center button in waybar or with `Super + Ctrl + C`
 - **Rollback:** `./scripts/unlink.sh`
 - **Launch:** `sway-session` from a TTY, or the GDM entry added by `install-sway.sh --session`; `startx` still brings up the BSPWM fallback.
 
@@ -312,6 +312,7 @@ Launch, media and clipboard keys repeat the BSPWM tables above — except the `A
 | `Super + Shift + arrows` or `Shift + H/J/K/L` | Move the window |
 | `Super + 1…0` / `Super + Shift + 1…0` | Switch workspace / move the window there |
 | `Super + [` / `]` / `Tab` | Previous / next / last workspace |
+| `Super + Ctrl + C` | Control Center (Quickshell): Wi-Fi, Bluetooth, battery, brightness, power profile, power menu |
 
 ### BSPWM: windows & workspaces
 
