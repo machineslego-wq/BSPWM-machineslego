@@ -1,0 +1,4 @@
+# Модули (поверхности) Quickshell. Сюда же в будущем:
+#   Panel 1.0 Panel.qml       — панель, аналог waybar
+#   Launcher 1.0 Launcher.qml — лаунчер, аналог wofi
+ControlCenter 1.0 ControlCenter.qml
