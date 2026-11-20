@@ -110,7 +110,6 @@ BSPWM-machineslego/
 - **Аудио:** PipeWire (`pipewire`, `pipewire-audio`, `pipewire-pulse`, `wireplumber`). Модуль Polybar `internal/pulseaudio` работает через `pipewire-pulse`; скрипт громкости использует `wpctl`.
 - **Шрифты:** JetBrainsMono Nerd Font (ставит `install.sh`), Papirus-Dark и Bibata (ставятся из `apt.txt`).
 - **Flatpak:** опционально. Ставится `install.sh` вместе с Flathub; `link.sh` выдаёт Flatpak-приложениям доступ к темам.
-- **Neovim:** `ripgrep` для Telescope (`find_files`, `live_grep`) — есть в `requirements/software.txt`.
 - **Vim:** обычный `vim` из `apt.txt` — запасной редактор для правки конфигов (без плагинов); конфиг — `home/vimrc` → `~/.vimrc`.
 
 ## 🛠 Установка

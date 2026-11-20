@@ -23,7 +23,7 @@ Dotfiles + установщик окружения BSPWM/Sway для Debian 13 T
 - `scripts/install.sh` — полная установка: Neovim AppImage и `tree-sitter` CLI в `~/.local/bin`, шрифт, линковка, Fish/Tide, пакеты из `requirements/apt.txt` и `apt-system.txt`, PPD/Flatpak, системные конфиги, поведение крышки. Запускается только при первичной настройке.
 - `scripts/link.sh` — идемпотентный линковщик: делает бэкап в `~/.dotfiles-backup-*`, ставит симлинки (конфиги, home-файлы, команды в `~/.local/bin`, скины MC). Меняет уже установленные пакеты. Дополнительно выставляет тему курсора GTK в gsettings (`Bibata-Modern-Ice`, 24) — см. раздел GTK3 / GTK4.
 - `scripts/unlink.sh` — безопасное удаление симлинков, созданных link.sh (только свои, не трогает чужие): `~/.config/*`, home-файлы, `~/.local/bin`, скины MC.
-- `scripts/software.sh` — установка дополнительного софта из `requirements/software.txt` (lazygit, ripgrep, mpv, gimp и т.д.). Запускается отдельно, install.sh только печатает подсказку.
+- `scripts/software.sh` — установка дополнительного софта из `requirements/software.txt` (lazygit, mpv, gimp и т.д.). Запускается отдельно, install.sh только печатает подсказку.
 - `scripts/install-node.sh` — Node.js LTS из NodeSource, npm с prefix `~/.npm-global` (глобальные пакеты без sudo). Запускается отдельно, не из install.sh.
 - `scripts/install-sway.sh` — ставит Sway и окружение из `requirements/sway.txt` (sway, swaybg/idle/lock, waybar, wofi, foot, mako, grim/slurp, swappy, wf-recorder, cliphist, порталы, lxpolkit) и добавляет пользователя в группу `input` (нужна waybar-модулю `keyboard-state` для индикаторов Caps/Num Lock). По умолчанию только пакеты: конфиги не копирует и сессию не включает. С `--session` дополнительно пишет `/usr/share/wayland-sessions/sway-session.desktop` с `Exec=$HOME/.local/bin/sway-session`. BSPWM при этом не удаляется: он остаётся запасной X11-сессией.
 
@@ -371,18 +371,16 @@ gdbus call --session --dest org.freedesktop.portal.Desktop \
 - NVM, если установлен, подключается в конце `home/bashrc` и может переопределить `node`/`npm` из NodeSource.
 
 ### Neovim
-- `config/nvim` → `~/.config/nvim`. Конфиг на Lua, менеджер плагинов — встроенный `vim.pack` (Neovim 0.12), список только в `lua/plugins.lua`. Шпаргалка по хоткеям — `config/nvim/CHEATSHEET.md`.
-- `nvim-pack-lock.json` версионируется вместе с конфигом. Обновление плагинов: `:lua vim.pack.update()`, затем `:restart`. Lock-файл руками не править.
-- Плагины: tokyonight (тема), nvim-treesitter (ветка main), lspconfig + Mason, blink.cmp, neo-tree (+ plenary, nui, devicons), gitsigns, telescope, lualine, which-key.
+- `config/nvim` → `~/.config/nvim`. Конфиг на Lua, менеджер плагинов — встроенный `vim.pack` (Neovim 0.12), список только в `lua/plugins.lua`. Шпаргалка по хоткеям — `config/nvim/CHEATSHEET.md`. Файлы по зонам ответственности: `options` (поведение), `keymaps` (общие хоткеи), `plugins`, `theme`, `treesitter`, `completion` (blink.cmp), `lsp`, `explorer` (neo-tree), `git`, `ui` (lualine + which-key); `init.lua` подключает их в этом порядке.
+- `nvim-pack-lock.json` версионируется вместе с конфигом. Обновление плагинов: `:lua vim.pack.update()`, затем `:restart`; удаление — убрать из `plugins.lua` и выполнить `:lua vim.pack.del({"<имя>"})`. Lock-файл руками не править.
+- Плагины: tokyonight (тема), nvim-treesitter (ветка main), lspconfig + Mason, blink.cmp, neo-tree (+ plenary, nui, devicons), gitsigns, lualine, which-key.
 - LSP: Mason (`:Mason`) + нативный `vim.lsp.config` / `vim.lsp.enable`. Серверы: lua_ls, bashls, pyright, ts_ls, clangd, rust_analyzer, jsonls, yamlls, html, cssls, emmet_language_server, intelephense. `gopls` отложен: Go в системе не установлен.
 - Treesitter требует `tree-sitter` CLI ≥ 0.26.1 (Debian-пакет старый). `install.sh` кладёт бинарник в `~/.local/bin/tree-sitter`. Парсеры ставятся автоматически при первом запуске, обновление — `:TSUpdate`.
-- Telescope ищет файлы и текст через `ripgrep` (есть в `requirements/software.txt`). Без `rg` команды `find_files` / `live_grep` не работают. `fd` не нужен.
 - Тема — `tokyonight-night`: фон `#1a1b26`, текст `#c0caf5`. Оверрайды сайдбара и статуслайна — в `lua/theme.lua`.
-- Leader — пробел. `<leader>e` — сайдбар, `<leader>ff` / `fg` / `fb` / `fh` — поиск, `<C-h/j/k/l>` — окна (в т.ч. из сайдбара в редактор), `<S-h>` / `<S-l>` — буферы, `<leader>q` — выйти из всех окон (`:qa`), `<C-\>` — встроенный терминал, `gd` / `gr` / `K` — LSP, `<leader>ca` / `rn` / `f` — действия/переименование/формат, `]c` / `[c` — git-хунки. Всё остальное — стоковые команды.
-- Вкладки — это буферы: полоска сверху рисуется lualine (`tabline.buffers`), клик/`<S-h>`/`<S-l>`/`<leader>fb` — переключение.
-- `:bd` / `:bd!` и `:q` / `:wq` — стоковые команды, конфиг их не переопределяет. `:q` закрывает только текущее окно, `:bd` — буфер вместе с его окном; Neovim при этом не выходит. Выйти целиком — `<leader>q` / `:qa`.
-- Сайдбар: `window.width = 32` + `winfixwidth`, файлы открываются справа. В Vim единственное окно занимает весь экран, поэтому в `explorer.lua` есть обработчик `WinClosed`: когда закрывается последнее окно с файлом, справа создаётся пустая рабочая область (`vnew`, `buflisted = false`), а сайдбару возвращается ширина 32. Если закрывается сама пустая область через `:q` (`QuitPre`), Neovim выходит; `:bd` не выходит.
-- Кастомных модулей буферов нет: `lua/buffers.lua` удалён, `cnoreabbrev` убран.
+- Рабочий процесс — одиночный буфер: вкладок-буферов нет (`tabline.buffers` в lualine убран). Файл из дерева (`Enter`) открывается в окне редактора, **заменяя** текущий; если тот изменён, связка `nohidden` + `confirm` (`options.lua`) спрашивает «сохранить или нет». Важно: в Neovim `hidden` включён по умолчанию (буфер молча прячется), поэтому `nohidden` обязателен.
+- Leader — пробел. `<leader>e` — дерево, `<C-h>` / `<C-l>` — окна (дерево ↔ редактор, эквиваленты `<C-w>h`/`<C-w>l`), `<C-j>`/`<C-k>` — окна вниз/вверх, `<leader>w` — сохранить, `<leader>q` — выйти (`:qa`), `gd` / `gr` / `K` — LSP, `<leader>ca` / `rn` / `f` — действия/переименование/формат, `]c` / `[c` — git-хунки. Всё остальное — стоковые команды. Телескоп (поиск файлов/греп) и встроенный терминал убраны.
+- `:bd` / `:bd!` и `:q` / `:wq` — стоковые команды. `:q` закрывает только текущее окно; Neovim при этом не выходит. Выйти целиком — `<leader>q` / `:qa`.
+- Сайдбар: `window.width = 32` + `winfixwidth`. В Vim единственное окно занимает весь экран, поэтому в `explorer.lua` есть обработчик `WinClosed`: когда закрывается последнее окно с файлом, справа создаётся пустая рабочая область (`vnew`, `buflisted = false`), а сайдбару возвращается ширина 32. Если закрывается сама пустая область через `:q` (`QuitPre`), Neovim выходит; `:bd` не выходит.
 - Первый запуск требует сеть: `vim.pack` качает плагины, Mason — серверы в `~/.local/share/nvim/mason/bin`.
 - Применение: правка Lua-файлов — со следующего запуска (или `:source %` для текущего файла); плагины обновляются только вручную.
 

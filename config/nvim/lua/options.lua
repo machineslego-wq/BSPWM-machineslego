@@ -46,6 +46,11 @@ opt.hlsearch = true
 opt.undofile = true
 opt.swapfile = false
 opt.backup = false
+-- Одиночный буфер: при открытии другого файла поверх изменённого
+-- спрашивать «сохранить или нет», а не терять изменения. В Neovim
+-- `hidden` включён по умолчанию (буфер молча прячется), поэтому его
+-- выключаем, а `confirm` превращает ошибку E37 в вопрос Y/N/C.
+opt.hidden = false
 opt.confirm = true
 
 -- Окна

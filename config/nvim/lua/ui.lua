@@ -1,5 +1,6 @@
 -- ==========================================================
--- ui.lua — lualine и which-key
+-- ui.lua — lualine (статуслайн) и which-key
+-- Вкладок-буферов нет: одиночный буфер, файлы меняются через дерево.
 -- ==========================================================
 
 require("lualine").setup({
@@ -9,16 +10,6 @@ require("lualine").setup({
         section_separators = { left = "", right = "" },
         component_separators = { left = "|", right = "|" },
         disabled_filetypes = { "neo-tree" },
-    },
-    tabline = {
-        lualine_a = {
-            {
-                "buffers",
-                mode = 2,
-                show_modified_status = true,
-                symbols = { modified = " ●", alternate_file = "", directory = "" },
-            },
-        },
     },
     sections = {
         lualine_a = { "mode" },
@@ -33,8 +24,6 @@ require("lualine").setup({
 require("which-key").setup({ preset = "modern" })
 
 require("which-key").add({
-    { "<leader>f", group = "Поиск" },
-    { "<leader>b", group = "Буферы" },
     { "<leader>g", group = "Git" },
     { "<leader>c", group = "Код" },
 })

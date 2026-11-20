@@ -33,9 +33,6 @@ vim.pack.add({
     -- Git
     { src = gh("lewis6991/gitsigns.nvim") },
 
-    -- Поиск
-    { src = gh("nvim-telescope/telescope.nvim") },
-
     -- Статуслайн и подсказки по хоткеям
     { src = gh("nvim-lualine/lualine.nvim") },
     { src = gh("folke/which-key.nvim") },
