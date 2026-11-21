@@ -184,7 +184,9 @@ If rofi/wofi are unavailable, the same actions live in the terminal — via the 
 
 Under the hood these are `nmtui`, `nmcli`, `bluetoothctl` and `powerprofilesctl`. Full list of commands and aliases — `rice-help` (or `rh`), search it with `rice-help wifi`.
 
-`nmtui` is recolored to Tokyo Night: `config/newt/colors` (symlinked to `~/.config/newt`) is wired up through the `NEWT_COLORS_FILE` variable in `~/.bashrc` / `config.fish`. Colors are ANSI names, so the shades come from the terminal palette and the background stays the terminal's own. Other libnewt TUIs (`whiptail`) pick up the same file.
+`nmtui` is recolored to Tokyo Night: `config/newt/colors` (symlinked to `~/.config/newt`) is wired up from `~/.bashrc` / `config.fish` through two variables. `NEWT_COLORS_FILE` is the libnewt palette (`nmtui`, `whiptail`); `NMT_NEWT_COLORS_FILE` covers nmtui's own extra sets (`badLabel`, `plainLabel`, `disabledButton`, `textboxWithBackground`), which otherwise render as light patches. Colors are ANSI names, so the shades come from the terminal palette and the background stays the terminal's own.
+
+For nmtui's compact buttons (`<OK>`, `<Back>`, `<Edit>`) libnewt paints the focused one with the `button` color and the unfocused ones with `compactbutton`; `actbutton` is not used for them. The accent fill therefore lives on `button`, while `compactbutton` is the muted chip.
 
 **Wallpapers.**
 There is no picker. Edit the `feh` calls in `~/.config/bspwm/bspwmrc`:

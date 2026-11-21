@@ -63,6 +63,7 @@ alias ....='cd ../../..'
 
 # nmtui и другие TUI на libnewt: палитра Tokyo Night
 set -gx NEWT_COLORS_FILE "$HOME/.config/newt/colors"
+set -gx NMT_NEWT_COLORS_FILE "$HOME/.config/newt/colors"
 
 # Wi-Fi
 alias net='nmtui'

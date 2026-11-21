@@ -99,6 +99,7 @@ fi
 
 # nmtui и другие TUI на libnewt: палитра Tokyo Night
 export NEWT_COLORS_FILE="$HOME/.config/newt/colors"
+export NMT_NEWT_COLORS_FILE="$HOME/.config/newt/colors"
 
 # Wi-Fi
 alias net='nmtui'                                    # полный TUI: сканирование и пароль

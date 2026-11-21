@@ -1,24 +1,19 @@
 # ==========================================================
-# newt — палитра для TUI на libnewt (nmtui, whiptail)
+# newt / libnmt-newt — палитра Tokyo Night для nmtui и whiptail
 # ==========================================================
 # Живёт в репозитории: config/newt -> ~/.config/newt
-# Подключается переменной NEWT_COLORS_FILE (home/bashrc и
-# config/fish/config.fish): nmtui читает файл при старте.
+# Подключается переменными из home/bashrc и config/fish/config.fish:
+#   NEWT_COLORS_FILE      — палитра libnewt (nmtui, whiptail)
+#   NMT_NEWT_COLORS_FILE  — дополнительные наборы nmtui
 #
 # Формат строки: компонент, затем цвет текста и цвет фона
-# через запятую. Цвета — имена ANSI (black, blue, ...,
-# white, brightblue, ...), поэтому реальные оттенки берутся
-# из палитры терминала (Tokyo Night в Alacritty и foot).
-# default — фон терминала, без своей подложки.
-#
-# Компоненты: root, border, window, shadow, title, button,
-# actbutton, compactbutton, checkbox, actcheckbox, entry,
-# disentry, label, listbox, actlistbox, sellistbox,
-# actsellistbox, textbox, acttextbox, helpline, roottext,
-# emptyscale, fullscale.
+# через запятую, затем начало следующей строки. Цвета — имена
+# ANSI (black, blue, ..., white, brightblue, ...), поэтому
+# реальные оттенки берутся из палитры терминала (Tokyo Night
+# в Alacritty и foot). default — фон терминала, без подложки.
 # ==========================================================
 
-# Основа: текст на фоне терминала, рамки — приглушённые
+# --- libnewt: основа ---
 root=white,default
 border=gray,default
 window=white,default
@@ -31,9 +26,12 @@ title=brightblue,default
 fullscale=brightblue,default
 emptyscale=gray,default
 
-# Кнопки: обычная — как текст, компактная (<OK>) — плашка,
-# активная — акцентная заливка с тёмным текстом
-button=white,default
+# Кнопки. У nmtui все кнопки компактные, а libnewt красит
+# компактную кнопку в фокусе цветом button, а без фокуса —
+# compactbutton (actbutton для компактных не используется
+# при поддержке ANSI-цветов). Поэтому акцентная заливка —
+# у button, приглушённая плашка — у compactbutton.
+button=black,brightblue
 compactbutton=white,gray
 actbutton=black,brightblue
 
@@ -49,5 +47,14 @@ actlistbox=black,brightblue
 sellistbox=white,gray
 actsellistbox=black,brightblue
 
-# Нижняя строка подсказок
+# Строка подсказок внизу
 helpline=brightcyan,default
+
+# --- libnmt-newt: наборы nmtui ---
+# Читаются из NMT_NEWT_COLORS_FILE: имена camelCase, отличные
+# от NEWT_COLORS. По умолчанию newt красит их светлым фоном
+# lightgray/white — на Tokyo Night это выглядит белыми пятнами.
+badLabel=brightred,default
+plainLabel=gray,default
+disabledButton=gray,default
+textboxWithBackground=white,gray

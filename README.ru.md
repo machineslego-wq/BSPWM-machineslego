@@ -183,7 +183,9 @@ tide configure
 
 Под капотом — `nmtui`, `nmcli`, `bluetoothctl` и `powerprofilesctl`. Полный список команд и алиасов — `rice-help` (или `rh`), поиск по нему — `rice-help wifi`.
 
-`nmtui` перекрашен в палитру Tokyo Night: `config/newt/colors` (симлинк `~/.config/newt`) подключается переменной `NEWT_COLORS_FILE` из `~/.bashrc` / `config.fish`. Цвета заданы именами ANSI, поэтому оттенки берутся из палитры терминала, а фон — штатный, без подложки. Тот же файл подхватывают другие TUI на libnewt (`whiptail`).
+`nmtui` перекрашен в палитру Tokyo Night: `config/newt/colors` (симлинк `~/.config/newt`) подключается из `~/.bashrc` / `config.fish` двумя переменными. `NEWT_COLORS_FILE` — палитра libnewt (`nmtui`, `whiptail`); `NMT_NEWT_COLORS_FILE` — дополнительные наборы самого nmtui (`badLabel`, `plainLabel`, `disabledButton`, `textboxWithBackground`), которые без этого рисуются светлыми плашками. Цвета заданы именами ANSI, поэтому оттенки берутся из палитры терминала, а фон — штатный, без подложки.
+
+У компактных кнопок nmtui (`<OK>`, `<Назад>`, `<Изменить>`) libnewt красит кнопку в фокусе цветом `button`, а без фокуса — `compactbutton`: `actbutton` для них не используется. Поэтому акцентная заливка задана у `button`, приглушённая плашка — у `compactbutton`.
 
 **Обои.**
 Выборщика нет. Правь вызовы `feh` в `~/.config/bspwm/bspwmrc`:
