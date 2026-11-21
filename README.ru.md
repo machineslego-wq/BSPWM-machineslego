@@ -183,6 +183,8 @@ tide configure
 
 Под капотом — `nmtui`, `nmcli`, `bluetoothctl` и `powerprofilesctl`. Полный список команд и алиасов — `rice-help` (или `rh`), поиск по нему — `rice-help wifi`.
 
+`nmtui` перекрашен в палитру Tokyo Night: `config/newt/colors` (симлинк `~/.config/newt`) подключается переменной `NEWT_COLORS_FILE` из `~/.bashrc` / `config.fish`. Цвета заданы именами ANSI, поэтому оттенки берутся из палитры терминала, а фон — штатный, без подложки. Тот же файл подхватывают другие TUI на libnewt (`whiptail`).
+
 **Обои.**
 Выборщика нет. Правь вызовы `feh` в `~/.config/bspwm/bspwmrc`:
 

@@ -61,6 +61,9 @@ alias ....='cd ../../..'
 # Фолбэк, когда rofi/wofi недоступны: те же действия из терминала.
 # Под капотом — nmtui / nmcli / bluetoothctl / powerprofilesctl.
 
+# nmtui и другие TUI на libnewt: палитра Tokyo Night
+set -gx NEWT_COLORS_FILE "$HOME/.config/newt/colors"
+
 # Wi-Fi
 alias net='nmtui'
 alias wifi-list='nmcli device wifi list'

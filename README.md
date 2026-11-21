@@ -184,6 +184,8 @@ If rofi/wofi are unavailable, the same actions live in the terminal — via the 
 
 Under the hood these are `nmtui`, `nmcli`, `bluetoothctl` and `powerprofilesctl`. Full list of commands and aliases — `rice-help` (or `rh`), search it with `rice-help wifi`.
 
+`nmtui` is recolored to Tokyo Night: `config/newt/colors` (symlinked to `~/.config/newt`) is wired up through the `NEWT_COLORS_FILE` variable in `~/.bashrc` / `config.fish`. Colors are ANSI names, so the shades come from the terminal palette and the background stays the terminal's own. Other libnewt TUIs (`whiptail`) pick up the same file.
+
 **Wallpapers.**
 There is no picker. Edit the `feh` calls in `~/.config/bspwm/bspwmrc`:
 

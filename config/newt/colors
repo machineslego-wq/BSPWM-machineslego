@@ -1,0 +1,53 @@
+# ==========================================================
+# newt — палитра для TUI на libnewt (nmtui, whiptail)
+# ==========================================================
+# Живёт в репозитории: config/newt -> ~/.config/newt
+# Подключается переменной NEWT_COLORS_FILE (home/bashrc и
+# config/fish/config.fish): nmtui читает файл при старте.
+#
+# Формат строки: компонент, затем цвет текста и цвет фона
+# через запятую. Цвета — имена ANSI (black, blue, ...,
+# white, brightblue, ...), поэтому реальные оттенки берутся
+# из палитры терминала (Tokyo Night в Alacritty и foot).
+# default — фон терминала, без своей подложки.
+#
+# Компоненты: root, border, window, shadow, title, button,
+# actbutton, compactbutton, checkbox, actcheckbox, entry,
+# disentry, label, listbox, actlistbox, sellistbox,
+# actsellistbox, textbox, acttextbox, helpline, roottext,
+# emptyscale, fullscale.
+# ==========================================================
+
+# Основа: текст на фоне терминала, рамки — приглушённые
+root=white,default
+border=gray,default
+window=white,default
+shadow=gray,default
+roottext=white,default
+label=white,default
+
+# Заголовок и шкалы — акцент
+title=brightblue,default
+fullscale=brightblue,default
+emptyscale=gray,default
+
+# Кнопки: обычная — как текст, компактная (<OK>) — плашка,
+# активная — акцентная заливка с тёмным текстом
+button=white,default
+compactbutton=white,gray
+actbutton=black,brightblue
+
+# Поля ввода и списки
+entry=white,default
+disentry=gray,default
+textbox=white,default
+acttextbox=black,brightblue
+checkbox=white,default
+actcheckbox=black,brightblue
+listbox=white,default
+actlistbox=black,brightblue
+sellistbox=white,gray
+actsellistbox=black,brightblue
+
+# Нижняя строка подсказок
+helpline=brightcyan,default
