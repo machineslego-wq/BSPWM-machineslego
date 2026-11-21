@@ -182,7 +182,7 @@ If rofi/wofi are unavailable, the same actions live in the terminal — via the 
 | Power profile | `pp` / `pp-set balanced` |
 | Power off / reboot | `systemctl poweroff` / `reboot` |
 
-Under the hood these are `nmtui`, `nmcli`, `bluetoothctl` and `powerprofilesctl`.
+Under the hood these are `nmtui`, `nmcli`, `bluetoothctl` and `powerprofilesctl`. Full list of commands and aliases — `rice-help` (or `rh`), search it with `rice-help wifi`.
 
 **Wallpapers.**
 There is no picker. Edit the `feh` calls in `~/.config/bspwm/bspwmrc`:

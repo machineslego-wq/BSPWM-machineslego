@@ -181,7 +181,7 @@ tide configure
 | Профиль питания | `pp` / `pp-set balanced` |
 | Выключить / перезагрузить | `systemctl poweroff` / `reboot` |
 
-Под капотом — `nmtui`, `nmcli`, `bluetoothctl` и `powerprofilesctl`.
+Под капотом — `nmtui`, `nmcli`, `bluetoothctl` и `powerprofilesctl`. Полный список команд и алиасов — `rice-help` (или `rh`), поиск по нему — `rice-help wifi`.
 
 **Обои.**
 Выборщика нет. Правь вызовы `feh` в `~/.config/bspwm/bspwmrc`:

@@ -84,6 +84,9 @@ function pp-set
     powerprofilesctl set $argv[1]
 end
 
+# Справка: команды репозитория и этот список алиасов
+alias rh='rice-help'
+
 # --- Цвета Fish (Tokyo Night) ---
 set -g fish_color_normal c0caf5
 set -g fish_color_command 7aa2f7

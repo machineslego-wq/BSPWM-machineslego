@@ -1,36 +1,112 @@
 #!/bin/bash
 # ==========================================================
-# rice-help — список команд репозитория
+# rice-help — команды репозитория и алиасы терминала
 # ==========================================================
-# Печатает команды из local/bin и описание из третьей строки
-# каждого файла. Список не хардкожен: новая команда появляется
-# сама. Подробности: <команда> --help.
+# Печатает команды из local/bin (описание — третья строка файла)
+# и алиасы/функции из home/bashrc (описание — комментарий в конце
+# строки). Списки не хардкожены: новая команда или алиас попадают
+# в вывод сами.
+# Фильтр: rice-help <слово> — только совпавшие строки.
 # ==========================================================
 
 set -u
 
 SELF=$(readlink -f "$0")
 BIN=$(cd "$(dirname "$SELF")" && pwd)
+BASHRC="$BIN/../../home/bashrc"
+[ -f "$BASHRC" ] || BASHRC=/dev/null
+FILTER=${1:-}
 
-width=0
+# Печать строки таблицы; $1 — ширина, $2 — имя, $3 — описание.
+row() {
+    printf '  %-*s  %s\n' "$1" "$2" "$3"
+}
+
+# --- Команды local/bin ---
+cmd_names=()
+cmd_descs=()
+cmd_width=0
 for file in "$BIN"/*; do
-    name=$(basename "$file")
-    [ "${#name}" -gt "$width" ] && width=${#name}
-done
-
-echo "Команды репозитория (local/bin):"
-echo "Подробнее: <команда> --help"
-echo
-
-count=0
-for file in "$BIN"/*; do
+    [ -x "$file" ] && [ -f "$file" ] || continue
     name=$(basename "$file")
     line=$(sed -n '3p' "$file")
     desc=${line#*— }
     [ "$desc" = "$line" ] && desc=${line#\# }
-    printf '  %-*s  %s\n' "$width" "$name" "$desc"
-    count=$((count + 1))
+    cmd_names+=("$name")
+    cmd_descs+=("$desc")
+    [ "${#name}" -gt "$cmd_width" ] && cmd_width=${#name}
 done
 
+# --- Алиасы и функции из bashrc ---
+# Формат разбора: alias name='...'  и  name() { ...; }
+# Описание берётся из последнего комментария строки.
+alias_names=()
+alias_descs=()
+alias_width=0
+while IFS='|' read -r name desc; do
+    [ -n "$name" ] || continue
+    alias_names+=("$name")
+    alias_descs+=("$desc")
+    [ "${#name}" -gt "$alias_width" ] && alias_width=${#name}
+done < <(awk '
+    /^alias [A-Za-z0-9_.-]+=/ {
+        name = $0
+        sub(/^alias /, "", name)
+        sub(/=.*$/, "", name)
+    }
+    /^[a-z0-9_-]+\(\)/ {
+        name = $0
+        sub(/\(\).*$/, "", name)
+    }
+    name == "" { next }
+    {
+        desc = $0
+        if (match(desc, /#[^#]*$/)) {
+            desc = substr(desc, RSTART + 1)
+            gsub(/^[ \t]+|[ \t]+$/, "", desc)
+        } else {
+            desc = ""
+        }
+        printf "%s|%s\n", name, desc
+        name = ""
+    }
+' "$BASHRC")
+
+# Поиск по выводу: строка печатается, если в ней есть FILTER.
+match() {
+    [ -z "$FILTER" ] && return 0
+    case $1 in
+        *"$FILTER"*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+printf 'Команды репозитория (local/bin):\n'
+found=0
+for i in "${!cmd_names[@]}"; do
+    name=${cmd_names[$i]}
+    desc=${cmd_descs[$i]}
+    match "$name $desc" || continue
+    row "$cmd_width" "$name" "$desc"
+    found=$((found + 1))
+done
+[ "$found" -eq 0 ] && echo "  (нет совпадений)"
+
 echo
-echo "Всего: $count"
+printf 'Терминал без лаунчера (алиасы из ~/.bashrc):\n'
+found=0
+for i in "${!alias_names[@]}"; do
+    name=${alias_names[$i]}
+    desc=${alias_descs[$i]}
+    match "$name $desc" || continue
+    row "$alias_width" "$name" "$desc"
+    found=$((found + 1))
+done
+[ "$found" -eq 0 ] && echo "  (нет совпадений)"
+
+echo
+if [ -n "$FILTER" ]; then
+    echo "Фильтр: $FILTER. Без аргумента — полный список."
+else
+    echo "Поиск: rice-help <слово>. Подробнее: <команда> --help."
+fi

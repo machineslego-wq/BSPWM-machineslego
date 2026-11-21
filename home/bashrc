@@ -100,19 +100,22 @@ fi
 # Wi-Fi
 alias net='nmtui'                                    # полный TUI: сканирование и пароль
 alias wifi-list='nmcli device wifi list'             # список сетей
-alias wifi-on='nmcli radio wifi on'
-alias wifi-off='nmcli radio wifi off'
+alias wifi-on='nmcli radio wifi on'                  # включить Wi-Fi
+alias wifi-off='nmcli radio wifi off'                # выключить Wi-Fi
 wifi-connect() { nmcli device wifi connect "$1"; }           # сохранённый пароль
 wifi-connect-ask() { nmcli device wifi connect "$1" --ask; } # спросить пароль
 
 # Bluetooth
 alias bt='bluetoothctl'                              # интерактивная оболочка
-alias bt-on='bluetoothctl power on'
-alias bt-off='bluetoothctl power off'
+alias bt-on='bluetoothctl power on'                  # включить Bluetooth
+alias bt-off='bluetoothctl power off'                # выключить Bluetooth
 
 # Профиль питания
 alias pp='powerprofilesctl get'                      # текущий профиль
 pp-set() { powerprofilesctl set "$1"; }              # performance | balanced | power-saver
+
+# Справка: команды репозитория и этот список алиасов
+alias rh='rice-help'                                 # или rice-help <слово>
 
 # Alias definitions
 if [ -f ~/.bash_aliases ]; then
