@@ -59,6 +59,9 @@ done
 # иначе переименование команды валит проверку до коммита.
 while IFS= read -r file; do
     [ -f "$file" ] || continue
+    # Не исполняемые файлы (например, local/bin/start-llm.md) — документация,
+    # а не скрипты: bash -n на них заведомо падает.
+    [ -x "$file" ] || continue
     bash -n "$file" 2>/dev/null || bad "синтаксис: $file"
 done < <(git ls-files -- '*.sh' 'local/bin/*' 'config/sxhkd/scripts/*')
 
