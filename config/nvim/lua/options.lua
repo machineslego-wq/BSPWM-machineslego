@@ -46,11 +46,6 @@ opt.hlsearch = true
 opt.undofile = true
 opt.swapfile = false
 opt.backup = false
--- Одиночный буфер: при открытии другого файла поверх изменённого
--- спрашивать «сохранить или нет», а не терять изменения. В Neovim
--- `hidden` включён по умолчанию (буфер молча прячется), поэтому его
--- выключаем, а `confirm` превращает ошибку E37 в вопрос Y/N/C.
-opt.hidden = false
 opt.confirm = true
 
 -- Окна
@@ -58,7 +53,6 @@ opt.splitright = true
 opt.splitbelow = true
 opt.wrap = false
 
--- Быстрее реагируют gitsigns/diagnostics; timeoutlen даёт время
--- нажать третью клавишу у <leader>c* / <leader>g*.
+-- Быстрее реагируют gitsigns/diagnostics/which-key
 opt.updatetime = 300
 opt.timeoutlen = 400

@@ -1,7 +1,5 @@
 -- ==========================================================
--- ui.lua — lualine (статуслайн)
--- Вкладок-буферов нет: одиночный буфер, файлы меняются через дерево.
--- which-key убран — хоткеи смотрят в CHEATSHEET.md.
+-- ui.lua — lualine и which-key
 -- ==========================================================
 
 require("lualine").setup({
@@ -12,6 +10,16 @@ require("lualine").setup({
         component_separators = { left = "|", right = "|" },
         disabled_filetypes = { "neo-tree" },
     },
+    tabline = {
+        lualine_a = {
+            {
+                "buffers",
+                mode = 2,
+                show_modified_status = true,
+                symbols = { modified = " ●", alternate_file = "", directory = "" },
+            },
+        },
+    },
     sections = {
         lualine_a = { "mode" },
         lualine_b = { "branch", "diff" },
@@ -20,4 +28,13 @@ require("lualine").setup({
         lualine_y = { "progress" },
         lualine_z = { "location" },
     },
+})
+
+require("which-key").setup({ preset = "modern" })
+
+require("which-key").add({
+    { "<leader>f", group = "Поиск" },
+    { "<leader>b", group = "Буферы" },
+    { "<leader>g", group = "Git" },
+    { "<leader>c", group = "Код" },
 })

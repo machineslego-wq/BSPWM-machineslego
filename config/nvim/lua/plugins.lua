@@ -18,6 +18,7 @@ vim.pack.add({
     -- LSP
     { src = gh("neovim/nvim-lspconfig") },
     { src = gh("mason-org/mason.nvim") },
+    { src = gh("mason-org/mason-lspconfig.nvim") },
 
     -- Автодополнение
     { src = gh("saghen/blink.lib") },
@@ -32,6 +33,10 @@ vim.pack.add({
     -- Git
     { src = gh("lewis6991/gitsigns.nvim") },
 
-    -- Статуслайн
+    -- Поиск
+    { src = gh("nvim-telescope/telescope.nvim") },
+
+    -- Статуслайн и подсказки по хоткеям
     { src = gh("nvim-lualine/lualine.nvim") },
+    { src = gh("folke/which-key.nvim") },
 })

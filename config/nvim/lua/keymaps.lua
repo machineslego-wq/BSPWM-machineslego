@@ -1,88 +1,48 @@
 -- ==========================================================
--- keymaps.lua — ВСЕ сочетания клавиш в одном файле
---
--- Общие хоткеи объявлены глобально. LSP- и git-хоткеи — буферные
--- функции M.lsp(buf) / M.git(buf), их вызывают lsp.lua (LspAttach)
--- и git.lua (on_attach). Больше ни в одном файле map'ов нет.
+-- keymaps.lua — общие хоткеи (leader = пробел)
+-- Всё остальное — стоковые команды Neovim, см. CHEATSHEET.md
 -- ==========================================================
 
 local map = vim.keymap.set
 
-local M = {}
+-- Буферы (полоска сверху)
+map("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Следующий буфер" })
+map("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Предыдущий буфер" })
 
--- ============ Общие (глобальные) ============
-
--- Окна: дерево <-> редактор (это эквиваленты <C-w>h/j/k/l)
-map("n", "<C-h>", "<C-w>h", { desc = "Окно влево (в дерево)" })
+-- Окна (в т.ч. переход из сайдбара в редактор и обратно)
+map("n", "<C-h>", "<C-w>h", { desc = "Окно влево" })
 map("n", "<C-j>", "<C-w>j", { desc = "Окно вниз" })
 map("n", "<C-k>", "<C-w>k", { desc = "Окно вверх" })
-map("n", "<C-l>", "<C-w>l", { desc = "Окно вправо (в редактор)" })
+map("n", "<C-l>", "<C-w>l", { desc = "Окно вправо" })
 
--- Дерево проекта
-map("n", "<leader>e", "<cmd>Neotree toggle<cr>", { desc = "Дерево проекта" })
-
--- Файл и выход
+-- Файлы и выход
 map("n", "<leader>w", "<cmd>write<cr>", { desc = "Сохранить" })
 map("n", "<leader>q", "<cmd>qa<cr>", { desc = "Выйти из Neovim" })
 
 -- Сброс подсветки поиска
 map("n", "<Esc>", "<cmd>nohlsearch<cr>", { desc = "Убрать подсветку поиска" })
 
--- ============ LSP (буферные, вешает lsp.lua) ============
+-- Встроенный терминал: один и тот же буфер, открыть/скрыть
+local term_buf
 
-function M.lsp(buf)
-    local b = function(keys, func, desc)
-        map("n", keys, func, { buffer = buf, desc = desc })
+local function toggle_terminal()
+    if term_buf and vim.api.nvim_buf_is_valid(term_buf) then
+        local win = vim.fn.bufwinid(term_buf)
+        if win ~= -1 then
+            vim.api.nvim_win_hide(win)
+        else
+            vim.cmd("botright sbuffer " .. term_buf)
+            vim.cmd("startinsert")
+        end
+        return
     end
 
-    -- `gd`/`gD`/`K` переопределяют стоковые ctags/manpage: без LSP они
-    -- всё равно ничего не делают, поэтому это штатный LSP-набор.
-    b("gd", vim.lsp.buf.definition, "Перейти к определению")
-    b("gD", vim.lsp.buf.declaration, "Перейти к объявлению")
-    b("gr", vim.lsp.buf.references, "Ссылки")
-    b("K", vim.lsp.buf.hover, "Документация")
-    -- `gi` (сток: перейти к последней правке) не трогаем — реализация
-    -- переехала на <leader>ci, чтобы не терять стоковое поведение.
-    b("<leader>ci", vim.lsp.buf.implementation, "Реализации")
-    b("<leader>rn", vim.lsp.buf.rename, "Переименовать")
-    b("<leader>ca", vim.lsp.buf.code_action, "Действия кода")
-    b("<leader>f", function()
-        vim.lsp.buf.format({ async = true })
-    end, "Форматировать")
-    b("<leader>cd", vim.diagnostic.open_float, "Диагностика строки")
-    b("[d", function()
-        vim.diagnostic.jump({ count = -1, float = true })
-    end, "Предыдущая ошибка")
-    b("]d", function()
-        vim.diagnostic.jump({ count = 1, float = true })
-    end, "Следующая ошибка")
+    vim.cmd("botright split")
+    vim.cmd("terminal")
+    term_buf = vim.api.nvim_get_current_buf()
+    vim.cmd("startinsert")
 end
 
--- ============ Git (буферные, вешает git.lua) ============
-
-function M.git(buf)
-    local gs = require("gitsigns")
-    local b = function(keys, func, desc)
-        map("n", keys, func, { buffer = buf, desc = desc })
-    end
-
-    -- В diff-режиме ]c/[c остаются стоковыми, иначе — хунки gitsigns.
-    b("]c", function()
-        if vim.wo.diff then return "]c" end
-        vim.schedule(function() gs.next_hunk() end)
-        return "<Ignore>"
-    end, "Следующий хунк")
-    b("[c", function()
-        if vim.wo.diff then return "[c" end
-        vim.schedule(function() gs.prev_hunk() end)
-        return "<Ignore>"
-    end, "Предыдущий хунк")
-    map({ "n", "v" }, "<leader>gs", "<cmd>Gitsigns stage_hunk<cr>",
-        { buffer = buf, desc = "Застейджить хунк" })
-    b("<leader>gr", gs.reset_hunk, "Сбросить хунк")
-    b("<leader>gp", gs.preview_hunk, "Просмотр хунка")
-    b("<leader>gb", function() gs.blame_line({ full = true }) end, "Blame строки")
-    b("<leader>gd", gs.diffthis, "Diff файла")
-end
-
-return M
+map("n", "<C-\\>", toggle_terminal, { desc = "Терминал" })
+map("t", "<C-\\>", toggle_terminal, { desc = "Терминал" })
+map("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Выйти из режима терминала" })
