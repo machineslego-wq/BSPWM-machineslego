@@ -42,7 +42,7 @@
 
 ## ✨ Особенности
 
-- **Native Modules First:** Polybar использует стоковые `internal/bspwm`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard` и `internal/date`. Ноль фоновых bash-циклов.
+- **Native Modules First:** Polybar использует стоковые `internal/bspwm`, `internal/xwindow`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard` и `internal/date`. Ноль фоновых bash-циклов.
 - **Команды по требованию:** `wifi`, `powermenu`, `battery`, `power-profile`, `screenshot`, `volume`, `dunst-history`, `session-restart`, `cheatsheet-bspwm`, `rice-check` и `rice-help` лежат в `~/.local/bin` (PATH), там же набор Sway (обвязка `sway-cheatsheet`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, меню на wofi — `wofi-battery`, `wofi-clipboard`, `wofi-powermenu`, `wofi-wifi`); флаги окон — в `config/sxhkd/scripts`. Запускаются по хоткею и сразу завершаются.
 - **Машинные утилиты:** `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Команды Docker/ROCm машинно-специфичны: проверяют демон и печатают справку, если не хватает аргумента. Хелперы Apache — `vhost-add` / `vhost-remove`: создают и удаляют виртуальный хост (интерактивно, через `sudo`, правят `/etc/apache2` и `/etc/hosts`; `apache2` в `requirements/` не входит).
 - **Автоопределение железа:** `polybar/launch.sh` сам находит батарею (`POLYBAR_BAT`), адаптер питания (`POLYBAR_AC`) и карту подсветки (`POLYBAR_BACKLIGHT`) в `/sys/class/…` — имена не захардкожены.
@@ -257,7 +257,7 @@ OBS нужно запускать как Wayland-клиент (`QT_QPA_PLATFORM=
 
 ## ⌨️ Горячие клавиши
 
-**Полная шпаргалка:** `Super + /` — `cheatsheet-bspwm` (Rofi) в BSPWM, `sway-cheatsheet` (wofi) в Sway; обе с поиском по скрытым тегам. Шпаргалка по Neovim — `config/nvim/CHEATSHEET.md`, по Vim — комментарии в `~/.vimrc`.
+**Полная шпаргалка:** `Super + /` — `cheatsheet-bspwm` (Rofi) в BSPWM, `sway-cheatsheet` (wofi) в Sway; теги участвуют в поиске — в BSPWM они видны приглушённым цветом, в Sway скрыты. Шпаргалка по Neovim — `config/nvim/CHEATSHEET.md`, по Vim — комментарии в `~/.vimrc`.
 
 ### BSPWM: система и запуск
 

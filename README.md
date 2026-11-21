@@ -43,7 +43,7 @@ Every line of code and every running process must justify its existence. This ru
 
 ## ✨ Features
 
-- **Native Modules First:** Polybar uses stock `internal/bspwm`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard`, and `internal/date`. Zero background bash loops.
+- **Native Modules First:** Polybar uses stock `internal/bspwm`, `internal/xwindow`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard`, and `internal/date`. Zero background bash loops.
 - **On-Demand Commands:** `wifi`, `powermenu`, `battery`, `power-profile`, `screenshot`, `volume`, `dunst-history`, `session-restart`, `cheatsheet-bspwm`, `rice-check`, and `rice-help` live in `~/.local/bin` (PATH); the Sway set (`sway-cheatsheet`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, plus the wofi menus `wofi-battery`, `wofi-clipboard`, `wofi-powermenu`, `wofi-wifi`) lives there too; window flags — in `config/sxhkd/scripts`. They run on a hotkey and exit immediately.
 - **Machine Utilities:** `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Docker/ROCm commands are machine-specific; they check for the daemon and print usage when an argument is missing. The Apache helpers `vhost-add` / `vhost-remove` create and delete a virtual host (interactive, need `sudo`, write to `/etc/apache2` and `/etc/hosts`; `apache2` is not in `requirements/`).
 - **Hardware Autodetection:** `polybar/launch.sh` finds the battery (`POLYBAR_BAT`), AC adapter (`POLYBAR_AC`), and backlight device (`POLYBAR_BACKLIGHT`) in `/sys/class/…` — no hardcoded names.
@@ -258,7 +258,7 @@ Launch OBS as a Wayland client — `QT_QPA_PLATFORM=wayland obs` — otherwise i
 
 ## ⌨️ Keybindings
 
-**Full cheatsheet:** `Super + /` — `cheatsheet-bspwm` (Rofi) in BSPWM, `sway-cheatsheet` (wofi) in Sway; both are searchable through hidden tags. Neovim cheatsheet: `config/nvim/CHEATSHEET.md`; Vim cheatsheet: the comments in `~/.vimrc`.
+**Full cheatsheet:** `Super + /` — `cheatsheet-bspwm` (Rofi) in BSPWM, `sway-cheatsheet` (wofi) in Sway; tags are searchable — dim hints in the BSPWM sheet, hidden in the Sway one. Neovim cheatsheet: `config/nvim/CHEATSHEET.md`; Vim cheatsheet: the comments in `~/.vimrc`.
 
 ### BSPWM: system & launch
 
