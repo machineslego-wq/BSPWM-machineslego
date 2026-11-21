@@ -93,6 +93,27 @@ else
     alias fastfetch='fastfetch --config ~/.config/fastfetch/graphical.jsonc'
 fi
 
+# --- Сеть, Bluetooth и питание без лаунчера ---
+# Фолбэк, когда rofi/wofi недоступны: те же действия из терминала.
+# Под капотом — nmtui / nmcli / bluetoothctl / powerprofilesctl.
+
+# Wi-Fi
+alias net='nmtui'                                    # полный TUI: сканирование и пароль
+alias wifi-list='nmcli device wifi list'             # список сетей
+alias wifi-on='nmcli radio wifi on'
+alias wifi-off='nmcli radio wifi off'
+wifi-connect() { nmcli device wifi connect "$1"; }           # сохранённый пароль
+wifi-connect-ask() { nmcli device wifi connect "$1" --ask; } # спросить пароль
+
+# Bluetooth
+alias bt='bluetoothctl'                              # интерактивная оболочка
+alias bt-on='bluetoothctl power on'
+alias bt-off='bluetoothctl power off'
+
+# Профиль питания
+alias pp='powerprofilesctl get'                      # текущий профиль
+pp-set() { powerprofilesctl set "$1"; }              # performance | balanced | power-saver
+
 # Alias definitions
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases

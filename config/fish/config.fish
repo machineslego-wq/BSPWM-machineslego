@@ -57,6 +57,33 @@ alias ....='cd ../../..'
 # `rm='sudo apt remove'` — опасный футган.
 # При необходимости добавляйте точечно здесь.
 
+# --- Сеть, Bluetooth и питание без лаунчера ---
+# Фолбэк, когда rofi/wofi недоступны: те же действия из терминала.
+# Под капотом — nmtui / nmcli / bluetoothctl / powerprofilesctl.
+
+# Wi-Fi
+alias net='nmtui'
+alias wifi-list='nmcli device wifi list'
+alias wifi-on='nmcli radio wifi on'
+alias wifi-off='nmcli radio wifi off'
+function wifi-connect
+    nmcli device wifi connect $argv[1]
+end
+function wifi-connect-ask
+    nmcli device wifi connect $argv[1] --ask
+end
+
+# Bluetooth
+alias bt='bluetoothctl'
+alias bt-on='bluetoothctl power on'
+alias bt-off='bluetoothctl power off'
+
+# Профиль питания
+alias pp='powerprofilesctl get'
+function pp-set
+    powerprofilesctl set $argv[1]
+end
+
 # --- Цвета Fish (Tokyo Night) ---
 set -g fish_color_normal c0caf5
 set -g fish_color_command 7aa2f7

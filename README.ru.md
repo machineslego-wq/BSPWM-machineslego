@@ -166,6 +166,23 @@ tide configure
 **Wi-Fi.**
 Команда `wifi` (`~/.local/bin`) рассчитана на конкретные машины: имя интерфейса выбирается по `hostname` (`travelmate` → `wlp3s0`, `lx15pro`/`lx15pro-deb` → `wlo1`, `lamer-deb` → `wlp7s0`, иначе `wlan0`). Добавь свой интерфейс в этот блок и задай `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` в начале файла.
 
+**Сеть, Bluetooth и питание без лаунчера.**
+Если rofi/wofi недоступны, те же действия есть в терминале — через алиасы из `~/.bashrc` / `config.fish`:
+
+| Действие | Команда |
+|---|---|
+| Меню Wi-Fi (TUI) | `net` (nmtui) |
+| Список сетей | `wifi-list` |
+| Подключиться (сохранённый пароль) | `wifi-connect "SSID"` |
+| Подключиться (спросить пароль) | `wifi-connect-ask "SSID"` |
+| Wi-Fi вкл/выкл | `wifi-on` / `wifi-off` |
+| Bluetooth (оболочка) | `bt` (bluetoothctl) |
+| Bluetooth вкл/выкл | `bt-on` / `bt-off` |
+| Профиль питания | `pp` / `pp-set balanced` |
+| Выключить / перезагрузить | `systemctl poweroff` / `reboot` |
+
+Под капотом — `nmtui`, `nmcli`, `bluetoothctl` и `powerprofilesctl`.
+
 **Обои.**
 Выборщика нет. Правь вызовы `feh` в `~/.config/bspwm/bspwmrc`:
 

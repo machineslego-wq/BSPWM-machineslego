@@ -167,6 +167,23 @@ To switch for good, edit the `BASH_PROMPT=` line in `~/.bashrc`; to try it for o
 **Wi-Fi.**
 The `wifi` command (`~/.local/bin`) is tailored to specific machines: the interface is chosen by `hostname` (`travelmate` → `wlp3s0`, `lx15pro`/`lx15pro-deb` → `wlo1`, `lamer-deb` → `wlp7s0`, otherwise `wlan0`). Add your interface to that block and set `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` at the top of the file.
 
+**Network, Bluetooth and power without a launcher.**
+If rofi/wofi are unavailable, the same actions live in the terminal — via the aliases in `~/.bashrc` / `config.fish`:
+
+| Action | Command |
+|---|---|
+| Wi-Fi menu (TUI) | `net` (nmtui) |
+| List networks | `wifi-list` |
+| Connect (saved password) | `wifi-connect "SSID"` |
+| Connect (ask for password) | `wifi-connect-ask "SSID"` |
+| Wi-Fi on/off | `wifi-on` / `wifi-off` |
+| Bluetooth shell | `bt` (bluetoothctl) |
+| Bluetooth on/off | `bt-on` / `bt-off` |
+| Power profile | `pp` / `pp-set balanced` |
+| Power off / reboot | `systemctl poweroff` / `reboot` |
+
+Under the hood these are `nmtui`, `nmcli`, `bluetoothctl` and `powerprofilesctl`.
+
 **Wallpapers.**
 There is no picker. Edit the `feh` calls in `~/.config/bspwm/bspwmrc`:
 
