@@ -2,6 +2,12 @@
 xorg
 xinit
 xserver-xorg-input-libinput
+# AppImage-рантайм: без libfuse2 Neovim AppImage (его ставит install.sh) не стартует
+libfuse2t64
+# Утилиты X11, которые напрямую вызывают bspwmrc и xinitrc:
+# xrandr, xrdb, xset, xsetroot (x11-xserver-utils) и setxkbmap (x11-xkb-utils).
+x11-xserver-utils
+x11-xkb-utils
 bspwm
 sxhkd
 polybar
@@ -21,9 +27,13 @@ brightnessctl
 maim
 slop
 scrot
+# network-manager даёт nmcli и nmtui; отдельного пакета network-manager-tui нет.
 network-manager
 nm-connection-editor
 rfkill
+# bluetoothctl (CLI, алиас bt, модуль Bluetooth в waybar). blueman тянет bluez
+# как зависимость, но пакет нужен явно: это самостоятельный fallback.
+bluez
 pavucontrol-qt
 blueman
 thunar
@@ -43,6 +53,8 @@ wget
 unzip
 xclip
 lm-sensors
+# lspci для check-hardware
+pciutils
 jq
 imagemagick
 xdg-utils
