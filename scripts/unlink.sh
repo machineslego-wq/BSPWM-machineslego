@@ -61,6 +61,8 @@ fi
 if [ -d "$DOTFILES/local/bin" ]; then
     for cmd in "$DOTFILES/local/bin"/*; do
         [ -e "$cmd" ] || continue
+        # Документация в local/bin — не команда (симлинка нет и не было).
+        case $cmd in *.md) continue ;; esac
         check_and_remove "$HOME/.local/bin/$(basename "$cmd")"
     done
 fi

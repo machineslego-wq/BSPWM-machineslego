@@ -40,6 +40,8 @@ for file in home/*; do
     check_link "$HOME/.$name" "$DOTFILES/$file"
 done
 for file in local/bin/*; do
+    # Документация (start-llm.md) командой не является: link.sh её не линкует.
+    case $file in *.md) continue ;; esac
     check_link "$HOME/.local/bin/$(basename "$file")" "$DOTFILES/$file"
 done
 for file in local/share/mc/skins/*.ini; do
