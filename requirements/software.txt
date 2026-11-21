@@ -4,6 +4,7 @@ https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appi
 
 # Основной софт (требуют sudo apt install)
 lazygit
+ripgrep
 htop
 ranger
 btop
