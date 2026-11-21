@@ -258,7 +258,7 @@ Launch OBS as a Wayland client — `QT_QPA_PLATFORM=wayland obs` — otherwise i
 
 ## ⌨️ Keybindings
 
-**Full cheatsheet:** `Super + /` — `cheatsheet-bspwm` (Rofi) in BSPWM, `sway-cheatsheet` (wofi) in Sway; tags are searchable — dim hints in the BSPWM sheet, hidden in the Sway one. Neovim cheatsheet: `config/nvim/CHEATSHEET.md`; Vim cheatsheet: the comments in `~/.vimrc`.
+**Full cheatsheet:** `Super + /` — `cheatsheet-bspwm` (Rofi) in BSPWM, `sway-cheatsheet` (wofi) in Sway; both are searchable through hidden tags, and the BSPWM window is sized so they are not clipped. Neovim cheatsheet: `config/nvim/CHEATSHEET.md`; Vim cheatsheet: the comments in `~/.vimrc`.
 
 ### BSPWM: system & launch
 

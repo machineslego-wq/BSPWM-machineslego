@@ -257,7 +257,7 @@ OBS нужно запускать как Wayland-клиент (`QT_QPA_PLATFORM=
 
 ## ⌨️ Горячие клавиши
 
-**Полная шпаргалка:** `Super + /` — `cheatsheet-bspwm` (Rofi) в BSPWM, `sway-cheatsheet` (wofi) в Sway; теги участвуют в поиске — в BSPWM они видны приглушённым цветом, в Sway скрыты. Шпаргалка по Neovim — `config/nvim/CHEATSHEET.md`, по Vim — комментарии в `~/.vimrc`.
+**Полная шпаргалка:** `Super + /` — `cheatsheet-bspwm` (Rofi) в BSPWM, `sway-cheatsheet` (wofi) в Sway; обе с поиском по скрытым тегам, окно BSPWM рассчитано по самой длинной строке, чтобы теги не обрезались. Шпаргалка по Neovim — `config/nvim/CHEATSHEET.md`, по Vim — комментарии в `~/.vimrc`.
 
 ### BSPWM: система и запуск
 
