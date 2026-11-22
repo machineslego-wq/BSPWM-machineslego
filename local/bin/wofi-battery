@@ -1,112 +1,39 @@
 #!/bin/bash
 # ==========================================================
-# wofi-battery — Подробности о батарее в wofi
-# ==========================================================
-# Аналог battery для BSPWM: те же данные из /sys, меню рисует
-# wofi (rofi — X11). Ширина 400 px — по самой длинной строке батареи.
-#
-# Вызов: Super + Alt + B в Sway.
-# Показывает меню с деталями (заряд, статус, здоровье).
+# wofi-battery — детали батареи в wofi через upower
 # ==========================================================
 
-# --- 1. Автоопределение батареи ---
-BAT=""
-for b in /sys/class/power_supply/BAT*; do
-    [ -d "$b" ] && BAT="$b" && break
-done
-
-# --- 2. Формирование меню и вывод ---
+BAT=$(upower -e 2>/dev/null | grep -m1 '/battery_')
 if [ -z "$BAT" ]; then
-    echo "Питание: стационарный ПК (батареи нет)" | \
-        wofi --dmenu --cache-file /dev/null --insensitive \
-            --prompt "󰚥 Питание" --width 400 --lines 3
+    echo "Батареи нет" | wofi --dmenu --cache-file /dev/null --insensitive \
+        --prompt "󰁹 Батарея" --width 400 --lines 3
     exit 0
 fi
 
-bat_name=$(basename "$BAT")
-cap=$(cat "$BAT/capacity" 2>/dev/null)
-status=$(cat "$BAT/status" 2>/dev/null || echo "Unknown")
+# LC_ALL=C — иначе в ru_RU upower печатает дробные через запятую.
+lines=$(LC_ALL=C upower -i "$BAT" 2>/dev/null | awk '
+    /state:/ {
+        state = $2
+        if (state == "charging") state = "Заряжается"
+        else if (state == "discharging") state = "Разряжается"
+        else if (state == "full") state = "Заряжена"
+        else if (state == "empty") state = "Разряжена"
+    }
+    /percentage:/ { pct = $2 }
+    /energy-rate:/ { rate = $2 " " $3 }
+    /capacity:/ { health = $2 }
+    /time to empty:/ { time = "Осталось: " $4 " " $5 }
+    /time to full:/ { time = "До полной: " $4 " " $5 }
+    END {
+        if (pct) print "󱊢 Заряд: " pct
+        if (state) print "󱟢 Статус: " state
+        if (rate) print "Потребление: " rate
+        if (health) print "󱈑 Здоровье: " health
+        if (time) print time
+    }
+')
 
-# --- Fallback для батарей без файла capacity ---
-if [ -z "$cap" ]; then
-    energy_now=$(cat "$BAT/energy_now" 2>/dev/null)
-    energy_full=$(cat "$BAT/energy_full" 2>/dev/null)
-    charge_now=$(cat "$BAT/charge_now" 2>/dev/null)
-    charge_full=$(cat "$BAT/charge_full" 2>/dev/null)
-
-    if [ -n "$energy_now" ] && [ -n "$energy_full" ] && [ "$energy_full" -gt 0 ]; then
-        cap=$(( energy_now * 100 / energy_full ))
-    elif [ -n "$charge_now" ] && [ -n "$charge_full" ] && [ "$charge_full" -gt 0 ]; then
-        cap=$(( charge_now * 100 / charge_full ))
-    else
-        cap="?"
-    fi
-fi
-
-case "$status" in
-    Charging)      status_ru="Заряжается" ;;
-    Discharging)   status_ru="Разряжается" ;;
-    Full)          status_ru="Полностью заряжена" ;;
-    Not\ charging) status_ru="Не заряжается" ;;
-    *)             status_ru="$status" ;;
-esac
-
-# Используем статичную иконку батареи
-lines="󰁹 Батарея ${bat_name}"$'\n'
-lines+="󱊢 Уровень: ${cap}%"$'\n'
-lines+="󱟢 Статус: ${status_ru}"$'\n'
-
-power_now=$(cat "$BAT/power_now" 2>/dev/null || echo 0)
-energy_now=$(cat "$BAT/energy_now" 2>/dev/null || echo 0)
-energy_full=$(cat "$BAT/energy_full" 2>/dev/null || echo 0)
-
-if [ "$power_now" -gt 0 ] 2>/dev/null; then
-    power_w=$(awk "BEGIN {printf \"%.1f\", $power_now / 1000000}")
-    lines+="Потребление: ${power_w} Вт"$'\n'
-
-    if [ "$status" = "Discharging" ] && [ "$energy_now" -gt 0 ] 2>/dev/null; then
-        hours=$(awk "BEGIN {printf \"%.1f\", $energy_now / $power_now}")
-        lines+="Осталось: ~${hours} ч"$'\n'
-    elif [ "$status" = "Charging" ] && [ "$energy_full" -gt 0 ] 2>/dev/null; then
-        left=$(awk "BEGIN {printf \"%.1f\", ($energy_full - $energy_now) / $power_now}")
-        lines+="До полной: ~${left} ч"$'\n'
-    fi
-fi
-
-# --- Здоровье батареи ---
-health=$(cat "$BAT/health" 2>/dev/null)
-health_ru=""
-
-if [ -n "$health" ]; then
-    case "$health" in
-        Good) health_ru="Хорошее" ;;
-        Fair) health_ru="Удовлетворительное" ;;
-        Poor) health_ru="Плохое" ;;
-        *)    health_ru="$health" ;;
-    esac
-else
-    design_energy=$(cat "$BAT/energy_full_design" 2>/dev/null || echo 0)
-    if [ "$design_energy" -gt 0 ] 2>/dev/null && [ "$energy_full" -gt 0 ] 2>/dev/null; then
-        health_pct=$(awk "BEGIN {printf \"%d\", $energy_full * 100 / $design_energy}")
-        health_ru="${health_pct}%"
-    else
-        charge_full=$(cat "$BAT/charge_full" 2>/dev/null || echo 0)
-        design_charge=$(cat "$BAT/charge_full_design" 2>/dev/null || echo 0)
-        if [ "$design_charge" -gt 0 ] 2>/dev/null && [ "$charge_full" -gt 0 ] 2>/dev/null; then
-            health_pct=$(awk "BEGIN {printf \"%d\", $charge_full * 100 / $design_charge}")
-            health_ru="${health_pct}%"
-        fi
-    fi
-fi
-
-if [ -n "$health_ru" ]; then
-    lines+="󱈑 Здоровье: ${health_ru}"
-fi
-
-# --- Вывод в wofi ---
-# Строк в меню от 4 до 6 (зависит от наличия power_now/health), поэтому
-# --lines считаем по факту: пункты + 2 (поле ввода и запас).
+# wofi считает --lines вместе с полем ввода.
 n=$(printf '%s\n' "$lines" | grep -c .)
-echo "$lines" | \
-    wofi --dmenu --cache-file /dev/null --insensitive \
-        --prompt "󰁹 Батарея" --width 400 --lines $((n + 2))
+printf '%s\n' "$lines" | wofi --dmenu --cache-file /dev/null --insensitive \
+    --prompt "󰁹 Батарея" --width 400 --lines $((n + 2))

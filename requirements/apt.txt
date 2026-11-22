@@ -53,6 +53,8 @@ wget
 unzip
 xclip
 lm-sensors
+# upower — детали батареи в rofi (battery)
+upower
 # lspci для check-hardware
 pciutils
 jq

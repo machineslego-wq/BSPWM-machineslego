@@ -12,7 +12,7 @@
 ### ⏳ В плане
 
 - [ ] **Разобраться с WM-скриптами.** Цифры, таблица и «что на что» менять — в разборе ниже.
-- [ ] **Батарея — одна команда под `watch`, без скрипта.** Детали батареи показывать так же, как датчики (`Super + X` → `watch -n 1 sensors`): `LC_ALL=C watch -n 1 upower -i /org/freedesktop/UPower/devices/DisplayDevice` в терминале вместо `battery`/`wofi-battery`. Заодно решить, как единообразно вызывать `sensors` в Sway и BSPWM (сейчас `alacritty -e watch -n 1 sensors` и `foot -e watch -n 1 sensors`): терминал, хоткей, интервал. `upower` добавить в `requirements/apt.txt`.
+- [x] **Батарея — простые `battery`/`wofi-battery` на `upower`.** Оба скрипта переписаны: `upower -e` → `/battery_`, `upower -i` + `awk`, `LC_ALL=C`; `battery` — rofi (6 строк), `wofi-battery` — wofi (динамическая высота). `upower` добавлен в `requirements/apt.txt`. Вариант с `watch` не понадобился.
 - [ ] **Проверить обвязку: `volume`, скриншоты, шпаргалки, `power-profile`, Wi-Fi, Bluetooth.** Критерий и вердикты — в разборе ниже.
 - [ ] **Пересмотреть остальные скрипты райса (не только WM).** `check-hardware`, `check-strawberry`, `mount-nas`, `openrgb-i2c-fix`, `sddm-avatar`, `start-llm`, `start-comfy`, `vllm-setup`, `yacht`, `vhost-add`, `vhost-remove`, `rice-check`, `rice-help`: что ещё используется, что сводится к одной команде или стоковой утилите, что удалить.
 - [ ] **Переезд на Sway/Wayland — постепенно.** Sway становится повседневной сессией, BSPWM/X11 остаётся рабочей запасной сессией на случай поломок (его не удалять и не ломать). Переносить по одной вещи: хоткеи, панель, меню, OSD, темы. Прежнее решение «на Wayland не переезжаем» отменено.
@@ -24,7 +24,7 @@
 | Скрипт | Строк | Вердикт | Что делать |
 |---|---:|---|---|
 | `wifi` + `wofi-wifi` | 301 | переусложнён | один общий скрипт ~80 строк |
-| `battery` + `wofi-battery` | 214 | переусложнён | `upower` под `watch` (пункт плана) |
+| `battery` + `wofi-battery` | 73 | нормально | `upower` + rofi/wofi |
 | `power-profile` | 71 | форма хуже содержания | таблица профилей, ~30 строк |
 | `powermenu` + `wofi-powermenu` | 67 | нормально | не трогать |
 | `dunst-history` | 16 | нормально | не трогать |
@@ -35,7 +35,7 @@
 | `wofi-clipboard` + `session-restart` | 38 | нормально | не трогать |
 | `cheatsheet-bspwm` + `sway-cheatsheet` | 169 | данные, не код | оставить, добавить сверку |
 
-**`battery` + `wofi-battery` (214 строк).** Файлы различаются 12 строками: бинарник меню и `--lines`, остальное — копия. Внутри своё чтение `/sys`: три ветки определения заряда (`capacity`, `energy_*`, `charge_*`) и три ветки здоровья (`health`, `energy_full/…_design`, `charge_full/…_design`). На `lx15pro-deb` есть `capacity`, нет `health` и нет `charge_*` — то есть работает одна ветка, остальные мёртвые. `upower -i /org/freedesktop/UPower/devices/DisplayDevice` отдаёт всё сразу: `percentage`, `state`, `energy-rate`, `capacity` (здоровье), а при разряде ещё `time to empty`/`time to full`. Парсить только с `LC_ALL=C`: в `ru_RU` дробные через запятую (`54,72 Wh`). Итог: один скрипт ~25 строк или вообще `watch` (см. план), `upower` в `requirements/apt.txt`.
+**`battery` + `wofi-battery` (было 214 строк).** Файлы различаются 12 строками: бинарник меню и `--lines`, остальное — копия. Внутри своё чтение `/sys`: три ветки определения заряда (`capacity`, `energy_*`, `charge_*`) и три ветки здоровья (`health`, `energy_full/…_design`, `charge_full/…_design`). На `lx15pro-deb` есть `capacity`, нет `health` и нет `charge_*` — то есть работает одна ветка, остальные мёртвые. `upower -i /org/freedesktop/UPower/devices/DisplayDevice` отдаёт всё сразу: `percentage`, `state`, `energy-rate`, `capacity` (здоровье), а при разряде ещё `time to empty`/`time to full`. Парсить только с `LC_ALL=C`: в `ru_RU` дробные через запятую (`54,72 Wh`). **Сделано:** `battery` (34 строки, rofi) и `wofi-battery` (39 строк, wofi) читают `upower -i` первого `/battery_`; `upower` добавлен в `requirements/apt.txt`. Вариант с `watch` не понадобился.
 
 **`wifi` + `wofi-wifi` (301 строка).** Две почти одинаковые копии: различаются 73 строки из 150 (фронтенд `rofi`/`alacritty` против `wofi`/`foot` и хелперы). Что раздувает:
 
@@ -95,6 +95,7 @@
 - [x] **Sway: блокировка и OSD** — `config/swaylock` в стиле Tokyo Night (обои рабочего стола, синее кольцо при вводе, оранжевые символы, красный backspace). OSD громкости красится критериями mako (`[category=volume-*]`), потому что хинты `frcolor`/`hlcolor` mako не понимает; `volume` остаётся общим с BSPWM.
 - [x] **Sway: имена команд** — обвязка `sway-*` (`sway-cheatsheet`, `sway-display`, `sway-screenshot`, `sway-session`), меню на wofi — `wofi-*` (`wofi-battery`, `wofi-powermenu`, `wofi-wifi`). Команды BSPWM не переименовывались. Позже убраны как переусложнение: `wofi-power-profile` (профиль питания переключает родной модуль `power-profiles-daemon` в waybar) и `sway-switch` (`Alt+Tab` со списком окон дублировал Sway).
 - [x] **Rofi: фиксированные размеры** — проценты заменены на `em`: на 1920×1080 вид прежний, на 1366×768 и выше — тот же. После перехода на шрифт 10 меню поджаты под Polybar: launcher 36em, `battery` 24em, `wifi` 20/24em, `power-profile` 20em, `powermenu` 17em, `cheatsheet-bspwm` 62×36em (теги цветом фона, ширина по самой длинной строке), `dunst-history` 40×24em.
+- [x] **Rofi: высота меню** — `fixed-height: true`; общий список 8 строк, `wifi` 6, `powermenu` 4, `battery` 6. На Hyprland/XWayland без этого dmenu схлопывался до строки ввода.
 - [x] **Cava** — `config/cava/config`: 60 fps, `noise_reduction = 40` (резкий подъём и спад без дрожания), моно-спектр слева направо (низкие → высокие), градиент Tokyo Night по высоте, `noncurses` + `synchronized_sync` без мерцания. Пакет добавлен в `requirements/software.txt`.
 
 - [x] **`rice-help`** — печатает команды из `local/bin` (описание из шапки файла, третья строка) и терминальные алиасы из `home/bashrc` (описание — комментарий в конце строки). Списки не хардкожены: новая команда или алиас с комментарием появляются сами. Алиас `rh`, фильтр — `rice-help <слово>` (ищет по обеим таблицам).
