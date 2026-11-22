@@ -8,7 +8,7 @@
 # --- МЕНЮ ВЫБОРА ---
 # Блокировка, Выключить и Выйти сверху, Перезагрузить внизу
 CHOICE=$(printf "󰌾 Заблокировать\n󰐥 Выключить\n󰍃 Выйти\n󰜉 Перезагрузить" | \
-    rofi -dmenu -p "󰤆 Питание" -theme-str 'window {width: 17em;}')
+    rofi -dmenu -p "󰤆 Питание" -theme-str 'window {width: 17em;} listview {lines: 4;}')
 
 # Если нажали Esc (меню закрылось пустым) — выходим
 [ -z "$CHOICE" ] && exit 0
