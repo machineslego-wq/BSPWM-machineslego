@@ -39,7 +39,7 @@
     margin: 0;
     padding: 8px;
     border-radius: 0;
-    border: 1px solid @bg-alt;
+    border: 2px solid @bg-alt;
     background-color: @bg;
     color: @fg;
 }
