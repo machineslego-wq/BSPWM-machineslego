@@ -97,7 +97,7 @@ BSPWM-machineslego/
 ├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh, install-sway.sh
 ├── requirements/                # package lists: apt.txt, apt-system.txt, software.txt, sway.txt
 ├── screenshots/                 # README previews
-├── themes/telegram/             # .tdesktop-palette (manual install)
+├── themes/telegram/             # Telegram themes: .tdesktop-palette + .attheme (dark + light)
 ├── wallpapers/                  # 1080p/4K and portrait wallpapers
 ├── RELEASE.md                   # release notes for the current tag (EN + RU)
 ├── TODO.md                      # plans, rejected ideas, limitations
@@ -233,10 +233,10 @@ A plugin-free fallback editor: `home/vimrc` → `~/.vimrc`. Syntax highlighting 
 - **Cava:** `config/cava/config` — a terminal spectrum. 60 fps for instant response, `noise_reduction = 40`: bars rise without delay and fall sharply but smoothly. One mono spectrum across the width — low frequencies on the left, high on the right; the gradient follows bar height — blue → cyan → purple → coral. Run `cava` (in Alacritty); the config is read at startup.
 - **Btop:** `config/btop/btop.conf` plus `config/btop/themes/tokyo-night.theme`. The theme uses the same palette as Polybar/Waybar: background `#1a1b26`, text `#c0caf5`, accent `#7aa2f7`, muted `#565f89`. CPU and process graphs run blue → purple → coral, temperature and disk meters green → yellow → red. `color_theme = "tokyo-night"` resolves to the user theme directory, so no system path is hardcoded. Run `btop`; the config is read at startup.
 - **EasyEffects:** presets in `config/easyeffects/output/*.json`. The service starts from `bspwmrc` if the binary exists; some effects may need `calf-plugins` from `requirements/software.txt`.
-- **Telegram:** `themes/telegram/tokyo-night.tdesktop-palette` (Tokyo Night with an orange accent). No automated install, to avoid breaking Flatpak paths:
+- **Telegram:** themes live in `themes/telegram/` — dark `tokyo-night.*` (Tokyo Night with an orange accent) and light `tokyo-night-light.*` (Tokyo Night Day, blue accent). Each comes in two formats: `.tdesktop-palette` (Desktop) and `.attheme` (mobile/legacy). No automated install, to avoid breaking Flatpak paths:
   1. copy the file to `~/.var/app/org.telegram.desktop/data/TelegramDesktop/tdata/theme/` (Flatpak) or `~/.local/share/TelegramDesktop/tdata/theme/` (native);
   2. restart Telegram;
-  3. **Chat background** → **Edit theme** → `tokyo-night`.
+  3. **Chat background** → **Edit theme** → `tokyo-night` (or `tokyo-night-light`).
 - **Midnight Commander:** see the skin above.
 
 **System configs (`system/etc/`).**
@@ -244,11 +244,17 @@ A plugin-free fallback editor: `home/vimrc` → `~/.vimrc`. Syntax highlighting 
 - `NetworkManager/NetworkManager.conf` — `plugins=ifupdown,keyfile` and `managed=true` so NM does not ignore interfaces from `/etc/network/interfaces`.
 - `network/interfaces` — standard `lo` + `source /etc/network/interfaces.d/*`.
 
-**Dimming wallpapers to match the palette** (optional, ImageMagick):
+**Tinting wallpapers to match the palette** (optional, ImageMagick):
 
 ```bash
+# dark palette (#1a1b26) — dim:
 convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 /path/to/tokyo-night-wallpaper.jpg
+
+# light palette (#e1e2e7) — brighten:
+convert /path/to/original.jpg -fill "#e1e2e7" -colorize 50% -modulate 120,80,100 /path/to/tokyo-night-light-wallpaper.jpg
 ```
+
+`-colorize N%` blends the palette colour in (higher = closer to the panel tone), `-modulate brightness,saturation,100` sets the overall tone. For the light theme, drop brightness below 120 (e.g. 110) if the wallpaper ends up too close to the panels.
 **Sway portals (OBS, screen sharing, PipeWire).**
 Portals are D-Bus activated on the first request, so no `graphical-session.target` is required. The only thing that breaks the chain is the environment: `xdg-desktop-portal-wlr.service` has `ConditionEnvironment=WAYLAND_DISPLAY`, and `systemd --user` does not know Sway's variables until they are imported.
 

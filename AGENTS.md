@@ -15,7 +15,7 @@
 | `system/etc/**` | системные конфиги | копия в `/etc/**` + бэкап `/etc/dotfiles-backup-YYYYMMDD-HHMMSS` |
 | `scripts/*.sh` | установка и линковка | запуск вручную |
 | `requirements/*.txt` | списки пакетов | читают `scripts/*.sh` |
-| `screenshots/`, `wallpapers/`, `themes/` | картинки для README и тема Telegram | — |
+| `screenshots/`, `wallpapers/`, `themes/` | картинки для README и темы Telegram | — |
 | `README.md`, `README.ru.md` | публичная документация | — |
 | `TODO.md` | блокнот: план, «Отвергнуто», ограничения | — |
 | `RELEASE.md` | заметки только к текущему релизу | — |
@@ -181,7 +181,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - Btop: `config/btop/btop.conf` + `themes/tokyo-night.theme`, тема по имени. btop перезаписывает конфиг при выходе — правки через `F2` или в репозитории.
 - Fastfetch: `config/fastfetch/graphical.jsonc` (X11) и `tty.jsonc` (консоль), выбор по `$TERM` в `config.fish`.
 - Midnight Commander: скины `local/share/mc/skins/*.ini`, формат INI, цвета `fg;bg`.
-- Telegram: тема `themes/telegram/tokyo-night.tdesktop-palette` ставится вручную (путь Flatpak).
+- Telegram: темы `themes/telegram/tokyo-night.*` (тёмная, оранжевый акцент) и `tokyo-night-light.*` (светлая «Tokyo Night Day», синий акцент `#2b6fd4`), обе в форматах `.tdesktop-palette` (Desktop) и `.attheme` (мобильная). Ставятся вручную (путь Flatpak).
 
 ## Система
 

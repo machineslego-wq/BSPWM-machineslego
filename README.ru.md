@@ -96,7 +96,7 @@ BSPWM-machineslego/
 ├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh, install-sway.sh
 ├── requirements/                # списки пакетов: apt.txt, apt-system.txt, software.txt, sway.txt
 ├── screenshots/                 # превью для README
-├── themes/telegram/             # .tdesktop-palette (ручная установка)
+├── themes/telegram/             # темы Telegram: .tdesktop-palette + .attheme (тёмная + светлая)
 ├── wallpapers/                  # обои 1080p/4K и портретные
 ├── RELEASE.md                   # заметки к текущему релизу (EN + RU)
 ├── TODO.md                      # планы, отвергнутые идеи, ограничения
@@ -232,10 +232,10 @@ sudo systemctl kill -s HUP systemd-logind
 - **Cava:** `config/cava/config` — спектр в терминале. 60 fps для мгновенной реакции, `noise_reduction = 40`: подъём без задержки, спад резкий, но плавный. Один моно-спектр по всей ширине — низкие частоты слева, высокие справа; градиент по высоте столбика — синий → голубой → фиолетовый → коралловый. Запуск — `cava` (в Alacritty), конфиг читается при старте.
 - **Btop:** `config/btop/btop.conf` + `config/btop/themes/tokyo-night.theme`. Тема на той же палитре, что Polybar/Waybar: фон `#1a1b26`, текст `#c0caf5`, акцент `#7aa2f7`, приглушённый `#565f89`. Графики CPU и процессов идут синий → фиолетовый → коралловый, температура и диски — зелёный → жёлтый → красный. `color_theme = "tokyo-night"` ищет тему в пользовательском каталоге, системный путь не захардкожен. Запуск — `btop`; конфиг читается при старте.
 - **EasyEffects:** пресеты в `config/easyeffects/output/*.json`. Сервис запускается из `bspwmrc`, если бинарник установлен; для эффектов может понадобиться `calf-plugins` из `requirements/software.txt`.
-- **Telegram:** `themes/telegram/tokyo-night.tdesktop-palette` (Tokyo Night с оранжевым акцентом). Автоустановки нет, чтобы не ломать пути Flatpak:
+- **Telegram:** темы лежат в `themes/telegram/` — тёмная `tokyo-night.*` (Tokyo Night с оранжевым акцентом) и светлая `tokyo-night-light.*` (Tokyo Night Day, синий акцент). Каждая в двух форматах: `.tdesktop-palette` (Desktop) и `.attheme` (мобильная/legacy). Автоустановки нет, чтобы не ломать пути Flatpak:
   1. скопируй файл в `~/.var/app/org.telegram.desktop/data/TelegramDesktop/tdata/theme/` (Flatpak) или `~/.local/share/TelegramDesktop/tdata/theme/` (обычная версия);
   2. перезапусти Telegram;
-  3. **Чат-фон** → **Изменить тему** → `tokyo-night`.
+  3. **Чат-фон** → **Изменить тему** → `tokyo-night` (или `tokyo-night-light`).
 - **Midnight Commander:** см. скин выше.
 
 **Системные конфиги (`system/etc/`).**
@@ -243,11 +243,17 @@ sudo systemctl kill -s HUP systemd-logind
 - `NetworkManager/NetworkManager.conf` — `plugins=ifupdown,keyfile` и `managed=true`, чтобы NM не игнорировал интерфейсы из `/etc/network/interfaces`.
 - `network/interfaces` — стандартный `lo` + `source /etc/network/interfaces.d/*`.
 
-**Затемнение обоев под палитру** (по желанию, ImageMagick):
+**Тонирование обоев под палитру** (по желанию, ImageMagick):
 
 ```bash
+# тёмная палитра (#1a1b26) — затемнить:
 convert /path/to/original.jpg -fill "#1a1b26" -colorize 50% -modulate 80,80,100 /path/to/tokyo-night-wallpaper.jpg
+
+# светлая палитра (#e1e2e7) — высветлить:
+convert /path/to/original.jpg -fill "#e1e2e7" -colorize 50% -modulate 120,80,100 /path/to/tokyo-night-light-wallpaper.jpg
 ```
+
+`-colorize N%` подмешивает цвет палитры (больше — ближе к тону панелей), `-modulate яркость,насыщенность,100` задаёт общий тон. Для светлой темы, если обои вышли слишком близко к панелям, уменьши яркость ниже 120 (например, 110).
 **Порталы Sway (OBS, демонстрация экрана, PipeWire).**
 Порталы запускаются по D-Bus при первом запросе, поэтому `graphical-session.target` им не нужен. Ломается только окружение: у `xdg-desktop-portal-wlr.service` стоит `ConditionEnvironment=WAYLAND_DISPLAY`, а `systemd --user` не знает переменных Sway, пока их туда не импортируют.
 
