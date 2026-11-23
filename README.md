@@ -308,7 +308,6 @@ Screenshots are saved to the `Screenshots` subfolder of the system Pictures fold
 | Keybinding | Action |
 |---|---|
 | `Super + F1` | Whole screen |
-| `Super + F2` | Active window |
 | `Super + F3` | 3-second delay |
 | `Super + F4` | Active monitor |
 | `Super + Shift + S` | Selected area |

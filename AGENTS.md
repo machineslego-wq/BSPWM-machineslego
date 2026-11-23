@@ -121,7 +121,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 
 ### Скриншоты, запись, буфер
 
-- `sway-screenshot {full|window|delayed|monitor|region|annotate}`: снимает `grim` (+`slurp` для области), PNG кладёт в буфер (`wl-copy`) и в `Screenshots` внутри `xdg-user-dir PICTURES` (фолбэк `~/Screenshots`).
+- `sway-screenshot {full|region|delayed|monitor|annotate}`: снимает `grim` (+`slurp` для области), PNG кладёт в буфер (`wl-copy`) и в `Screenshots` внутри `xdg-user-dir PICTURES` (фолбэк `~/Screenshots`). Режима `window` нет: геометрия через `jq` по дереву Sway была костыльной; в X11 `screenshot window` остался (`maim -i` в одну строку).
 - `annotate` берёт картинку из буфера и открывает `swappy -f -`; экспортирует `XDG_PICTURES_DIR`, иначе `swappy` сохранит в `/Screenshots`. Если в буфере текст — уведомление и код 1.
 - `sway-record {full|region}`: `wf-recorder`, повторный вызов **любого** режима останавливает запись через `pkill -INT` (mp4 закрывается только по SIGINT). Монитор передаётся явно `-o` (иначе под хоткеем `wf-recorder` молча не стартует на мультимониторе). VAAPI (`h264_vaapi`) только для полного экрана и только на `amdgpu` (узел ищется по драйверу, номер `renderD*` не фиксирован); остальное — `libx264`. Стороны области округляются вниз до чётных: VAAPI не умеет меньше 128×128, x264 пишет любой размер. Звук не пишется.
 - Буфер: `cliphist list` → `wofi --dmenu` → `cliphist decode <id> | wl-copy` (`wofi-clipboard`, `Super+Shift+V`). Хранится 100 записей (`-max-items 100` — до подкоманды `store`). Под Wayland CopyQ не используется.

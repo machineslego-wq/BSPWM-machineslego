@@ -35,7 +35,6 @@ cat <<EOF | wofi --dmenu --allow-markup --cache-file /dev/null \
 
 <b>󰄄 СКРИНШОТЫ (В БУФЕР)</b>
 󰹑 Super + F1                       Весь экран                     <span foreground="#1a1b26">[скриншот, screenshot, снять, экран, capture]</span>
-󰖲 Super + F2                       Активное окно                  <span foreground="#1a1b26">[скриншот, screenshot, окно, window]</span>
 󰔛 Super + F3                       Экран (задержка 3с)            <span foreground="#1a1b26">[скриншот, screenshot, таймер, delay]</span>
 󰍹 Super + F4                       Активный монитор               <span foreground="#1a1b26">[скриншот, screenshot, монитор, экран, monitor]</span>
 󰩭 Super + Shift + S                Выделенная область             <span foreground="#1a1b26">[скриншот, screenshot, регион, зона, slurp]</span>

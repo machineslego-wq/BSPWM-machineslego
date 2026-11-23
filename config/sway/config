@@ -178,7 +178,6 @@ bindsym --to-code $mod+Shift+e exec swaynag -t warning \
 #
 # Super+F1..F4 как в bspwm: экран / окно / задержка / монитор.
 bindsym --to-code $mod+F1 exec sway-screenshot full
-bindsym --to-code $mod+F2 exec sway-screenshot window
 bindsym --to-code $mod+F3 exec sway-screenshot delayed
 bindsym --to-code $mod+F4 exec sway-screenshot monitor
 
