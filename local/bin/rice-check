@@ -69,7 +69,7 @@ done < <(git ls-files -- '*.sh' 'local/bin/*' 'config/sxhkd/scripts/*')
 
 while IFS= read -r img; do
     [ -f "$img" ] || bad "нет картинки: $img"
-done < <(grep -ho 'screenshots/[A-Za-z0-9_+.-]*\.png' README*.md | sort -u)
+done < <(grep -hoE 'screenshots/[A-Za-z0-9_+.-]*\.(png|webp|jpe?g)' README*.md | sort -u)
 
 if [ "$fail" -ne 0 ]; then
     exit 1

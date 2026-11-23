@@ -69,7 +69,10 @@ do_mount() {
             continue
         fi
         if sudo mount -t nfs -o "$NFS_OPTIONS" "$SERVER_IP:$remote" "$local_dir" 2>/dev/null; then
-            sudo chown "$(id -u):$(id -g)" "$local_dir" 2>/dev/null
+            # chown после mount трогал бы корень шары на сервере: при
+            # root_squash он молча падал, при no_root_squash — менял
+            # владельца каталога на NAS. Локальную точку монтирования
+            # создаём от пользователя, права на шаре задаёт сервер.
             echo "ОК"
             mounted=$((mounted + 1))
         else

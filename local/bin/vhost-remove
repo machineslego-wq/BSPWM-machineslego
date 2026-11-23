@@ -11,14 +11,6 @@
 # Установка: scripts/link.sh (симлинк в ~/.local/bin/vhost-remove)
 # ==========================================================
 
-if [ -n "$SUDO_USER" ]; then
-    REAL_USER=$SUDO_USER
-    REAL_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
-else
-    REAL_USER=$USER
-    REAL_HOME=$HOME
-fi
-
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -88,9 +80,27 @@ if [ -z "$domain_name" ]; then
     exit 1
 fi
 
+# Имя приходит из ручного ввода и дальше идёт в rm -rf: без проверки
+# ".." или "/" увели бы удаление за пределы /var/www/html.
+if ! [[ $domain_name =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]] \
+    || [[ $domain_name == *..* || $domain_name == .* || $domain_name == -* ]]; then
+    print_message "Ошибка: недопустимое имя домена." "$RED"
+    exit 1
+fi
+
 document_root="/var/www/html/$domain_name"
 vhost_file="$sites_available_dir/$domain_name.conf"
 escaped_domain=$(printf '%s' "$domain_name" | sed 's/\./\\./g')
+
+# Вторая страховка перед rm -rf: после нормализации (".." схлопывается)
+# путь обязан остаться внутри /var/www/html.
+case "$(realpath -m "$document_root")" in
+    /var/www/html/?*) ;;
+    *)
+        print_message "Ошибка: неожиданный путь $document_root." "$RED"
+        exit 1
+        ;;
+esac
 
 print_message "-> Начинаем удаление домена: $domain_name" "$CYAN"
 echo ""
@@ -113,8 +123,12 @@ fi
 
 # 3. /etc/hosts
 echo "-> 3. Удаляем запись из /etc/hosts..."
-if grep -qE "^[^#]*\b$domain_name\b" "$hosts_file"; then
-    sudo sed -i "/$escaped_domain/d" "$hosts_file"
+# Точки экранированы (иначе "." в ERE — любой символ), и удаляется только
+# строка с 127.0.0.1: прежний "/домен/d" вырезал любую строку, где домен
+# упомянут, включая комментарии и чужие записи.
+hosts_re="^127\\.0\\.0\\.1[[:space:]]+${escaped_domain}([[:space:]]|\$)"
+if grep -qE "$hosts_re" "$hosts_file"; then
+    sudo sed -i -E "/$hosts_re/d" "$hosts_file"
     print_message "  Запись удалена из /etc/hosts" "$GREEN"
 else
     print_message "  Запись не найдена в /etc/hosts" "$YELLOW"

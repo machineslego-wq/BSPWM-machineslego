@@ -10,15 +10,6 @@
 # Установка: scripts/link.sh (симлинк в ~/.local/bin/vhost-add)
 # ==========================================================
 
-# --- Определение реального пользователя (при запуске через sudo) ---
-if [ -n "$SUDO_USER" ]; then
-    REAL_USER=$SUDO_USER
-    REAL_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
-else
-    REAL_USER=$USER
-    REAL_HOME=$HOME
-fi
-
 # --- Цвета ---
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -39,6 +30,12 @@ if [ -z "$domain_name" ]; then
 fi
 if ! [[ $domain_name =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
     print_message "Ошибка: неверный формат доменного имени." "$RED"
+    exit 1
+fi
+# Регулярка выше пропускает "..", ведущую точку/дефис: такое имя уводит
+# пути (document_root) за пределы /var/www/html.
+if [[ $domain_name == *..* || $domain_name == .* || $domain_name == -* ]]; then
+    print_message "Ошибка: недопустимое имя домена." "$RED"
     exit 1
 fi
 
@@ -135,4 +132,4 @@ echo "  Домен:        $domain_name"
 echo "  DocumentRoot: $document_root"
 echo "  URL:          http://$domain_name"
 echo ""
-echo "Удаление: vhost-rm"
+echo "Удаление: vhost-remove"

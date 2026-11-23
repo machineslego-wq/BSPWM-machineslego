@@ -9,7 +9,8 @@
 set -u
 
 NAME=yacht
-PORT=8000
+# 8000 занят vllm-setup (OpenAI-совместимый API) — одновременно не поднять.
+PORT=8001
 IMAGE=selfhostedpro/yacht:latest
 SOCKET=/var/run/docker.sock
 CONFIG_VOLUME=yacht_config
@@ -42,6 +43,14 @@ need_docker() {
         echo "Docker не запущен, стартую..."
         systemctl start docker || die "не удалось запустить Docker"
     }
+}
+
+# Для status/logs root не нужен, но доступ к docker.sock нужен: без него
+# docker inspect возвращает ошибку, и прежний код писал "Yacht не установлен".
+need_docker_access() {
+    command -v docker >/dev/null || die "Docker не установлен"
+    docker info >/dev/null 2>&1 \
+        || die "нет доступа к Docker: запусти через sudo или проверь, что демон работает"
 }
 
 exists() { docker inspect "$NAME" >/dev/null 2>&1; }
@@ -106,6 +115,7 @@ stop_yacht() {
 }
 
 show_status() {
+    need_docker_access
     if ! exists; then
         echo "Yacht не установлен."
         return 0
@@ -119,6 +129,7 @@ show_status() {
 }
 
 show_logs() {
+    need_docker_access
     exists || die "контейнера $NAME нет"
     docker logs --tail 60 "$NAME" 2>&1
 }
