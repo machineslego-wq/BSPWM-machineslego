@@ -1,2 +1,7 @@
+! Масштаб X11: 96 dpi = 100% (120 = 125%, как в GNOME).
+! Без этой строки winit-приложения (Alacritty) вычисляют DPI из физического
+! размера монитора по EDID: 1920x1080 при 345x194 мм ≈ 141 dpi → масштаб 1.5.
+Xft.dpi: 96
+
 Xcursor.theme: Bibata-Modern-Ice
 Xcursor.size: 24
