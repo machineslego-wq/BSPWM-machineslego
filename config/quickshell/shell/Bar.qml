@@ -359,6 +359,10 @@ PanelWindow {
         bar: bar
     }
 
+    NotificationPopups {
+        bar: bar
+    }
+
     // Имена столов в конфиге числовые, но dispatch требует кавычек,
     // если в имени есть пробел.
     function quoteWorkspace(name) {

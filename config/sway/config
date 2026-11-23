@@ -128,7 +128,11 @@ exec swaymsg workspace number 1
 # строку с qs-shell и раскомментировать waybar.
 exec_always qs-shell start
 # exec_always pgrep -x waybar >/dev/null || waybar
-exec_always pgrep -x mako >/dev/null || mako
+# Уведомления рисует Quickshell (NotificationServer + история в центре
+# управления): одновременно с mako org.freedesktop.Notifications не
+# поделить. Вернуть mako (waybar-ветка) — закомментировать строку с
+# qs-shell выше и раскомментировать эту.
+# exec_always pgrep -x mako >/dev/null || mako
 exec_always pgrep -x lxpolkit >/dev/null || lxpolkit
 # exec_always pgrep -x blueman-applet >/dev/null || blueman-applet
 

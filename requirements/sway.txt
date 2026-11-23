@@ -34,7 +34,8 @@ foot
 qt6-wayland
 qtwayland5
 
-# Уведомления
+# Уведомления. mako — запасной вариант: на ветке Quickshell уведомления
+# рисует само приложение (NotificationServer), mako в config/sway выключен.
 mako-notifier
 
 # Скриншоты, запись экрана и буфер обмена
