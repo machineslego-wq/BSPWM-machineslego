@@ -50,7 +50,7 @@ super + alt + p
 
 # Управление Wi-Fi (Super + Alt + N)
 super + alt + n
-    wifi
+    wifi rofi
 
 # История буфера обмена (CopyQ) — всплывающее меню у курсора (Super + Ctrl + V)
 super + ctrl + v
@@ -95,7 +95,7 @@ super + alt + t
 
 # Батарея: подробности в Rofi (Super + Alt + B)
 super + alt + b
-    battery
+    battery rofi
 
 
 # ==============================================================================
@@ -120,15 +120,15 @@ XF86MonBrightnessDown
 
 # Громкость: +5% (Fn + Vol Up)
 XF86AudioRaiseVolume
-    volume up
+    wpctl-volume up
 
 # Громкость: -5% (Fn + Vol Down)
 XF86AudioLowerVolume
-    volume down
+    wpctl-volume down
 
 # Громкость: Mute (Fn + Vol Mute)
 XF86AudioMute
-    volume mute
+    wpctl-volume mute
 
 
 # ==============================================================================

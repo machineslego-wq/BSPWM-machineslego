@@ -85,7 +85,7 @@ text-color=#f7768e
 border-color=#f7768e
 default-timeout=0
 
-# --- OSD громкости (local/bin/volume) ---
+# --- OSD громкости (local/bin/wpctl-volume) ---
 # Dunst красит OSD по хинтам frcolor/hlcolor, mako их не понимает.
 # Поэтому volume помечает уведомление категорией, а цвета задаются
 # критериями, как frame_color и highlight в dunst: border-color —

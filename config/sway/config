@@ -146,10 +146,10 @@ bindsym --to-code $mod+x exec foot -e watch -n 1 sensors
 bindsym --to-code $mod+slash exec sway-cheatsheet
 
 # Wi-Fi (nmcli + wofi; пароль спрашивается в foot).
-bindsym --to-code $mod+Alt+n exec wofi-wifi
+bindsym --to-code $mod+Alt+n exec wifi wofi
 
 # Батарея: заряд, статус, здоровье (wofi).
-bindsym --to-code $mod+Alt+b exec wofi-battery
+bindsym --to-code $mod+Alt+b exec battery wofi
 
 # Telegram (flatpak) через WS-прокси.
 bindsym --to-code $mod+Alt+t exec sh -c 'tg-ws-proxy & sleep 1 && flatpak run org.telegram.desktop'
@@ -199,10 +199,10 @@ bindsym --to-code $mod+Shift+Alt+r exec sway-record region
 
 ### Клавиши: звук и яркость
 #
-# Звук — local/bin/volume (wpctl, OSD через mako).
-bindsym --to-code --locked XF86AudioRaiseVolume exec volume up
-bindsym --to-code --locked XF86AudioLowerVolume exec volume down
-bindsym --to-code --locked XF86AudioMute exec volume mute
+# Звук — local/bin/wpctl-volume (wpctl, OSD через mako).
+bindsym --to-code --locked XF86AudioRaiseVolume exec wpctl-volume up
+bindsym --to-code --locked XF86AudioLowerVolume exec wpctl-volume down
+bindsym --to-code --locked XF86AudioMute exec wpctl-volume mute
 bindsym --to-code --locked XF86MonBrightnessUp exec brightnessctl set 5%+
 bindsym --to-code --locked XF86MonBrightnessDown exec brightnessctl set 5%-
 

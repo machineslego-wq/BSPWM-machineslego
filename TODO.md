@@ -12,8 +12,8 @@
 ### ⏳ В плане
 
 - [ ] **Разобраться с WM-скриптами.** Цифры, таблица и «что на что» менять — в разборе ниже.
-- [x] **Батарея — простые `battery`/`wofi-battery` на `upower`.** Оба скрипта переписаны: `upower -e` → `/battery_`, `upower -i` + `awk`, `LC_ALL=C`; `battery` — rofi (6 строк), `wofi-battery` — wofi (динамическая высота). `upower` добавлен в `requirements/apt.txt`. Вариант с `watch` не понадобился.
-- [ ] **Проверить обвязку: `volume`, скриншоты, шпаргалки, `power-profile`, Wi-Fi, Bluetooth.** Критерий и вердикты — в разборе ниже.
+- [x] **Батарея — `battery` на `upower`.** Скрипт переписан: `upower -e` → `/battery_`, `upower -i` + `awk`, `LC_ALL=C`; один `battery {rofi|wofi}` — rofi (6 строк) или wofi (`dynamic_lines`). `upower` добавлен в `requirements/apt.txt`. Вариант с `watch` не понадобился.
+- [ ] **Проверить обвязку: `wpctl-volume`, скриншоты, шпаргалки, Bluetooth.** Критерий и вердикты — в разборе ниже.
 - [ ] **Пересмотреть остальные скрипты райса (не только WM).** `check-hardware`, `check-strawberry`, `mount-nas`, `openrgb-i2c-fix`, `sddm-avatar`, `start-llm`, `start-comfy`, `vllm-setup`, `yacht`, `vhost-add`, `vhost-remove`, `rice-check`, `rice-help`: что ещё используется, что сводится к одной команде или стоковой утилите, что удалить.
 - [ ] **Переезд на Sway/Wayland — постепенно.** Sway становится повседневной сессией, BSPWM/X11 остаётся рабочей запасной сессией на случай поломок (его не удалять и не ломать). Переносить по одной вещи: хоткеи, панель, меню, OSD, темы. Прежнее решение «на Wayland не переезжаем» отменено.
 
@@ -23,32 +23,27 @@
 
 | Скрипт | Строк | Вердикт | Что делать |
 |---|---:|---|---|
-| `wifi` + `wofi-wifi` | 301 | переусложнён | один общий скрипт ~80 строк |
-| `battery` + `wofi-battery` | 73 | нормально | `upower` + rofi/wofi |
-| `power-profile` | 71 | форма хуже содержания | таблица профилей, ~30 строк |
+| `wifi` | ~100 | упрощён | один скрипт `wifi {rofi\|wofi}` — сделано |
+| `battery` | ~55 | упрощён | один скрипт `battery {rofi\|wofi}` — сделано |
+| `power-profile` | ~40 | упрощён | функция `apply_profile`, `interval` 30 — сделано |
 | `powermenu` + `wofi-powermenu` | 67 | нормально | не трогать |
 | `dunst-history` | 16 | нормально | не трогать |
 | `screenshot` + `sway-screenshot` | 177 | нормально | подрезать `window` |
 | `sway-record` | 120 | нормально | можно убрать VAAPI, −25 строк |
 | `sway-display` + `sway-session` | 155 | нормально | не трогать |
-| `volume` | 56 | нормально | общий для двух сессий, оставить |
+| `wpctl-volume` | 56 | нормально | общий для двух сессий, оставить |
 | `wofi-clipboard` + `session-restart` | 38 | нормально | не трогать |
 | `cheatsheet-bspwm` + `sway-cheatsheet` | 169 | данные, не код | оставить, добавить сверку |
 
-**`battery` + `wofi-battery` (было 214 строк).** Файлы различаются 12 строками: бинарник меню и `--lines`, остальное — копия. Внутри своё чтение `/sys`: три ветки определения заряда (`capacity`, `energy_*`, `charge_*`) и три ветки здоровья (`health`, `energy_full/…_design`, `charge_full/…_design`). На `lx15pro-deb` есть `capacity`, нет `health` и нет `charge_*` — то есть работает одна ветка, остальные мёртвые. `upower -i /org/freedesktop/UPower/devices/DisplayDevice` отдаёт всё сразу: `percentage`, `state`, `energy-rate`, `capacity` (здоровье), а при разряде ещё `time to empty`/`time to full`. Парсить только с `LC_ALL=C`: в `ru_RU` дробные через запятую (`54,72 Wh`). **Сделано:** `battery` (34 строки, rofi) и `wofi-battery` (39 строк, wofi) читают `upower -i` первого `/battery_`; `upower` добавлен в `requirements/apt.txt`. Вариант с `watch` не понадобился.
+**`battery` + `wofi-battery` (было 214 строк).** Файлы различаются 12 строками: бинарник меню и `--lines`, остальное — копия. Внутри своё чтение `/sys`: три ветки определения заряда (`capacity`, `energy_*`, `charge_*`) и три ветки здоровья (`health`, `energy_full/…_design`, `charge_full/…_design`). На `lx15pro-deb` есть `capacity`, нет `health` и нет `charge_*` — то есть работает одна ветка, остальные мёртвые. `upower -i /org/freedesktop/UPower/devices/DisplayDevice` отдаёт всё сразу: `percentage`, `state`, `energy-rate`, `capacity` (здоровье), а при разряде ещё `time to empty`/`time to full`. Парсить только с `LC_ALL=C`: в `ru_RU` дробные через запятую (`54,72 Wh`). **Сделано:** один `battery {rofi|wofi}` (~55 строк) читает `upower -i`; `rofi` — 6 строк, `wofi` — `dynamic_lines`. `upower` добавлен в `requirements/apt.txt`. Вариант с `watch` не понадобился.
 
-**`wifi` + `wofi-wifi` (301 строка).** Две почти одинаковые копии: различаются 73 строки из 150 (фронтенд `rofi`/`alacritty` против `wofi`/`foot` и хелперы). Что раздувает:
+**`wifi` + `wofi-wifi` (было 301 строка).** Две почти одинаковые копии: различались 73 строки из 150 (фронтенд `rofi`/`alacritty` против `wofi`/`foot` и хелперы). Что раздувало: таблица интерфейсов по hostname ради `ifname`; иконки сигнала и разбор SSID по `:`; перезагрузка адаптера вместо выключения точки; копия меню и терминала.
 
-- хотспот: таблица интерфейсов по hostname (`travelmate`/`lx15pro`/`lamer-deb`) нужна только ради `ifname`, хотя `nmcli device wifi hotspot` сам выбирает Wi-Fi-устройство;
-- «выключить хотспот» — `radio off`, `sleep 1`, `radio on`, `sleep 1`: это перезагрузка адаптера с обрывом соединения, а не выключение точки; правильнее `nmcli connection down Hotspot`;
-- скрытая сеть — 20 строк и терминал ради того, что делает `nmtui`;
-- SSID и пароль `i-use-debian-btw` закоммичены в публичный репозиторий.
+**Сделано:** один `local/bin/wifi` с аргументом `rofi`/`wofi` — меню и терминал (`alacritty`/`foot`) выбираются в одном `case`. Таблица интерфейсов убрана: `nmcli device wifi hotspot` сам выбирает адаптер. Список сетей — `󰤨 | SSID` (`nmcli -t --escape no -f SIGNAL,SSID` + `read` с `IFS=:`; SSID — весь остаток после первого `:`, поэтому двоеточие в имени не ломает строку; иконку уровня даёт `signal_icon`, при выборе `${SSID#*| }` срезает иконку вместе с разделителем). Хотспот выключается `nmcli connection down Hotspot`. `wofi-wifi` удалён, хоткеи и waybar зовут `wifi rofi` / `wifi wofi`.
 
-Итог: один скрипт на обе сессии (детект по `SWAYSOCK`/`WAYLAND_DISPLAY`: меню — `rofi`/`wofi`, терминал — `alacritty`/`foot`), без таблицы интерфейсов, с честным выключением хотспота — ~80–90 строк. Радикальный вариант: клик по панели → `nmtui`, оба скрипта удалить.
+**`power-profile` (было 71 строка).** Три копии блока «`powerprofilesctl set` → `restart_picom` → `notify-send`» сведены в одну функцию `apply_profile профиль конфиг заголовок описание`, вызовы — по строке. В polybar `interval` поднят с 5 до 30 с: профиль меняется вручную, 17 000 запусков в сутки не нужны. В Sway скрипт не нужен — профиль переключает модуль `power-profiles-daemon` в waybar.
 
-**`power-profile` (71 строка).** Три копии одного блока «`powerprofilesctl set` → `restart_picom` → `notify-send`»; сводится к таблице `профиль → конфиг picom → текст` и одному блоку, ~30 строк. Отдельно: в polybar это `custom/script` с `interval = 5`, то есть команда запускается каждые 5 секунд (≈17 000 раз в сутки) ради надписи, которая меняется раз в день. 30–60 с достаточно; в Sway скрипт не нужен — профиль переключает модуль `power-profiles-daemon` в waybar.
-
-**Что не трогаем.** `powermenu`/`wofi-powermenu` различаются тремя строками (меню, `i3lock-fancy`/`swaylock`, `bspc quit`/`swaymsg exit`) — склейка потребует детекта сессии ради ~20 строк, не окупается. `dunst-history` — 16 строк `dunstctl history | jq | rofi`. `screenshot`/`sway-screenshot` — разница платформ (`maim`/`grim`, CopyQ/`wl-copy`, `slurp`/jq), пропорциональна. `sway-record` — сложность оправдана мультимонитором, `SIGINT` и чётными сторонами области. `sway-display` — ретрай IPC при старте, без него `exec_always` срабатывает раньше готовности Sway. `sway-session` — переменные окружения. `volume`, `wofi-clipboard`, `session-restart` — мелкие и по делу. Шпаргалки — данные, не код.
+**Что не трогаем.** `powermenu`/`wofi-powermenu` различаются тремя строками (меню, `i3lock-fancy`/`swaylock`, `bspc quit`/`swaymsg exit`) — склейка потребует детекта сессии ради ~20 строк, не окупается. `dunst-history` — 16 строк `dunstctl history | jq | rofi`. `screenshot`/`sway-screenshot` — разница платформ (`maim`/`grim`, CopyQ/`wl-copy`, `slurp`/jq), пропорциональна. `sway-record` — сложность оправдана мультимонитором, `SIGINT` и чётными сторонами области. `sway-display` — ретрай IPC при старте, без него `exec_always` срабатывает раньше готовности Sway. `sway-session` — переменные окружения. `wpctl-volume`, `wofi-clipboard`, `session-restart` — мелкие и по делу. Шпаргалки — данные, не код.
 
 ### 📝 Разбор: что из обвязки окупается
 
@@ -56,34 +51,39 @@
 
 | Команда | Где живёт | Сток | Что добавляет скрипт | Вердикт |
 |---|---|---|---|---|
-| `volume` | обе сессии | `wpctl` + модуль панели | OSD у курсора, цвета по уровню, mute | оставить |
+| `wpctl-volume` | обе сессии | `wpctl` + модуль панели | OSD у курсора, цвета по уровню, mute | оставить |
 | `screenshot`, `sway-screenshot` | X11 / Sway | `maim` / `grim` + `slurp`, буфер | файл в `Pictures/Screenshots`, уведомление, режимы окно/монитор/задержка, `annotate` | оставить, подрезать `window` |
 | `cheatsheet-bspwm`, `sway-cheatsheet` | обе | нет | поиск по хоткеям с русскими тегами | оставить, сверять с конфигами |
-| `power-profile` | только BSPWM | модуль PPD в waybar (Sway) | меню выбора + перезапуск picom | оставить, упростить |
-| `wifi`, `wofi-wifi` | X11 / Sway | `nmcli`, `nmtui`, `nm-connection-editor` | один клик, иконки сигнала, тема | фича — да, 300 строк — нет |
+| `power-profile` | только BSPWM | модуль PPD в waybar (Sway) | меню выбора + перезапуск picom | упрощён, оставлен в X11 |
+| `wifi {rofi\|wofi}` | обе сессии | `nmcli`, `nmtui`, `nm-connection-editor` | один клик, тема, пароль в терминале | фича — да, ~100 строк — ок |
 | Bluetooth | обе | `bluetoothctl` в waybar, `blueman-applet` в BSPWM | — | уже сток, не трогать |
 
-**`volume`.** `wpctl set-volume … 2%+` — сток, панель показывает процент, но она не под курсором: когда жмёшь Fn, смотреть надо туда, где сейчас глаза. OSD и есть фича. 56 строк — в основном комментарии и маппинг `category` для mako (dunst-хинты `frcolor`/`hlcolor` mako не понимает), без него OSD потеряет цвета.
+**`wpctl-volume`.** `wpctl set-volume … 2%+` — сток, панель показывает процент, но она не под курсором: когда жмёшь Fn, смотреть надо туда, где сейчас глаза. OSD и есть фича. 56 строк — в основном комментарии и маппинг `category` для mako (dunst-хинты `frcolor`/`hlcolor` mako не понимает), без него OSD потеряет цвета.
 
 **Скриншоты.** Сток (`grim -g "$(slurp)" - | wl-copy`) кладёт только в буфер: файла на диске нет, окно/монитор/задержка — отдельными командами. Ценность скрипта — файлы в `Screenshots` и пять действий по пяти хоткеям. 113 строк в Sway против 64 в X11 — за счёт `annotate`, разбора `slurp` и jq; режется `window` (одна строка jq), остальное по делу.
 
 **Шпаргалки.** Данные, а не код: 169 строк статического текста. Ценность максимальная (обнаружимость), единственная цена — дрейф: строки в `sxhkdrc` и `sway/config` добавляются руками, а `rice-check` их не сверяет. Добавить в `rice-check` проверку «каждая клавиша из конфига есть в шпаргалке» (с поправкой на brace-раскладку `super + {a,b}`).
 
-**`power-profile`.** В Sway профиль переключает родной модуль PPD в waybar — скрипт там не нужен. В BSPWM альтернативы нет (в polybar нет модуля PPD), поэтому меню оправдано, но не в текущем виде: таблица вместо трёх копий и `interval` 30–60 с вместо 5. На стационаре разница между профилями меньше — модуль можно скрыть, если он не нужен.
+**`power-profile`.** В Sway профиль переключает родной модуль PPD в waybar — скрипт там не нужен. В BSPWM альтернативы нет (в polybar нет модуля PPD), поэтому меню оставлено, но переписано: одна функция на три профиля и `interval` 30 с. На стационаре разница между профилями меньше — модуль можно скрыть, если он не нужен.
 
-**Wi-Fi.** Сток умеет всё (`nmcli`, `nmtui`, `nm-connection-editor`), но `nmtui` — целый TUI ради одного клика. Ценность меню — один клик по панели/хоткею и иконки сигнала в теме. Проблема не в фиче, а в двух копиях по 150 строк; детали — в разборе выше. Радикальный вариант: клик панели на `nmtui`, оба скрипта удалить, хоткей освободить.
+**Wi-Fi.** Сток умеет всё (`nmcli`, `nmtui`, `nm-connection-editor`), но `nmtui` — целый TUI ради одного клика. Ценность меню — один клик по панели/хоткею и тема. Две копии по 150 строк сведены в один `wifi {rofi|wofi}`; радикальный вариант с `nmtui` не понадобился.
 
 **Bluetooth.** Своего кода нет: waybar кликает `bluetoothctl power on/off`, в BSPWM висит `blueman-applet`. Это эталон «стокового модуля» — так и оставить.
 
-**Итог по обвязке:** `volume` и скриншоты оставить (подрезать `window`), шпаргалки оставить и добавить сверку, `power-profile` упростить и оставить только в X11, Wi-Fi свести к одному скрипту, Bluetooth не трогать.
+**Итог по обвязке:** `wpctl-volume` и скриншоты оставить (подрезать `window`), шпаргалки оставить и добавить сверку, `power-profile` упрощён и остаётся только в X11, Wi-Fi и батарея сведены к одному скрипту, Bluetooth не трогать.
 
 ### ✅ Сделано
 
+- [x] **Батарея — один скрипт на обе сессии.** `local/bin/battery {rofi|wofi}`: в BSPWM — rofi (24em, 6 строк), в Sway — wofi (`dynamic_lines`), без `--lines`. Общий `upower`-блок и заглушка «Нет данных» в одном месте; `wofi-battery` удалён, хоткей Sway зовёт `battery wofi`, ПКМ по модулю батареи в waybar — тоже. ~55 строк вместо 87.
+- [x] **`power-profile` — одна функция вместо трёх копий.** `apply_profile профиль конфиг заголовок описание`: `powerprofilesctl set`, перезапуск Picom с нужным профилем (`picom.conf` / `picom-eco.conf`), уведомление; ошибка — одно сообщение. В polybar `interval` 5 → 30 с. ~40 строк вместо 71.
+- [x] **`volume` → `wpctl-volume`.** Имя говорит, чем управляет команда: `wpctl` (PipeWire), а не «громкость вообще». Общий для обеих сессий, поэтому в `sxhkdrc` и `config/sway` вызовы заменены на `wpctl-volume up/down/mute`; старая ссылка `~/.local/bin/volume` удалена. `battery`/`wifi` остались без префиксов — там имя описывает действие, а бэкенд (`upower`, `nmcli`) указан в шапке.
+- [x] **Wi-Fi — один скрипт на обе сессии.** `local/bin/wifi {rofi|wofi}`: в BSPWM — `rofi` + `alacritty`, в Sway — `wofi` + `foot`; выбираются одним `case`, без копий. Таблица интерфейсов по hostname убрана (`nmcli` сам выбирает адаптер), список сетей — `󰤨 | SSID` (`nmcli -t --escape no -f SIGNAL,SSID` + `read` с `IFS=:`, иконка из `signal_icon`, срезает её `${SSID#*| }`); хотспот выключается `nmcli connection down Hotspot`, а не перезагрузкой адаптера. `wofi-wifi` удалён; хоткеи зовут `wifi rofi` (Super+Alt+N) и `wifi wofi` (`$mod+Alt+N`), ПКМ по модулю сети в waybar — `wifi wofi`. ~100 строк вместо 301.
+- [x] **Баги в скриптах (ревизия `local/bin`).** `vhost-remove`: имя домена валидируется, `rm -rf` не уходит за `/var/www/html` (ввод `..` отклоняется), из `/etc/hosts` удаляется только строка `127.0.0.1 <домен>` — прежний `sed "/домен/d"` вырезал комментарии и чужие записи. `vhost-add`: подсказка `vhost-remove` вместо `vhost-rm`, мёртвый `REAL_USER`/`REAL_HOME` убран в обоих. `mount-nas`: нет `chown` после `mount` (он трогал корень шары на сервере). `battery`: `fully-charged` (именно его отдаёт этот ноут — строка «Статус» пропадала), выбор `battery_BAT*` вместо первой `/battery_` (иначе ловится батарея мыши), заглушка при пустом выводе меню. `yacht`: порт 8001 (8000 занят `vllm-setup`) и внятная ошибка, если нет доступа к Docker. `rice-check`: проверка картинок README видит `.webp` (была мёртвой). `openrgb-i2c-fix` и `sddm-avatar` не тронуты — см. «Отвергнуто».
 - [x] **`nmtui` в палитре Tokyo Night** — `config/newt/colors` → `~/.config/newt/colors`, подключается `NEWT_COLORS_FILE` и `NMT_NEWT_COLORS_FILE` из `home/bashrc` и `config/fish/config.fish`. Стоковый newt рисует синие окна и красные кнопки, которые не ложатся на палитру райса; теперь цвета заданы именами ANSI (оттенки берутся из палитры терминала), фон — `default`, без подложки. Отдельно пришлось учесть две особенности libnewt: у компактных кнопок nmtui фокус красится цветом `button` (а не `actbutton`), иначе выделение было инвертировано; а собственные наборы nmtui (`badLabel`, `plainLabel`, `disabledButton`, `textboxWithBackground`) читает только `NMT_NEWT_COLORS_FILE` — без них оставались светлые плашки.
 - [x] **Sway: запись экрана** — `sway-record` + `wf-recorder`: `Super + Shift + R` — весь экран, `Super + Shift + Alt + R` — область, повторное нажатие останавливает (mp4 закрывается по `SIGINT`). Клипы без звука — для записи со звуком OBS; VAAPI только для полного экрана на AMD, Intel и остальные — `libx264`, область — тоже `libx264` с чётными сторонами: AMD не кодирует меньше 128×128.
 - [x] **Скриншоты и записи — в системных каталогах.** Пути больше не хардкодятся по-английски: `screenshot`, `sway-screenshot` и `sway-record` спрашивают `xdg-user-dir PICTURES` / `VIDEOS`, поэтому при русской локали файлы ложатся в `~/Изображения/Screenshots` и `~/Видео/Screencasts`, при английской — в `~/Pictures/Screenshots` и `~/Videos/Screencasts`. Фолбэк (нет утилиты или каталог не настроен) — прежние `~/Screenshots` и `~/Videos/Screencasts`. `swappy` разворачивает `save_dir=$XDG_PICTURES_DIR/Screenshots`, переменную экспортирует `sway-screenshot annotate`.
 - [x] **Sway: запись на мультимониторе и на ПК с двумя GPU** — `sway-record` передаёт монитор явно (`-o`): без него `wf-recorder` спрашивает номер выхода в терминале, а под хоткеем ввод-вывод перенаправлен, и на ПК с двумя экранами запись молча не стартовала (на ноутбуке выход один — потому и работало). Для `full` берётся выход с фокусом, для `region` — тот, куда попал угол области. Узел VAAPI теперь ищется по драйверу, а не по номеру: на i5-11600K + RX 7700 XT `renderD128` — это Intel i915, а `amdgpu` получает `renderD129`, из-за чего аппаратное кодирование не включалось.
-- [x] **Wofi: меню по тексту** — ширины подобраны под содержимое (8 px на символ): launcher 600×400, `powermenu` 340, `wifi` 380 (сети и скрытая сеть — 440), `battery` 400, `wofi-clipboard` 860, `sway-cheatsheet` 960×650. Высота cheatsheet оставляет запас под waybar (32 px) на 1366×768; на 1920×1080 размер тот же.
+- [x] **Wofi: меню по тексту** — ширины подобраны под содержимое (8 px на символ): launcher 600×400, `powermenu` 340, `wifi` 440, `battery` 400, `wofi-clipboard` 860, `sway-cheatsheet` 960×650. Высота cheatsheet оставляет запас под waybar (32 px) на 1366×768; на 1920×1080 размер тот же.
 - [x] **Sway: редактор скриншотов** — `sway-screenshot annotate` + `swappy`: `Super + Shift + A` правит картинку из буфера после любого режима съёмки, сохраняет в подпапку `Screenshots` системного каталога изображений (`~/Изображения/Screenshots` при русской локали). Конфиг — `config/swappy/config`.
 - [x] **Sway: история буфера** — `cliphist` + `wofi-clipboard` (`Super + Shift + V`): последние 100 записей, картинки, блоки кода любой длины. CopyQ остаётся в BSPWM.
 - [x] **Скриншоты в README — WebP.** Пять актуальных снимков вместо девяти PNG, ссылки обновлены; старые blob'ы остаются в истории git, поэтому размер существующего клона не уменьшился.
@@ -92,9 +92,9 @@
 
 - [x] **Qt: светлая палитра** — `config/qt5ct/colors/tokyo-night-day.conf` и `config/qt6ct/colors/tokyo-night-day.conf`: те же 21 роль `QPalette`, палитра Tokyo Night Day. Роли объёма Fusion (`Light`/`Midlight`/`Mid`/`Dark`) перевёрнуты по яркости под светлый фон. Включение ручное — `color_scheme_path` в `qt5ct.conf`/`qt6ct.conf` и `icon_theme=Papirus`; проверено живым рендером Qt5-приложения.
 - [x] **GTK: светлые варианты** — `config/gtk-3.0/gtk-light.css` и `config/gtk-4.0/gtk-light.css` один-в-один повторяют тёмные (те же селекторы и переменные), отличается только палитра Tokyo Night Day (фон `#e1e2e7`, текст `#3760bf`, акцент `#2b6fd4`) и базис — `Adwaita` вместо `Adwaita-dark`. Переключение ручное: файл копируется на место `gtk.css`, базовая тема и `color-scheme` меняются через gsettings; скрипта и автопереключения нет.
-- [x] **Sway: блокировка и OSD** — `config/swaylock` в стиле Tokyo Night (обои рабочего стола, синее кольцо при вводе, оранжевые символы, красный backspace). OSD громкости красится критериями mako (`[category=volume-*]`), потому что хинты `frcolor`/`hlcolor` mako не понимает; `volume` остаётся общим с BSPWM.
-- [x] **Sway: имена команд** — обвязка `sway-*` (`sway-cheatsheet`, `sway-display`, `sway-screenshot`, `sway-session`), меню на wofi — `wofi-*` (`wofi-battery`, `wofi-powermenu`, `wofi-wifi`). Команды BSPWM не переименовывались. Позже убраны как переусложнение: `wofi-power-profile` (профиль питания переключает родной модуль `power-profiles-daemon` в waybar) и `sway-switch` (`Alt+Tab` со списком окон дублировал Sway).
-- [x] **Rofi: фиксированные размеры** — проценты заменены на `em`: на 1920×1080 вид прежний, на 1366×768 и выше — тот же. После перехода на шрифт 10 меню поджаты под Polybar: launcher 36em, `battery` 24em, `wifi` 20/24em, `power-profile` 20em, `powermenu` 17em, `cheatsheet-bspwm` 62×36em (теги цветом фона, ширина по самой длинной строке), `dunst-history` 40×24em.
+- [x] **Sway: блокировка и OSD** — `config/swaylock` в стиле Tokyo Night (обои рабочего стола, синее кольцо при вводе, оранжевые символы, красный backspace). OSD громкости красится критериями mako (`[category=volume-*]`), потому что хинты `frcolor`/`hlcolor` mako не понимает; `wpctl-volume` остаётся общим с BSPWM.
+- [x] **Sway: имена команд** — обвязка `sway-*` (`sway-cheatsheet`, `sway-display`, `sway-screenshot`, `sway-session`), меню на wofi — `wofi-powermenu` (`wofi-wifi` слит в общий `wifi wofi`, `wofi-battery` — в `battery wofi`). Команды BSPWM не переименовывались. Позже убраны как переусложнение: `wofi-power-profile` (профиль питания переключает родной модуль `power-profiles-daemon` в waybar) и `sway-switch` (`Alt+Tab` со списком окон дублировал Sway).
+- [x] **Rofi: фиксированные размеры** — проценты заменены на `em`: на 1920×1080 вид прежний, на 1366×768 и выше — тот же. После перехода на шрифт 10 меню поджаты под Polybar: launcher 36em, `battery` 24em, `wifi` 24em, `power-profile` 20em, `powermenu` 17em, `cheatsheet-bspwm` 62×36em (теги цветом фона, ширина по самой длинной строке), `dunst-history` 40×24em.
 - [x] **Rofi: высота меню** — `fixed-height: true`; общий список 8 строк, `wifi` 6, `powermenu` 4, `battery` 6. На Hyprland/XWayland без этого dmenu схлопывался до строки ввода.
 - [x] **Cava** — `config/cava/config`: 60 fps, `noise_reduction = 40` (резкий подъём и спад без дрожания), моно-спектр слева направо (низкие → высокие), градиент Tokyo Night по высоте, `noncurses` + `synchronized_sync` без мерцания. Пакет добавлен в `requirements/software.txt`.
 
@@ -108,7 +108,7 @@
 - [x] **Vim** — `home/vimrc` без плагинов: подсветка синтаксиса и определение типов файлов, гибридная нумерация (абсолютный номер на строке курсора, относительные вокруг), постоянная история в `~/.vim/undo`, типы файлов для конфигов без расширения. `vim` добавлен в `apt.txt`.
 - [x] **Единая тема** — GTK3/GTK4 (свой CSS поверх `Adwaita-dark`), Qt5/Qt6, GIMP 3, CopyQ, Telegram, Midnight Commander.
 - [x] **Node.js без sudo** — `scripts/install-node.sh` (NodeSource LTS, prefix `~/.npm-global`).
-- [x] **Команды в `~/.local/bin`** — `battery`, `cheatsheet-bspwm`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `volume`, `wifi` перенесены из `config/sxhkd/scripts` и `config/polybar/scripts`; `link.sh`/`unlink.sh` линкуют их поштучно, PATH выставляют `xinitrc`/`xprofile`. В `config/sxhkd/scripts` остались только хоткей-хелперы (`flag.sh`, `to-preselect.sh`, `preselect-cancel-all.sh`).
+- [x] **Команды в `~/.local/bin`** — `battery`, `cheatsheet-bspwm`, `dunst-history`, `powermenu`, `power-profile`, `screenshot`, `session-restart`, `wpctl-volume`, `wifi` перенесены из `config/sxhkd/scripts` и `config/polybar/scripts`; `link.sh`/`unlink.sh` линкуют их поштучно, PATH выставляют `xinitrc`/`xprofile`. В `config/sxhkd/scripts` остались только хоткей-хелперы (`flag.sh`, `to-preselect.sh`, `preselect-cancel-all.sh`).
 - [x] **Промпт Bash в пресетах** — `home/bashrc` только выбирает файл по `BASH_PROMPT`; пресеты `tokyo-night` (Debian → папка → git → стрелка), `tokyo-night-minimal` (одна строка, без `git`) и `empty` (шаблон для своей темы) лежат в `config/bash/themes/`. Заголовок окна перенесён внутрь `prompt_command`, мёртвый блок `force_color_prompt` удалён.
 
 ---
@@ -117,6 +117,7 @@
 
 Решения, которые были обдуманы и **сознательно отброшены**. Здесь, чтобы не возвращаться к ним через полгода и не начинать заново.
 
+- **Обобщение hardware-скриптов** (`openrgb-i2c-fix`, `sddm-avatar`) — не нужно. Оба живут только на ПК `lamer-deb` и запускаются один раз: `openrgb-i2c-fix` там грузит Intel-модуль `i2c-i801`, аватар ставится одной командой. Ветка под AMD (`i2c-piix4`) и флаги рестарта SDDM — обобщение ради другого железа, где эти команды не запускаются. Такие скрипты остаются машинно-специфичными (см. «Персонализация» в AGENTS).
 - **Темы (dark / light)** — слишком много файлов, слишком много связей (симлинк + include в 4 конфига + скрипт + перезапуск 2 демонов). Пробовал, отказался. Стоимость поддержки выше пользы. Исключение по просьбе: светлые GTK3/GTK4- и Qt-палитры (`gtk-light.css`, `tokyo-night-day.conf`) — только файлы, без переключения остальных компонентов и без скрипта.
 - **Прозрачность (on / off)** — зависела от тем. Тем нет — фичи нет.
 - **Скрипт-выборщик обоев** (`wallpaper.sh` через Rofi) — заменён двумя статичными вызовами `feh` в `bspwmrc`. Сменить обои = отредактировать одну строку.

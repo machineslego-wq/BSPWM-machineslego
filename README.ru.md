@@ -43,7 +43,7 @@
 ## ✨ Особенности
 
 - **Native Modules First:** Polybar использует стоковые `internal/bspwm`, `internal/xwindow`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard` и `internal/date`. Ноль фоновых bash-циклов.
-- **Команды по требованию:** `wifi`, `powermenu`, `battery`, `power-profile`, `screenshot`, `volume`, `dunst-history`, `session-restart`, `cheatsheet-bspwm`, `rice-check` и `rice-help` лежат в `~/.local/bin` (PATH), там же набор Sway (обвязка `sway-cheatsheet`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, меню на wofi — `wofi-battery`, `wofi-clipboard`, `wofi-powermenu`, `wofi-wifi`); флаги окон — в `config/sxhkd/scripts`. Запускаются по хоткею и сразу завершаются.
+- **Команды по требованию:** `wifi`, `powermenu`, `battery`, `power-profile`, `screenshot`, `wpctl-volume`, `dunst-history`, `session-restart`, `cheatsheet-bspwm`, `rice-check` и `rice-help` лежат в `~/.local/bin` (PATH), там же набор Sway (обвязка `sway-cheatsheet`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, меню на wofi — `wofi-clipboard`, `wofi-powermenu`); `wifi` и `battery` принимают бэкенд меню аргументом (`wifi rofi`/`battery rofi` в BSPWM, `wifi wofi`/`battery wofi` в Sway); флаги окон — в `config/sxhkd/scripts`. Запускаются по хоткею и сразу завершаются.
 - **Машинные утилиты:** `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Команды Docker/ROCm машинно-специфичны: проверяют демон и печатают справку, если не хватает аргумента. Хелперы Apache — `vhost-add` / `vhost-remove`: создают и удаляют виртуальный хост (интерактивно, через `sudo`, правят `/etc/apache2` и `/etc/hosts`; `apache2` в `requirements/` не входит).
 - **Автоопределение железа:** `polybar/launch.sh` сам находит батарею (`POLYBAR_BAT`), адаптер питания (`POLYBAR_AC`) и карту подсветки (`POLYBAR_BACKLIGHT`) в `/sys/class/…` — имена не захардкожены.
 - **Обои — только `feh`:** никакого скрипта-выборщика, state-файла и превью. Два статичных вызова `feh` в `bspwmrc`: landscape на основной монитор, portrait на повёрнутый. Сменить обои = поправить одну строку.
@@ -55,7 +55,7 @@
 - **Workflow:** история буфера (CopyQ в BSPWM, cliphist + wofi в Sway), история уведомлений (Rofi), скриншоты сразу в буфер, мгновенные пометки на скриншоте (swappy) и запись экрана по хоткею (wf-recorder), шпаргалки по хоткеям (Rofi для BSPWM, wofi для Sway), Neovim в стиле базового VS Code со своей шпаргалкой.
 - **Запасной Vim:** обычный `vim` из `apt.txt` без плагинов — подсветка синтаксиса почти для всего, гибридная нумерация (абсолютный номер на строке курсора, относительные вокруг) и постоянная история изменений. Конфиг — `~/.vimrc` (`home/vimrc`).
 - **Стабильность:** автозапуск в `bspwmrc` защищён от дублей через `pgrep`/`pkill`, поэтому `Super + Alt + R` и полный рестарт сессии не плодят процессы.
-- **Несколько машин:** hostname-ветвления в `bspwmrc` и `wifi` (десктоп с двумя мониторами и ноутбуки), но при желании конфиг сводится к одной машине.
+- **Несколько машин:** hostname-ветвления в `bspwmrc` (десктоп с двумя мониторами и ноутбуки), но при желании конфиг сводится к одной машине.
 - **Запись экрана и OBS (Sway):** скриншоты по хоткеям снимаются напрямую через `grim`/`slurp`; быстрая запись — `wf-recorder` (`Super + Shift + R` — экран, `Super + Shift + Alt + R` — область, повторное нажатие останавливает), клипы без звука (для записи со звуком — OBS), кодек — VAAPI на AMD и `libx264` на Intel и остальных. Тяжёлая запись и демонстрация экрана — через `xdg-desktop-portal-wlr` + PipeWire; Sway сам экспортирует окружение в systemd/dbus, а `portals.conf` направляет `ScreenCast`/`Screenshot` на `wlr`. OBS должен быть запущен как нативный Wayland-клиент. Аннотации к скриншотам — `swappy` (`Super + Shift + A`), история буфера — `cliphist` (`Super + Shift + V`, последние 100 записей).
 
 ## 📦 Структура
@@ -90,7 +90,7 @@ BSPWM-machineslego/
 │   ├── waybar/                  # config.jsonc + style.css: панель Sway
 │   └── wofi/                    # config + style.css: лаунчер и меню Sway
 ├── home/                        # симлинки в ~/*: .bashrc, .vimrc, .xinitrc, .xprofile, .Xresources
-├── local/bin/                   # команды в ~/.local/bin: wifi, screenshot, volume, ...
+├── local/bin/                   # команды в ~/.local/bin: wifi, screenshot, wpctl-volume, ...
 ├── local/share/mc/skins/        # скин Midnight Commander
 ├── system/etc/                  # копируется в /etc: touchpad, NetworkManager, interfaces
 ├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh, install-sway.sh
@@ -125,7 +125,7 @@ chmod +x scripts/*.sh
 - **Только конфиги (без изменений в `/etc`):** `./scripts/link.sh`
 - **Дополнительный софт:** `./scripts/software.sh`
 - **Node.js / npm:** `./scripts/install-node.sh` (отдельно, см. ниже)
-- **Sway (основная сессия):** `./scripts/install-sway.sh` — ставит пакеты из `requirements/sway.txt` поверх базовой установки: шрифты, иконки, Qt-темы, сеть (`nmcli`/`nmtui` из `network-manager`) и звук (`wpctl` из `wireplumber`) приходят из `apt.txt`. Добавляет пользователя в группу `input` (индикаторы Caps/Num Lock в waybar), конфиги не трогает; `--session` дополнительно добавляет сессию в GDM, которая запускает `sway-session` (обёртка с окружением: под Wayland `xinitrc`/`xprofile` не работают). BSPWM при этом не удаляется: он остаётся запасной X11-сессией. Сам Sway настраивается в `config/sway`: только рамки (pixel 2), без отступов, цвета рамок Tokyo Night, терминал `foot` (`config/foot`), waybar вместо Polybar, wofi вместо Rofi, мониторы, обои и привязка столов к мониторам — через `sway-display` (в конфиге Sway нет условий по hostname), блокировка — `swaylock` (`config/swaylock`: синее кольцо при вводе, оранжевые символы пароля, те же обои, что на рабочем столе), скриншоты — через `sway-screenshot`, меню Wi-Fi и батареи — через `wofi-battery`, `wofi-powermenu`, `wofi-wifi` (wofi в стиле Rofi, скругление 2 px), уведомления — `mako` (`config/mako`) в стиле `dunst`
+- **Sway (основная сессия):** `./scripts/install-sway.sh` — ставит пакеты из `requirements/sway.txt` поверх базовой установки: шрифты, иконки, Qt-темы, сеть (`nmcli`/`nmtui` из `network-manager`) и звук (`wpctl` из `wireplumber`) приходят из `apt.txt`. Добавляет пользователя в группу `input` (индикаторы Caps/Num Lock в waybar), конфиги не трогает; `--session` дополнительно добавляет сессию в GDM, которая запускает `sway-session` (обёртка с окружением: под Wayland `xinitrc`/`xprofile` не работают). BSPWM при этом не удаляется: он остаётся запасной X11-сессией. Сам Sway настраивается в `config/sway`: только рамки (pixel 2), без отступов, цвета рамок Tokyo Night, терминал `foot` (`config/foot`), waybar вместо Polybar, wofi вместо Rofi, мониторы, обои и привязка столов к мониторам — через `sway-display` (в конфиге Sway нет условий по hostname), блокировка — `swaylock` (`config/swaylock`: синее кольцо при вводе, оранжевые символы пароля, те же обои, что на рабочем столе), скриншоты — через `sway-screenshot`, меню Wi-Fi и батареи — через `wifi wofi`, `battery wofi`, `wofi-powermenu` (wofi в стиле Rofi, скругление 2 px), уведомления — `mako` (`config/mako`) в стиле `dunst`
 - **Откат:** `./scripts/unlink.sh`
 - **Запуск:** `sway-session` из TTY или сессия в GDM, добавленная `install-sway.sh --session`; `startx` по-прежнему поднимает запасной BSPWM.
 
@@ -165,7 +165,7 @@ tide configure
 Сменить насовсем — поправить строку `BASH_PROMPT=` в `~/.bashrc`; примерить на один запуск — `BASH_PROMPT=tokyo-night-minimal bash`. Если файла нет, остаётся стоковый `\u@\h:\w\$`.
 
 **Wi-Fi.**
-Команда `wifi` (`~/.local/bin`) рассчитана на конкретные машины: имя интерфейса выбирается по `hostname` (`travelmate` → `wlp3s0`, `lx15pro`/`lx15pro-deb` → `wlo1`, `lamer-deb` → `wlp7s0`, иначе `wlan0`). Добавь свой интерфейс в этот блок и задай `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` в начале файла.
+Команда `wifi` (`~/.local/bin`) принимает бэкенд меню первым аргументом: `wifi rofi` для BSPWM (терминал — Alacritty) и `wifi wofi` для Sway (терминал — Foot). Адаптер выбирает `nmcli`, таблицы интерфейсов нет; `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` задаются в начале файла.
 
 **Сеть, Bluetooth и питание без лаунчера.**
 Если rofi/wofi недоступны, те же действия есть в терминале — через алиасы из `~/.bashrc` / `config.fish`:

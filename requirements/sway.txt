@@ -4,7 +4,7 @@
 # Ставится поверх базовой установки: requirements/apt.txt (шрифты, иконки,
 # Qt-темы, сеть, звук, jq, brightnessctl). Из базового набора сюда не
 # дублируются, но конфиг Sway их вызывает — искать пакеты здесь:
-#   network-manager       — nmcli и nmtui (wofi-wifi, алиас net)
+#   network-manager       — nmcli и nmtui (wifi wofi, алиас net)
 #   nm-connection-editor  — клик по модулю сети в waybar
 #   brightnessctl         — модуль яркости в waybar
 #   bluez                 — bluetoothctl (модуль Bluetooth в waybar, алиас bt)

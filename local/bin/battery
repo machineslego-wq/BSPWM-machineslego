@@ -1,23 +1,47 @@
 #!/bin/bash
 # ==========================================================
-# battery — детали батареи в rofi через upower
+# battery — детали батареи в rofi (BSPWM) или wofi (Sway)
+# ==========================================================
+# Использование: battery {rofi|wofi}
+# Читает upower, показывает заряд, статус, потребление, здоровье
+# и оставшееся время. Только просмотр — меню закрывается по Esc.
 # ==========================================================
 
-BAT=$(upower -e 2>/dev/null | grep -m1 '/battery_')
+case "${1:-}" in
+    rofi)
+        menu() { rofi -dmenu -i -p "󰁹 Батарея" \
+                    -theme-str 'window {width: 24em;} listview {lines: 6;}'; }
+        ;;
+    wofi)
+        # dynamic_lines=true в config/wofi/config подгоняет высоту под строки.
+        menu() { wofi --dmenu --cache-file /dev/null --insensitive \
+                    --prompt "󰁹 Батарея" --width 400; }
+        ;;
+    *)
+        echo "usage: $0 {rofi|wofi}" >&2
+        exit 1
+        ;;
+esac
+
+# Сначала системная батарея (battery_BAT*): с беспроводной мышью upower
+# отдаёт ещё battery_hidpp_*, и первым в списке может оказаться она.
+BAT=$(upower -e 2>/dev/null | grep -m1 '/battery_BAT')
+[ -n "$BAT" ] || BAT=$(upower -e 2>/dev/null | grep -m1 '/battery_')
 if [ -z "$BAT" ]; then
-    echo "Батареи нет" | rofi -dmenu -i -p "󰁹 Батарея" \
-        -theme-str 'window {width: 24em;} listview {lines: 6;}'
+    echo "Батареи нет" | menu
     exit 0
 fi
 
 # LC_ALL=C — иначе в ru_RU upower печатает дробные через запятую.
-LC_ALL=C upower -i "$BAT" 2>/dev/null | awk '
+lines=$(LC_ALL=C upower -i "$BAT" 2>/dev/null | awk '
     /state:/ {
         state = $2
         if (state == "charging") state = "Заряжается"
         else if (state == "discharging") state = "Разряжается"
-        else if (state == "full") state = "Заряжена"
+        else if (state == "fully-charged" || state == "full") state = "Заряжена"
         else if (state == "empty") state = "Разряжена"
+        else if (state == "pending-charge") state = "Ждёт зарядки"
+        else if (state == "pending-discharge") state = "Ждёт разрядки"
     }
     /percentage:/ { pct = $2 }
     /energy-rate:/ { rate = $2 " " $3 }
@@ -31,4 +55,10 @@ LC_ALL=C upower -i "$BAT" 2>/dev/null | awk '
         if (health) print "󱈑 Здоровье: " health
         if (time) print time
     }
-' | rofi -dmenu -i -p "󰁹 Батарея" -theme-str 'window {width: 24em;} listview {lines: 6;}'
+')
+
+# upower может не отдать ни одного поля (батарея есть, данных нет):
+# без этой строки меню открылось бы пустым.
+[ -n "$lines" ] || lines="󰂑 Нет данных от upower"
+
+printf '%s\n' "$lines" | menu

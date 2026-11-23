@@ -44,7 +44,7 @@ Every line of code and every running process must justify its existence. This ru
 ## ✨ Features
 
 - **Native Modules First:** Polybar uses stock `internal/bspwm`, `internal/xwindow`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard`, and `internal/date`. Zero background bash loops.
-- **On-Demand Commands:** `wifi`, `powermenu`, `battery`, `power-profile`, `screenshot`, `volume`, `dunst-history`, `session-restart`, `cheatsheet-bspwm`, `rice-check`, and `rice-help` live in `~/.local/bin` (PATH); the Sway set (`sway-cheatsheet`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, plus the wofi menus `wofi-battery`, `wofi-clipboard`, `wofi-powermenu`, `wofi-wifi`) lives there too; window flags — in `config/sxhkd/scripts`. They run on a hotkey and exit immediately.
+- **On-Demand Commands:** `wifi`, `powermenu`, `battery`, `power-profile`, `screenshot`, `wpctl-volume`, `dunst-history`, `session-restart`, `cheatsheet-bspwm`, `rice-check`, and `rice-help` live in `~/.local/bin` (PATH); the Sway set (`sway-cheatsheet`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, plus the wofi menus `wofi-clipboard`, `wofi-powermenu`) lives there too; `wifi` and `battery` take the menu backend as their argument (`wifi rofi`/`battery rofi` in BSPWM, `wifi wofi`/`battery wofi` in Sway); window flags — in `config/sxhkd/scripts`. They run on a hotkey and exit immediately.
 - **Machine Utilities:** `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `vllm-setup`, `yacht`, `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Docker/ROCm commands are machine-specific; they check for the daemon and print usage when an argument is missing. The Apache helpers `vhost-add` / `vhost-remove` create and delete a virtual host (interactive, need `sudo`, write to `/etc/apache2` and `/etc/hosts`; `apache2` is not in `requirements/`).
 - **Hardware Autodetection:** `polybar/launch.sh` finds the battery (`POLYBAR_BAT`), AC adapter (`POLYBAR_AC`), and backlight device (`POLYBAR_BACKLIGHT`) in `/sys/class/…` — no hardcoded names.
 - **Wallpapers — `feh` only:** no picker script, no state file, no previews. Two static `feh` calls in `bspwmrc`: landscape on the main monitor, portrait on the rotated one. Change a wallpaper = edit one line.
@@ -56,7 +56,7 @@ Every line of code and every running process must justify its existence. This ru
 - **Workflow:** clipboard history (CopyQ on BSPWM, cliphist + wofi on Sway), notification history (Rofi), screenshots straight into the clipboard, instant screenshot annotations (swappy), hotkey screen recording (wf-recorder), keybinding cheatsheets (Rofi for BSPWM, wofi for Sway), and a Neovim setup styled after base VS Code with its own cheatsheet.
 - **Stock Vim as a fallback:** plain `vim` from `apt.txt` with no plugins — syntax highlighting for nearly everything, hybrid numbering (absolute number on the cursor line, relative around it), and persistent undo. Config: `~/.vimrc` (`home/vimrc`).
 - **Stability:** autostart in `bspwmrc` is guarded against duplicates via `pgrep`/`pkill`, so `Super + Alt + R` and a full session restart never spawn extra processes.
-- **Multi-machine:** hostname branches in `bspwmrc` and `wifi` (a dual-monitor desktop and laptops); easy to trim down to a single machine.
+- **Multi-machine:** hostname branches in `bspwmrc` (a dual-monitor desktop and laptops); easy to trim down to a single machine.
 - **Screen capture & OBS (Sway):** hotkey screenshots use `grim`/`slurp` directly; quick recording uses `wf-recorder` (`Super + Shift + R` — full screen, `Super + Shift + Alt + R` — region, pressing again stops) and is silent — use OBS for recording with sound; the codec is VAAPI on AMD with `libx264` on Intel and everything else. Heavy recording and screen sharing go through `xdg-desktop-portal-wlr` + PipeWire; Sway exports its environment to systemd/dbus on startup, and `portals.conf` routes `ScreenCast`/`Screenshot` to `wlr`. OBS must run as a native Wayland client. Screenshot annotations are handled by `swappy` (`Super + Shift + A`), clipboard history by `cliphist` (`Super + Shift + V`, last 100 entries).
 
 ## 📦 Structure
@@ -91,7 +91,7 @@ BSPWM-machineslego/
 │   ├── waybar/                  # config.jsonc + style.css: Sway panel
 │   └── wofi/                    # config + style.css: Sway launcher and menus
 ├── home/                        # symlinks to ~/*: .bashrc, .vimrc, .xinitrc, .xprofile, .Xresources
-├── local/bin/                   # commands in ~/.local/bin: wifi, screenshot, volume, ...
+├── local/bin/                   # commands in ~/.local/bin: wifi, screenshot, wpctl-volume, ...
 ├── local/share/mc/skins/        # Midnight Commander skin
 ├── system/etc/                  # copied to /etc: touchpad, NetworkManager, interfaces
 ├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh, install-sway.sh
@@ -126,7 +126,7 @@ chmod +x scripts/*.sh
 - **Configs only (no `/etc` changes):** `./scripts/link.sh`
 - **Extra software:** `./scripts/software.sh`
 - **Node.js / npm:** `./scripts/install-node.sh` (separate, see below)
-- **Sway (main session):** `./scripts/install-sway.sh` — packages from `requirements/sway.txt`, installed on top of the base setup: fonts, icons, Qt themes, network (`nmcli`/`nmtui` from `network-manager`) and audio (`wpctl` from `wireplumber`) come from `apt.txt`. Adds your user to the `input` group (Caps/Num Lock indicators in waybar), configs untouched; `--session` also adds a GDM entry that starts `sway-session` (environment wrapper, no `xinitrc`/`xprofile` under Wayland). BSPWM is not removed: it stays the X11 fallback. Sway itself is configured in `config/sway`: pixel borders only, no gaps, Tokyo Night border colors, `foot` as the terminal (`config/foot`), waybar instead of Polybar, wofi instead of Rofi, monitors, wallpapers, and workspace-to-output assignment via `sway-display` (Sway has no hostname conditions in its config), screen locking via `swaylock` (`config/swaylock`: blue input ring, orange password text, the same wallpapers as the desktop), screenshots via `sway-screenshot`, and the wifi/battery menus via `wofi-battery`, `wofi-powermenu`, `wofi-wifi` (wofi styled after Rofi, 2 px rounding); notifications come from `mako` (`config/mako`) styled after `dunst`
+- **Sway (main session):** `./scripts/install-sway.sh` — packages from `requirements/sway.txt`, installed on top of the base setup: fonts, icons, Qt themes, network (`nmcli`/`nmtui` from `network-manager`) and audio (`wpctl` from `wireplumber`) come from `apt.txt`. Adds your user to the `input` group (Caps/Num Lock indicators in waybar), configs untouched; `--session` also adds a GDM entry that starts `sway-session` (environment wrapper, no `xinitrc`/`xprofile` under Wayland). BSPWM is not removed: it stays the X11 fallback. Sway itself is configured in `config/sway`: pixel borders only, no gaps, Tokyo Night border colors, `foot` as the terminal (`config/foot`), waybar instead of Polybar, wofi instead of Rofi, monitors, wallpapers, and workspace-to-output assignment via `sway-display` (Sway has no hostname conditions in its config), screen locking via `swaylock` (`config/swaylock`: blue input ring, orange password text, the same wallpapers as the desktop), screenshots via `sway-screenshot`, and the wifi/battery menus via `wifi wofi`, `battery wofi`, `wofi-powermenu` (wofi styled after Rofi, 2 px rounding); notifications come from `mako` (`config/mako`) styled after `dunst`
 - **Rollback:** `./scripts/unlink.sh`
 - **Launch:** `sway-session` from a TTY, or the GDM entry added by `install-sway.sh --session`; `startx` still brings up the BSPWM fallback.
 
@@ -166,7 +166,7 @@ The wizard sets style, colors, and icons. `config.fish` already defines Tokyo Ni
 To switch for good, edit the `BASH_PROMPT=` line in `~/.bashrc`; to try it for one shell, run `BASH_PROMPT=tokyo-night-minimal bash`. If the file is missing, the stock `\u@\h:\w\$` stays.
 
 **Wi-Fi.**
-The `wifi` command (`~/.local/bin`) is tailored to specific machines: the interface is chosen by `hostname` (`travelmate` → `wlp3s0`, `lx15pro`/`lx15pro-deb` → `wlo1`, `lamer-deb` → `wlp7s0`, otherwise `wlan0`). Add your interface to that block and set `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` at the top of the file.
+The `wifi` command (`~/.local/bin`) takes the menu backend as its first argument: `wifi rofi` for BSPWM (terminal — Alacritty) and `wifi wofi` for Sway (terminal — Foot). The adapter is chosen by `nmcli`, so there is no interface table; set `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` at the top of the file.
 
 **Network, Bluetooth and power without a launcher.**
 If rofi/wofi are unavailable, the same actions live in the terminal — via the aliases in `~/.bashrc` / `config.fish`:

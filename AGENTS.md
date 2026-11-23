@@ -31,7 +31,7 @@
 | Панель BSPWM | `config/polybar/config.ini`, `config/polybar/launch.sh` |
 | Панель Sway | `config/waybar/config.jsonc`, `config/waybar/style.css` |
 | Лаунчер и меню X11 | `config/rofi/config.rasi`, `local/bin/{battery,powermenu,wifi,power-profile,dunst-history}` |
-| Лаунчер и меню Wayland | `config/wofi/{config,style.css}`, `local/bin/wofi-*` |
+| Лаунчер и меню Wayland | `config/wofi/{config,style.css}`, `local/bin/{wofi-*,wifi,battery}` |
 | Уведомления | `config/dunst/dunstrc` (X11), `config/mako/config` (Sway) |
 | Тема GTK / Qt | `config/gtk-3.0`, `config/gtk-4.0`, `config/qt5ct`, `config/qt6ct` |
 | Терминалы | `config/alacritty/alacritty.toml`, `config/foot/foot.ini` |
@@ -91,7 +91,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - `config/sxhkd/sxhkdrc`: команда под хоткеем — отступ ровно 4 пробела (не табы), комментарии только отдельной строкой, brace-раскладка `super + {a,b}` работает.
 - `config/picom/*.conf`: унарный минус не парсится — писать `"0 - window-height"`. `dim-spec` у `dim` задаёт непрозрачность неактивных окон.
 - `config/polybar/config.ini`: только `internal/*` модули. `launch.sh` экспортирует `POLYBAR_BAT` / `POLYBAR_AC` / `POLYBAR_BACKLIGHT` — не хардкодить имена. Фон «пилюль» — `bg-mid = #1f2335`, иконки требуют JetBrainsMono Nerd Font.
-- `config/rofi/config.rasi`: размеры только в `em` (не `%`), чтобы меню не зависело от монитора. `em` считается от шрифта `JetBrainsMono Nerd Font 10` (18 px). Ширины: launcher 36em, battery 24em, wifi 20em (список сетей и скрытая сеть — 24em), power-profile 20em, powermenu 17em, cheatsheet 62×36em (по самой длинной строке с тегами), dunst-history 40×24em. Высота: `fixed-height: true`, общий список 8 строк, `wifi` 6, `powermenu` 4, `battery` 6; на Hyprland/XWayland без `fixed-height` dmenu схлопывается до строки ввода. В `cheatsheet-bspwm` теги строк — цвет фона `#1a1b26`: практически не видны, но участвуют в поиске.
+- `config/rofi/config.rasi`: размеры только в `em` (не `%`), чтобы меню не зависело от монитора. `em` считается от шрифта `JetBrainsMono Nerd Font 10` (18 px). Ширины: launcher 36em, battery 24em, wifi 24em (все меню), power-profile 20em, powermenu 17em, cheatsheet 62×36em (по самой длинной строке с тегами), dunst-history 40×24em. Высота: `fixed-height: true`, общий список 8 строк, `wifi` 6, `powermenu` 4, `battery` 6; на Hyprland/XWayland без `fixed-height` dmenu схлопывается до строки ввода. В `cheatsheet-bspwm` теги строк — цвет фона `#1a1b26`: практически не видны, но участвуют в поиске.
 - `local/bin/session-restart` перезапускает sxhkd, polybar, picom, dunst, blueman-applet, xss-lock, lxpolkit, copyq и делает `bspc wm -r`.
 - Хоткей-«клей» живёт в `config/sxhkd/scripts/` (`flag.sh`, `to-preselect.sh`, `preselect-cancel-all.sh`): он действует на focused-окно и вне хоткея смысла не имеет.
 - Из `sxhkdrc` и Polybar команды вызываются по короткому имени: PATH с `~/.local/bin` выставляют `home/xinitrc` (`startx`) и `home/xprofile`. `config/polybar/launch.sh` — часть конфига панели, а не команда.
@@ -106,7 +106,11 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - `local/bin/sway-session` — обёртка вместо `sway`: PATH, `XDG_*`, курсор Bibata 24, Qt (`qt6ct`, `QT_QPA_PLATFORM="wayland;xcb"`), GTK (`GDK_BACKEND=wayland,x11`), `SAL_USE_VCLPLUGIN=gtk3`, `MOZ_ENABLE_WAYLAND`, Electron, Java; затем `exec sway "$@"`. `home/xinitrc`/`xprofile` под Wayland не выполняются.
 - `local/bin/sway-display` — мониторы, обои и привязка столов к выходам (`workspace ${ws} output <выход>`). В конфиге Sway нет hostname-условий: ветка `lamer-deb` (`DP-2` + `HDMI-A-4` с `transform 90`, столы 1–7 → `DP-2`, 8–10 → `HDMI-A-4`) и фолбэк ноутбука живут в скрипте. Имена выходов wlroots ≠ X11: `DisplayPort-1`/`HDMI-A-3` → `DP-2`/`HDMI-A-4`. Вызывается как `exec_always`; обои ставит сам Sway через `output ... bg`.
 - Автозапуск — `exec_always pgrep -x <имя> >/dev/null || <имя>` для waybar, mako, lxpolkit: reload не плодит дубли. `swayidle`: 10 минут и `before-sleep` → `swaylock -f`. `wl-paste --watch cliphist -max-items 100 store` — под таким же стражем. EasyEffects — обычный `exec` (при reload не повторяется).
-- Хоткеи: `$mod+Return` foot, `$mod+d` `wofi --show drun`, `$mod+/` `sway-cheatsheet`, `$mod+F1..F4`/`$mod+Shift+S` скриншоты, `$mod+Shift+A` редактор, `$mod+Shift+R` запись всего экрана, `$mod+Shift+Alt+R` области, `$mod+Shift+V` буфер, `$mod+Escape`/`$mod+Shift+C` reload, `$mod+w` kill, `$mod+Alt+L` lock, `$mod+Alt+N` wifi, `$mod+Alt+B` battery, `$mod+Shift+Q` powermenu, `$mod+Shift+E` `swaynag`. Полный список — `sway-cheatsheet`. Профиль питания переключается кликом по модулю PPD в waybar (отдельного меню нет).
+- Хоткеи: `$mod+Return` foot, `$mod+d` `wofi --show drun`, `$mod+/` `sway-cheatsheet`, `$mod+F1..F4`/`$mod+Shift+S` скриншоты, `$mod+Shift+A` редактор, `$mod+Shift+R` запись всего экрана, `$mod+Shift+Alt+R` области, `$mod+Shift+V` буфер, `$mod+Escape`/`$mod+Shift+C` reload, `$mod+w` kill, `$mod+Alt+L` lock, `$mod+Alt+N` `wifi wofi`, `$mod+Alt+B` `battery wofi`, `$mod+Shift+Q` powermenu, `$mod+Shift+E` `swaynag`. Полный список — `sway-cheatsheet`. Профиль питания переключается кликом по модулю PPD в waybar (отдельного меню нет).
+
+- `local/bin/wifi {rofi|wofi}` — один скрипт на обе сессии: `rofi` + `alacritty` в BSPWM, `wofi` + `foot` в Sway. Список сетей — `󰤨 | SSID` (иконка из `signal_icon`, `nmcli -t --escape no -f SIGNAL,SSID` + `read` с `IFS=:`; SSID — весь остаток после первого `:`, при выборе `${SSID#*| }` срезает иконку и разделитель); адаптер выбирает `nmcli`; хотспот выключается `nmcli connection down Hotspot`.
+
+- `local/bin/battery {rofi|wofi}` — детали батареи из `upower` (заряд, статус, потребление, здоровье, время); `rofi` для BSPWM, `wofi` для Sway. Батарея выбирается `battery_BAT*`, иначе первая `/battery_` — иначе с беспроводной мышью в меню попадает её батарея.
 
 ### Порталы (OBS, ScreenCast)
 
@@ -127,20 +131,20 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - `style.css`: палитра только через `@define-color` в начале файла, в правилах — `@имя`. `:root`/`var()` GTK-CSS не понимает. Группа `group/left` в CSS — **`#left`**, без префикса.
 - Формат модуля допускает **один** плейсхолдер: `"{:L%H:%M  󰃭 %a, %d %b}"`. Локализация — `"locale": "ru_RU.UTF-8"` у модуля (префикс `L` внутри спецификатора).
 - `keyboard-state` читает `/dev/input/event*` через libevdev: пользователь должен быть в группе `input` (её выдаёт `install-sway.sh`), иначе индикаторы Caps/Num/Scroll пустые.
-- Звук — `wpctl` (WirePlumber; `pactl` в системе нет). Сеть — `network`: ЛКМ `nm-connection-editor`, ПКМ `wofi-wifi`. Трей `icon-size: 16`, островки — `@bg-alt`, панель непрозрачная.
+- Звук — `wpctl` (WirePlumber; `pactl` в системе нет). Сеть — `network`: ЛКМ `nm-connection-editor`, ПКМ `wifi wofi`. Трей `icon-size: 16`, островки — `@bg-alt`, панель непрозрачная.
 
 ### Wofi
 
 - `config/wofi/config` + `style.css`, лаунчер Sway; в BSPWM остаётся Rofi. `show=drun`, окно 600×400 по центру, `no_actions=true`, `layer=overlay`.
 - Фон окна рисует **`#outer-box`**, а не `window`. Свой CSS wofi — приоритет APPLICATION (600), `config/gtk-3.0/gtk.css` — USER (800), поэтому фон поля ввода возвращает правило `#outer-box #input` в `gtk.css`; в `style.css` значение — фолбэк.
-- `--width` — ширина окна в px: launcher 600, powermenu 340, wifi 380 (сети и скрытая — 440), battery 400, cheatsheet 960×650, clipboard 860. `dynamic_lines=true`, `--lines` считает и поле ввода, поэтому в скриптах передаётся «пунктов + 2».
+- `--width` — ширина окна в px: launcher 600, powermenu 340, wifi 440, battery 400, cheatsheet 960×650, clipboard 860. `dynamic_lines=true` подгоняет высоту под число строк, поэтому `--lines` не передаётся (в `cheatsheet` высота задана явно).
 - Меню команд — `--dmenu --cache-file /dev/null` (иначе сортировка по частоте). `--show window` под Sway не работает (нет `wlr-foreign-toplevel-management`).
 - `sway-cheatsheet` использует pango-разметку и скрытые теги цвета фона — это осознанно; не вырезать.
 
 ### Mako, Swaylock, Foot
 
 - Mako: `config/mako/config`, `pkill -HUP -x mako` перечитывает. `on-button-left=dismiss` (не `close` — с ним mako не стартует). `outer-margin=8`: waybar резервирует зону, уведомления встают под панелью.
-- OSD громкости: mako не знает dunst-хинтов `frcolor`/`hlcolor`, поэтому `local/bin/volume` кладёт уровень в `category` (`volume-*`), а цвета задают секции `[category=volume-*]` **после** `[urgency=*]`; заливка — `progress-color` по хинту `value`.
+- OSD громкости: mako не знает dunst-хинтов `frcolor`/`hlcolor`, поэтому `local/bin/wpctl-volume` кладёт уровень в `category` (`volume-*`), а цвета задают секции `[category=volume-*]` **после** `[urgency=*]`; заливка — `progress-color` по хинту `value`.
 - Swaylock: `config/swaylock/config` читается сам, вызовы — `swaylock -f`. Цвета пишутся **без `#`** (строка с решёткой = комментарий, inline-комментариев нет). Обои — те же, что у `sway-display`, по именам выходов.
 - Foot: `config/foot/foot.ini`, `JetBrainsMono Nerd Font:size=10`, `pad=0x0`, без прозрачности, `[csd] preferred=none` (рамку рисует Sway). Живого перечитывания нет.
 
@@ -191,7 +195,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 
 ## Персонализация
 
-- Hostname-ветки: `config/bspwm/bspwmrc` (OpenRGB и раскладка мониторов — только `lamer-deb`), `local/bin/wifi` (имена Wi-Fi интерфейсов), `local/bin/sway-display` (`lamer-deb`).
+- Hostname-ветки: `config/bspwm/bspwmrc` (OpenRGB и раскладка мониторов — только `lamer-deb`), `local/bin/sway-display` (`lamer-deb`).
 - Имена мониторов: `DisplayPort-1`/`HDMI-A-3` в X11, `DP-2`/`HDMI-A-4` в Sway (в `sway-display` и `swaylock`).
 - Обои: пути в `bspwmrc` — `$HOME/BSPWM-machineslego/wallpapers/`; клон в другом каталоге ломает обои. Выборщика нет и не будет.
 

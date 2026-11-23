@@ -9,7 +9,7 @@
 //
 // Модули rofi (powermenu, power-profile, wifi) здесь не используются:
 // под Wayland rofi не работает. Профиль питания показывает родной
-// модуль power-profiles-daemon, меню на wofi — wofi-wifi и
+// модуль power-profiles-daemon, меню на wofi — wifi wofi и
 // wofi-powermenu (кнопка питания справа).
 // ==========================================================
 
@@ -154,7 +154,7 @@
         "tooltip-format-ethernet": "{ifname} · {ipaddr}/{cidr}",
         "tooltip-format-disconnected": "Нет подключения",
         "on-click": "nm-connection-editor",
-        "on-click-right": "wofi-wifi"
+        "on-click-right": "wifi wofi"
     },
 
     // --- Звук (PipeWire через wpctl) ---
@@ -194,7 +194,7 @@
         // "format-icons": [
         //     "", "", "", "", ""
         // ],
-        "on-click" : "wofi-battery"
+        "on-click" : "battery wofi"
     },
 
     // --- Часы ---
