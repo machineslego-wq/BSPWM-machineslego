@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==========================================================
-# wpctl-volume — громкость с OSD (Dunst / mako), wpctl/PipeWire
+# wpctl-volume — Громкость с OSD (Dunst / mako), wpctl/PipeWire
 # ==========================================================
 
 ACTION="$1"

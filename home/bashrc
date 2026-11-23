@@ -102,20 +102,20 @@ export NEWT_COLORS_FILE="$HOME/.config/newt/colors"
 export NMT_NEWT_COLORS_FILE="$HOME/.config/newt/colors"
 
 # Wi-Fi
-alias net='nmtui'                                    # полный TUI: сканирование и пароль
-alias wifi-list='nmcli device wifi list'             # список сетей
-alias wifi-on='nmcli radio wifi on'                  # включить Wi-Fi
-alias wifi-off='nmcli radio wifi off'                # выключить Wi-Fi
-wifi-connect() { nmcli device wifi connect "$1"; }           # сохранённый пароль
-wifi-connect-ask() { nmcli device wifi connect "$1" --ask; } # спросить пароль
+alias net='nmtui'                                    # Полный TUI: сканирование и пароль
+alias wifi-list='nmcli device wifi list'             # Список сетей
+alias wifi-on='nmcli radio wifi on'                  # Включить Wi-Fi
+alias wifi-off='nmcli radio wifi off'                # Выключить Wi-Fi
+wifi-connect() { nmcli device wifi connect "$1"; }           # Сохранённый пароль
+wifi-connect-ask() { nmcli device wifi connect "$1" --ask; } # Спросить пароль
 
 # Bluetooth
-alias bt='bluetoothctl'                              # интерактивная оболочка
-alias bt-on='bluetoothctl power on'                  # включить Bluetooth
-alias bt-off='bluetoothctl power off'                # выключить Bluetooth
+alias bt='bluetoothctl'                              # Интерактивная оболочка
+alias bt-on='bluetoothctl power on'                  # Включить Bluetooth
+alias bt-off='bluetoothctl power off'                # Выключить Bluetooth
 
 # Профиль питания
-pp() {                                               # текущий: bal | eco | perf
+pp() {                                               # Текущий: bal | eco | perf
     case "$(powerprofilesctl get 2>/dev/null)" in
         performance) echo perf ;;
         balanced)    echo bal ;;
@@ -123,7 +123,7 @@ pp() {                                               # текущий: bal | eco
         *)           powerprofilesctl get ;;
     esac
 }
-pp-set() {                                           # bal | eco | perf
+pp-set() {                                           # Профиль: bal | eco | perf
     case "${1:-}" in
         bal|balanced)     powerprofilesctl set balanced ;;
         eco|power-saver)  powerprofilesctl set power-saver ;;
@@ -133,7 +133,7 @@ pp-set() {                                           # bal | eco | perf
 }
 
 # Справка: команды репозитория и этот список алиасов
-alias rh='rice-help'                                 # или rice-help <слово>
+alias rh='rice-help'                                 # То же: rice-help <слово>
 
 # Alias definitions
 if [ -f ~/.bash_aliases ]; then
