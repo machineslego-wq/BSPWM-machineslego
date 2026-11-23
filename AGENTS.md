@@ -38,7 +38,7 @@
 | Терминалы | `config/alacritty/alacritty.toml`, `config/foot/foot.ini` |
 | Редакторы | `config/nvim/`, `home/vimrc` |
 | Пакеты | `requirements/apt.txt` (база X11), `sway.txt` (Sway, поверх базы), `apt-system.txt` (системное), `software.txt` (опциональное) |
-| Установка и линковка | `scripts/install.sh`, `link.sh`, `unlink.sh`, `software.sh`, `install-node.sh`, `install-sway.sh` |
+| Установка и линковка | `scripts/install.sh`, `link.sh`, `unlink.sh`, `software.sh`, `install-node.sh`, `install-laravel.sh`, `install-sway.sh` |
 | Системные правки | `system/etc/**` |
 
 **Пакеты называются не как команды:** `nmtui`/`nmcli` → `network-manager`, `bluetoothctl` → `bluez`, `wpctl` → `wireplumber`, `powerprofilesctl` → `power-profiles-daemon`, `lspci` → `pciutils`, `notify-send` → `libnotify-bin`. Отдельного пакета `network-manager-tui` не существует. Neovim AppImage требует `libfuse2t64`.
@@ -93,6 +93,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - `config/picom/*.conf`: унарный минус не парсится — писать `"0 - window-height"`. `dim-spec` у `dim` задаёт непрозрачность неактивных окон.
 - `config/polybar/config.ini`: `internal/*` там, где есть сток; исключение — `[module/bluetooth]` на `custom/script`: в Polybar 3.7 нет `internal/bluetooth`. `launch.sh` экспортирует `POLYBAR_BAT` / `POLYBAR_AC` / `POLYBAR_BACKLIGHT` — не хардкодить имена. Фон «пилюль» — `bg-mid = #1f2335`, иконки требуют JetBrainsMono Nerd Font.
 - Bluetooth в Polybar — `custom/script` с `local/bin/bluetooth`: `󰂲 OFF` / `󰂯 ON` / `󰂱 N` (N подключённых), ЛКМ `bluetooth on`, ПКМ `bluetooth off`. Опрос раз в 5 с: `bluetoothctl show` ~4 мс.
+- Если адаптер залочен (`bluetoothctl show` → `PowerState: off-blocked`), `bluetoothctl power on` возвращает ошибку: `local/bin/unblock-bt` снимает rfkill-блок (`sudo` в терминале, `pkexec` из хоткея) и включает адаптер.
 - `config/rofi/config.rasi`: размеры только в `em` (не `%`), чтобы меню не зависело от монитора. `em` считается от шрифта `JetBrainsMono Nerd Font 10` (18 px). Ширины: launcher 36em, battery 24em, wifi 24em (все меню), power-profile 20em, powermenu 17em, cheatsheet 62×36em (по самой длинной строке с тегами), dunst-history 40×24em. Высота: `fixed-height: true`, общий список 8 строк, `wifi` 6, `powermenu` 4, `battery` 6; на Hyprland/XWayland без `fixed-height` dmenu схлопывается до строки ввода. В `cheatsheet-bspwm` теги строк — цвет фона `#1a1b26`: практически не видны, но участвуют в поиске.
 - `local/bin/session-restart` перезапускает sxhkd, polybar, picom, dunst, xss-lock, lxpolkit, copyq и делает `bspc wm -r`.
 - Bluetooth: `blueman-applet` в автозапуске закомментирован, индикатор и вкл/выкл — модуль Polybar (`module/bluetooth`).
@@ -170,6 +171,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - `rice-help` (алиас `rh`) берёт команды из `local/bin` (только исполняемые) и алиасы из `home/bashrc` (описание — комментарий в конце строки). Новый алиас с комментарием появляется сам; `rice-help <слово>` фильтрует.
 - `nmtui` перекрашен: `config/newt/colors` → `~/.config/newt/colors`, переменные `NEWT_COLORS_FILE` (libnewt: nmtui, whiptail) и `NMT_NEWT_COLORS_FILE` (наборы nmtui: `badLabel`, `plainLabel`, `disabledButton`, `textboxWithBackground`). Цвета — имена ANSI, фон `default`. У компактных кнопок nmtui фокус — цвет `button`, не `actbutton`. В комментариях файла нельзя писать `имя=значение` — newt разбирает их как настройки.
 - Node.js/npm: `scripts/install-node.sh`, prefix `~/.npm-global` в `~/.npmrc`; PATH добавляют оба шелла. NVM, если установлен, подключается в конце `home/bashrc` и переопределяет `node`/`npm`.
+- PHP/Composer/Laravel: `scripts/install-laravel.sh` ставит `php-cli` и расширения из Debian, Composer 2 в `~/.local/bin/composer`, `laravel/installer` глобально. Бинарник `laravel` лежит в `~/.config/composer/vendor/bin` — этот PATH добавляют оба шелла (блок `composer-global` в `home/bashrc` и `config/fish/config.fish`); `UPDATE_COMPOSER=1` переустанавливает Composer.
 
 ## Редакторы
 

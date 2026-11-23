@@ -139,3 +139,8 @@ set -gx LESS "-R"
 if test -d "$HOME/.npm-global/bin"
     fish_add_path --prepend --global "$HOME/.npm-global/bin"
 end
+
+# --- Composer: глобальные пакеты (laravel/installer) без sudo ---
+if test -d "$HOME/.config/composer/vendor/bin"
+    fish_add_path --prepend --global "$HOME/.config/composer/vendor/bin"
+end

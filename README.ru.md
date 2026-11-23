@@ -43,7 +43,7 @@
 ## ✨ Особенности
 
 - **Native Modules First:** Polybar использует стоковые `internal/bspwm`, `internal/xwindow`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard` и `internal/date`. Ноль фоновых bash-циклов; исключение — скрипт статуса Bluetooth: в Polybar 3.7 нет `internal/bluetooth`.
-- **Команды по требованию:** `wifi`, `powermenu`, `battery`, `bluetooth`, `power-profile`, `screenshot`, `wpctl-volume`, `dunst-history`, `session-restart`, `cheatsheet-bspwm`, `rice-check` и `rice-help` лежат в `~/.local/bin` (PATH), там же набор Sway (обвязка `sway-cheatsheet`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, меню на wofi — `wofi-clipboard`, `wofi-powermenu`); `wifi` и `battery` принимают бэкенд меню аргументом (`wifi rofi`/`battery rofi` в BSPWM, `wifi wofi`/`battery wofi` в Sway); флаги окон — в `config/sxhkd/scripts`. Запускаются по хоткею и сразу завершаются.
+- **Команды по требованию:** `wifi`, `powermenu`, `battery`, `bluetooth`, `unblock-bt`, `power-profile`, `screenshot`, `wpctl-volume`, `dunst-history`, `session-restart`, `cheatsheet-bspwm`, `rice-check` и `rice-help` лежат в `~/.local/bin` (PATH), там же набор Sway (обвязка `sway-cheatsheet`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, меню на wofi — `wofi-clipboard`, `wofi-powermenu`); `wifi` и `battery` принимают бэкенд меню аргументом (`wifi rofi`/`battery rofi` в BSPWM, `wifi wofi`/`battery wofi` в Sway); флаги окон — в `config/sxhkd/scripts`. Запускаются по хоткею и сразу завершаются.
 - **Машинные утилиты:** `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Docker-команды машинно-специфичны: проверяют демон и печатают справку, если не хватает аргумента. Хелперы Apache — `vhost-add` / `vhost-remove`: создают и удаляют виртуальный хост (интерактивно, через `sudo`, правят `/etc/apache2` и `/etc/hosts`; `apache2` в `requirements/` не входит).
 - **Автоопределение железа:** `polybar/launch.sh` сам находит батарею (`POLYBAR_BAT`), адаптер питания (`POLYBAR_AC`) и карту подсветки (`POLYBAR_BACKLIGHT`) в `/sys/class/…` — имена не захардкожены.
 - **Обои — только `feh`:** никакого скрипта-выборщика, state-файла и превью. Два статичных вызова `feh` в `bspwmrc`: landscape на основной монитор, portrait на повёрнутый. Сменить обои = поправить одну строку.
@@ -93,7 +93,7 @@ BSPWM-machineslego/
 ├── local/bin/                   # команды в ~/.local/bin: wifi, screenshot, wpctl-volume, ...
 ├── local/share/mc/skins/        # скин Midnight Commander
 ├── system/etc/                  # копируется в /etc: touchpad, NetworkManager, interfaces
-├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh, install-sway.sh
+├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh, install-laravel.sh, install-sway.sh
 ├── requirements/                # списки пакетов: apt.txt, apt-system.txt, software.txt, sway.txt
 ├── screenshots/                 # превью для README
 ├── themes/telegram/             # темы Telegram: .tdesktop-palette + .attheme (тёмная + светлая)
@@ -125,6 +125,7 @@ chmod +x scripts/*.sh
 - **Только конфиги (без изменений в `/etc`):** `./scripts/link.sh`
 - **Дополнительный софт:** `./scripts/software.sh`
 - **Node.js / npm:** `./scripts/install-node.sh` (отдельно, см. ниже)
+- **PHP / Composer / Laravel:** `./scripts/install-laravel.sh` (отдельно, см. ниже)
 - **Sway (основная сессия):** `./scripts/install-sway.sh` — ставит пакеты из `requirements/sway.txt` поверх базовой установки: шрифты, иконки, Qt-темы, сеть (`nmcli`/`nmtui` из `network-manager`) и звук (`wpctl` из `wireplumber`) приходят из `apt.txt`. Добавляет пользователя в группу `input` (индикаторы Caps/Num Lock в waybar), конфиги не трогает; `--session` дополнительно добавляет сессию в GDM, которая запускает `sway-session` (обёртка с окружением: под Wayland `xinitrc`/`xprofile` не работают). BSPWM при этом не удаляется: он остаётся запасной X11-сессией. Сам Sway настраивается в `config/sway`: только рамки (pixel 2), без отступов, цвета рамок Tokyo Night, терминал `foot` (`config/foot`), waybar вместо Polybar, wofi вместо Rofi, мониторы и обои — через `sway-display`, а карту столов генерирует `sway-session` по hostname (на ПК 1–7 привязаны к `DP-2`, 8–10 — к `HDMI-A-4`; ноутбукам и нетбукам достаётся пустая карта, и столы создаются на текущем выходе); конфиг Sway подключает её через include, потому что условий по hostname у Sway нет, а карта должна быть известна до создания первых столов, блокировка — `swaylock` (`config/swaylock`: синее кольцо при вводе, оранжевые символы пароля, те же обои, что на рабочем столе), скриншоты — через `sway-screenshot`, меню Wi-Fi и батареи — через `wifi wofi`, `battery wofi`, `wofi-powermenu` (wofi в стиле Rofi, скругление 2 px), уведомления — `mako` (`config/mako`) в стиле `dunst`
 - **Откат:** `./scripts/unlink.sh`
 - **Запуск:** `sway-session` из TTY или сессия в GDM, добавленная `install-sway.sh --session`; `startx` по-прежнему поднимает запасной BSPWM.
@@ -179,10 +180,13 @@ tide configure
 | Wi-Fi вкл/выкл | `wifi-on` / `wifi-off` |
 | Bluetooth (оболочка) | `bt` (bluetoothctl) |
 | Bluetooth вкл/выкл | `bt-on` / `bt-off` |
+| Bluetooth: снять rfkill-блок | `unblock-bt` |
 | Профиль питания | `pp` / `pp-set bal` (или `eco`, `perf`) |
 | Выключить / перезагрузить | `systemctl poweroff` / `reboot` |
 
 Под капотом — `nmtui`, `nmcli`, `bluetoothctl` и `powerprofilesctl`. Полный список команд и алиасов — `rice-help` (или `rh`), поиск по нему — `rice-help wifi`.
+
+Если адаптер залочен (`bluetoothctl show` → `PowerState: off-blocked`), `bluetoothctl power on` возвращает ошибку — `unblock-bt` снимает rfkill-блок (sudo в терминале, pkexec из хоткея) и включает адаптер.
 
 `nmtui` перекрашен в палитру Tokyo Night: `config/newt/colors` (симлинк `~/.config/newt`) подключается из `~/.bashrc` / `config.fish` двумя переменными. `NEWT_COLORS_FILE` — палитра libnewt (`nmtui`, `whiptail`); `NMT_NEWT_COLORS_FILE` — дополнительные наборы самого nmtui (`badLabel`, `plainLabel`, `disabledButton`, `textboxWithBackground`), которые без этого рисуются светлыми плашками. Цвета заданы именами ANSI, поэтому оттенки берутся из палитры терминала, а фон — штатный, без подложки.
 
@@ -223,6 +227,9 @@ sudo systemctl kill -s HUP systemd-logind
 
 **Node.js и npm.**
 `./scripts/install-node.sh` подключает NodeSource и ставит LTS. Переменные: `NODE_CHANNEL=lts|current|<major>` (по умолчанию `lts`), `UPDATE_NPM=1` — ещё и `npm@latest`. Глобальные пакеты ставятся в `~/.npm-global` (`prefix` в `~/.npmrc`), PATH добавляют и Fish, и bash. Если стоит NVM, он подключается в конце `~/.bashrc` и может переопределить `node`/`npm`.
+
+**PHP, Composer и Laravel.**
+`./scripts/install-laravel.sh` ставит `php-cli` и расширения (`mbstring`, `xml`, `curl`, `zip`, `sqlite3`, `intl`, `mysql`), Composer 2 в `~/.local/bin/composer` и глобально `laravel/installer`. Бинарник `laravel` Composer кладёт в `~/.config/composer/vendor/bin` — этого каталога обычно нет в PATH, поэтому скрипт прописывает его в bash и fish (блок `composer-global`). `UPDATE_COMPOSER=1` переустанавливает Composer. Новый проект: `laravel new <name>`; альтернатива — `composer create-project laravel/laravel <name>`.
 
 **Темы.**
 - **GTK3/GTK4:** `config/gtk-3.0/gtk.css` — полный CSS поверх `Adwaita-dark`: `@define-color` плюс прямые селекторы (Adwaita жёстко прописывает цвета, их приходится переопределять вручную). `config/gtk-4.0/gtk.css` — только переменные libadwaita (`:root` с `--*-color`) и слой `@define-color` для совместимости. `gtk-light.css` в обеих папках — светлый вариант один-в-один поверх `Adwaita` (фон `#e1e2e7`, текст `#3760bf`, акцент `#2b6fd4`), по умолчанию выключен: чтобы включить, скопируйте его на место `gtk.css` и переключите `gtk-theme` / `color-scheme` в gsettings. `gtk-theme-name` не меняется, перекрашиваются только цвета. Применение — перезапуск приложения; Flatpak-приложения подхватывают CSS после повторного `link.sh`.

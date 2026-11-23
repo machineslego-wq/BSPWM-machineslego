@@ -1,0 +1,79 @@
+#!/bin/bash
+# ==========================================================
+# unblock-bt — снять rfkill-блокировку Bluetooth и включить адаптер
+# ==========================================================
+# Если адаптер залочен (`bluetoothctl show` → `PowerState: off-blocked`),
+# `bluetoothctl power on` возвращает "Failed to set power on". Обычно это
+# программный rfkill-блок, который systemd-rfkill восстанавливает после
+# выключения Bluetooth или сна. Скрипт снимает soft-блок через rfkill и
+# включает адаптер; если сервис завис — перезапускает bluetooth.service.
+#
+# Запуск по требованию: unblock-bt
+# Из терминала root-команды идут через sudo, из хоткея — через pkexec.
+# ==========================================================
+
+set -u
+
+notify() {
+    command -v notify-send >/dev/null 2>&1 || return 0
+    notify-send -a "Bluetooth" -u "$1" "Bluetooth" "$2"
+}
+
+die() {
+    echo "unblock-bt: $*" >&2
+    notify critical "$*"
+    exit 1
+}
+
+if [ "$(id -u)" -eq 0 ]; then
+    die "запусти от обычного пользователя (root-команды — через sudo/pkexec)."
+fi
+
+command -v bluetoothctl >/dev/null 2>&1 ||
+    die "bluetoothctl не найден (установи bluez)."
+
+# rfkill лежит в /usr/sbin и не всегда есть в PATH обычного пользователя.
+RFKILL="$(command -v rfkill 2>/dev/null || true)"
+if [ -z "$RFKILL" ] && [ -x /usr/sbin/rfkill ]; then
+    RFKILL=/usr/sbin/rfkill
+fi
+[ -n "$RFKILL" ] || die "rfkill не найден (пакет rfkill)."
+
+run_root() {
+    if [ -t 0 ] || [ -t 1 ]; then
+        sudo "$@"
+    elif command -v pkexec >/dev/null 2>&1; then
+        pkexec "$@"
+    else
+        sudo "$@"
+    fi
+}
+
+# Аппаратный блок (переключатель/BIOS) программно не снимается.
+if LC_ALL=C "$RFKILL" list bluetooth 2>/dev/null | grep -q 'Hard blocked: yes'; then
+    die "адаптер заблокирован аппаратно (переключатель/BIOS)."
+fi
+
+# Программный блок — снимаем.
+if LC_ALL=C "$RFKILL" list bluetooth 2>/dev/null | grep -q 'Soft blocked: yes'; then
+    echo "-> Снимаю rfkill-блокировку Bluetooth..."
+    run_root "$RFKILL" unblock bluetooth ||
+        die "не удалось снять rfkill-блок."
+fi
+
+# Включаем адаптер; один повтор после перезапуска сервиса.
+if ! bluetoothctl power on >/dev/null 2>&1; then
+    echo "-> Адаптер не включился, перезапускаю bluetooth.service..."
+    run_root systemctl restart bluetooth ||
+        die "не удалось перезапустить bluetooth.service."
+    sleep 1
+    bluetoothctl power on >/dev/null 2>&1 ||
+        die "не удалось включить адаптер."
+fi
+
+if bluetoothctl show 2>/dev/null | grep -q 'Powered: yes'; then
+    echo "Bluetooth разблокирован и включён."
+    notify low "Разблокирован и включён."
+else
+    die "адаптер всё ещё выключен."
+fi

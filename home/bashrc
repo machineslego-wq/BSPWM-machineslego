@@ -39,6 +39,11 @@ if [[ -d "$HOME/.npm-global/bin" && ":$PATH:" != *":$HOME/.npm-global/bin:"* ]];
     PATH="$HOME/.npm-global/bin:$PATH"
 fi
 
+# Composer: глобальные пакеты (laravel/installer) без sudo
+if [[ -d "$HOME/.config/composer/vendor/bin" && ":$PATH:" != *":$HOME/.config/composer/vendor/bin:"* ]]; then
+    PATH="$HOME/.config/composer/vendor/bin:$PATH"
+fi
+
 export PATH
 
 # Detect TTY vs graphical mode based on TERM
