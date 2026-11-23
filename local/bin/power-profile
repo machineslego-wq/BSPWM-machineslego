@@ -22,9 +22,9 @@ CHOICE=$(printf '󰓅 Performance\n󰒓 Balanced\n󰾆 Power Saver (No anim & sh
         -theme-str 'window {width: 20em;} listview {lines: 3;}')
 
 case "$CHOICE" in
-    *Performance*)   profile=performance; conf=picom.conf;     label=Performance ;;
-    *Balanced*)      profile=balanced;    conf=picom.conf;     label=Balanced    ;;
-    *"Power Saver"*) profile=power-saver; conf=picom-eco.conf; label=Eco         ;;
+    *Performance*)   profile=performance; conf=picom.conf;     label=Performance; note="анимации включены" ;;
+    *Balanced*)      profile=balanced;    conf=picom.conf;     label=Balanced;    note="анимации включены" ;;
+    *"Power Saver"*) profile=power-saver; conf=picom-eco.conf; label=Eco;         note="анимации и тени отключены" ;;
     *)               exit 0 ;;
 esac
 
@@ -36,5 +36,5 @@ fi
 pkill -x picom
 sleep 0.2
 picom --config "$HOME/.config/picom/$conf" &
-notify-send -u low -a "Power" "Режим: $label"
+notify-send -u low -a "Power" "Режим: $label" "$note"
 command -v polybar-msg >/dev/null && polybar-msg cmd restart 2>/dev/null
