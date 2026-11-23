@@ -22,9 +22,10 @@ swaylock
 
 # Панель, лаунчер, терминал
 # quickshell — панель, лаунчер и центр управления (config/quickshell/shell).
-# В Debian 13 пакет есть только в trixie-backports: без них панель не
-# поставится, и остаётся waybar. waybar и wofi — запасные (одна строка
-# в config/sway/config; wofi ещё и фолбэк лаунчера в qs-shell).
+# Эксперимент ветки feat/quickshell-shell, в релиз не планируется: пакет
+# только в trixie-backports, API нестабилен, без меню трея. waybar и wofi —
+# запасные (одна строка в config/sway/config; wofi ещё и фолбэк лаунчера
+# в qs-shell).
 quickshell
 waybar
 wofi
