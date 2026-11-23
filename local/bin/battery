@@ -9,13 +9,14 @@
 
 case "${1:-}" in
     rofi)
+        # $1 — число строк (ровно по числу пунктов).
         menu() { rofi -dmenu -i -p "󰁹 Батарея" \
-                    -theme-str 'window {width: 24em;} listview {lines: 6;}'; }
+                    -theme-str "window {width: 24em;} listview {lines: $1;}"; }
         ;;
     wofi)
-        # dynamic_lines=true в config/wofi/config подгоняет высоту под строки.
+        # $1 — число строк; +1 на поле ввода.
         menu() { wofi --dmenu --cache-file /dev/null --insensitive \
-                    --prompt "󰁹 Батарея" --width 400; }
+                    --prompt "󰁹 Батарея" --width 400 --lines $(($1 + 1)); }
         ;;
     *)
         echo "usage: $0 {rofi|wofi}" >&2
@@ -28,7 +29,7 @@ esac
 BAT=$(upower -e 2>/dev/null | grep -m1 '/battery_BAT')
 [ -n "$BAT" ] || BAT=$(upower -e 2>/dev/null | grep -m1 '/battery_')
 if [ -z "$BAT" ]; then
-    echo "Батареи нет" | menu
+    echo "Батареи нет" | menu 1
     exit 0
 fi
 
@@ -60,5 +61,5 @@ lines=$(LC_ALL=C upower -i "$BAT" 2>/dev/null | awk '
 # upower может не отдать ни одного поля (батарея есть, данных нет):
 # без этой строки меню открылось бы пустым.
 [ -n "$lines" ] || lines="󰂑 Нет данных от upower"
-
-printf '%s\n' "$lines" | menu
+N=$(printf '%s\n' "$lines" | grep -c .)
+printf '%s\n' "$lines" | menu "$N"

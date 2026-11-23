@@ -31,8 +31,9 @@ image_size=22
 allow_markup=true
 hide_scroll=true
 
-# Окно подстраивается под число пунктов, а не висит пустым
-# (аналог fixed-height: false в Rofi). Максимум задают width/height.
+# Окно подстраивается под число пунктов, но dynamic_lines работает только
+# вместе с lines (--lines): меню-скрипты передают его сами. Без lines окно
+# висит на height=400.
 dynamic_lines=true
 
 # Кнопки действий (Launch/Close) не нужны: выбор по Enter.

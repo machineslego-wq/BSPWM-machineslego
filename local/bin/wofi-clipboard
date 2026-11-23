@@ -17,8 +17,12 @@ if [ -z "$LIST" ]; then
     exit 0
 fi
 
+N=$(printf '%s\n' "$LIST" | grep -c .)
+L=$((N + 1))
+[ "$L" -gt 15 ] && L=15
+[ "$L" -lt 2 ] && L=2
 CHOICE=$(printf '%s\n' "$LIST" | wofi --dmenu --cache-file /dev/null \
-    --prompt "󰅇 Буфер" --width 860 --lines 15)
+    --prompt "󰅇 Буфер" --width 860 --lines "$L")
 
 [ -z "$CHOICE" ] && exit 0
 

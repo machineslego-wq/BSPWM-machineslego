@@ -15,12 +15,15 @@ HOTSPOT_PASSWORD="i-use-debian-btw"
 
 case "${1:-}" in
     rofi)
-        menu() { rofi -dmenu -p "$1" -theme-str 'window {width: 24em;} listview {lines: 6;}'; }
+        # $1 — prompt, $2 — число пунктов (высота = ровно столько строк).
+        menu() { rofi -dmenu -p "$1" \
+                    -theme-str "window {width: 24em;} listview {lines: $2;}"; }
         term() { alacritty --class wifi -e "$@"; }
         ;;
     wofi)
+        # $1 — prompt, $2 — число пунктов; +1 строка на поле ввода.
         menu() { wofi --dmenu --cache-file /dev/null --insensitive \
-                    --width 440 --prompt "$1"; }
+                    --width 440 --prompt "$1" --lines $(($2 + 1)); }
         term() { foot --app-id wifi -e "$@"; }
         ;;
     *)
@@ -80,7 +83,7 @@ else
 fi
 
 CHOICE=$(printf '%s\n' "$TOGGLE" "󰤨 Подключиться к сети" "󰈈 Скрытая сеть" \
-    "󰀂 Включить хотспот" "󰅖 Выключить хотспот" | menu "󰖩 Wi-Fi")
+    "󰀂 Включить хотспот" "󰅖 Выключить хотспот" | menu "󰖩 Wi-Fi" 5)
 [ -n "$CHOICE" ] || exit 0
 
 case "$CHOICE" in
@@ -97,7 +100,9 @@ case "$CHOICE" in
         notify "Подождите..." "Сканирование сетей..."
         LIST=$(networks)
         [ -n "$LIST" ] || { notify "Сети не найдены" "Проверьте адаптер"; exit 1; }
-        SSID=$(printf '%s\n' "$LIST" | menu "Выбор сети")
+        N=$(printf '%s\n' "$LIST" | grep -c .)
+        [ "$N" -gt 12 ] && N=12
+        SSID=$(printf '%s\n' "$LIST" | menu "Выбор сети" "$N")
         [ -n "$SSID" ] || exit 0
         # "󰤨 | Home6" → "Home6": отрезаем всё до "| " включительно.
         # Пробел в шаблоне обязателен, иначе в SSID останется ведущий пробел.
@@ -110,7 +115,7 @@ case "$CHOICE" in
         ;;
     *"Скрытая сеть"*)
         require_on
-        SSID=$(printf '' | menu "SSID скрытой сети")
+        SSID=$(printf '' | menu "SSID скрытой сети" 1)
         [ -n "$SSID" ] || exit 0
         notify "Подождите..." "Подключение к скрытой сети..."
         ask_password "$SSID" hidden
