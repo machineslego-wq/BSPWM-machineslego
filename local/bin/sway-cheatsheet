@@ -36,7 +36,9 @@ cat <<EOF | menu
 <b>󰒓 СИСТЕМА И ЗАПУСК</b>
 󰌌 Super + /                        Шпаргалка                      <span foreground="#1a1b26">[помощь, хелп, help, клавиши]</span>
 󰆍 Super + Return                   Терминал (foot)                <span foreground="#1a1b26">[консоль, cmd, shell, terminal]</span>
-󰀻 Super + D                        Лаунчер (wofi)                 <span foreground="#1a1b26">[меню, пуск, запуск, search]</span>
+󰀻 Super + D                        Лаунчер (Quickshell)           <span foreground="#1a1b26">[меню, пуск, запуск, search, wofi]</span>
+󰒓 Super + Shift + Space            Центр управления               <span foreground="#1a1b26">[панель, wifi, bluetooth, звук, яркость, питание, cc]</span>
+󰃭 Клик по часам                    Календарь                      <span foreground="#1a1b26">[календарь, дата, calendar, время]</span>
 󰈹 Super + B                        Браузер (Firefox)              <span foreground="#1a1b26">[браузер, интернет, web, firefox]</span>
 󰨞 Super + V                        Редактор (VS Code)             <span foreground="#1a1b26">[код, редактор, vscode, ide]</span>
 󰉋 Super + E                        Файлы (Thunar)                 <span foreground="#1a1b26">[файлы, проводник, папки, explorer]</span>
@@ -50,7 +52,7 @@ cat <<EOF | menu
 
 <b>󰐥 ПИТАНИЕ И БЛОКИРОВКА</b>
 󰌾 Super + Alt + L                  Заблокировать экран            <span foreground="#1a1b26">[lock, блокировка, пароль, swaylock]</span>
-󰤆 Super + Shift + Q                Меню питания (wofi)            <span foreground="#1a1b26">[выключить, перезагрузка, выход, powermenu]</span>
+󰤆 Super + Shift + Q                Меню питания (Quickshell)      <span foreground="#1a1b26">[выключить, перезагрузка, выход, powermenu]</span>
 󰜉 Super + Shift + E                Выход из Sway                  <span foreground="#1a1b26">[выход, quit, exit, logout, swaynag]</span>
 󰒲 Бездействие 10 мин               Автоблокировка (swayidle)      <span foreground="#1a1b26">[idle, таймаут, блокировка, swayidle]</span>
 

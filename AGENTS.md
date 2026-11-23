@@ -30,7 +30,8 @@
 | Хоткей BSPWM | `config/sxhkd/sxhkdrc` + строка в `local/bin/cheatsheet-bspwm` |
 | Хоткей Sway | `config/sway/config` + строка в `local/bin/sway-cheatsheet` |
 | Панель BSPWM | `config/polybar/config.ini`, `config/polybar/launch.sh` |
-| Панель Sway | `config/waybar/config.jsonc`, `config/waybar/style.css` |
+| Панель, лаунчер и центр управления Sway | `config/quickshell/shell/` (QML), `local/bin/qs-shell` |
+| Панель Sway (запасная) | `config/waybar/config.jsonc`, `config/waybar/style.css` |
 | Лаунчер и меню X11 | `config/rofi/config.rasi`, `local/bin/{battery,powermenu,wifi,power-profile,dunst-history}` |
 | Лаунчер и меню Wayland | `config/wofi/{config,style.css}`, `local/bin/{wofi-*,wifi,battery,powermenu}` |
 | Уведомления | `config/dunst/dunstrc` (X11), `config/mako/config` (Sway) |
@@ -63,6 +64,7 @@
 | Симлинки, команды из `sxhkdrc`, `bash -n`, картинки README | `rice-check` (код возврата 0/1) |
 | Синтаксис любого скрипта | `bash -n <файл>` |
 | Конфиг Sway | `sway -C -c config/sway/config` |
+| Панель Quickshell | `qs-shell status`; логи QML — `/run/user/$UID/quickshell/by-id/*/log.qslog` |
 | Mako | `timeout 3 dbus-run-session -- mako --config config/mako/config` (пусто = ok) |
 | Foot | `foot -C -c config/foot/foot.ini` |
 | Остальные конфиги | перезапуск компонента (таблица ниже) |
@@ -78,7 +80,8 @@
 | Polybar | `~/.config/polybar/launch.sh` |
 | Picom | `pkill -x picom; picom --config <профиль>` |
 | Sway | `swaymsg reload` / `Super + Escape` |
-| Waybar | CSS сам (`reload_style_on_change`); `config.jsonc` — `pkill -x waybar; waybar &` |
+| Quickshell | QML перечитывается сам (hot reload), зависла — `qs-shell restart` |
+| Waybar (запасная панель) | CSS сам (`reload_style_on_change`); `config.jsonc` — `pkill -x waybar; waybar &` |
 | Mako | `pkill -HUP -x mako` |
 | Neovim | следующий запуск (или `:source %` для текущего файла) |
 | Vim | `:source ~/.vimrc` |
@@ -103,19 +106,32 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 
 ## Sway
 
-- `config/sway/config`, симлинк `~/.config/sway`; `include /etc/sway/config.d/*` остаётся абсолютным. Стоковый `bar {}` удалён — панель рисует waybar.
+- `config/sway/config`, симлинк `~/.config/sway`; `include /etc/sway/config.d/*` остаётся абсолютным. Стоковый `bar {}` удалён — панель, лаунчер и центр управления рисует Quickshell (`config/quickshell/shell`).
 - Оформление: `default_border pixel 2` и `default_floating_border pixel 2` (заголовков нет), `gaps inner/outer 0`, `smart_borders on`. В режиме `pixel` рамку рисует `child_border`, поэтому он продублирован в каждом `client.*`. `client.focused #6b8dd6`, `client.unfocused`/`focused_inactive` — `#1a1b26`.
 - **Все `bindsym` — с `--to-code`.** Без флага keysym привязан к текущей раскладке и в RU-режиме не срабатывает.
 - Раскладка `us,ru` + `grp:caps_toggle`, автоповтор 250/30 — через `input "type:keyboard"`; тачпад — `tap`, `dwt`, `natural_scroll enabled`.
 - `local/bin/sway-session` — обёртка вместо `sway`: PATH, `XDG_*`, курсор Bibata 24, Qt (`qt6ct`, `QT_QPA_PLATFORM="wayland;xcb"`), GTK (`GDK_BACKEND=wayland,x11`), `SAL_USE_VCLPLUGIN=gtk3`, `MOZ_ENABLE_WAYLAND`, Electron, Java; перед запуском пишет карту столов в `~/.cache/sway/workspaces.conf` (ПК — 1–7 → `DP-2`, 8–10 → `HDMI-A-4`; ноутбук/нетбук — пустой файл), её подключает `config/sway/config`; затем `exec sway "$@"`. Карта нужна до старта: `workspace <n> output <выход>` действует только на ещё не созданные столы. `home/xinitrc`/`xprofile` под Wayland не выполняются.
 - `local/bin/sway-display` — мониторы, геометрия и обои; вызывается как `exec_always`. В конфиге Sway нет hostname-условий: ветка `lamer-deb` (`DP-2` + `HDMI-A-4` с `transform 90`) и фолбэк ноутбука живут здесь. Привязку столов см. в `sway-session`; `exec swaymsg workspace number 1` в конфиге задаёт стартовый фокус и при reload не повторяется. Имена выходов wlroots ≠ X11: `DisplayPort-1`/`HDMI-A-3` → `DP-2`/`HDMI-A-4`. Обои ставит сам Sway через `output ... bg`.
-- Автозапуск — `exec_always pgrep -x <имя> >/dev/null || <имя>` для waybar, mako, lxpolkit: reload не плодит дубли. `swayidle`: 10 минут и `before-sleep` → `swaylock -f`. `wl-paste --watch cliphist -max-items 100 store` — под таким же стражем. EasyEffects — обычный `exec` (при reload не повторяется).
-- Хоткеи: `$mod+Return` foot, `$mod+d` `wofi --show drun`, `$mod+/` `sway-cheatsheet` (wofi; `rofi` — запасной бэкенд), `$mod+F1..F4`/`$mod+Shift+S` скриншоты, `$mod+Shift+A` редактор, `$mod+Shift+R` запись всего экрана, `$mod+Shift+Alt+R` области, `$mod+Shift+V` буфер, `$mod+Escape`/`$mod+Shift+C` reload, `$mod+w` kill, `$mod+Alt+L` lock, `$mod+Alt+N` `wifi wofi`, `$mod+Alt+B` `battery wofi`, `$mod+Shift+Q` `powermenu wofi`, `$mod+Shift+E` `swaynag`. Полный список — `sway-cheatsheet`. Профиль питания переключается кликом по модулю PPD в waybar (отдельного меню нет).
+- Автозапуск — `exec_always qs-shell start` для панели (`qs -c shell -n`: второй экземпляр не появится), `exec_always pgrep -x <имя> >/dev/null || <имя>` для mako и lxpolkit: reload не плодит дубли. `swayidle`: 10 минут и `before-sleep` → `swaylock -f`. `wl-paste --watch cliphist -max-items 100 store` — под таким же стражем. EasyEffects — обычный `exec` (при reload не повторяется).
+- Хоткеи: `$mod+Return` foot, `$mod+d` `qs-shell launcher` (панель не запущена — падает в `wofi --show drun`), `$mod+Shift+Space` `qs-shell cc` (центр управления), `$mod+/` `sway-cheatsheet` (wofi; `rofi` — запасной бэкенд), `$mod+F1..F4`/`$mod+Shift+S` скриншоты, `$mod+Shift+A` редактор, `$mod+Shift+R` запись всего экрана, `$mod+Shift+Alt+R` области, `$mod+Shift+V` буфер, `$mod+Escape`/`$mod+Shift+C` reload, `$mod+w` kill, `$mod+Alt+L` lock, `$mod+Alt+N` `wifi wofi`, `$mod+Alt+B` `battery wofi`, `$mod+Shift+Q` `qs-shell power`, `$mod+Shift+E` `swaynag`. Полный список — `sway-cheatsheet`. Профиль питания: клик по PPD в панели переключает по кругу, три кнопки — в центре управления; календарь — клик по часам.
 
 - `local/bin/wifi {rofi|wofi}` — один скрипт на обе сессии: `rofi` + `alacritty` в BSPWM, `wofi` + `foot` в Sway. Список сетей — `󰤨 | SSID` (иконка из `signal_icon`, `nmcli -t --escape no -f SIGNAL,SSID` + `read` с `IFS=:`; SSID — весь остаток после первого `:`, при выборе `${SSID#*| }` срезает иконку и разделитель); адаптер выбирает `nmcli`; хотспот выключается `nmcli connection down Hotspot`.
 
 - `local/bin/battery {rofi|wofi}` — детали батареи из `upower` (заряд, статус, потребление, здоровье, время); `rofi` для BSPWM, `wofi` для Sway. Батарея выбирается `battery_BAT*`, иначе первая `/battery_` — иначе с беспроводной мышью в меню попадает её батарея.
 - `local/bin/powermenu {rofi|wofi}` — один список действий: блокировка (`i3lock-fancy`/`swaylock`), выключение, выход (`bspc quit`/`swaymsg exit`), перезагрузка. Бэкенд меню — аргумент, поэтому `wofi-powermenu` удалён.
+
+### Панель Quickshell (панель, лаунчер, центр управления)
+
+- `config/quickshell/shell/` — один конфиг Quickshell, симлинк `~/.config/quickshell`; запуск `qs -c shell`, из сессии — `qs-shell start`. В `requirements/sway.txt` пакет `quickshell` (в Debian 13 он из backports: на ПК без backports панель не поставится, waybar остаётся запасной).
+- Файлы (плоский каталог + `qmldir`, поэтому все типы видны друг другу): `shell.qml` (ShellRoot, `Variants` по мониторам, IPC), `Bar.qml`, `Overlay.qml`, `ControlCenter.qml`, `Launcher.qml`, `PowerMenu.qml`, `CalendarView.qml`; компоненты `BarButton`, `StatusItem`, `SliderRow`; синглтоны `Theme`, `Util`, `ShellState`, `Volume`, `Brightness`, `InputState`. Синглтоны объявлены в `qmldir` (`singleton <Имя> 1.0 <file>.qml`), корень — `Quickshell.Singleton` (у `QtObject` нет default property, дочерние `Process`/`Timer` не создать). Список типов в `qmldir` обязателен: при наличии `qmldir` файлы каталога не подхватываются сами.
+- Панель: островки `bg-alt` (#24283b) на фоне #1a1b26, высота 32, `exclusiveZone` резервирует место. Слева — Debian-логотип (лаунчер) и столы; в центре — часы, дата и батарея; справа — трей (`SystemTray`), раскладка (RW/US) и Caps Lock, профиль питания, громкость, яркость, Bluetooth, сеть, кнопка питания. Столы — `Quickshell.I3` (`I3.workspaces`, фильтр по `ws.monitor.name === screen.name`, клик — `I3.dispatch("workspace <имя>")`, колесо — `prev/next_on_output`).
+- Индикаторы: громкость — `Quickshell.Services.Pipewire` (`Volume.qml`, `PwObjectTracker` обязателен: без него узел `unbound` и volume/muted не читаются и не пишутся); яркость — `brightnessctl` через `Process` (в 0.3 своего сервиса нет); батарея и профиль питания — `Quickshell.Services.UPower` (`PowerProfiles.hasPerformanceProfile` — единственный флаг, отдельного `hasPowerSaverProfile` нет); Bluetooth — `Quickshell.Bluetooth`; сеть — `Quickshell.Networking`.
+- Раскладка и Caps Lock — `InputState.qml`: одна команда раз в 2 с (`swaymsg -t get_inputs --raw` + `cat /sys/class/leds/input*::capslock/brightness`), libevdev и группа `input` не нужны. Caps — по светодиоду клавиатуры, поэтому значение может отставать на интервал опроса.
+- Всплывающие окна — **один** полноэкранный `Overlay.qml` (PanelWindow, layer Overlay, прозрачный, `keyboardFocus: Exclusive`): внутри панели `ControlCenter`/`Launcher`/`PowerMenu`/календарь, клик мимо закрывает через `MouseArea`, Esc — в каждом корне. `PopupWindow` от Quickshell 0.3 на layer-shell панели не годится: окна не прикрепляются к родителю (`not an xdg_popup`), едут по размеру и закрываются сами.
+- Центр управления: Wi-Fi (список 6 сетей, пароль вводится на месте, `connectWithPsk`), Bluetooth (сопряжённые + найденные при поиске, `pair()`/`connect()`/`disconnect()`), громкость и яркость (ползунки `SliderRow`), батарея, профиль питания, календарь на месяц, действия питания (блокировка, сон, выход, перезагрузка, выключение). Календарь — своя сетка на JS (`CalendarView.qml`), без Qt.labs.calendar.
+- Лаунчер: `DesktopEntries.applications` + `entry.execute()`, поиск по имени/genericName/comment, стрелки/Enter/Esc, иконки через `Quickshell.iconPath`. Модель `DesktopEntries` заполняется асинхронно (как и `I3`): первый запрос возвращает пустой список, поэтому в `Launcher` есть `appCount` + `onAppCountChanged` — иначе первый открытый лаунчер пуст.
+- IPC: `qs ipc -c shell call shell {toggle|open|close|state|cc|launcher|calendar|power|volumeUp|volumeDown|mute|brightnessUp|brightnessDown}`; `state` возвращает имя открытого окна (для отладки). `local/bin/qs-shell` — обёртка: `start` (с `-n`), `restart`, `stop`, `status`, `launcher|cc|calendar|power`; если панель не запущена, лаунчер падает в `wofi --show drun`, остальные печатают ошибку.
+- Ограничения: у трея нет меню (ЛКМ — `activate()`, ПКМ не открывает DBusMenu), нет заголовка активного окна (в 0.3 `Quickshell.Wayland` не даёт foreign-toplevel), нет OSD громкости/яркости — клавиши по-прежнему идут в `wpctl-volume` и `brightnessctl` с уведомлением mako. Waybar и wofi остаются в репозитории запасными: панель переключается одной строкой в `config/sway/config`.
 
 ### Порталы (OBS, ScreenCast)
 
@@ -131,7 +147,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - `sway-record {full|region}`: `wf-recorder`, повторный вызов **любого** режима останавливает запись через `pkill -INT` (mp4 закрывается только по SIGINT). Монитор передаётся явно `-o` (иначе под хоткеем `wf-recorder` молча не стартует на мультимониторе). Кодек — `libx264` всегда: VAAPI убран, на Intel он не использовался, на AMD оставался непроверенной веткой. Стороны области округляются вниз до чётных: H.264 4:2:0 не принимает нечётные. Каждое состояние — уведомление: старт, отмена `slurp`, ошибка с кодом, завершение/прерывание с кодом; внутренний `--run` пишет код в `$XDG_RUNTIME_DIR/sway-record.rc`. Звук не пишется — для этого OBS.
 - Буфер: `cliphist list` → `wofi --dmenu` → `cliphist decode <id> | wl-copy` (`wofi-clipboard`, `Super+Shift+V`). Хранится 100 записей (`-max-items 100` — до подкоманды `store`). Под Wayland CopyQ не используется.
 
-### Waybar
+### Waybar (запасная панель)
 
 - `style.css`: палитра только через `@define-color` в начале файла, в правилах — `@имя`. `:root`/`var()` GTK-CSS не понимает. Группа `group/left` в CSS — **`#left`**, без префикса.
 - Формат модуля допускает **один** плейсхолдер: `"{:L%H:%M  󰃭 %a, %d %b}"`. Локализация — `"locale": "ru_RU.UTF-8"` у модуля (префикс `L` внутри спецификатора).
@@ -224,7 +240,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 
 ## Устаревшее и служебное
 
-- `config/quickshell/shell/` — QML-оболочка Sway (панель, лаунчер, центр управления, календарь), но в `main` **не подключена**: waybar, wofi и хоткеи остаются как есть, автозапуска и `local/bin/qs-shell` здесь нет. Запуск вручную — `qs -c shell` (пакет `quickshell`, в Debian 13 только из backports), закрыть `pkill -x qs`. Подключение и эксперименты (все сети Wi-Fi, хотспот, уведомления с историей) — в ветке `feat/quickshell-shell`. Старый `control-center` удалён: его функции вошли в `shell/`, история — в git.
+- `config/quickshell/control-center` удалён: его функции вошли в `config/quickshell/shell` (панель, лаунчер, центр управления, календарь). Старый вариант — в истории git.
 - `wallpaper.sh` удалён: обои — статичные `feh`/`output bg`.
 - `TODO.md` — рабочий блокнот, не документация релиза. `AGENTS.md` — внутренняя инструкция (эта карта), не публикуется; публичное — README.
 

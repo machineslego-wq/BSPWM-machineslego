@@ -1,0 +1,66 @@
+#!/bin/bash
+# ==========================================================
+# qs-shell — Панель, лаунчер и центр управления Quickshell (Sway)
+# ==========================================================
+# Использование: qs-shell {start|restart|stop|launcher|cc|calendar|power|status}
+#
+# start    — запустить панель; второй экземпляр не появится (-n)
+# restart  — перезапустить после правки QML; обычно не нужен,
+#            Quickshell перечитывает файлы сам
+# stop     — остановить панель
+# launcher — лаунчер приложений (Super + D); если панель не запущена,
+#            открывается wofi --show drun
+# cc       — центр управления: Wi-Fi, Bluetooth, звук, яркость,
+#            профиль питания, календарь, выключение
+# calendar — календарь; power — меню питания
+# status   — запущена панель или нет
+# ==========================================================
+
+set -u
+
+CONFIG="shell"
+
+usage() {
+    echo "usage: qs-shell {start|restart|stop|launcher|cc|calendar|power|status}" >&2
+    exit 1
+}
+
+ipc() {
+    qs ipc -c "$CONFIG" call shell "$@"
+}
+
+case "${1:-}" in
+    start)
+        exec qs -c "$CONFIG" -n
+        ;;
+    restart)
+        pkill -f "qs -c $CONFIG" 2>/dev/null || true
+        sleep 0.3
+        exec qs -c "$CONFIG" -n -d
+        ;;
+    stop)
+        pkill -f "qs -c $CONFIG"
+        ;;
+    status)
+        if pgrep -f "qs -c $CONFIG" >/dev/null; then
+            echo "Quickshell запущен (конфиг: $CONFIG)"
+        else
+            echo "Quickshell не запущен"
+            exit 1
+        fi
+        ;;
+    launcher|cc|calendar|power)
+        if ipc "$1" >/dev/null 2>&1; then
+            exit 0
+        fi
+        # Панель не запущена: лаунчеру есть замена, остальному — нет.
+        if [ "$1" = "launcher" ]; then
+            exec wofi --show drun
+        fi
+        echo "qs-shell: панель не запущена (qs-shell start)" >&2
+        exit 1
+        ;;
+    *)
+        usage
+        ;;
+esac
