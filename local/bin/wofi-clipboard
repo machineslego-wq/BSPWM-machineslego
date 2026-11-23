@@ -19,8 +19,8 @@ fi
 
 N=$(printf '%s\n' "$LIST" | grep -c .)
 L=$((N + 1))
-[ "$L" -gt 15 ] && L=15
-[ "$L" -lt 2 ] && L=2
+[ "$L" -lt 8 ] && L=8
+[ "$L" -gt 20 ] && L=20
 CHOICE=$(printf '%s\n' "$LIST" | wofi --dmenu --cache-file /dev/null \
     --prompt "󰅇 Буфер" --width 860 --lines "$L")
 

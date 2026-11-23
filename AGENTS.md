@@ -142,7 +142,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 
 - `config/wofi/config` + `style.css`, лаунчер Sway; в BSPWM остаётся Rofi. `show=drun`, окно 600×400 по центру, `no_actions=true`, `layer=overlay`.
 - Фон окна рисует **`#outer-box`**, а не `window`. Свой CSS wofi — приоритет APPLICATION (600), `config/gtk-3.0/gtk.css` — USER (800), поэтому фон поля ввода возвращает правило `#outer-box #input` в `gtk.css`; в `style.css` значение — фолбэк.
-- `--width` — ширина окна в px: launcher 600, powermenu 340, wifi 440, battery 400, cheatsheet 960×650, clipboard 860. Высота — `--lines`: пунктов + 1 (место под поле ввода), `clipboard` — до 15 строк, `cheatsheet` — `--height 650`. `dynamic_lines=true` без `lines` не работает: окно висит на `height=400`, поэтому `--lines` передаётся из скриптов.
+- `--width` — ширина окна в px: launcher 600, powermenu 340, wifi 440, battery 400, cheatsheet 960×650, clipboard 860. Высота — `--lines`: пунктов + 1 (место под поле ввода), но не меньше 8; `wifi` — до 16 строк, `clipboard` — до 20, `cheatsheet` — `--height 650`. `dynamic_lines=true` без `lines` не работает: окно висит на `height=400`, поэтому `--lines` передаётся из скриптов.
 - Меню команд — `--dmenu --cache-file /dev/null` (иначе сортировка по частоте). `--show window` под Sway не работает (нет `wlr-foreign-toplevel-management`).
 - `sway-cheatsheet` использует pango-разметку и скрытые теги цвета фона — это осознанно; не вырезать.
 

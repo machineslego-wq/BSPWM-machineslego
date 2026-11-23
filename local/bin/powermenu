@@ -18,7 +18,7 @@ case "${1:-}" in
         ;;
     wofi)
         menu() { wofi --dmenu --cache-file /dev/null --insensitive \
-                    --prompt "󰤆 Питание" --width 340 --lines 5; }
+                    --prompt "󰤆 Питание" --width 340 --lines 8; }
         lock() { swaylock -f; }
         quit_session() { swaymsg exit; }
         ;;
