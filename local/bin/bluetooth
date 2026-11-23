@@ -1,0 +1,30 @@
+#!/bin/bash
+# ==========================================================
+# bluetooth — индикатор адаптера и вкл/выкл (Polybar)
+# ==========================================================
+# Без аргумента — строка для панели: 󰂲 DISABLED / 󰂲 OFF /
+# 󰂯 ON / 󰂱 N (N подключённых). on/off — питание адаптера.
+# ==========================================================
+
+set -u
+
+case "${1:-}" in
+    on)  bluetoothctl power on  >/dev/null 2>&1; exit 0 ;;
+    off) bluetoothctl power off >/dev/null 2>&1; exit 0 ;;
+esac
+
+command -v bluetoothctl >/dev/null || { echo "󰂲 DISABLED"; exit 0; }
+
+INFO=$(timeout 2 bluetoothctl show 2>/dev/null)
+if [ -z "$INFO" ]; then
+    echo "󰂲 DISABLED"
+elif ! grep -q 'Powered: yes' <<< "$INFO"; then
+    echo "󰂲 OFF"
+else
+    COUNT=$(timeout 2 bluetoothctl devices Connected 2>/dev/null | grep -c '^Device ')
+    if [ "$COUNT" -gt 0 ]; then
+        echo "󰂱 $COUNT"
+    else
+        echo "󰂯 ON"
+    fi
+fi

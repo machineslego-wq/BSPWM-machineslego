@@ -13,7 +13,7 @@
 
 - [x] **Разобраться с WM-скриптами.** Цифры, таблица и «что на что» менять — в разборе ниже. Сделано: `wifi`/`battery` сведены, `power-profile` упрощён, `wpctl-volume` переименован, `window` убран из Sway, шпаргалки сверяются. Необязательным остался только вопрос VAAPI в `sway-record`.
 - [x] **Батарея — `battery` на `upower`.** Скрипт переписан: `upower -e` → `/battery_`, `upower -i` + `awk`, `LC_ALL=C`; один `battery {rofi|wofi}` — rofi (6 строк) или wofi (`dynamic_lines`). `upower` добавлен в `requirements/apt.txt`. Вариант с `watch` не понадобился.
-- [x] **Проверить обвязку: `wpctl-volume`, скриншоты, шпаргалки, Bluetooth.** Критерий и вердикты — в разборе ниже. Сделано: `window` убран из Sway, шпаргалки сверяются в `rice-check`, `wpctl-volume` переименован; Bluetooth решено не трогать.
+- [x] **Проверить обвязку: `wpctl-volume`, скриншоты, шпаргалки, Bluetooth.** Критерий и вердикты — в разборе ниже. Сделано: `window` убран из Sway, шпаргалки сверяются в `rice-check`, `wpctl-volume` переименован; Bluetooth-индикатор добавлен в Polybar (`custom/script`, в 3.7 нет `internal/bluetooth`).
 - [ ] **Пересмотреть остальные скрипты райса (не только WM).** `check-hardware`, `check-strawberry`, `mount-nas`, `openrgb-i2c-fix`, `sddm-avatar`, `start-llm`, `start-comfy`, `vhost-add`, `vhost-remove`, `rice-check`, `rice-help`: что ещё используется, что сводится к одной команде или стоковой утилите, что удалить.
 - [ ] **Переезд на Sway/Wayland — постепенно.** Sway становится повседневной сессией, BSPWM/X11 остаётся рабочей запасной сессией на случай поломок (его не удалять и не ломать). Переносить по одной вещи: хоткеи, панель, меню, OSD, темы. Прежнее решение «на Wayland не переезжаем» отменено.
 
@@ -74,6 +74,7 @@
 
 ### ✅ Сделано
 
+- [x] **Bluetooth-индикатор в Polybar.** В 3.7 нет `internal/bluetooth`, поэтому `[module/bluetooth]` — `custom/script` с командой `bluetooth`: `󰂲 DISABLED` / `󰂲 OFF` / `󰂯 ON` / `󰂱 N`. ЛКМ — `bluetooth on`, ПКМ — `bluetooth off`, опрос раз в 5 с. Иконки и логика — как у стокового модуля waybar.
 - [x] **Удалены `yacht` и `vllm-setup`.** Следов использования нет: на ноутбуке не установлен Docker, нет `~/vllm-models` и `~/.config/vllm/api-key`; Yacht — веб-UI к Docker, его задачи покрывает `docker` CLI, а vLLM/ROCm для Qwen не запускался. Убраны файлы, симлинки, упоминания в README/requirements; Docker остаётся для `start-llm`.
 - [x] **Шпаргалки сверяются с конфигами.** В `rice-check` добавлена проверка: каждая комбинация из `sxhkdrc` и `sway/config` должна быть в `cheatsheet-bspwm` / `sway-cheatsheet`. Раскладка `super + {a,b}` раскрывается, группы шпаргалки («Стрелки», «H / J / K / L», «1..9, 0», «Громкость +/-») разворачиваются в клавиши, порядок модификаторов не важен. Проверено: удалённая строка «Super + Return» даёт FAIL.
 - [x] **`window` убран из `sway-screenshot`.** Геометрия активного окна собиралась через `jq` по дереву Sway — костыльно и ненадёжно. Режим и хоткей `Super + F2` удалены, в X11 `screenshot window` остался (`maim -i` в одну строку). `sway-cheatsheet`, README и AGENTS обновлены.
