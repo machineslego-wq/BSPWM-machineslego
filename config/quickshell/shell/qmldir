@@ -1,0 +1,16 @@
+singleton Theme 1.0 Theme.qml
+singleton Util 1.0 Util.qml
+singleton ShellState 1.0 ShellState.qml
+singleton Volume 1.0 Volume.qml
+singleton Brightness 1.0 Brightness.qml
+singleton InputState 1.0 InputState.qml
+
+Bar 1.0 Bar.qml
+BarButton 1.0 BarButton.qml
+StatusItem 1.0 StatusItem.qml
+SliderRow 1.0 SliderRow.qml
+CalendarView 1.0 CalendarView.qml
+ControlCenter 1.0 ControlCenter.qml
+Launcher 1.0 Launcher.qml
+PowerMenu 1.0 PowerMenu.qml
+Overlay 1.0 Overlay.qml

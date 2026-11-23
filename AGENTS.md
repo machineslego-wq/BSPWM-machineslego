@@ -224,7 +224,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 
 ## Устаревшее и служебное
 
-- `config/quickshell/control-center/shell.qml` — экспериментальная панель, в окружение не интегрирована (нет хоткея, кнопки и автозапуска). Запуск вручную `qs -c control-center`, закрыть `pkill -x qs`. Пакет `quickshell` в `requirements/` не входит.
+- `config/quickshell/shell/` — QML-оболочка Sway (панель, лаунчер, центр управления, календарь), но в `main` **не подключена**: waybar, wofi и хоткеи остаются как есть, автозапуска и `local/bin/qs-shell` здесь нет. Запуск вручную — `qs -c shell` (пакет `quickshell`, в Debian 13 только из backports), закрыть `pkill -x qs`. Подключение и эксперименты (все сети Wi-Fi, хотспот, уведомления с историей) — в ветке `feat/quickshell-shell`. Старый `control-center` удалён: его функции вошли в `shell/`, история — в git.
 - `wallpaper.sh` удалён: обои — статичные `feh`/`output bg`.
 - `TODO.md` — рабочий блокнот, не документация релиза. `AGENTS.md` — внутренняя инструкция (эта карта), не публикуется; публичное — README.
 
