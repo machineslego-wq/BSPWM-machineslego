@@ -5,7 +5,8 @@
 
 pkill -USR1 -x sxhkd
 
-for app in polybar picom dunst blueman-applet xss-lock lxpolkit copyq; do
+# blueman-applet не запускается: Bluetooth — в модуле Polybar.
+for app in polybar picom dunst xss-lock lxpolkit copyq; do
     pkill -x "$app" || true
 done
 

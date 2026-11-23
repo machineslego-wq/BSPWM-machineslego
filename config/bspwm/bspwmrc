@@ -33,9 +33,8 @@ if ! pgrep -x picom > /dev/null; then
     ) &
 fi
 
-# Аплет Bluetooth.
-# Оставлен, так как полноценной замены для управления BT в трее без лишней боли нет.
-pgrep -x blueman-applet > /dev/null || blueman-applet &
+# Аплет Bluetooth не нужен: индикатор и вкл/выкл — в Polybar (module/bluetooth).
+# pgrep -x blueman-applet > /dev/null || blueman-applet &
 
 # Запуск панели Polybar
 "$HOME/.config/polybar/launch.sh" &

@@ -56,7 +56,7 @@
 | `cheatsheet-bspwm`, `sway-cheatsheet` | обе | нет | поиск по хоткеям с русскими тегами | оставить, сверять с конфигами |
 | `power-profile` | только BSPWM | модуль PPD в waybar (Sway) | меню выбора + перезапуск picom | упрощён, оставлен в X11 |
 | `wifi {rofi\|wofi}` | обе сессии | `nmcli`, `nmtui`, `nm-connection-editor` | один клик, тема, пароль в терминале | фича — да, ~100 строк — ок |
-| Bluetooth | обе | `bluetoothctl` в waybar, `blueman-applet` в BSPWM | — | уже сток, не трогать |
+| Bluetooth | обе | `bluetoothctl` в waybar, `bluetooth` в Polybar | индикатор и вкл/выкл по клику | оставить |
 
 **`wpctl-volume`.** `wpctl set-volume … 2%+` — сток, панель показывает процент, но она не под курсором: когда жмёшь Fn, смотреть надо туда, где сейчас глаза. OSD и есть фича. 56 строк — в основном комментарии и маппинг `category` для mako (dunst-хинты `frcolor`/`hlcolor` mako не понимает), без него OSD потеряет цвета.
 
@@ -68,13 +68,13 @@
 
 **Wi-Fi.** Сток умеет всё (`nmcli`, `nmtui`, `nm-connection-editor`), но `nmtui` — целый TUI ради одного клика. Ценность меню — один клик по панели/хоткею и тема. Две копии по 150 строк сведены в один `wifi {rofi|wofi}`; радикальный вариант с `nmtui` не понадобился.
 
-**Bluetooth.** Своего кода нет: waybar кликает `bluetoothctl power on/off`, в BSPWM висит `blueman-applet`. Это эталон «стокового модуля» — так и оставить.
+**Bluetooth.** В waybar — стоковый модуль, в Polybar — `custom/script` (`local/bin/bluetooth`), потому что в 3.7 нет `internal/bluetooth`. `blueman-applet` убран из `bspwmrc` и `session-restart`: его заменяет модуль панели.
 
 **Итог по обвязке:** `wpctl-volume` и скриншоты оставить (`window` только в X11), шпаргалки сверяются в `rice-check`, `power-profile` упрощён и остаётся только в X11, Wi-Fi и батарея сведены к одному скрипту, Bluetooth не трогать.
 
 ### ✅ Сделано
 
-- [x] **Bluetooth-индикатор в Polybar.** В 3.7 нет `internal/bluetooth`, поэтому `[module/bluetooth]` — `custom/script` с командой `bluetooth`: `󰂲 DISABLED` / `󰂲 OFF` / `󰂯 ON` / `󰂱 N`. ЛКМ — `bluetooth on`, ПКМ — `bluetooth off`, опрос раз в 5 с. Иконки и логика — как у стокового модуля waybar.
+- [x] **Bluetooth-индикатор в Polybar.** В 3.7 нет `internal/bluetooth`, поэтому `[module/bluetooth]` — `custom/script` с командой `bluetooth`: `󰂲 DISABLED` / `󰂲 OFF` / `󰂯 ON` / `󰂱 N`. ЛКМ — `bluetooth on`, ПКМ — `bluetooth off`, опрос раз в 5 с. Иконки и логика — как у стокового модуля waybar. `blueman-applet` убран из автозапуска и `session-restart`, запущенный процесс завершён.
 - [x] **Удалены `yacht` и `vllm-setup`.** Следов использования нет: на ноутбуке не установлен Docker, нет `~/vllm-models` и `~/.config/vllm/api-key`; Yacht — веб-UI к Docker, его задачи покрывает `docker` CLI, а vLLM/ROCm для Qwen не запускался. Убраны файлы, симлинки, упоминания в README/requirements; Docker остаётся для `start-llm`.
 - [x] **Шпаргалки сверяются с конфигами.** В `rice-check` добавлена проверка: каждая комбинация из `sxhkdrc` и `sway/config` должна быть в `cheatsheet-bspwm` / `sway-cheatsheet`. Раскладка `super + {a,b}` раскрывается, группы шпаргалки («Стрелки», «H / J / K / L», «1..9, 0», «Громкость +/-») разворачиваются в клавиши, порядок модификаторов не важен. Проверено: удалённая строка «Super + Return» даёт FAIL.
 - [x] **`window` убран из `sway-screenshot`.** Геометрия активного окна собиралась через `jq` по дереву Sway — костыльно и ненадёжно. Режим и хоткей `Super + F2` удалены, в X11 `screenshot window` остался (`maim -i` в одну строку). `sway-cheatsheet`, README и AGENTS обновлены.
