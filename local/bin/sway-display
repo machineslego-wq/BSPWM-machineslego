@@ -71,7 +71,9 @@ run "output * enable"
 
 if [ "$(hostname)" = "lamer-deb" ] && has_output DP-2 && has_output HDMI-A-4; then
     # ПК: DP-2 — основной 1920x1080@144, HDMI-A-4 — слева, повёрнут на 90°.
-    # Геометрия как в bspwmrc: HDMI занимает 1080 px по X, DP стоит правее.
+    # Геометрия как в bspwmrc: HDMI занимает 1080 px по X и всю высоту 1920;
+    # DP стоит правее (1080..3000) и опущен на 250 px от верха, его низ — 1330,
+    # ниже остаётся пустая зона 1920x590. Общая область 3000x1920.
     # В Sway координаты position задаются через ПРОБЕЛ: X Y.
     run "output DP-2 mode 1920x1080@144Hz position 1080 250"
     run "output HDMI-A-4 transform 90 position 0 0"
