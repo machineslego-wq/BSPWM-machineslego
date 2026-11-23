@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==========================================================
-# sway-record — Запись экрана под Wayland (wf-recorder)
+# sway-record — запись экрана под Wayland (wf-recorder)
 # ==========================================================
 # Использование: sway-record {full|region}
 #   full     весь экран
@@ -8,48 +8,100 @@
 #
 # Повторный вызов любого режима останавливает текущую запись:
 # wf-recorder корректно закрывает файл только по SIGINT.
+# Каждое состояние — уведомление: старт, отмена, ошибка (с кодом),
+# завершение или аварийное прерывание (тоже с кодом).
 #
-# Звук не пишется: быстрый клип тихий, запись со звуком — через OBS.
-# Кодек — VAAPI на amdgpu, у остальных (Intel, NVIDIA) libx264.
+# Кодек — libx264 на всех машинах. VAAPI убран: на Celeron он не
+# используется, а на AMD добавлял непроверенную ветку и риск
+# «упал — записи нет».
 # Файлы: <системные «Видео»>/Screencasts/YYYY-MM-DD_HH-MM-SS.mp4
 #        (ru_RU → ~/Видео/Screencasts, en_US → ~/Videos/Screencasts)
 # ==========================================================
 
 set -u
 
+SELF=$(readlink -f "$0")
+STATE_DIR=${XDG_RUNTIME_DIR:-/tmp}
+RC_FILE="$STATE_DIR/sway-record.rc"
+LOG_FILE="$STATE_DIR/sway-record.log"
+
+notify() { # $1 — urgency, $2 — заголовок, $3 — текст
+    local urgency=$1
+    if [ "$urgency" = critical ]; then
+        notify-send -a "Record" -u critical -t 0 "$2" "${3:-}"
+    else
+        notify-send -a "Record" -u low -t 3000 "$2" "${3:-}"
+    fi
+}
+
+die() { # $1 — код, $2 — заголовок, $3 — текст
+    notify critical "$2" "${3:-}"
+    printf '%s: %s\n' "$2" "${3:-}" >&2
+    exit "$1"
+}
+
+# --- Внутренний режим: wf-recorder в foreground, отчёт о завершении ---
+if [ "${1:-}" = --run ]; then
+    rc_file=$2
+    log_file=$3
+    file=$4
+    shift 4
+
+    wf-recorder "$@" >"$log_file" 2>&1
+    rc=$?
+    printf '%s\n' "$rc" > "$rc_file"
+
+    if [ "$rc" -eq 0 ] || [ "$rc" -eq 130 ]; then
+        notify low "Запись завершена (код $rc)" "$file"
+    else
+        notify critical "Запись прервана (код $rc)" "$file
+$(tail -n 2 "$log_file" 2>/dev/null)"
+    fi
+    exit "$rc"
+fi
+
 MODE="${1:-}"
 case "$MODE" in
     full|region) ;;
     *)
         echo "usage: $0 {full|region}" >&2
+        notify critical "Ошибка запуска" \
+            "Неизвестный режим: ${MODE:-<пусто>} (код 1)"
         exit 1
         ;;
 esac
 
 # --- Повторный вызов: остановить запись ---
 if pgrep -x wf-recorder >/dev/null; then
+    notify low "Запись" "Останавливаю..."
     pkill -INT -x wf-recorder
-    notify-send -a "Record" -u low -t 2000 "Запись" "Остановлена"
     exit 0
 fi
 
+# --- Зависимости ---
+for dep in wf-recorder swaymsg jq; do
+    command -v "$dep" >/dev/null || die 127 "Не найдено: $dep" "Код 127"
+done
+if [ "$MODE" = region ]; then
+    command -v slurp >/dev/null || die 127 "Не найдено: slurp" "Код 127"
+fi
+
 # --- Каталог ---
-# Записи лежат в подпапке Screencasts внутри системного каталога видео: его
-# имя зависит от локали (ru_RU → ~/Видео, en_US → ~/Videos), поэтому путь
-# спрашиваем у xdg-user-dir, а не хардкодим. Утилиты нет или каталог не
-# настроен (вернёт $HOME) — ~/Videos/Screencasts, как раньше.
+# Имя системного каталога видео зависит от локали (ru_RU → ~/Видео,
+# en_US → ~/Videos), поэтому путь спрашиваем у xdg-user-dir.
 VIDEOS=$(xdg-user-dir VIDEOS 2>/dev/null)
 [ -n "$VIDEOS" ] && [ "$VIDEOS" != "$HOME" ] || VIDEOS="$HOME/Videos"
 DIR="$VIDEOS/Screencasts"
-mkdir -p "$DIR"
+mkdir -p "$DIR" || {
+    rc=$?
+    die "$rc" "Не удалось создать каталог" "$DIR (код $rc)"
+}
 FILE="$DIR/$(date +%Y-%m-%d_%H-%M-%S).mp4"
 
-# --- Монитор для записи ---
-# Без -o wf-recorder спрашивает номер выхода в терминале. Под хоткеем
-# stdin/stdout перенаправлены, ответить некому — на мультимониторе запись
-# молча не стартует (на ноутбуке выход один, поэтому там не воспроизводится).
-# Для полного экрана берём монитор с фокусом, для области — тот, где она
-# начинается; wf-recorder пишет только один монитор за раз.
+# --- Монитор ---
+# Без -o wf-recorder спрашивает номер выхода в терминале; под хоткеем
+# отвечать некому, на мультимониторе запись молча не стартует.
+# Для full берём выход с фокусом, для region — тот, где начинается область.
 output_at() {
     swaymsg -t get_outputs -r 2>/dev/null | jq -r --argjson x "$1" --argjson y "$2" '
         .[] | select(.active)
@@ -63,39 +115,14 @@ focused_output() {
         jq -r '.[] | select(.active and .focused) | .name' 2>/dev/null | head -n 1
 }
 
-# --- Кодек: VAAPI только на amdgpu, остальные (Intel, NVIDIA) — libx264 ---
-# На Intel iGPU аппаратный путь h264_vaapi падает, поэтому он оставлен
-# только для проверенной связки amdgpu. Область и так всегда libx264:
-# VAAPI у AMD требует минимум 128x128, а slurp может дать меньше.
-amdgpu_render_node() {
-    local node
-    for node in /dev/dri/renderD*; do
-        [ -e "$node" ] || continue
-        if [ "$(basename "$(readlink -f "/sys/class/drm/$(basename "$node")/device/driver" 2>/dev/null)" 2>/dev/null)" = amdgpu ]; then
-            printf '%s' "$node"
-            return 0
-        fi
-    done
-    return 1
-}
-
-CODEC=(-c libx264)
-if [ "$MODE" = full ]; then
-    # Номер render-узла не фиксирован: на ПК с i5 + RX 7700 XT renderD128 —
-    # это Intel i915, а amdgpu получает renderD129. Поэтому узел ищем
-    # по драйверу, а не по номеру.
-    if VAAPI_DEV=$(amdgpu_render_node); then
-        CODEC=(-c h264_vaapi -d "$VAAPI_DEV" -F scale_vaapi=format=nv12)
-    fi
-fi
-
-ARGS=(-f "$FILE" "${CODEC[@]}")
-LABEL="весь экран"
-
-# --- Область: h264 требует чётных сторон, slurp может дать нечётные ---
 if [ "$MODE" = region ]; then
-    GEOM=$(slurp 2>/dev/null) || exit 1
-    [ -n "$GEOM" ] || exit 1
+    GEOM=$(slurp 2>/dev/null)
+    rc=$?
+    if [ "$rc" -ne 0 ]; then
+        notify low "Выделение отменено (код $rc)" ""
+        exit "$rc"
+    fi
+    [ -n "$GEOM" ] || die 1 "Пустая область" "Код 1"
 
     X=${GEOM%%,*}
     REST=${GEOM#*,}
@@ -103,18 +130,39 @@ if [ "$MODE" = region ]; then
     SIZE=${GEOM##* }
     W=${SIZE%x*}
     H=${SIZE#*x}
+    # H.264 4:2:0 требует чётных сторон; slurp может дать нечётные.
     W=$((W - W % 2))
     H=$((H - H % 2))
-    [ "$W" -ge 2 ] && [ "$H" -ge 2 ] || exit 1
+    [ "$W" -ge 2 ] && [ "$H" -ge 2 ] || die 1 "Область слишком мала" "Код 1"
 
-    ARGS+=(-g "$X,$Y ${W}x$H")
-    LABEL="область"
     OUTPUT=$(output_at "$X" "$Y")
+    [ -n "$OUTPUT" ] || die 1 "Не удалось определить монитор" "Код 1"
+    ARGS=(-f "$FILE" -c libx264 -o "$OUTPUT" -g "$X,$Y ${W}x$H")
+    LABEL="область"
 else
     OUTPUT=$(focused_output)
+    [ -n "$OUTPUT" ] || die 1 "Не удалось определить монитор" "Код 1"
+    ARGS=(-f "$FILE" -c libx264 -o "$OUTPUT")
+    LABEL="весь экран"
 fi
-# Выход не определился (нет jq/swaymsg) — оставляем выбор wf-recorder.
-[ -n "${OUTPUT:-}" ] && ARGS+=(-o "$OUTPUT")
 
-setsid wf-recorder "${ARGS[@]}" >/dev/null 2>&1 &
-notify-send -a "Record" -u low -t 2000 "Запись" "REC ($LABEL) → $FILE"
+# --- Запуск ---
+# setsid отвязывает запись от текущей сессии; --run — тот же скрипт,
+# который пишет код возврата и присылает уведомление о завершении.
+rm -f "$RC_FILE" "$LOG_FILE"
+setsid "$SELF" --run "$RC_FILE" "$LOG_FILE" "$FILE" "${ARGS[@]}" &
+sleep 1
+
+if pgrep -x wf-recorder >/dev/null; then
+    notify low "REC ($LABEL)" "$OUTPUT → $FILE"
+    exit 0
+fi
+
+# Не стартовало: --run уже должен был прислать ошибку с кодом.
+for _ in 1 2 3 4 5 6 7 8 9 10; do
+    [ -f "$RC_FILE" ] && break
+    sleep 0.1
+done
+[ -f "$RC_FILE" ] && exit 1
+
+die 1 "Не удалось запустить wf-recorder" "Код 1, лог: $LOG_FILE"
