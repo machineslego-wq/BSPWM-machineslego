@@ -82,7 +82,7 @@ BSPWM-machineslego/
 │   ├── picom/                   # picom.conf + picom-eco.conf
 │   ├── polybar/                 # config.ini, launch.sh
 │   ├── qt5ct/ qt6ct/            # tokyo-night.conf + tokyo-night-day.conf palettes
-│   ├── quickshell/shell/        # QML shell sources (not wired: waybar/wofi stay)
+│   ├── quickshell/shell/        # QML sources (not connected)
 │   ├── rofi/config.rasi         # launcher/windows/commands
 │   ├── swappy/config            # screenshot editor: saves to the Pictures folder
 │   ├── sway/config              # Sway session: borders, hotkeys, autostart

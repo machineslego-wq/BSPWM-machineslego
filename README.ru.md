@@ -81,7 +81,7 @@ BSPWM-machineslego/
 │   ├── picom/                   # picom.conf + picom-eco.conf
 │   ├── polybar/                 # config.ini, launch.sh
 │   ├── qt5ct/ qt6ct/            # палитры tokyo-night.conf + tokyo-night-day.conf
-│   ├── quickshell/shell/        # исходники QML-оболочки (не подключены: остаются waybar/wofi)
+│   ├── quickshell/shell/        # исходники QML (не подключены)
 │   ├── rofi/config.rasi         # лаунчер/окна/команды
 │   ├── swappy/config            # редактор скриншотов: сохранение в «Изображения»
 │   ├── sway/config              # сессия Sway: рамки, хоткеи, автозапуск
