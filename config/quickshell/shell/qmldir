@@ -4,6 +4,8 @@ singleton ShellState 1.0 ShellState.qml
 singleton Volume 1.0 Volume.qml
 singleton Brightness 1.0 Brightness.qml
 singleton InputState 1.0 InputState.qml
+singleton Hotspot 1.0 Hotspot.qml
+singleton Notify 1.0 Notify.qml
 
 Bar 1.0 Bar.qml
 BarButton 1.0 BarButton.qml
@@ -13,4 +15,5 @@ CalendarView 1.0 CalendarView.qml
 ControlCenter 1.0 ControlCenter.qml
 Launcher 1.0 Launcher.qml
 PowerMenu 1.0 PowerMenu.qml
+NotificationPopups 1.0 NotificationPopups.qml
 Overlay 1.0 Overlay.qml

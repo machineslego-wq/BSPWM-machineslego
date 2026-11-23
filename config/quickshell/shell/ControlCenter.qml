@@ -23,6 +23,23 @@ Item {
     focus: true
     Keys.onEscapePressed: ShellState.hide()
 
+    onVisibleChanged: {
+        Hotspot.watching = visible
+        if (visible) {
+            Hotspot.refresh()
+        } else {
+            root.pendingNetwork = null
+        }
+    }
+
+    // Пока центр управления открыт, сканируем сети.
+    Binding {
+        target: root.wifiDevice
+        property: "scannerEnabled"
+        value: root.visible && Networking.wifiEnabled
+        when: root.wifiDevice !== null
+    }
+
     // Клик по фону панели не должен закрывать оверлей:
     // перехватываем его до общего MouseArea в Overlay.
     MouseArea {
@@ -49,7 +66,7 @@ Item {
             if (a.known !== b.known) return a.known ? -1 : 1
             return b.signalStrength - a.signalStrength
         })
-        return networks.slice(0, 6)
+        return networks
     }
 
     property var pendingNetwork: null
@@ -276,7 +293,7 @@ Item {
                     }
                 }
 
-                // --- Быстрые переключатели ---
+                // --- Wi-Fi и хотспот ---
                 Card {
                     RowLayout {
                         Layout.fillWidth: true
@@ -285,6 +302,15 @@ Item {
                         CardTitle {
                             Layout.fillWidth: true
                             text: "󰖩 Wi-Fi"
+                        }
+
+                        Text {
+                            visible: Networking.wifiEnabled && root.wifiDevice
+                                && root.wifiNetworks.length > 0
+                            text: "найдено: " + root.wifiNetworks.length
+                            font.family: Theme.font
+                            font.pixelSize: 10
+                            color: Theme.muted
                         }
 
                         Toggle {
@@ -311,82 +337,160 @@ Item {
                         color: Theme.muted
                     }
 
-                    ColumnLayout {
+                    // --- Точка доступа ---
+                    RowLayout {
                         visible: Networking.wifiEnabled && root.wifiDevice
                         Layout.fillWidth: true
-                        spacing: 1
+                        spacing: 8
 
-                        Repeater {
-                            model: root.wifiNetworks
+                        Text {
+                            text: "󰖩"
+                            font.family: Theme.font
+                            font.pixelSize: 14
+                            color: Hotspot.active ? Theme.accent : Theme.muted
+                        }
 
-                            delegate: Rectangle {
-                                required property var modelData
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 0
 
-                                readonly property bool hovered: rowHover.hovered
+                            Text {
+                                text: "Хотспот"
+                                font.family: Theme.font
+                                font.pixelSize: 12
+                                color: Hotspot.active ? Theme.accent : Theme.fg
+                            }
 
+                            Text {
                                 Layout.fillWidth: true
-                                implicitHeight: 30
-                                radius: 4
-                                color: hovered ? Theme.bgMid : "transparent"
-
-                                HoverHandler { id: rowHover }
-
-                                MouseArea {
-                                    anchors.fill: parent
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: root.connectNetwork(modelData)
-                                }
-
-                                RowLayout {
-                                    anchors.fill: parent
-                                    anchors.leftMargin: 6
-                                    anchors.rightMargin: 6
-                                    spacing: 8
-
-                                    Text {
-                                        text: Util.wifiIcon(modelData.signalStrength)
-                                        font.family: Theme.font
-                                        font.pixelSize: 14
-                                        color: modelData.connected ? Theme.accent : Theme.fg
-                                    }
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: modelData.name
-                                        font.family: Theme.font
-                                        font.pixelSize: 12
-                                        color: modelData.connected ? Theme.accent : Theme.fg
-                                        elide: Text.ElideRight
-                                    }
-
-                                    Text {
-                                        visible: modelData.security !== WifiSecurityType.Open
-                                            && modelData.security !== WifiSecurityType.Owe
-                                        text: "󰌾"
-                                        font.family: Theme.font
-                                        font.pixelSize: 11
-                                        color: Theme.muted
-                                    }
-
-                                    Text {
-                                        visible: modelData.connected
-                                        text: "󰄬"
-                                        font.family: Theme.font
-                                        font.pixelSize: 12
-                                        color: Theme.success
-                                    }
-                                }
+                                text: Hotspot.busy ? "переключаю…"
+                                    : Hotspot.active
+                                        ? Hotspot.ssid + " · " + Hotspot.password
+                                        : "точка доступа"
+                                font.family: Theme.font
+                                font.pixelSize: 10
+                                color: Theme.muted
+                                elide: Text.ElideRight
                             }
                         }
 
-                        Text {
-                            visible: root.wifiNetworks.length === 0
-                            Layout.fillWidth: true
-                            text: "Сети не найдены"
-                            font.family: Theme.font
-                            font.pixelSize: Theme.smallSize
-                            color: Theme.muted
+                        Toggle {
+                            on: Hotspot.active
+                            onToggled: Hotspot.toggle()
                         }
+                    }
+
+                    Text {
+                        visible: Networking.wifiEnabled && root.wifiDevice
+                            && !Hotspot.active && Hotspot.lastError === ""
+                        Layout.fillWidth: true
+                        text: "Включение точки доступа отключает текущий Wi-Fi"
+                        font.family: Theme.font
+                        font.pixelSize: 10
+                        color: Theme.muted
+                    }
+
+                    Text {
+                        visible: Hotspot.lastError !== ""
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        maximumLineCount: 2
+                        elide: Text.ElideRight
+                        text: Hotspot.lastError
+                        font.family: Theme.font
+                        font.pixelSize: 10
+                        color: Theme.error
+                    }
+
+                    // --- Все сети ---
+                    ListView {
+                        id: wifiList
+
+                        visible: Networking.wifiEnabled && root.wifiDevice
+                            && root.wifiNetworks.length > 0
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: Math.min(
+                            root.wifiNetworks.length * 30 + 2, 240)
+                        clip: true
+                        spacing: 1
+                        model: root.wifiNetworks
+                        boundsBehavior: Flickable.StopAtBounds
+
+                        delegate: Rectangle {
+                            required property var modelData
+
+                            readonly property bool hovered: wifiHover.hovered
+
+                            width: wifiList.width
+                            height: 30
+                            radius: 4
+                            color: hovered ? Theme.bgMid : "transparent"
+
+                            HoverHandler { id: wifiHover }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: root.connectNetwork(modelData)
+                            }
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 6
+                                anchors.rightMargin: 6
+                                spacing: 8
+
+                                Text {
+                                    text: Util.wifiIcon(modelData.signalStrength)
+                                    font.family: Theme.font
+                                    font.pixelSize: 14
+                                    color: modelData.connected ? Theme.accent : Theme.fg
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: modelData.name
+                                    font.family: Theme.font
+                                    font.pixelSize: 12
+                                    color: modelData.connected ? Theme.accent : Theme.fg
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    text: Math.round(modelData.signalStrength * 100) + "%"
+                                    font.family: Theme.font
+                                    font.pixelSize: 10
+                                    color: Theme.muted
+                                }
+
+                                Text {
+                                    visible: modelData.security !== WifiSecurityType.Open
+                                        && modelData.security !== WifiSecurityType.Owe
+                                    text: "󰌾"
+                                    font.family: Theme.font
+                                    font.pixelSize: 11
+                                    color: Theme.muted
+                                }
+
+                                Text {
+                                    visible: modelData.connected
+                                    text: "󰄬"
+                                    font.family: Theme.font
+                                    font.pixelSize: 12
+                                    color: Theme.success
+                                }
+                            }
+                        }
+                    }
+
+                    Text {
+                        visible: Networking.wifiEnabled && root.wifiDevice
+                            && root.wifiNetworks.length === 0
+                        Layout.fillWidth: true
+                        text: "Поиск сетей…"
+                        font.family: Theme.font
+                        font.pixelSize: Theme.smallSize
+                        color: Theme.muted
                     }
                 }
 
@@ -506,6 +610,135 @@ Item {
                             font.family: Theme.font
                             font.pixelSize: Theme.smallSize
                             color: Theme.muted
+                        }
+                    }
+                }
+
+                // --- Уведомления ---
+                Card {
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 6
+
+                        CardTitle {
+                            Layout.fillWidth: true
+                            text: "󰂚 Уведомления"
+                        }
+
+                        BarButton {
+                            text: "DND"
+                            active: Notify.dnd
+                            pixelSize: 10
+                            horizontalPadding: 5
+                            onClicked: Notify.toggleDnd()
+                        }
+
+                        BarButton {
+                            visible: Notify.history.length > 0
+                            text: "Очистить"
+                            pixelSize: 10
+                            horizontalPadding: 5
+                            normalColor: Theme.muted
+                            onClicked: Notify.clearHistory()
+                        }
+                    }
+
+                    Text {
+                        visible: Notify.dnd
+                        Layout.fillWidth: true
+                        text: "Не беспокоить: всплывающие скрыты, история ведётся"
+                        font.family: Theme.font
+                        font.pixelSize: 10
+                        color: Theme.warning
+                    }
+
+                    Text {
+                        visible: Notify.history.length === 0
+                        Layout.fillWidth: true
+                        text: "История пуста"
+                        font.family: Theme.font
+                        font.pixelSize: Theme.smallSize
+                        color: Theme.muted
+                    }
+
+                    ListView {
+                        id: historyList
+
+                        visible: Notify.history.length > 0
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: Math.min(
+                            Notify.history.length * 38, 228)
+                        clip: true
+                        spacing: 1
+                        model: Notify.history
+                        boundsBehavior: Flickable.StopAtBounds
+
+                        delegate: Rectangle {
+                            id: historyRow
+
+                            required property var modelData
+
+                            readonly property bool hovered: historyHover.hovered
+
+                            width: historyList.width
+                            height: 36
+                            radius: 4
+                            color: hovered ? Theme.bgMid : "transparent"
+
+                            HoverHandler { id: historyHover }
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 4
+                                anchors.rightMargin: 4
+                                spacing: 6
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 0
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 6
+
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: modelData.appName !== ""
+                                                ? modelData.appName : "—"
+                                            font.family: Theme.font
+                                            font.pixelSize: 9
+                                            color: Theme.muted
+                                            elide: Text.ElideRight
+                                        }
+
+                                        Text {
+                                            text: Util.timeText(modelData.time)
+                                            font.family: Theme.font
+                                            font.pixelSize: 9
+                                            color: Theme.muted
+                                        }
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData.summary
+                                            + (modelData.body !== ""
+                                                ? " — " + modelData.body : "")
+                                        font.family: Theme.font
+                                        font.pixelSize: 11
+                                        color: modelData.urgency >= 2
+                                            ? Theme.error : Theme.fg
+                                        elide: Text.ElideRight
+                                    }
+                                }
+
+                                BarButton {
+                                    text: "󰅖"
+                                    pixelSize: 11
+                                    horizontalPadding: 4
+                                    onClicked: Notify.removeHistory(historyRow.modelData)
+                                }
+                            }
                         }
                     }
                 }
@@ -747,11 +980,6 @@ Item {
                 }
             }
         }
-    }
-
-    onVisibleChanged: {
-        if (!visible)
-            root.pendingNetwork = null
     }
 
     // ======================================================
