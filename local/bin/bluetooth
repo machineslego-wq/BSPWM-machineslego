@@ -13,13 +13,13 @@ case "${1:-}" in
     off) bluetoothctl power off >/dev/null 2>&1; exit 0 ;;
 esac
 
-command -v bluetoothctl >/dev/null || { echo "󰂲 DISABLED"; exit 0; }
+command -v bluetoothctl >/dev/null || { echo "%{F#565f89}󰂲 DISABLED%{F-}"; exit 0; }
 
 INFO=$(timeout 2 bluetoothctl show 2>/dev/null)
 if [ -z "$INFO" ]; then
-    echo "󰂲 DISABLED"
+    echo "%{F#565f89}󰂲 DISABLED%{F-}"
 elif ! grep -q 'Powered: yes' <<< "$INFO"; then
-    echo "󰂲 OFF"
+    echo "%{F#565f89}󰂲 OFF%{F-}"
 else
     COUNT=$(timeout 2 bluetoothctl devices Connected 2>/dev/null | grep -c '^Device ')
     if [ "$COUNT" -gt 0 ]; then

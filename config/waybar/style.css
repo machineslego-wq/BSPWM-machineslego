@@ -204,7 +204,7 @@ window#waybar.hidden {
 
 /* --- Сеть --- */
 #network.disconnected {
-    color: @alert;
+    color: @disabled;
 }
 
 /* --- Звук --- */
