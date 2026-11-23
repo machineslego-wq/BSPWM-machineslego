@@ -184,7 +184,7 @@ bindsym --to-code $mod+Shift+c reload
 bindsym --to-code $mod+Alt+l exec swaylock -f
 
 # Меню питания: блокировка / выключить / выйти / перезагрузить.
-bindsym --to-code $mod+Shift+q exec wofi-powermenu
+bindsym --to-code $mod+Shift+q exec powermenu wofi
 
 # Выход из Sway с подтверждением.
 bindsym --to-code $mod+Shift+e exec swaynag -t warning \

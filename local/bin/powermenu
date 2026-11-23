@@ -1,30 +1,40 @@
 #!/bin/bash
 # ==========================================================
-# powermenu — Меню питания (Rofi)
+# powermenu — Меню питания в rofi (BSPWM) или wofi (Sway)
 # ==========================================================
-# При вызове сразу открывает меню выбора действия.
+# Использование: powermenu {rofi|wofi}
+# Один список действий: блокировка, выключение, выход, перезагрузка.
+# Блокировка — i3lock-fancy/swaylock, выход — bspc quit/swaymsg exit.
 # ==========================================================
 
-# --- МЕНЮ ВЫБОРА ---
-# Блокировка, Выключить и Выйти сверху, Перезагрузить внизу
-CHOICE=$(printf "󰌾 Заблокировать\n󰐥 Выключить\n󰍃 Выйти\n󰜉 Перезагрузить" | \
-    rofi -dmenu -p "󰤆 Питание" -theme-str 'window {width: 17em;} listview {lines: 4;}')
+set -u
 
-# Если нажали Esc (меню закрылось пустым) — выходим
+case "${1:-}" in
+    rofi)
+        menu() { rofi -dmenu -p "󰤆 Питание" \
+                    -theme-str 'window {width: 17em;} listview {lines: 4;}'; }
+        lock() { i3lock-fancy -p; }
+        quit_session() { bspc quit; }
+        ;;
+    wofi)
+        menu() { wofi --dmenu --cache-file /dev/null --insensitive \
+                    --prompt "󰤆 Питание" --width 340; }
+        lock() { swaylock -f; }
+        quit_session() { swaymsg exit; }
+        ;;
+    *)
+        echo "usage: $0 {rofi|wofi}" >&2
+        exit 1
+        ;;
+esac
+
+CHOICE=$(printf '󰌾 Заблокировать\n󰐥 Выключить\n󰍃 Выйти\n󰜉 Перезагрузить' | menu)
 [ -z "$CHOICE" ] && exit 0
 
-# --- ЛОГИКА (БЕЗ ПОДТВЕРЖДЕНИЯ) ---
+# Без подтверждения: меню и есть подтверждение.
 case "$CHOICE" in
-    *"Заблокировать"*)
-        sleep 0.5 && i3lock-fancy -p
-        ;;
-    *"Выключить"*)
-        systemctl poweroff
-        ;;
-    *"Выйти"*)
-        bspc quit
-        ;;
-    *"Перезагрузить"*)
-        systemctl reboot
-        ;;
+    *"Заблокировать"*) sleep 0.3; lock ;;
+    *"Выключить"*)     systemctl poweroff ;;
+    *"Выйти"*)         quit_session ;;
+    *"Перезагрузить"*) systemctl reboot ;;
 esac

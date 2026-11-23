@@ -30,7 +30,7 @@ super + alt + shift + r
 
 # Меню питания (Super + Shift + Q)
 super + shift + q
-    powermenu
+    powermenu rofi
 
 # Заблокировать экран (Super + Alt + L)
 super + alt + l

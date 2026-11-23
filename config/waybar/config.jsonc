@@ -9,8 +9,8 @@
 //
 // Модули rofi (powermenu, power-profile, wifi) здесь не используются:
 // под Wayland rofi не работает. Профиль питания показывает родной
-// модуль power-profiles-daemon, меню на wofi — wifi wofi и
-// wofi-powermenu (кнопка питания справа).
+// модуль power-profiles-daemon, меню на wofi — wifi wofi, battery wofi,
+// powermenu wofi (кнопка питания справа).
 // ==========================================================
 
 {
@@ -66,11 +66,11 @@
         "on-click": "wofi --show drun"
     },
 
-    // Кнопка питания (wofi-powermenu)
+    // Кнопка питания (powermenu wofi)
     "custom/powermenu": {
         "format": "󰐥",
         "tooltip": false,
-        "on-click": "wofi-powermenu"
+        "on-click": "powermenu wofi"
     },
 
     // --- Caps Lock / Num Lock / Scroll Lock ---
