@@ -89,6 +89,17 @@ input "type:touchpad" {
 # Курсор тот же, что выставляет sway-session.
 seat seat0 xcursor_theme Bibata-Modern-Ice 24
 
+### Столы на мониторах
+#
+# Карта столов зависит от хоста, а условий по hostname в конфиге Sway нет:
+# поэтому файл готовит sway-session до запуска Sway и подключает его здесь.
+# Это важно и по времени: `workspace <n> output <выход>` действует только
+# на столы, которых ещё нет, поэтому привязка должна быть известна до
+# создания первых; из exec_always она опаздывает.
+# На ПК в файле 1–7 → DP-2 и 8–10 → HDMI-A-4, на ноутбуках и нетбуках он
+# пуст — работают значения Sway по умолчанию (столы на текущем выходе).
+include ~/.cache/sway/workspaces.conf
+
 ### Автозапуск
 #
 # Окружение сессии → systemd/dbus. От этого зависят порталы (ScreenCast,
@@ -99,9 +110,15 @@ seat seat0 xcursor_theme Bibata-Modern-Ice 24
 exec sh -c 'command -v dbus-update-activation-environment >/dev/null && dbus-update-activation-environment --systemd --all'
 
 # Мониторы и обои. У Sway нет условий по hostname, поэтому ветвление
-# (lamer-deb: DisplayPort-1 + повёрнутый HDMI-A-3) живёт в скрипте.
+# (lamer-deb: DP-2 + повёрнутый HDMI-A-4) живёт в скрипте.
 # exec_always — раскладка переприменяется и при reload.
 exec_always sway-display
+
+# Стартовый фокус — на основном столе. Sway делает активным стол,
+# который создал первым; у нас это может быть HDMI-A-4 со столом 8.
+# exec (не exec_always) выполняется только при запуске: reload не дёргает
+# фокус.
+exec swaymsg workspace number 1
 
 # Панель, уведомления, polkit, bluetooth. pgrep — чтобы reload не плодил дубли.
 exec_always pgrep -x waybar >/dev/null || waybar

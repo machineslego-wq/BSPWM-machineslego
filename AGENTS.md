@@ -17,6 +17,7 @@
 | `requirements/*.txt` | списки пакетов | читают `scripts/*.sh` |
 | `screenshots/`, `wallpapers/`, `themes/` | картинки для README и темы Telegram | — |
 | `README.md`, `README.ru.md` | публичная документация | — |
+| `DEVICES.md` | железо, мониторы и ветки конфигов трёх машин (внутренний справочник) | — |
 | `TODO.md` | блокнот: план, «Отвергнуто», ограничения | — |
 | `RELEASE.md` | заметки только к текущему релизу | — |
 
@@ -105,8 +106,8 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - Оформление: `default_border pixel 2` и `default_floating_border pixel 2` (заголовков нет), `gaps inner/outer 0`, `smart_borders on`. В режиме `pixel` рамку рисует `child_border`, поэтому он продублирован в каждом `client.*`. `client.focused #6b8dd6`, `client.unfocused`/`focused_inactive` — `#1a1b26`.
 - **Все `bindsym` — с `--to-code`.** Без флага keysym привязан к текущей раскладке и в RU-режиме не срабатывает.
 - Раскладка `us,ru` + `grp:caps_toggle`, автоповтор 250/30 — через `input "type:keyboard"`; тачпад — `tap`, `dwt`, `natural_scroll enabled`.
-- `local/bin/sway-session` — обёртка вместо `sway`: PATH, `XDG_*`, курсор Bibata 24, Qt (`qt6ct`, `QT_QPA_PLATFORM="wayland;xcb"`), GTK (`GDK_BACKEND=wayland,x11`), `SAL_USE_VCLPLUGIN=gtk3`, `MOZ_ENABLE_WAYLAND`, Electron, Java; затем `exec sway "$@"`. `home/xinitrc`/`xprofile` под Wayland не выполняются.
-- `local/bin/sway-display` — мониторы, обои и привязка столов к выходам (`workspace ${ws} output <выход>`). В конфиге Sway нет hostname-условий: ветка `lamer-deb` (`DP-2` + `HDMI-A-4` с `transform 90`, столы 1–7 → `DP-2`, 8–10 → `HDMI-A-4`) и фолбэк ноутбука живут в скрипте. Имена выходов wlroots ≠ X11: `DisplayPort-1`/`HDMI-A-3` → `DP-2`/`HDMI-A-4`. Вызывается как `exec_always`; обои ставит сам Sway через `output ... bg`.
+- `local/bin/sway-session` — обёртка вместо `sway`: PATH, `XDG_*`, курсор Bibata 24, Qt (`qt6ct`, `QT_QPA_PLATFORM="wayland;xcb"`), GTK (`GDK_BACKEND=wayland,x11`), `SAL_USE_VCLPLUGIN=gtk3`, `MOZ_ENABLE_WAYLAND`, Electron, Java; перед запуском пишет карту столов в `~/.cache/sway/workspaces.conf` (ПК — 1–7 → `DP-2`, 8–10 → `HDMI-A-4`; ноутбук/нетбук — пустой файл), её подключает `config/sway/config`; затем `exec sway "$@"`. Карта нужна до старта: `workspace <n> output <выход>` действует только на ещё не созданные столы. `home/xinitrc`/`xprofile` под Wayland не выполняются.
+- `local/bin/sway-display` — мониторы, геометрия и обои; вызывается как `exec_always`. В конфиге Sway нет hostname-условий: ветка `lamer-deb` (`DP-2` + `HDMI-A-4` с `transform 90`) и фолбэк ноутбука живут здесь. Привязку столов см. в `sway-session`; `exec swaymsg workspace number 1` в конфиге задаёт стартовый фокус и при reload не повторяется. Имена выходов wlroots ≠ X11: `DisplayPort-1`/`HDMI-A-3` → `DP-2`/`HDMI-A-4`. Обои ставит сам Sway через `output ... bg`.
 - Автозапуск — `exec_always pgrep -x <имя> >/dev/null || <имя>` для waybar, mako, lxpolkit: reload не плодит дубли. `swayidle`: 10 минут и `before-sleep` → `swaylock -f`. `wl-paste --watch cliphist -max-items 100 store` — под таким же стражем. EasyEffects — обычный `exec` (при reload не повторяется).
 - Хоткеи: `$mod+Return` foot, `$mod+d` `wofi --show drun`, `$mod+/` `sway-cheatsheet`, `$mod+F1..F4`/`$mod+Shift+S` скриншоты, `$mod+Shift+A` редактор, `$mod+Shift+R` запись всего экрана, `$mod+Shift+Alt+R` области, `$mod+Shift+V` буфер, `$mod+Escape`/`$mod+Shift+C` reload, `$mod+w` kill, `$mod+Alt+L` lock, `$mod+Alt+N` `wifi wofi`, `$mod+Alt+B` `battery wofi`, `$mod+Shift+Q` powermenu, `$mod+Shift+E` `swaynag`. Полный список — `sway-cheatsheet`. Профиль питания переключается кликом по модулю PPD в waybar (отдельного меню нет).
 
@@ -195,10 +196,26 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - Аудио — PipeWire + WirePlumber (`pipewire`, `pipewire-audio`, `pipewire-pulse`, `wireplumber`). `pactl` в системе нет: громкость и mute — `wpctl`.
 - `requirements/apt-system.txt` (`power-profiles-daemon`, `flatpak`) читает `install.sh`; TLP при наличии удаляется, чтобы не конфликтовать с PPD.
 
+## Устройства
+
+Три основные машины — в `DEVICES.md`: hostname, железо, мониторы, X11/Sway-имена
+выходов, ОС и диски. Кратко: `lamer-deb` — ПК с двумя мониторами (`DP-2` справа,
+повёрнутый `HDMI-A-4` слева), Debian 13 GNOME, план — KDE; `lx15pro-deb` —
+ноутбук NIPOGI LX15 Pro (Ryzen 5 7430U); нетбук — Acer TravelMate B3
+(Celeron N4120, hostname снять на месте). На всех Debian 13 и пользователь
+`nikita`; backports включены на ноутбуке и нетбуке, на ПК — нет (Docker,
+стабильность). Ноутбук и нетбук — одноэкранные, попадают в ветку по умолчанию.
+Всё hostname-специфичное — только в `bspwmrc`, `sway-session`
+(`~/.cache/sway/workspaces.conf`) и `sway-display`; в конфигах Sway условий
+нет. Не хватает данных — снимать с устройства командами из `DEVICES.md`
+(`hostname`, `swaymsg -t get_outputs`, `xrandr`, `dmidecode`, `lsblk`),
+а не спрашивать.
+
 ## Персонализация
 
-- Hostname-ветки: `config/bspwm/bspwmrc` (OpenRGB и раскладка мониторов — только `lamer-deb`), `local/bin/sway-display` (`lamer-deb`).
-- Имена мониторов: `DisplayPort-1`/`HDMI-A-3` в X11, `DP-2`/`HDMI-A-4` в Sway (в `sway-display` и `swaylock`).
+- Hostname-ветки: `config/bspwm/bspwmrc` (OpenRGB и раскладка мониторов — только `lamer-deb`), `local/bin/sway-session` (карта столов), `local/bin/sway-display` (`lamer-deb`).
+- Имена хостов: ПК `lamer-deb`, ноутбук `lx15pro-deb`; нетбук TravelMate — имя снять `hostname`, в конфигах он попадает в ветку по умолчанию. Пользователь везде `nikita`.
+- Имена мониторов: `DisplayPort-1`/`HDMI-A-3` в X11, `DP-2`/`HDMI-A-4` в Sway (в `sway-session`/`~/.cache/sway/workspaces.conf`, `sway-display` и `swaylock`).
 - Обои: пути в `bspwmrc` — `$HOME/BSPWM-machineslego/wallpapers/`; клон в другом каталоге ломает обои. Выборщика нет и не будет.
 
 ## Устаревшее и служебное

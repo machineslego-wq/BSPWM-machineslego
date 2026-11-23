@@ -3,7 +3,8 @@
 # sway-session — Запуск Sway с окружением из дотфайлов
 # ==========================================================
 # Заменяет home/xinitrc и home/xprofile для Wayland: выставляет
-# PATH, темы Qt/GTK, курсор, переменные XDG-сессии и запускает sway.
+# PATH, темы Qt/GTK, курсор, переменные XDG-сессии, готовит карту
+# столов по hostname и запускает sway.
 # В systemd/dbus окружение прокидывает config/sway/config — от этого
 # зависят порталы (ScreenCast, файловые диалоги Flatpak).
 #
@@ -76,5 +77,28 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 # Маска создаёт ~/.config/systemd/user/waybar.service -> /dev/null.
 # Это блокирует и vendor-версию, и любые попытки enable.
 systemctl --user mask waybar.service mako.service lxpolkit.service 2>/dev/null || true
+
+# --- Столы на мониторах ---
+# Sway не умеет условий по hostname, а `workspace <n> output <выход>`
+# должен попасть в конфиг до создания первых столов (из exec_always это
+# поздно). Поэтому карта готовится здесь и подключается из config/sway/config.
+# ПК: 1–7 на основной DP-2 (справа), 8–10 на HDMI-A-4 (слева).
+# Ноутбук (`lx15pro-deb`) и нетбук (TravelMate): файл пустой — Sway создаёт
+# столы на текущем выходе, то есть все десять на одном экране, как ветка
+# else в bspwmrc.
+workspaces_conf="$HOME/.cache/sway/workspaces.conf"
+mkdir -p "${workspaces_conf%/*}"
+if [ "$(hostname)" = "lamer-deb" ]; then
+    {
+        for ws in 1 2 3 4 5 6 7; do
+            echo "workspace $ws output DP-2"
+        done
+        for ws in 8 9 10; do
+            echo "workspace $ws output HDMI-A-4"
+        done
+    } > "$workspaces_conf"
+else
+    : > "$workspaces_conf"
+fi
 
 exec sway "$@"
