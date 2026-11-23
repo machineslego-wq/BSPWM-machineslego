@@ -2,53 +2,39 @@
 # ==========================================================
 # power-profile — профиль питания: статус для polybar и меню rofi
 # ==========================================================
-# Без аргументов — текущий профиль (polybar читает его каждые 30 с).
-# --menu — выбор профиля; после смены Picom перезапускается с нужным
-# конфигом: в eco-режиме анимации и тени выключены.
+# Без аргументов — текущий профиль (polybar опрашивает раз в 60 с).
+# --menu — выбор профиля: Picom перезапускается с нужным конфигом,
+# Polybar — чтобы сразу обновить значок, плюс уведомление.
 # ==========================================================
 
-# $1 — профиль PPD, $2 — конфиг Picom, $3 — заголовок, $4 — описание.
-apply_profile() {
-    if ! powerprofilesctl set "$1" 2>/dev/null; then
-        notify-send -u critical -a "Power" "Ошибка" \
-            "Профиль $1 недоступен на этом железе"
-        return 1
-    fi
+if [ "${1:-}" != "--menu" ]; then
+    case "$(powerprofilesctl get 2>/dev/null)" in
+        performance) echo "󰓅 PERF" ;;
+        balanced)    echo "󰒓 BAL"  ;;
+        power-saver) echo "󰾆 ECO"  ;;
+        *)           echo "󰒓 ?"    ;;
+    esac
+    exit 0
+fi
 
-    pkill -x picom
-    sleep 0.2
-    picom --config "$HOME/.config/picom/$2" &
-    notify-send -u low -a "Power" "$3" "$4"
-}
+CHOICE=$(printf '󰓅 Performance\n󰒓 Balanced\n󰾆 Power Saver (No anim & shadows)' |
+    rofi -dmenu -p "Профиль питания" \
+        -theme-str 'window {width: 20em;} listview {lines: 3;}')
 
-case "${1:-}" in
-    --menu)
-        CHOICE=$(printf '󰓅 Performance\n󰒓 Balanced\n󰾆 Power Saver (No anim & shadows)' |
-            rofi -dmenu -p "Профиль питания" \
-                -theme-str 'window {width: 20em;} listview {lines: 3;}')
-
-        case "$CHOICE" in
-            *Performance*)
-                apply_profile performance picom.conf \
-                    "Режим Performance" "Максимальная производительность, анимации включены."
-                ;;
-            *Balanced*)
-                apply_profile balanced picom.conf \
-                    "Режим Balanced" "Сбалансированный режим, анимации включены."
-                ;;
-            *"Power Saver"*)
-                apply_profile power-saver picom-eco.conf \
-                    "Режим Eco" "Энергосбережение, анимации и тени отключены."
-                ;;
-        esac
-        ;;
-    *)
-        PROFILE=$(powerprofilesctl get 2>/dev/null)
-        case "$PROFILE" in
-            performance) echo "󰓅 PERF" ;;
-            balanced)    echo "󰒓 BAL"  ;;
-            power-saver) echo "󰾆 ECO"  ;;
-            *)           echo "󰒓 ${PROFILE:-?}" ;;
-        esac
-        ;;
+case "$CHOICE" in
+    *Performance*)   profile=performance; conf=picom.conf;     label=Performance ;;
+    *Balanced*)      profile=balanced;    conf=picom.conf;     label=Balanced    ;;
+    *"Power Saver"*) profile=power-saver; conf=picom-eco.conf; label=Eco         ;;
+    *)               exit 0 ;;
 esac
+
+if ! powerprofilesctl set "$profile" 2>/dev/null; then
+    notify-send -u critical -a "Power" "Профиль $profile недоступен"
+    exit 1
+fi
+
+pkill -x picom
+sleep 0.2
+picom --config "$HOME/.config/picom/$conf" &
+notify-send -u low -a "Power" "Режим: $label"
+command -v polybar-msg >/dev/null && polybar-msg cmd restart 2>/dev/null

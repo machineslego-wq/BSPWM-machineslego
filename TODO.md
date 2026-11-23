@@ -25,7 +25,7 @@
 |---|---:|---|---|
 | `wifi` | ~100 | упрощён | один скрипт `wifi {rofi\|wofi}` — сделано |
 | `battery` | ~55 | упрощён | один скрипт `battery {rofi\|wofi}` — сделано |
-| `power-profile` | ~40 | упрощён | функция `apply_profile`, `interval` 30 — сделано |
+| `power-profile` | ~40 | упрощён | один блок `set` → picom → notify → restart panel — сделано |
 | `powermenu` + `wofi-powermenu` | 67 | нормально | не трогать |
 | `dunst-history` | 16 | нормально | не трогать |
 | `screenshot` + `sway-screenshot` | 177 | нормально | подрезать `window` |
@@ -41,7 +41,7 @@
 
 **Сделано:** один `local/bin/wifi` с аргументом `rofi`/`wofi` — меню и терминал (`alacritty`/`foot`) выбираются в одном `case`. Таблица интерфейсов убрана: `nmcli device wifi hotspot` сам выбирает адаптер. Список сетей — `󰤨 | SSID` (`nmcli -t --escape no -f SIGNAL,SSID` + `read` с `IFS=:`; SSID — весь остаток после первого `:`, поэтому двоеточие в имени не ломает строку; иконку уровня даёт `signal_icon`, при выборе `${SSID#*| }` срезает иконку вместе с разделителем). Хотспот выключается `nmcli connection down Hotspot`. `wofi-wifi` удалён, хоткеи и waybar зовут `wifi rofi` / `wifi wofi`.
 
-**`power-profile` (было 71 строка).** Три копии блока «`powerprofilesctl set` → `restart_picom` → `notify-send`» сведены в одну функцию `apply_profile профиль конфиг заголовок описание`, вызовы — по строке. В polybar `interval` поднят с 5 до 30 с: профиль меняется вручную, 17 000 запусков в сутки не нужны. В Sway скрипт не нужен — профиль переключает модуль `power-profiles-daemon` в waybar.
+**`power-profile` (было 71 строка).** Три копии блока «`powerprofilesctl set` → `restart_picom` → `notify-send`» сведены в один блок: меню задаёт `profile`/`conf`/`label`, дальше `set`, перезапуск Picom, уведомление и `polybar-msg cmd restart`. Панель перезапускается только при смене профиля и сразу показывает новый значок, поэтому `interval` — 60 с, лишь для внешних изменений (battery-aware, ручной `set`). Hook у `custom/script` нет, но он и не нужен. В Sway скрипт не нужен — профиль переключает модуль `power-profiles-daemon` в waybar.
 
 **Что не трогаем.** `powermenu`/`wofi-powermenu` различаются тремя строками (меню, `i3lock-fancy`/`swaylock`, `bspc quit`/`swaymsg exit`) — склейка потребует детекта сессии ради ~20 строк, не окупается. `dunst-history` — 16 строк `dunstctl history | jq | rofi`. `screenshot`/`sway-screenshot` — разница платформ (`maim`/`grim`, CopyQ/`wl-copy`, `slurp`/jq), пропорциональна. `sway-record` — сложность оправдана мультимонитором, `SIGINT` и чётными сторонами области. `sway-display` — ретрай IPC при старте, без него `exec_always` срабатывает раньше готовности Sway. `sway-session` — переменные окружения. `wpctl-volume`, `wofi-clipboard`, `session-restart` — мелкие и по делу. Шпаргалки — данные, не код.
 
@@ -64,7 +64,7 @@
 
 **Шпаргалки.** Данные, а не код: 169 строк статического текста. Ценность максимальная (обнаружимость), единственная цена — дрейф: строки в `sxhkdrc` и `sway/config` добавляются руками, а `rice-check` их не сверяет. Добавить в `rice-check` проверку «каждая клавиша из конфига есть в шпаргалке» (с поправкой на brace-раскладку `super + {a,b}`).
 
-**`power-profile`.** В Sway профиль переключает родной модуль PPD в waybar — скрипт там не нужен. В BSPWM альтернативы нет (в polybar нет модуля PPD), поэтому меню оставлено, но переписано: одна функция на три профиля и `interval` 30 с. На стационаре разница между профилями меньше — модуль можно скрыть, если он не нужен.
+**`power-profile`.** В Sway профиль переключает родной модуль PPD в waybar — скрипт там не нужен. В BSPWM альтернативы нет (в polybar нет модуля PPD), поэтому меню оставлено, но переписано: меню задаёт параметры, дальше один блок `set` → Picom → notify → restart панели; `interval` 60 с — только для внешних смен. На стационаре разница между профилями меньше — модуль можно скрыть, если он не нужен.
 
 **Wi-Fi.** Сток умеет всё (`nmcli`, `nmtui`, `nm-connection-editor`), но `nmtui` — целый TUI ради одного клика. Ценность меню — один клик по панели/хоткею и тема. Две копии по 150 строк сведены в один `wifi {rofi|wofi}`; радикальный вариант с `nmtui` не понадобился.
 
@@ -75,7 +75,7 @@
 ### ✅ Сделано
 
 - [x] **Батарея — один скрипт на обе сессии.** `local/bin/battery {rofi|wofi}`: в BSPWM — rofi (24em, 6 строк), в Sway — wofi (`dynamic_lines`), без `--lines`. Общий `upower`-блок и заглушка «Нет данных» в одном месте; `wofi-battery` удалён, хоткей Sway зовёт `battery wofi`, ПКМ по модулю батареи в waybar — тоже. ~55 строк вместо 87.
-- [x] **`power-profile` — одна функция вместо трёх копий.** `apply_profile профиль конфиг заголовок описание`: `powerprofilesctl set`, перезапуск Picom с нужным профилем (`picom.conf` / `picom-eco.conf`), уведомление; ошибка — одно сообщение. В polybar `interval` 5 → 30 с. ~40 строк вместо 71.
+- [x] **`power-profile` — один блок вместо трёх копий.** Меню задаёт `profile`/`conf`/`label`, дальше `powerprofilesctl set`, перезапуск Picom с нужным конфигом (`picom.conf` / `picom-eco.conf`), уведомление и `polybar-msg cmd restart` — значок обновляется сразу. `interval` 60 с нужен только для внешних смен профиля. ~40 строк вместо 71.
 - [x] **`volume` → `wpctl-volume`.** Имя говорит, чем управляет команда: `wpctl` (PipeWire), а не «громкость вообще». Общий для обеих сессий, поэтому в `sxhkdrc` и `config/sway` вызовы заменены на `wpctl-volume up/down/mute`; старая ссылка `~/.local/bin/volume` удалена. `battery`/`wifi` остались без префиксов — там имя описывает действие, а бэкенд (`upower`, `nmcli`) указан в шапке.
 - [x] **Wi-Fi — один скрипт на обе сессии.** `local/bin/wifi {rofi|wofi}`: в BSPWM — `rofi` + `alacritty`, в Sway — `wofi` + `foot`; выбираются одним `case`, без копий. Таблица интерфейсов по hostname убрана (`nmcli` сам выбирает адаптер), список сетей — `󰤨 | SSID` (`nmcli -t --escape no -f SIGNAL,SSID` + `read` с `IFS=:`, иконка из `signal_icon`, срезает её `${SSID#*| }`); хотспот выключается `nmcli connection down Hotspot`, а не перезагрузкой адаптера. `wofi-wifi` удалён; хоткеи зовут `wifi rofi` (Super+Alt+N) и `wifi wofi` (`$mod+Alt+N`), ПКМ по модулю сети в waybar — `wifi wofi`. ~100 строк вместо 301.
 - [x] **Баги в скриптах (ревизия `local/bin`).** `vhost-remove`: имя домена валидируется, `rm -rf` не уходит за `/var/www/html` (ввод `..` отклоняется), из `/etc/hosts` удаляется только строка `127.0.0.1 <домен>` — прежний `sed "/домен/d"` вырезал комментарии и чужие записи. `vhost-add`: подсказка `vhost-remove` вместо `vhost-rm`, мёртвый `REAL_USER`/`REAL_HOME` убран в обоих. `mount-nas`: нет `chown` после `mount` (он трогал корень шары на сервере). `battery`: `fully-charged` (именно его отдаёт этот ноут — строка «Статус» пропадала), выбор `battery_BAT*` вместо первой `/battery_` (иначе ловится батарея мыши), заглушка при пустом выводе меню. `yacht`: порт 8001 (8000 занят `vllm-setup`) и внятная ошибка, если нет доступа к Docker. `rice-check`: проверка картинок README видит `.webp` (была мёртвой). `openrgb-i2c-fix` и `sddm-avatar` не тронуты — см. «Отвергнуто».
