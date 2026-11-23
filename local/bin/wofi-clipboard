@@ -11,7 +11,9 @@
 
 set -u
 
-LIST=$(cliphist list 2>/dev/null)
+# cliphist обрезает превью по байтам и может разрезать UTF-8;
+# iconv -c выбрасывает неполные последовательности, иначе Pango ругается.
+LIST=$(cliphist list 2>/dev/null | iconv -f UTF-8 -t UTF-8 -c)
 if [ -z "$LIST" ]; then
     notify-send -a "Clipboard" -u low "Буфер" "История пуста"
     exit 0

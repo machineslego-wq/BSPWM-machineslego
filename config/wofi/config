@@ -24,11 +24,12 @@ filter_rate=100
 matching=fuzzy
 key_expand=Tab
 
-# Внешний вид списка. allow_markup нужен sway-cheatsheet:
-# подсказки там написаны цветом фона.
+# Внешний вид списка. allow_markup глобально выключен: иначе меню
+# с текстом, содержащим <...> (clipboard), ругается Pango.
+# sway-cheatsheet включает разметку сам флагом --allow-markup.
 allow_images=true
 image_size=22
-allow_markup=true
+allow_markup=false
 hide_scroll=true
 
 # Окно подстраивается под число пунктов, но dynamic_lines работает только

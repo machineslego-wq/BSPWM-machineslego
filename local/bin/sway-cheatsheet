@@ -2,16 +2,37 @@
 # ==========================================================
 # sway-cheatsheet — Шпаргалка горячих клавиш Sway
 # ==========================================================
-# Аналог cheatsheet-bspwm, но меню рисует wofi (rofi — X11).
+# Аналог cheatsheet-bspwm, но меню по умолчанию рисует wofi.
+# Запасной бэкенд — rofi (работает через XWayland), если wofi
+# перестанет обновляться или сломается.
 # Тот же приём со скрытыми тегами: строка-описание написана цветом
 # фона, поэтому не видна, но находится поиском.
 #
-# Вызов: Super + / в Sway
+# Вызов: Super + / в Sway (wofi); вручную: sway-cheatsheet [wofi|rofi]
 # Список должен совпадать с config/sway/config.
 # ==========================================================
 
-cat <<EOF | wofi --dmenu --allow-markup --cache-file /dev/null \
-    --prompt "󰌌 Горячие клавиши" --width 960 --height 650
+case "${1:-wofi}" in
+    wofi)
+        menu() {
+            wofi --dmenu --allow-markup --cache-file /dev/null \
+                --prompt "󰌌 Горячие клавиши" --width 960 --height 650
+        }
+        ;;
+    rofi)
+        menu() {
+            rofi -dmenu -i -markup-rows -scroll-method 1 \
+                -p "󰌌 Горячие клавиши" \
+                -theme-str 'window {width: 62em; height: 36em;} listview {lines: 20; scrollbar: true;}'
+        }
+        ;;
+    *)
+        echo "usage: $0 {wofi|rofi}" >&2
+        exit 1
+        ;;
+esac
+
+cat <<EOF | menu
 <b>󰒓 СИСТЕМА И ЗАПУСК</b>
 󰌌 Super + /                        Шпаргалка                      <span foreground="#1a1b26">[помощь, хелп, help, клавиши]</span>
 󰆍 Super + Return                   Терминал (foot)                <span foreground="#1a1b26">[консоль, cmd, shell, terminal]</span>
