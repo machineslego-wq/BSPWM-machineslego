@@ -83,9 +83,31 @@ alias bt-on='bluetoothctl power on'
 alias bt-off='bluetoothctl power off'
 
 # Профиль питания
-alias pp='powerprofilesctl get'
+function pp
+    switch (powerprofilesctl get 2>/dev/null)
+        case performance
+            echo perf
+        case balanced
+            echo bal
+        case power-saver
+            echo eco
+        case '*'
+            powerprofilesctl get
+    end
+end
+
 function pp-set
-    powerprofilesctl set $argv[1]
+    switch "$argv[1]"
+        case bal balanced
+            powerprofilesctl set balanced
+        case eco power-saver
+            powerprofilesctl set power-saver
+        case perf performance
+            powerprofilesctl set performance
+        case '*'
+            echo "usage: pp-set {bal|eco|perf}" >&2
+            return 2
+    end
 end
 
 # Справка: команды репозитория и этот список алиасов

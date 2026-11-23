@@ -163,7 +163,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - Alacritty: `config/alacritty/alacritty.toml`, `JetBrainsMono Nerd Font 10`, `opacity = 1` (прозрачность отвергнута), `live_config_reload = true`.
 - Bash-промпт: `home/bashrc` только выбирает файл из `config/bash/themes/` по `BASH_PROMPT` (по умолчанию `tokyo-night`; есть `tokyo-night-minimal` и `empty`). Нет файла — стоковый `PS1`. Применение — `exec bash` или `source ~/.bashrc`.
 - Fish/Tide: `config/fish/config.fish`; Tide ставится `install.sh`. Сгенерированное в git не коммитить.
-- Алиасы без лаунчера — в `home/bashrc` и `config/fish/config.fish`: `net` (nmtui), `wifi-list`, `wifi-connect[-ask]`, `wifi-on/off`, `bt[-on/-off]`, `pp`/`pp-set`, `rh` (`rice-help`).
+- Алиасы без лаунчера — в `home/bashrc` и `config/fish/config.fish`: `net` (nmtui), `wifi-list`, `wifi-connect[-ask]`, `wifi-on/off`, `bt[-on/-off]`, `pp`/`pp-set bal|eco|perf`, `rh` (`rice-help`).
 - `rice-help` (алиас `rh`) берёт команды из `local/bin` (только исполняемые) и алиасы из `home/bashrc` (описание — комментарий в конце строки). Новый алиас с комментарием появляется сам; `rice-help <слово>` фильтрует.
 - `nmtui` перекрашен: `config/newt/colors` → `~/.config/newt/colors`, переменные `NEWT_COLORS_FILE` (libnewt: nmtui, whiptail) и `NMT_NEWT_COLORS_FILE` (наборы nmtui: `badLabel`, `plainLabel`, `disabledButton`, `textboxWithBackground`). Цвета — имена ANSI, фон `default`. У компактных кнопок nmtui фокус — цвет `button`, не `actbutton`. В комментариях файла нельзя писать `имя=значение` — newt разбирает их как настройки.
 - Node.js/npm: `scripts/install-node.sh`, prefix `~/.npm-global` в `~/.npmrc`; PATH добавляют оба шелла. NVM, если установлен, подключается в конце `home/bashrc` и переопределяет `node`/`npm`.

@@ -180,7 +180,7 @@ If rofi/wofi are unavailable, the same actions live in the terminal — via the 
 | Wi-Fi on/off | `wifi-on` / `wifi-off` |
 | Bluetooth shell | `bt` (bluetoothctl) |
 | Bluetooth on/off | `bt-on` / `bt-off` |
-| Power profile | `pp` / `pp-set balanced` |
+| Power profile | `pp` / `pp-set bal` (also `eco`, `perf`) |
 | Power off / reboot | `systemctl poweroff` / `reboot` |
 
 Under the hood these are `nmtui`, `nmcli`, `bluetoothctl` and `powerprofilesctl`. Full list of commands and aliases — `rice-help` (or `rh`), search it with `rice-help wifi`.

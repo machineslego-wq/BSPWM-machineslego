@@ -115,8 +115,22 @@ alias bt-on='bluetoothctl power on'                  # включить Bluetoot
 alias bt-off='bluetoothctl power off'                # выключить Bluetooth
 
 # Профиль питания
-alias pp='powerprofilesctl get'                      # текущий профиль
-pp-set() { powerprofilesctl set "$1"; }              # performance | balanced | power-saver
+pp() {                                               # текущий: bal | eco | perf
+    case "$(powerprofilesctl get 2>/dev/null)" in
+        performance) echo perf ;;
+        balanced)    echo bal ;;
+        power-saver) echo eco ;;
+        *)           powerprofilesctl get ;;
+    esac
+}
+pp-set() {                                           # bal | eco | perf
+    case "${1:-}" in
+        bal|balanced)     powerprofilesctl set balanced ;;
+        eco|power-saver)  powerprofilesctl set power-saver ;;
+        perf|performance) powerprofilesctl set performance ;;
+        *) echo "usage: pp-set {bal|eco|perf}" >&2; return 2 ;;
+    esac
+}
 
 # Справка: команды репозитория и этот список алиасов
 alias rh='rice-help'                                 # или rice-help <слово>

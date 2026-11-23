@@ -179,7 +179,7 @@ tide configure
 | Wi-Fi вкл/выкл | `wifi-on` / `wifi-off` |
 | Bluetooth (оболочка) | `bt` (bluetoothctl) |
 | Bluetooth вкл/выкл | `bt-on` / `bt-off` |
-| Профиль питания | `pp` / `pp-set balanced` |
+| Профиль питания | `pp` / `pp-set bal` (или `eco`, `perf`) |
 | Выключить / перезагрузить | `systemctl poweroff` / `reboot` |
 
 Под капотом — `nmtui`, `nmcli`, `bluetoothctl` и `powerprofilesctl`. Полный список команд и алиасов — `rice-help` (или `rh`), поиск по нему — `rice-help wifi`.
