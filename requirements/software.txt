@@ -40,7 +40,7 @@ calf-plugins
 #   tg-ws-proxy — локальный deb для Telegram (хоткей Super + Alt + T)
 
 # Машинно-специфично (в requirements не входит, ставится по месту):
-#   docker.io — start-llm, start-comfy, vllm-setup, yacht
+#   docker.io — start-llm
 #   openrgb   — RGB на lamer-deb (в Debian нет: внешний репозиторий или Flatpak)
 #   sddm      — экран входа для sddm-avatar (если стоит SDDM, а не GDM)
 #   apache2   — vhost-add / vhost-remove (подробности в README)
