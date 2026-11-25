@@ -1,0 +1,158 @@
+#!/bin/bash
+# ==========================================================
+# apt-fix — Починка APT после 404: сброс списков и обновление
+# ==========================================================
+# Использование: apt-fix [--dry-run] [--yes] [пакет...]
+#
+# Лечит «застрявшие» ссылки на пакеты, когда apt пытается скачать
+# версию .deb, которой уже нет на зеркале (404 Not Found):
+#   1. apt-get clean
+#   2. удаление индексов /var/lib/apt/lists/*
+#   3. apt-get update с повторами
+#   4. apt-get -f install
+#   5. apt-get install <пакет>, если он указан
+#
+# Не меняет sources.list, не делает purge и autoremove.
+# По умолчанию спрашивает подтверждение; --yes отключает вопросы,
+# --dry-run только печатает шаги.
+# ==========================================================
+
+set -euo pipefail
+
+DRY=0
+YES=0
+PKGS=()
+
+usage() {
+    cat <<'EOF'
+Использование: apt-fix [флаги] [пакет...]
+
+Сбрасывает индексы APT и заново скачивает их, затем чинит
+незавершённые установки и (если указан пакет) ставит его.
+
+Флаги:
+  --dry-run, -n   показать шаги, ничего не менять
+  --yes, -y       не спрашивать подтверждения
+  -h, --help      эта справка
+
+Примеры:
+  apt-fix                 # сброс кэша и списков + update + fix-broken
+  apt-fix gitg            # то же и установить gitg
+  apt-fix --dry-run gitg  # посмотреть план
+  apt-fix --yes gitg      # без вопросов
+EOF
+}
+
+die() { echo "Ошибка: $*" >&2; exit 1; }
+
+for arg in "$@"; do
+    case "$arg" in
+        --dry-run|-n) DRY=1 ;;
+        --yes|-y) YES=1 ;;
+        -h|--help|help) usage; exit 0 ;;
+        --*) usage; exit 1 ;;
+        *) PKGS+=("$arg") ;;
+    esac
+done
+
+SUDO=()
+if (( EUID != 0 )); then
+    SUDO=(sudo)
+fi
+
+run() {
+    if (( DRY )); then
+        printf '+ %s\n' "$*"
+        return 0
+    fi
+    printf '+ %s\n' "$*"
+    "$@"
+}
+
+lists_count() {
+    find /var/lib/apt/lists -mindepth 1 -maxdepth 1 2>/dev/null | wc -l
+}
+
+lists_size() {
+    du -sh /var/lib/apt/lists 2>/dev/null | cut -f1 || true
+}
+
+cache_size() {
+    du -sh /var/cache/apt/archives 2>/dev/null | cut -f1 || true
+}
+
+echo "=== apt-fix: сброс индексов APT ==="
+echo "индексы: $(lists_count) файлов, $(lists_size)"
+echo "кэш .deb: $(cache_size)"
+
+if (( ! DRY )) && command -v fuser >/dev/null 2>&1; then
+    if fuser /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock >/dev/null 2>&1; then
+        die "apt/dpkg уже занят другим процессом — дождись его завершения"
+    fi
+fi
+
+if (( ! DRY )); then
+    if (( EUID != 0 )); then
+        command -v sudo >/dev/null 2>&1 || die "нужен sudo или root"
+        sudo -v || die "не удалось получить права sudo"
+    fi
+
+    if (( ! YES )); then
+        echo
+        echo "Будут удалены индексы APT и скачанные .deb; установленные"
+        echo "пакеты и настройки не затрагиваются."
+        read -r -p "Продолжить? [y/N] " ans || die "нет ввода — запусти с --yes"
+        case "$ans" in
+            y|Y|yes|да|Да) ;;
+            *) echo "Отменено."; exit 1 ;;
+        esac
+    fi
+fi
+
+echo
+echo "1/5. Очищаю кэш скачанных пакетов..."
+run "${SUDO[@]}" apt-get clean
+
+echo "2/5. Удаляю старые индексы..."
+run "${SUDO[@]}" find /var/lib/apt/lists -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
+
+echo "3/5. Скачиваю свежие индексы..."
+if (( DRY )); then
+    printf '+ %s\n' "${SUDO[*]} apt-get -o Acquire::Retries=3 update"
+else
+    rc=0
+    out=$("${SUDO[@]}" apt-get -o Acquire::Retries=3 update 2>&1) || rc=$?
+    printf '%s\n' "$out"
+    if (( rc != 0 )); then
+        die "apt update завершился с кодом $rc. Проверь сеть и зеркало; индексы будут скачаны при следующем apt update"
+    fi
+    if grep -q '404' <<<"$out"; then
+        echo
+        echo "ВНИМАНИЕ: в apt update снова есть 404. Похоже, зеркало"
+        echo "рассинхронизировано. Попробуй временно другое зеркало:"
+        echo "  echo 'deb http://ftp.de.debian.org/debian trixie main contrib non-free-firmware' \\"
+        echo "    | sudo tee /etc/apt/sources.list.d/trixie-mirror.list"
+        echo "  sudo apt update"
+    fi
+fi
+
+echo "4/5. Чиню незавершённые установки..."
+APT_YES=()
+if (( YES )); then
+    APT_YES=(-y)
+fi
+run "${SUDO[@]}" apt-get -f install "${APT_YES[@]}"
+
+if (( ${#PKGS[@]} )); then
+    echo "5/5. Устанавливаю: ${PKGS[*]}"
+    run "${SUDO[@]}" apt-get install "${APT_YES[@]}" "${PKGS[@]}"
+else
+    echo "5/5. Пакет не указан — установка пропущена."
+fi
+
+echo
+if (( DRY )); then
+    echo "DRY-RUN: ничего не изменено."
+else
+    echo "Готово."
+fi
