@@ -167,11 +167,29 @@ kde-migrate install            # dry-run
 kde-migrate status
 ```
 
-## Системные файлы, которые создаёт миграция
+## Порталы, вход и окружение
 
-| Файл | Зачем | Удаляется откатом |
+Все настройки порталов лежат в репозитории, `config/xdg-desktop-portal/`
+(этот каталог симлинком подключён к `~/.config/xdg-desktop-portal`):
+
+| Файл | Для кого | Что внутри |
 |---|---|---|
-| `/etc/xdg/xdg-desktop-portal/kde-portals.conf` | `default=kde` для Plasma; `portals.conf` с `gtk`+`wlr` остаётся для Sway/BSPWM | да |
+| `kde-portals.conf` | Plasma | `default=kde`, ScreenCast/Screenshot — `kde`, Secret — `kwallet`, Lockdown — `gtk` |
+| `sway-portals.conf` | Sway | `default=gtk`, ScreenCast/Screenshot — `wlr`, Secret — `gnome-keyring` |
+| `bspwm-portals.conf` | BSPWM | `default=gtk`, Secret — `gnome-keyring` |
+| `gnome-portals.conf` | GNOME (только после отката) | `default=gnome`, Secret — `gnome-keyring` |
+| `portals.conf` | fallback для остальных сессий | `default=gtk`, Secret — `gnome-keyring` |
+
+xdg-desktop-portal выбирает файл по `XDG_CURRENT_DESKTOP`:
+`kde-portals.conf` для KDE, `sway-portals.conf` для Sway,
+`bspwm-portals.conf` для BSPWM, `gnome-portals.conf` для GNOME, иначе
+`portals.conf`. Так ScreenCast больше не форсируется на `wlr` в Plasma,
+а Sway получает `wlr` явно. Старый системный
+`/etc/xdg/xdg-desktop-portal/kde-portals.conf` скрипт удаляет — все конфиги
+должны быть в репозитории.
+
+| Системный файл | Зачем | Удаляется откатом |
+|---|---|---|
 | `/etc/xdg/plasma-workspace/env/10-plasma-clean-env.sh` | сбрасывает `QT_STYLE_OVERRIDE=qt6ct` из `~/.xprofile` только внутри Plasma X11 | да |
 | `/etc/sddm.conf.d/10-theme.conf` | тема входа Breeze | да |
 | `/etc/X11/default-display-manager` | текущий DM | нет (перезаписывается) |
@@ -179,8 +197,13 @@ kde-migrate status
 
 `~/.xprofile` и `config/gtk-*` не меняются: GTK-приложения под Plasma
 продолжают работать с твоим `gtk.css` и Adwaita-dark. Поэтому
-`kde-config-gtk-style` намеренно **не** устанавливается — он перезаписывает
-`~/.config/gtk-*/settings.ini`, а это симлинк в репозиторий.
+`kde-config-gtk-style` намеренно **не** устанавливается.
+
+Отдельно: в Plasma 6 `gmenudbusmenuproxy` (пакет `plasma-workspace`) при
+каждом входе перезаписывает `~/.config/gtk-3.0/settings.ini`. Скрипт ставит
+глобальную маску `systemctl --global mask plasma-gmenudbusmenuproxy.service`,
+чтобы дотфайлы оставались нетронутыми. Побочный эффект — меню GTK-приложений
+не экспортируются в глобальное меню Plasma; на стоковой панели его нет.
 
 ## Что будет после переезда
 

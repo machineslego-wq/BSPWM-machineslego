@@ -282,12 +282,13 @@ cmd_install() {
         -o Dpkg::Options::=--force-confold \
         "${KDE_PKGS[@]}"
 
-    # Портал для Plasma: системный файл, дотфайлы не трогаются.
-    install -d /etc/xdg/xdg-desktop-portal
-    cat > /etc/xdg/xdg-desktop-portal/kde-portals.conf <<'EOF'
-[preferred]
-default=kde
-EOF
+    # Все портал-конфиги живут в репозитории (config/xdg-desktop-portal/):
+    # kde-, sway-, bspwm-, gnome-portals.conf и общий portals.conf.
+    # Системный дубль, который ставили раньше, больше не нужен.
+    rm -f /etc/xdg/xdg-desktop-portal/kde-portals.conf
+    if [[ ! -f $REAL_HOME/.config/xdg-desktop-portal/kde-portals.conf ]]; then
+        echo "ВНИМАНИЕ: ~/.config/xdg-desktop-portal не слинкован — запусти scripts/link.sh"
+    fi
 
     # Под SDDM X11-сессия читает ~/.xprofile с QT_STYLE_OVERRIDE=qt6ct.
     # Сбрасываем это только внутри Plasma, сам дотфайл не меняем.
@@ -296,6 +297,12 @@ EOF
 # Стоковый вид Plasma: не наследовать QT_STYLE_OVERRIDE из ~/.xprofile
 unset QT_STYLE_OVERRIDE
 EOF
+
+    # Plasma 6: gmenudbusmenuproxy при каждом старте перезаписывает
+    # ~/.config/gtk-3.0/settings.ini (это симлинк в репозиторий).
+    # Глобальная маска сохраняет дотфайлы нетронутыми; GTK-меню
+    # в глобальное меню Plasma при этом не экспортируются.
+    systemctl --global mask plasma-gmenudbusmenuproxy.service >/dev/null 2>&1 || true
 
     echo
     echo "Готово. GDM и GNOME пока на месте."
@@ -488,6 +495,7 @@ cmd_rollback() {
     rm -f /etc/xdg/xdg-desktop-portal/kde-portals.conf
     rm -f /etc/xdg/plasma-workspace/env/10-plasma-clean-env.sh
     rm -f /etc/sddm.conf.d/10-theme.conf
+    systemctl --global unmask plasma-gmenudbusmenuproxy.service >/dev/null 2>&1 || true
 
     echo "Откат завершён. DM: $(readlink -f /etc/systemd/system/display-manager.service)"
     echo "Не-DE софт (GIMP, Krita и т.д.) не удалялся."
