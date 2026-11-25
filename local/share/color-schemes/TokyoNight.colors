@@ -1,8 +1,8 @@
 # Tokyo Night для KDE Plasma 6.
 # Палитра из config/qt5ct/colors/tokyo-night.conf,
 # config/gtk-3.0/gtk.css и config/waybar/style.css.
-# Вариант с оранжевым акцентом и плоскими рамками:
-# фон #1a1b26, текст #c0caf5, акцент/выделение #ffb37a.
+# Вариант с классическим синим акцентом и плоскими рамками:
+# фон #1a1b26, текст #c0caf5, акцент/выделение #7aa2f7.
 # Внутри окон и заголовках нет градиента и яркой каймы:
 # [WM] и [Colors:Header] сведены к фону #1a1b26.
 
@@ -29,13 +29,13 @@ IntensityEffect=0
 [Colors:Button]
 BackgroundAlternate=31,35,53
 BackgroundNormal=36,40,59
-DecorationFocus=255,194,158
-DecorationHover=255,194,158
-ForegroundActive=255,179,122
+DecorationFocus=157,184,232
+DecorationHover=157,184,232
+ForegroundActive=122,162,247
 ForegroundInactive=169,177,214
 ForegroundLink=125,207,255
 ForegroundNegative=247,118,142
-ForegroundNeutral=224,175,104
+ForegroundNeutral=255,158,100
 ForegroundNormal=192,202,245
 ForegroundPositive=158,206,106
 ForegroundVisited=187,154,247
@@ -43,13 +43,13 @@ ForegroundVisited=187,154,247
 [Colors:Complementary]
 BackgroundAlternate=26,27,38
 BackgroundNormal=22,22,30
-DecorationFocus=255,179,122
-DecorationHover=255,179,122
-ForegroundActive=255,179,122
+DecorationFocus=122,162,247
+DecorationHover=122,162,247
+ForegroundActive=122,162,247
 ForegroundInactive=169,177,214
 ForegroundLink=125,207,255
 ForegroundNegative=247,118,142
-ForegroundNeutral=224,175,104
+ForegroundNeutral=255,158,100
 ForegroundNormal=192,202,245
 ForegroundPositive=158,206,106
 ForegroundVisited=187,154,247
@@ -57,13 +57,13 @@ ForegroundVisited=187,154,247
 [Colors:Header]
 BackgroundAlternate=26,27,38
 BackgroundNormal=26,27,38
-DecorationFocus=255,179,122
-DecorationHover=255,179,122
-ForegroundActive=255,179,122
+DecorationFocus=122,162,247
+DecorationHover=122,162,247
+ForegroundActive=122,162,247
 ForegroundInactive=169,177,214
 ForegroundLink=125,207,255
 ForegroundNegative=247,118,142
-ForegroundNeutral=224,175,104
+ForegroundNeutral=255,158,100
 ForegroundNormal=192,202,245
 ForegroundPositive=158,206,106
 ForegroundVisited=187,154,247
@@ -71,41 +71,41 @@ ForegroundVisited=187,154,247
 [Colors:Header][Inactive]
 BackgroundAlternate=26,27,38
 BackgroundNormal=26,27,38
-DecorationFocus=255,179,122
-DecorationHover=255,179,122
-ForegroundActive=255,179,122
+DecorationFocus=122,162,247
+DecorationHover=122,162,247
+ForegroundActive=122,162,247
 ForegroundInactive=169,177,214
 ForegroundLink=125,207,255
 ForegroundNegative=247,118,142
-ForegroundNeutral=224,175,104
+ForegroundNeutral=255,158,100
 ForegroundNormal=169,177,214
 ForegroundPositive=158,206,106
 ForegroundVisited=187,154,247
 
 [Colors:Selection]
-BackgroundAlternate=224,175,104
-BackgroundNormal=255,179,122
-DecorationFocus=255,179,122
-DecorationHover=255,179,122
+BackgroundAlternate=41,46,66
+BackgroundNormal=122,162,247
+DecorationFocus=122,162,247
+DecorationHover=122,162,247
 ForegroundActive=26,27,38
-ForegroundInactive=86,95,137
-ForegroundLink=31,58,95
-ForegroundNegative=26,27,38
-ForegroundNeutral=26,27,38
+ForegroundInactive=47,58,92
+ForegroundLink=0,58,92
+ForegroundNegative=92,15,31
+ForegroundNeutral=92,42,0
 ForegroundNormal=26,27,38
-ForegroundPositive=26,27,38
-ForegroundVisited=74,46,94
+ForegroundPositive=20,61,31
+ForegroundVisited=75,29,102
 
 [Colors:Tooltip]
 BackgroundAlternate=31,35,53
 BackgroundNormal=36,40,59
-DecorationFocus=255,179,122
-DecorationHover=255,179,122
-ForegroundActive=255,179,122
+DecorationFocus=122,162,247
+DecorationHover=122,162,247
+ForegroundActive=122,162,247
 ForegroundInactive=169,177,214
 ForegroundLink=125,207,255
 ForegroundNegative=247,118,142
-ForegroundNeutral=224,175,104
+ForegroundNeutral=255,158,100
 ForegroundNormal=192,202,245
 ForegroundPositive=158,206,106
 ForegroundVisited=187,154,247
@@ -113,13 +113,13 @@ ForegroundVisited=187,154,247
 [Colors:View]
 BackgroundAlternate=31,35,53
 BackgroundNormal=26,27,38
-DecorationFocus=255,179,122
-DecorationHover=255,179,122
-ForegroundActive=255,179,122
+DecorationFocus=122,162,247
+DecorationHover=122,162,247
+ForegroundActive=122,162,247
 ForegroundInactive=169,177,214
 ForegroundLink=125,207,255
 ForegroundNegative=247,118,142
-ForegroundNeutral=224,175,104
+ForegroundNeutral=255,158,100
 ForegroundNormal=192,202,245
 ForegroundPositive=158,206,106
 ForegroundVisited=187,154,247
@@ -127,13 +127,13 @@ ForegroundVisited=187,154,247
 [Colors:Window]
 BackgroundAlternate=31,35,53
 BackgroundNormal=26,27,38
-DecorationFocus=255,179,122
-DecorationHover=255,179,122
-ForegroundActive=255,179,122
+DecorationFocus=122,162,247
+DecorationHover=122,162,247
+ForegroundActive=122,162,247
 ForegroundInactive=169,177,214
 ForegroundLink=125,207,255
 ForegroundNegative=247,118,142
-ForegroundNeutral=224,175,104
+ForegroundNeutral=255,158,100
 ForegroundNormal=192,202,245
 ForegroundPositive=158,206,106
 ForegroundVisited=187,154,247
@@ -142,7 +142,7 @@ ForegroundVisited=187,154,247
 ColorScheme=TokyoNight
 Name=Tokyo Night
 Name[ru]=Tokyo Night
-AccentColor=255,179,122
+AccentColor=122,162,247
 shadeSortColumn=true
 
 [KDE]

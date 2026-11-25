@@ -17,7 +17,7 @@
 | `system/etc/**` | системные конфиги | копия в `/etc/**` + бэкап `/etc/dotfiles-backup-YYYYMMDD-HHMMSS` |
 | `scripts/*.sh` | установка и линковка | запуск вручную |
 | `requirements/*.txt` | списки пакетов | читают `scripts/*.sh` |
-| `screenshots/`, `wallpapers/`, `themes/` | картинки для README и темы Telegram | — |
+| `screenshots/`, `wallpapers/`, `themes/` | картинки для README, темы Telegram и Firefox | — |
 | `README.md`, `README.ru.md` | публичная документация | — |
 | `DEVICES.md` | железо, мониторы и ветки конфигов трёх машин (внутренний справочник) | — |
 | `TODO.md` | блокнот: план, «Отвергнуто», ограничения | — |
@@ -164,13 +164,14 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - Курсор берётся из gsettings (`cursor-theme`/`cursor-size`), не из `settings.ini`; `link.sh` ставит `Bibata-Modern-Ice` 24. Без этого GTK-приложения рисуют Adwaita-курсор, пока Sway/XWayland показывают Bibata.
 - GTK3: Adwaita рисует `background-image`/`box-shadow` в hover/active/checked/disabled/backdrop — в user CSS сбрасывать явно. Infobar — `infobar > revealer > box`, toolbar/searchbar — `searchbar > revealer > box`. Rubberband — отдельные правила `.rubberband`. Строки списков — и `row:selected`, не только `row.activatable:selected`.
 - Qt: `config/qt5ct/colors/tokyo-night.conf` и `qt6ct/...` — 21 роль `QPalette` в порядке enum, цвет `#AARRGGBB`; светлый — `tokyo-night-day.conf` (переключение — `sed` в `qt5ct.conf`/`qt6ct.conf` + `icon_theme=Papirus`). `style=Fusion`, `custom_palette=true`. Применение — `qt5ct`/`qt6ct` или перезапуск приложения. Это для Sway/BSPWM: в Plasma цвет задаёт схема KDE, а не qt5ct/qt6ct.
-- KDE: `local/share/color-schemes/TokyoNight.colors` → `~/.local/share/color-schemes/` (`link.sh`); применяется `plasma-apply-colorscheme TokyoNight`. Секция `[WM]` красит рамки KWin, `[Colors:*]` — внутренности Qt-приложений. Для Qt5-софта нужен `plasma5-integration`.
+- KDE: `local/share/color-schemes/TokyoNight.colors` (тёмная) и `TokyoNightDay.colors` (светлая) → `~/.local/share/color-schemes/` (`link.sh`); применяется `plasma-apply-colorscheme TokyoNight|TokyoNightDay`. Секция `[WM]` красит рамки KWin, `[Colors:*]` — внутренности Qt-приложений. Для Qt5-софта нужен `plasma5-integration`.
 - VLC — Qt5, и у него есть **своя** тёмная палитра (`qt-dark-palette` в `~/.config/vlc/vlcrc`), которая перебивает системную: в KDE с Tokyo Night VLC остаётся «своим» тёмным. Выключить: Инструменты → Настройки → Интерфейс → «Use dark palette». `QtStyle=qt5ct-style` в `~/.config/vlc/vlc-qt-interface.conf` можно оставить. В Plasma палитру даёт `plasma5-integration`/qt5ct, в Sway/BSPWM — `QT_QPA_PLATFORMTHEME=qt5ct`, потому что `sway-session` выставляет `qt6ct`, который VLC (Qt5) не читает.
 - Flatpak: `link.sh` при наличии Flatpak выдаёт read-only доступ к `gtk-3.0`, `gtk-4.0`, `qt5ct`, `qt6ct`, `xdg-data/themes` и `QT_QPA_PLATFORMTHEME=qt5ct`. После повторного `link.sh` Flatpak-приложения нужно перезапустить.
 
 ## Терминал и шелл
 
 - Alacritty: `config/alacritty/alacritty.toml`, `JetBrainsMono Nerd Font 10`, `opacity = 1` (прозрачность отвергнута), `live_config_reload = true`.
+- Konsole: `local/share/konsole/TokyoNight.*` (тёмная) и `TokyoNightDay.*` (светлая) — схемы и профили, `link.sh` линкует в `~/.local/share/konsole/`; профиль выбирается в Konsole → Configure Konsole → Profiles.
 - Bash-промпт: `home/bashrc` только выбирает файл из `config/bash/themes/` по `BASH_PROMPT` (по умолчанию `tokyo-night`; есть `tokyo-night-minimal` и `empty`). Нет файла — стоковый `PS1`. Применение — `exec bash` или `source ~/.bashrc`.
 - Fish/Tide: `config/fish/config.fish`; Tide ставится `install.sh`. Сгенерированное в git не коммитить.
 - Алиасы без лаунчера — в `home/bashrc` и `config/fish/config.fish`: `net` (nmtui), `wifi-list`, `wifi-connect[-ask]`, `wifi-on/off`, `bt[-on/-off]`, `pp`/`pp-set bal|eco|perf`, `rh` (`rice-help`).
@@ -197,6 +198,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - Fastfetch: `config/fastfetch/graphical.jsonc` (X11) и `tty.jsonc` (консоль), выбор по `$TERM` в `config.fish`.
 - Midnight Commander: скины `local/share/mc/skins/*.ini`, формат INI, цвета `fg;bg`.
 - Telegram: темы `themes/telegram/tokyo-night.*` (тёмная, оранжевый акцент) и `tokyo-night-light.*` (светлая «Tokyo Night Day», синий акцент `#2b6fd4`), обе в форматах `.tdesktop-palette` (Desktop) и `.attheme` (мобильная). Ставятся вручную (путь Flatpak).
+- Firefox: тема-аддон `themes/firefox/TokyoNight/` (`manifest.json`, иконки) и собранный `TokyoNight-1.0.0.xpi`; документация — `themes/firefox/README.md`. Временная установка — `about:debugging` → Load Temporary Add-on, постоянная — подписанный `.xpi`.
 
 ## Система
 
