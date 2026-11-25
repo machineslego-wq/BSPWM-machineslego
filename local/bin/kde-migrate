@@ -1,0 +1,604 @@
+#!/bin/bash
+# ==========================================================
+# kde-migrate — Обратимая миграция Debian 13: GNOME → KDE Plasma
+#
+# Ставит стоковую KDE Plasma, переводит вход на SDDM и убирает GNOME.
+# Не трогает не-DE софт (GIMP, Inkscape, LibreOffice, OBS, Krita, ...)
+# и дотфайлы. По умолчанию — dry-run, изменения только с --apply.
+#
+# Использование:
+#   kde-migrate status
+#   kde-migrate snapshot [--force]
+#   sudo kde-migrate install    [--apply] [--yes]
+#   sudo kde-migrate switch-dm  [--apply] [--yes]
+#   sudo kde-migrate remove-gnome [--apply] [--yes]
+#   sudo kde-migrate finalize   [--apply] [--yes]   # switch-dm + remove-gnome
+#   sudo kde-migrate rollback   [--apply] [--yes]
+#   kde-migrate verify
+#
+# Документация и описание флагов: local/bin/kde-migrate.md
+# ==========================================================
+
+set -euo pipefail
+
+REAL_USER="${SUDO_USER:-$USER}"
+REAL_HOME="$(getent passwd "$REAL_USER" | cut -d: -f6)"
+REPO="${REPO:-$REAL_HOME/BSPWM-machineslego}"
+STATE_ROOT="$REAL_HOME/.local/state/kde-migrate"
+STATE="$STATE_ROOT/state"
+APPLY=0
+YES=0
+FORCE=0
+CMD=""
+
+KDE_PKGS=(
+    plasma-desktop plasma-workspace plasma-workspace-wallpapers
+    kwin-wayland kwin-x11
+    plasma-nm plasma-pa plasma-discover plasma-systemmonitor
+    systemsettings powerdevil kscreen bluedevil
+    breeze breeze-gtk-theme
+    kio-extras ffmpegthumbs
+    dolphin kate konsole kde-spectacle
+    kinfocenter khelpcenter kmenuedit kde-config-screenlocker
+    kwalletmanager
+    xdg-desktop-portal-kde
+    fonts-hack ark gwenview okular kcalc kfind
+)
+
+SDDM_PKGS=(sddm sddm-theme-breeze sddm-theme-debian-breeze kde-config-sddm)
+
+# Полный набор GNOME, который удаляется. Симуляция проверена:
+# 0 пакетов не-DE в списке на удаление.
+GNOME_PKGS=(
+    gdm3
+    gnome-shell gnome-shell-common
+    gnome-session gnome-session-bin gnome-session-common gnome-session-xsession
+    gnome-classic gnome-classic-xsession
+    gnome-settings-daemon gnome-settings-daemon-common
+    gnome-control-center gnome-control-center-data
+    gnome-software gnome-software-common
+    gnome-software-plugin-deb gnome-software-plugin-flatpak gnome-software-plugin-fwupd
+    gnome-tour gnome-tweaks
+    gnome-shell-extensions gnome-shell-extensions-common gnome-shell-extensions-extra
+    gnome-shell-extension-prefs
+    gnome-browser-connector
+    gnome-remote-desktop
+    gnome-online-accounts
+    gnome-user-share gnome-user-docs gnome-backgrounds
+    gnome-chess gnome-mines
+    gnome-music gnome-calendar gnome-clocks gnome-contacts
+    gnome-characters gnome-calculator
+    gnome-text-editor
+    gnome-terminal gnome-terminal-data
+    gnome-snapshot gnome-sound-recorder gnome-sushi
+    gnome-system-monitor gnome-logs gnome-font-viewer
+    gnome-disk-utility gnome-connections
+    gnome-bluetooth-sendto
+    xdg-desktop-portal-gnome
+)
+
+# Пакеты, которые обязаны выжить. Дополнительно защищаются все
+# manual-пакеты вне наборов DE (см. guard_remove).
+PROTECTED=(
+    gimp gimp-data inkscape
+    libreoffice-core libreoffice-common libreoffice-gtk3
+    obs-studio vlc firefox-esr thunar
+    krita copyq alacritty foot fish vim mc
+    gnome-keyring libpam-gnome-keyring
+    gvfs gvfs-backends gvfs-fuse
+    dconf-gsettings-backend gsettings-desktop-schemas
+    adwaita-icon-theme gnome-themes-extra
+    papirus-icon-theme bibata-cursor-theme
+    at-spi2-core
+    xdg-desktop-portal-gtk
+    qt5ct qt6ct
+)
+
+# ----------------------------------------------------------
+# Служебное
+# ----------------------------------------------------------
+
+die()  { echo "ОШИБКА: $*" >&2; exit 1; }
+note() { echo "  $*"; }
+
+installed() {
+    dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q 'install ok installed'
+}
+
+in_set() {
+    local needle=$1; shift
+    local x
+    for x in "$@"; do [[ $x == "$needle" ]] && return 0; done
+    return 1
+}
+
+need_root() {
+    [[ $EUID -eq 0 ]] || die "нужен root: sudo $0 $CMD --apply"
+}
+
+check_apt_free() {
+    if fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; then
+        die "apt/dpkg уже занят другим процессом"
+    fi
+}
+
+sim_removals() {
+    apt-get -s remove "$@" 2>/dev/null | awk '$1 == "Remv" { print $2 }'
+}
+
+sim_install_list() {
+    apt-get -s install --no-install-recommends "$@" 2>/dev/null | awk '$1 == "Inst" { print $2 }'
+}
+
+# guard_remove <разрешённый набор> -- <пакеты...>
+guard_remove() {
+    local -a allowed=()
+    while (($#)); do
+        [[ $1 == "--" ]] && { shift; break; }
+        allowed+=("$1"); shift
+    done
+
+    local -a removals=()
+    mapfile -t removals < <(sim_removals "$@")
+    (( ${#removals[@]} )) || die "apt не смог построить план удаления"
+
+    local manual p bad=()
+    manual="$(apt-mark showmanual)"
+
+    for p in "${removals[@]}"; do
+        if in_set "$p" "${PROTECTED[@]}"; then
+            bad+=("$p (защищённый)")
+        elif grep -qx "$p" <<<"$manual" && ! in_set "$p" "${allowed[@]}"; then
+            bad+=("$p (manual вне набора DE)")
+        fi
+    done
+
+    if (( ${#bad[@]} )); then
+        printf 'ОТКАЗ. В удаление попали:\n' >&2
+        printf '  %s\n' "${bad[@]}" >&2
+        die "остановлено до изменений"
+    fi
+}
+
+guard_install() {
+    local bad rm
+    bad="$(sim_install_list "$@" | grep -E '^(kde-config-gtk-style|libreoffice|sddm|konqueror|kmail|bup|cryfs)$' || true)"
+    [[ -z $bad ]] || die "в установку попали лишние пакеты: $(echo "$bad" | tr '\n' ' ')"
+    rm="$(apt-get -s install --no-install-recommends "$@" 2>/dev/null | awk '$1 == "Remv" { print $2 }')"
+    [[ -z $rm ]] || die "установка требует удаления: $(echo "$rm" | tr '\n' ' ')"
+}
+
+confirm() {
+    (( YES )) && return 0
+    local ans
+    read -r -p "$1 [y/N] " ans
+    [[ $ans == y || $ans == Y || $ans == yes || $ans == да ]]
+}
+
+# ----------------------------------------------------------
+# status / snapshot
+# ----------------------------------------------------------
+
+cmd_status() {
+    echo "== Система =="
+    note "host: $(hostname)  DE: ${XDG_CURRENT_DESKTOP:-?}  session: ${XDG_SESSION_TYPE:-?}"
+    note "DM: $(readlink -f /etc/systemd/system/display-manager.service 2>/dev/null || echo '?')"
+    note "root free: $(df -h / | awk 'NR==2 {print $4}')"
+
+    local n=0 p
+    for p in "${GNOME_PKGS[@]}"; do installed "$p" && n=$((n + 1)); done
+    note "GNOME-пакетов из набора установлено: $n / ${#GNOME_PKGS[@]}"
+
+    n=0
+    for p in "${KDE_PKGS[@]}"; do installed "$p" && n=$((n + 1)); done
+    note "Plasma-пакетов установлено: $n / ${#KDE_PKGS[@]}"
+
+    echo "== Защищённый не-DE софт =="
+    for p in "${PROTECTED[@]}"; do
+        installed "$p" && note "ok: $p"
+    done
+
+    echo "== Проверки =="
+    if installed kde-config-gtk-style; then
+        note "ВНИМАНИЕ: kde-config-gtk-style установлен — он перезаписывает ~/.config/gtk-*/settings.ini"
+    else
+        note "kde-config-gtk-style не установлен (дотфайлы GTK в безопасности)"
+    fi
+    if [[ -f $REAL_HOME/.xprofile ]] && grep -q QT_STYLE_OVERRIDE "$REAL_HOME/.xprofile"; then
+        note "~/.xprofile задаёт QT_STYLE_OVERRIDE (Plasma X11 получит системный сброс)"
+    fi
+    if [[ -d $REPO/.git ]]; then
+        note "репозиторий: $(git -C "$REPO" status --porcelain --untracked-files=no | wc -l) изменений"
+    fi
+    if [[ -f $STATE/timestamp ]]; then
+        note "snapshot: $(cat "$STATE/timestamp")"
+    fi
+}
+
+cmd_snapshot() {
+    if [[ -f $STATE/timestamp ]] && (( ! FORCE )); then
+        die "снимок уже есть: $STATE (перезаписать: snapshot --force)"
+    fi
+
+    mkdir -p "$STATE"
+    dpkg --get-selections > "$STATE/dpkg-selections.txt"
+    apt-mark showmanual | sort > "$STATE/manual.txt"
+    apt-mark showauto   | sort > "$STATE/auto.txt"
+    readlink -f /etc/systemd/system/display-manager.service > "$STATE/display-manager.txt" 2>/dev/null || true
+    cat /etc/X11/default-display-manager > "$STATE/default-display-manager.txt" 2>/dev/null || true
+    ls /usr/share/xsessions /usr/share/wayland-sessions > "$STATE/sessions.txt" 2>/dev/null || true
+    date -Is > "$STATE/timestamp"
+
+    {
+        for p in "${GNOME_PKGS[@]}"; do
+            if installed "$p"; then echo "$p"; fi
+        done
+        dpkg-query -W -f='${Package}\n' 'gnome-shell-extension-*' 2>/dev/null || true
+        true
+    } | sort -u > "$STATE/gnome.txt"
+
+    {
+        for p in "${KDE_PKGS[@]}" "${SDDM_PKGS[@]}"; do
+            if installed "$p"; then echo "$p"; fi
+        done
+        true
+    } | sort -u > "$STATE/kde.txt"
+
+    if [[ -d $REPO/.git ]]; then
+        # Только отслеживаемые файлы: новые untracked-файлы репозитория
+        # (например, сама команда) не считаются изменением дотфайлов.
+        git -C "$REPO" status --porcelain --untracked-files=no > "$STATE/repo-status-before.txt"
+    fi
+
+    if (( EUID == 0 )); then chown -R "$REAL_USER": "$STATE_ROOT"; fi
+    echo "Снимок сохранён: $STATE"
+    echo "  GNOME-пакетов: $(wc -l < "$STATE/gnome.txt")"
+}
+
+# ----------------------------------------------------------
+# install: Plasma, без смены DM и без удаления GNOME
+# ----------------------------------------------------------
+
+cmd_install() {
+    echo "== Шаг 1: установка KDE Plasma =="
+    echo "Новых пакетов: $(sim_install_list "${KDE_PKGS[@]}" | wc -l)"
+    guard_install "${KDE_PKGS[@]}"
+    echo "Проверка пройдена: удалений нет, sddm/libreoffice/kde-config-gtk-style не тянутся."
+
+    if (( ! APPLY )); then
+        echo
+        echo "DRY-RUN. Для установки: sudo $0 install --apply --yes"
+        return 0
+    fi
+
+    need_root
+    check_apt_free
+    confirm "Установить Plasma (${#KDE_PKGS[@]} пакетов)?" || { echo "Отменено."; return 1; }
+
+    apt-get update
+    env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a \
+        apt-get install -y --no-install-recommends \
+        -o Dpkg::Options::=--force-confdef \
+        -o Dpkg::Options::=--force-confold \
+        "${KDE_PKGS[@]}"
+
+    # Портал для Plasma: системный файл, дотфайлы не трогаются.
+    install -d /etc/xdg/xdg-desktop-portal
+    cat > /etc/xdg/xdg-desktop-portal/kde-portals.conf <<'EOF'
+[preferred]
+default=kde
+EOF
+
+    # Под SDDM X11-сессия читает ~/.xprofile с QT_STYLE_OVERRIDE=qt6ct.
+    # Сбрасываем это только внутри Plasma, сам дотфайл не меняем.
+    install -d /etc/xdg/plasma-workspace/env
+    cat > /etc/xdg/plasma-workspace/env/10-plasma-clean-env.sh <<'EOF'
+# Стоковый вид Plasma: не наследовать QT_STYLE_OVERRIDE из ~/.xprofile
+unset QT_STYLE_OVERRIDE
+EOF
+
+    echo
+    echo "Готово. GDM и GNOME пока на месте."
+    echo "Войди в Plasma (Wayland) через меню сессий GDM и проверь:"
+    echo "  мониторы, звук, сеть, Bluetooth, Flatpak, GIMP/Inkscape, OBS."
+    echo "Затем: sudo $0 finalize --apply --yes"
+}
+
+# ----------------------------------------------------------
+# switch-dm: SDDM
+# ----------------------------------------------------------
+
+cmd_switch_dm() {
+    echo "== Шаг 2: SDDM =="
+    local n
+    n=$(apt-get -s install --no-install-recommends "${SDDM_PKGS[@]}" 2>/dev/null | awk '$1 == "Inst" { print $2 }' | wc -l)
+    echo "Будет установлено пакетов: $n"
+
+    if (( ! APPLY )); then
+        echo "DRY-RUN. Для применения: sudo $0 switch-dm --apply --yes"
+        return 0
+    fi
+
+    need_root
+    check_apt_free
+    confirm "Установить SDDM и сделать его менеджером входа?" || { echo "Отменено."; return 1; }
+
+    env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a \
+        apt-get install -y --no-install-recommends \
+        -o Dpkg::Options::=--force-confdef \
+        -o Dpkg::Options::=--force-confold \
+        "${SDDM_PKGS[@]}"
+
+    echo "shared/default-x-display-manager select sddm" | debconf-set-selections
+    dpkg-reconfigure -f noninteractive sddm >/dev/null 2>&1 || true
+
+    printf '/usr/bin/sddm\n' > /etc/X11/default-display-manager
+    install -d /etc/sddm.conf.d
+    cat > /etc/sddm.conf.d/10-theme.conf <<'EOF'
+[Theme]
+Current=breeze
+EOF
+    ln -sf /usr/lib/systemd/system/sddm.service /etc/systemd/system/display-manager.service
+    systemctl daemon-reload
+    systemctl disable gdm3 >/dev/null 2>&1 || true
+    systemctl enable sddm >/dev/null 2>&1 || true
+
+    echo "DM сейчас: $(readlink -f /etc/systemd/system/display-manager.service)"
+    [[ $(readlink -f /etc/systemd/system/display-manager.service) == */sddm.service ]] \
+        || die "SDDM не стал display-manager"
+    echo "Готово. Проверь вход через SDDM (Plasma Wayland), затем удаляй GNOME."
+}
+
+# ----------------------------------------------------------
+# remove-gnome
+# ----------------------------------------------------------
+
+cmd_remove_gnome() {
+    echo "== Шаг 3: удаление GNOME =="
+    local dm
+    dm="$(readlink -f /etc/systemd/system/display-manager.service 2>/dev/null || true)"
+    [[ $dm == */sddm.service ]] || die "сначала switch-dm: сейчас DM = ${dm:-?}"
+
+    # Нельзя выдирать GNOME из-под работающей GNOME-сессии.
+    if command -v loginctl >/dev/null 2>&1; then
+        local sess desk
+        sess="$(loginctl show-user "$REAL_USER" -p Display --value 2>/dev/null || true)"
+        desk="$(loginctl show-session "$sess" -p Desktop --value 2>/dev/null || true)"
+        case "$desk" in
+            *GNOME*|*Unity*) die "ты сейчас в GNOME ($desk). Войди в Plasma и запусти снова" ;;
+        esac
+    fi
+
+    local -a to_remove=()
+    local p
+    for p in "${GNOME_PKGS[@]}"; do
+        if installed "$p"; then to_remove+=("$p"); fi
+    done
+    while IFS= read -r p; do
+        if [[ -n $p ]]; then to_remove+=("$p"); fi
+    done < <(dpkg-query -W -f='${Package}\n' 'gnome-shell-extension-*' 2>/dev/null || true)
+
+    if (( ${#to_remove[@]} == 0 )); then
+        echo "GNOME уже удалён."
+        return 0
+    fi
+
+    echo "К удалению: ${#to_remove[@]} пакетов GNOME (включая gdm3)"
+    guard_remove "${to_remove[@]}" -- "${to_remove[@]}"
+    echo "Проверка пройдена: ни один не-DE пакет не затрагивается."
+
+    if (( ! APPLY )); then
+        echo "DRY-RUN. Для применения: sudo $0 remove-gnome --apply --yes"
+        return 0
+    fi
+
+    need_root
+    check_apt_free
+
+    # Страховка для GTK-софта: инфраструктура GNOME, которая ему нужна.
+    apt-mark manual gnome-keyring libpam-gnome-keyring gvfs gvfs-backends gvfs-fuse \
+        dconf-gsettings-backend gsettings-desktop-schemas adwaita-icon-theme \
+        gnome-themes-extra at-spi2-core xdg-desktop-portal-gtk >/dev/null
+
+    confirm "Удалить ${#to_remove[@]} пакетов GNOME (без purge)?" || { echo "Отменено."; return 1; }
+    apt-get remove -y "${to_remove[@]}"
+
+    # Проверяем autoremove отдельно и не запускаем его молча.
+    local -a auto_rm=()
+    mapfile -t auto_rm < <(apt-get -s autoremove 2>/dev/null | awk '$1 == "Remv" { print $2 }')
+    if (( ${#auto_rm[@]} )); then
+        echo
+        echo "autoremove предлагает удалить ${#auto_rm[@]} осиротевших пакетов:"
+        printf '  %s\n' "${auto_rm[@]}"
+        guard_remove -- "${auto_rm[@]}"
+        if confirm "Выполнить autoremove?"; then
+            apt-get autoremove -y
+        else
+            echo "autoremove пропущен. Осиротевшие библиотеки остались."
+        fi
+    fi
+
+    echo "GNOME удалён. Настройки в /home не тронуты, gdm3 можно вернуть через rollback."
+}
+
+# ----------------------------------------------------------
+# rollback
+# ----------------------------------------------------------
+
+cmd_rollback() {
+    echo "== Откат: KDE -> GNOME =="
+    [[ -f $STATE/gnome.txt ]] || die "нет снимка: сначала kde-migrate snapshot"
+
+    local -a kde_remove=()
+    local p
+    for p in "${KDE_PKGS[@]}" "${SDDM_PKGS[@]}"; do
+        if installed "$p"; then kde_remove+=("$p"); fi
+    done
+
+    if (( ${#kde_remove[@]} == 0 )); then
+        echo "KDE уже отсутствует."
+    else
+        echo "Будет удалено KDE-пакетов: ${#kde_remove[@]}"
+        guard_remove "${kde_remove[@]}" -- "${kde_remove[@]}"
+    fi
+
+    local -a gnome_restore=()
+    mapfile -t gnome_restore < "$STATE/gnome.txt"
+
+    if (( ! APPLY )); then
+        echo "Будет восстановлено GNOME-пакетов: ${#gnome_restore[@]}"
+        echo "DRY-RUN. Для применения: sudo $0 rollback --apply --yes"
+        return 0
+    fi
+
+    need_root
+    check_apt_free
+    confirm "Вернуть GDM и удалить Plasma (${#kde_remove[@]} пакетов)?" || { echo "Отменено."; return 1; }
+
+    # 1. Сначала возвращаем рабочий DM.
+    env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a \
+        apt-get install -y gdm3 -o Dpkg::Options::=--force-confold
+    echo "shared/default-x-display-manager select gdm3" | debconf-set-selections
+    dpkg-reconfigure -f noninteractive gdm3 >/dev/null 2>&1 || true
+    printf '/usr/sbin/gdm3\n' > /etc/X11/default-display-manager
+    ln -sf /usr/lib/systemd/system/gdm.service /etc/systemd/system/display-manager.service
+    systemctl daemon-reload
+    systemctl disable sddm >/dev/null 2>&1 || true
+    systemctl enable gdm3 >/dev/null 2>&1 || true
+
+    # 2. Убираем KDE, не трогая не-DE софт.
+    if (( ${#kde_remove[@]} )); then
+        apt-get remove -y "${kde_remove[@]}"
+    fi
+    local -a auto_rm=()
+    mapfile -t auto_rm < <(apt-get -s autoremove 2>/dev/null | awk '$1 == "Remv" { print $2 }')
+    if (( ${#auto_rm[@]} )); then
+        echo "autoremove предлагает: ${auto_rm[*]}"
+        guard_remove -- "${auto_rm[@]}"
+        if confirm "Выполнить autoremove?"; then apt-get autoremove -y; fi
+    fi
+
+    # 3. Возвращаем GNOME тем же списком, что был до миграции.
+    if (( ${#gnome_restore[@]} )); then
+        apt-get install -y "${gnome_restore[@]}"
+        apt-mark manual "${gnome_restore[@]}" >/dev/null
+    fi
+
+    # 4. Убираем системные файлы, добавленные миграцией.
+    rm -f /etc/xdg/xdg-desktop-portal/kde-portals.conf
+    rm -f /etc/xdg/plasma-workspace/env/10-plasma-clean-env.sh
+    rm -f /etc/sddm.conf.d/10-theme.conf
+
+    echo "Откат завершён. DM: $(readlink -f /etc/systemd/system/display-manager.service)"
+    echo "Не-DE софт (GIMP, Krita и т.д.) не удалялся."
+}
+
+# ----------------------------------------------------------
+# verify
+# ----------------------------------------------------------
+
+cmd_verify() {
+    echo "== Проверка =="
+    echo "DM: $(readlink -f /etc/systemd/system/display-manager.service 2>/dev/null || echo '?')"
+    echo "Сессии:"
+    ls /usr/share/xsessions /usr/share/wayland-sessions 2>/dev/null | sed 's/^/  /'
+
+    if installed gnome-shell; then
+        echo "GNOME shell: установлен"
+    else
+        echo "GNOME shell: отсутствует"
+    fi
+    if installed plasma-desktop; then
+        echo "Plasma: установлен"
+    else
+        echo "Plasma: отсутствует"
+    fi
+    if installed kde-config-gtk-style; then
+        echo "ВНИМАНИЕ: kde-config-gtk-style установлен и может менять GTK-дотфайлы"
+    fi
+
+    echo "Защищённый софт:"
+    local p
+    for p in gimp inkscape libreoffice-gtk3 obs-studio vlc firefox-esr thunar krita; do
+        if installed "$p"; then echo "  ok  $p"; else echo "  --  $p (не установлен)"; fi
+    done
+
+    if [[ -d $REPO/.git ]]; then
+        local now before
+        now="$(git -C "$REPO" status --porcelain --untracked-files=no | wc -l)"
+        before=0
+        if [[ -f $STATE/repo-status-before.txt ]]; then
+            before=$(wc -l < "$STATE/repo-status-before.txt")
+        fi
+        echo "Репозиторий: изменений отслеживаемых файлов $now, до миграции $before"
+        if (( now > before )); then
+            echo "ВНИМАНИЕ: в дотфайлах появились изменения"
+            git -C "$REPO" status --short --untracked-files=no
+        fi
+    fi
+}
+
+# ----------------------------------------------------------
+# main
+# ----------------------------------------------------------
+
+usage() {
+    cat <<EOF
+kde-migrate — обратимая миграция Debian 13: GNOME → KDE Plasma
+
+Команды:
+  status          показать DE, DM, сессии, наборы пакетов и защищённый софт
+  snapshot        снять состояние системы (пакеты, DM, репозиторий)
+  install         установить Plasma, не трогая GNOME и GDM
+  switch-dm       установить SDDM и сделать его менеджером входа
+  remove-gnome    удалить GNOME (только после switch-dm)
+  finalize        switch-dm + remove-gnome
+  rollback        вернуть GDM и GNOME, оставив не-DE софт
+  verify          проверить DM, сессии, защищённый софт и чистоту репозитория
+
+Флаги:
+  --apply         выполнить изменения (без флага — только показать план)
+  --yes, -y       не спрашивать подтверждения
+  --force         перезаписать существующий снимок (только для snapshot)
+  --dry-run, -n   явный dry-run (то же, что без --apply)
+  -h, --help      эта справка
+
+Примеры:
+  kde-migrate status
+  kde-migrate snapshot
+  sudo $0 install --apply --yes
+  sudo $0 finalize --apply --yes
+  sudo $0 rollback --apply --yes
+
+Подробная документация: local/bin/kde-migrate.md
+EOF
+    exit "${1:-0}"
+}
+
+[[ $# -ge 1 ]] || usage 1
+CMD="$1"; shift
+
+while (($#)); do
+    case "$1" in
+        --apply) APPLY=1 ;;
+        --yes|-y) YES=1 ;;
+        --force) FORCE=1 ;;
+        --dry-run|-n) APPLY=0 ;;
+        -h|--help) usage 0 ;;
+        *) die "неизвестный аргумент: $1" ;;
+    esac
+    shift
+done
+
+case "$CMD" in
+    status)        cmd_status ;;
+    snapshot)      cmd_snapshot ;;
+    install)       cmd_install ;;
+    switch-dm)     cmd_switch_dm ;;
+    remove-gnome)  cmd_remove_gnome ;;
+    finalize)      cmd_switch_dm; cmd_remove_gnome ;;
+    rollback)      cmd_rollback ;;
+    verify)        cmd_verify ;;
+    help|-h|--help) usage 0 ;;
+    *) die "неизвестная команда: $CMD (см. $0 --help)" ;;
+esac
