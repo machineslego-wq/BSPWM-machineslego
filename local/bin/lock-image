@@ -1,0 +1,149 @@
+#!/bin/bash
+# ==========================================================
+# lock-image — Обои для SDDM и экрана блокировки KDE
+# ==========================================================
+# Использование: lock-image [--dry-run] <картинка>
+#
+# Картинка конвертируется в PNG (до 4K) и кладётся в
+# /usr/share/sddm/backgrounds/custom.png. Этот файл ставится фоном
+# текущей темы SDDM и экрана блокировки Plasma.
+#
+# Для SDDM нужен sudo. Запускать без sudo: lock-image /путь/к/картинке
+# ==========================================================
+
+set -euo pipefail
+
+DRY=0
+SRC=""
+
+DEST_DIR=/usr/share/sddm/backgrounds
+DEST=$DEST_DIR/custom.png
+BACKUP_DIR=/var/backups/lock-image
+
+usage() {
+    cat <<'EOF'
+Использование: lock-image [флаги] <картинка>
+
+Ставит картинку фоном SDDM и экрана блокировки Plasma.
+Картинка конвертируется в PNG (не больше 4K) в
+/usr/share/sddm/backgrounds/custom.png.
+
+Флаги:
+  --dry-run, -n   показать шаги, ничего не менять
+  -h, --help      эта справка
+
+Примеры:
+  lock-image ~/Изображения/wallpaper.jpg
+  lock-image --dry-run ~/wallpaper.png
+EOF
+}
+
+die() { echo "Ошибка: $*" >&2; exit 1; }
+
+for arg in "$@"; do
+    case "$arg" in
+        --dry-run|-n) DRY=1 ;;
+        -h|--help|help) usage; exit 0 ;;
+        --*) usage; exit 1 ;;
+        *)
+            [[ -z $SRC ]] || { usage; exit 1; }
+            SRC=$arg
+            ;;
+    esac
+done
+
+[[ -n $SRC ]] || { usage; exit 1; }
+[[ -f $SRC ]] || die "файл не найден: $SRC"
+SRC=$(readlink -f "$SRC")
+[[ -f $SRC ]] || die "файл не найден: $SRC"
+
+command -v identify >/dev/null 2>&1 || die "нужен ImageMagick (identify/convert)"
+command -v convert  >/dev/null 2>&1 || die "нужен ImageMagick (convert)"
+identify "$SRC" >/dev/null 2>&1 || die "не удалось прочитать изображение: $SRC"
+
+if (( EUID == 0 )); then
+    die "запускай без sudo: lock-image <картинка>"
+fi
+command -v sudo >/dev/null 2>&1 || die "нужен sudo"
+
+# Текущая тема SDDM: последний Current= из /etc/sddm.conf и drop-in'ов.
+theme=breeze
+for f in /etc/sddm.conf /etc/sddm.conf.d/*.conf; do
+    [[ -f $f ]] || continue
+    t=$(awk -F= '
+        /^[[:space:]]*\[Theme\][[:space:]]*$/ { in_theme = 1; next }
+        /^[[:space:]]*\[/ { in_theme = 0 }
+        in_theme && $1 ~ /^[[:space:]]*Current[[:space:]]*$/ {
+            gsub(/[[:space:]]/, "", $2); print $2
+        }
+    ' "$f" | tail -n 1)
+    [[ -n $t ]] && theme=$t
+done
+
+THEME_CONF="/usr/share/sddm/themes/$theme/theme.conf"
+[[ -f $THEME_CONF ]] || die "не найден конфиг темы SDDM: $THEME_CONF"
+command -v kwriteconfig6 >/dev/null 2>&1 || die "нужен kwriteconfig6 (plasma-workspace)"
+
+echo "=== lock-image ==="
+echo "картинка: $SRC"
+echo "SDDM:     $DEST"
+echo "тема:     $theme ($THEME_CONF)"
+echo "локскрин: $HOME/.config/kscreenlockerrc"
+
+if (( DRY )); then
+    echo
+    echo "+ convert '$SRC' -resize 3840x2160\\> -strip -> $DEST"
+    echo "+ правка $THEME_CONF: type=image, background=$DEST"
+    echo "+ бэкап $THEME_CONF -> $BACKUP_DIR/"
+    echo "+ kwriteconfig6: [Greeter] WallpaperPlugin=org.kde.image"
+    echo "+ kwriteconfig6: [Greeter][Wallpaper][org.kde.image][General] Image=$DEST"
+    echo
+    echo "DRY-RUN: ничего не изменено."
+    exit 0
+fi
+
+sudo -v || die "не удалось получить права sudo"
+
+# 1. Нормализуем картинку и кладём в место, читаемое greeter'ом SDDM.
+tmp=$(mktemp "${TMPDIR:-/tmp}/lock-image-XXXXXX.png")
+trap 'rm -f "$tmp"' EXIT
+convert "$SRC" -resize '3840x2160>' -strip "$tmp"
+sudo install -d -m 755 -o root -g root "$DEST_DIR"
+sudo install -m 644 -o root -g root "$tmp" "$DEST"
+
+# 2. Текущая тема SDDM. theme.conf — не conffile, поэтому бэкап
+#    в /var/backups: обновление пакета темы может вернуть старый фон.
+sudo install -d -m 700 -o root -g root "$BACKUP_DIR"
+backup="$BACKUP_DIR/$theme.theme.conf.$(date +%Y%m%d-%H%M%S)"
+sudo cp -a "$THEME_CONF" "$backup"
+
+edited=$(mktemp "${TMPDIR:-/tmp}/lock-image-theme-XXXXXX")
+trap 'rm -f "$tmp" "$edited"' EXIT
+sudo awk -v bg="$DEST" '
+    BEGIN { type_done = 0; bg_done = 0 }
+    /^[[:space:]]*type[[:space:]]*=/ {
+        print "type=image"; type_done = 1; next
+    }
+    /^[[:space:]]*background[[:space:]]*=/ {
+        print "background=" bg; bg_done = 1; next
+    }
+    { print }
+    END {
+        if (!type_done) print "type=image"
+        if (!bg_done) print "background=" bg
+    }
+' "$THEME_CONF" > "$edited"
+sudo install -m 644 -o root -g root "$edited" "$THEME_CONF"
+
+# 3. Plasma lock screen.
+kwriteconfig6 --file "$HOME/.config/kscreenlockerrc" \
+    --group Greeter --key WallpaperPlugin org.kde.image
+kwriteconfig6 --file "$HOME/.config/kscreenlockerrc" \
+    --group Greeter --group Wallpaper --group org.kde.image --group General \
+    --key Image "$DEST"
+
+echo
+echo "Готово."
+echo "SDDM:      $DEST (подхватится при следующем входе/перезагрузке)"
+echo "Lock screen: следующий lock"
+echo "Бэкап темы: $backup"
