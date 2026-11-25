@@ -12,6 +12,8 @@
 | `home/<file>` | файл домашнего каталога | симлинк `~/.<file>` |
 | `local/bin/<cmd>` | команда в PATH | симлинк `~/.local/bin/<cmd>` |
 | `local/share/mc/skins/*.ini` | скины Midnight Commander | `~/.local/share/mc/skins/` |
+| `local/share/color-schemes/*.colors` | цветовые схемы KDE Plasma | `~/.local/share/color-schemes/` |
+| `local/share/konsole/*` | профили и цветовые схемы Konsole | `~/.local/share/konsole/` |
 | `system/etc/**` | системные конфиги | копия в `/etc/**` + бэкап `/etc/dotfiles-backup-YYYYMMDD-HHMMSS` |
 | `scripts/*.sh` | установка и линковка | запуск вручную |
 | `requirements/*.txt` | списки пакетов | читают `scripts/*.sh` |
@@ -34,8 +36,8 @@
 | Лаунчер и меню X11 | `config/rofi/config.rasi`, `local/bin/{battery,powermenu,wifi,power-profile,dunst-history}` |
 | Лаунчер и меню Wayland | `config/wofi/{config,style.css}`, `local/bin/{wofi-*,wifi,battery,powermenu}` |
 | Уведомления | `config/dunst/dunstrc` (X11), `config/mako/config` (Sway) |
-| Тема GTK / Qt | `config/gtk-3.0`, `config/gtk-4.0`, `config/qt5ct`, `config/qt6ct` |
-| Терминалы | `config/alacritty/alacritty.toml`, `config/foot/foot.ini` |
+| Тема GTK / Qt | `config/gtk-3.0`, `config/gtk-4.0`, `config/qt5ct`, `config/qt6ct`; KDE — `local/share/color-schemes/TokyoNight.colors` |
+| Терминалы | `config/alacritty/alacritty.toml`, `config/foot/foot.ini`; Konsole — `local/share/konsole/` |
 | Редакторы | `config/nvim/`, `home/vimrc` |
 | Пакеты | `requirements/apt.txt` (база X11), `sway.txt` (Sway, поверх базы), `apt-system.txt` (системное), `software.txt` (опциональное) |
 | Установка и линковка | `scripts/install.sh`, `link.sh`, `unlink.sh`, `software.sh`, `install-node.sh`, `install-laravel.sh`, `install-sway.sh` |
@@ -161,7 +163,8 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - `Papirus-Dark` — светлые символы для тёмного фона; на светлой теме нужен `Papirus`.
 - Курсор берётся из gsettings (`cursor-theme`/`cursor-size`), не из `settings.ini`; `link.sh` ставит `Bibata-Modern-Ice` 24. Без этого GTK-приложения рисуют Adwaita-курсор, пока Sway/XWayland показывают Bibata.
 - GTK3: Adwaita рисует `background-image`/`box-shadow` в hover/active/checked/disabled/backdrop — в user CSS сбрасывать явно. Infobar — `infobar > revealer > box`, toolbar/searchbar — `searchbar > revealer > box`. Rubberband — отдельные правила `.rubberband`. Строки списков — и `row:selected`, не только `row.activatable:selected`.
-- Qt: `config/qt5ct/colors/tokyo-night.conf` и `qt6ct/...` — 21 роль `QPalette` в порядке enum, цвет `#AARRGGBB`; светлый — `tokyo-night-day.conf` (переключение — `sed` в `qt5ct.conf`/`qt6ct.conf` + `icon_theme=Papirus`). `style=Fusion`, `custom_palette=true`. Применение — `qt5ct`/`qt6ct` или перезапуск приложения.
+- Qt: `config/qt5ct/colors/tokyo-night.conf` и `qt6ct/...` — 21 роль `QPalette` в порядке enum, цвет `#AARRGGBB`; светлый — `tokyo-night-day.conf` (переключение — `sed` в `qt5ct.conf`/`qt6ct.conf` + `icon_theme=Papirus`). `style=Fusion`, `custom_palette=true`. Применение — `qt5ct`/`qt6ct` или перезапуск приложения. Это для Sway/BSPWM: в Plasma цвет задаёт схема KDE, а не qt5ct/qt6ct.
+- KDE: `local/share/color-schemes/TokyoNight.colors` → `~/.local/share/color-schemes/` (`link.sh`); применяется `plasma-apply-colorscheme TokyoNight`. Секция `[WM]` красит рамки KWin, `[Colors:*]` — внутренности Qt-приложений. Для Qt5-софта нужен `plasma5-integration`.
 - Flatpak: `link.sh` при наличии Flatpak выдаёт read-only доступ к `gtk-3.0`, `gtk-4.0`, `qt5ct`, `qt6ct`, `xdg-data/themes` и `QT_QPA_PLATFORMTHEME=qt5ct`. После повторного `link.sh` Flatpak-приложения нужно перезапустить.
 
 ## Терминал и шелл

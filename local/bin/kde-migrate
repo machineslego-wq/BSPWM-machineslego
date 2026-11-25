@@ -41,6 +41,7 @@ KDE_PKGS=(
     dolphin kate konsole kde-spectacle
     kinfocenter khelpcenter kmenuedit kde-config-screenlocker
     kwalletmanager
+    plasma5-integration
     xdg-desktop-portal-kde
     fonts-hack ark gwenview okular kcalc kfind
 )

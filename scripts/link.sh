@@ -78,13 +78,30 @@ if [ -d "$DOTFILES/local/share/mc/skins" ]; then
     done
 fi
 
-# 5. Права на скрипты
+# 5. Линкуем local/share/... (схемы KDE и Konsole)
+echo "--- Installing KDE color schemes and Konsole files (Установка схем KDE и Konsole) ---"
+if [ -d "$DOTFILES/local/share/color-schemes" ]; then
+    for scheme in "$DOTFILES/local/share/color-schemes"/*.colors; do
+        [ -e "$scheme" ] || continue
+        scheme_name=$(basename "$scheme")
+        link_item "$scheme" "$HOME/.local/share/color-schemes/$scheme_name"
+    done
+fi
+if [ -d "$DOTFILES/local/share/konsole" ]; then
+    for file in "$DOTFILES/local/share/konsole"/*; do
+        [ -e "$file" ] || continue
+        file_name=$(basename "$file")
+        link_item "$file" "$HOME/.local/share/konsole/$file_name"
+    done
+fi
+
+# 6. Права на скрипты
 echo "--- Setting permissions (+x) (Выставление прав (+x)) ---"
 chmod +x "$HOME/.config/sxhkd/scripts/"*.sh 2>/dev/null
 chmod +x "$HOME/.config/polybar/launch.sh" 2>/dev/null
 chmod +x "$HOME/.config/bspwm/bspwmrc" 2>/dev/null
 
-# 6. Курсор GTK через gsettings
+# 7. Курсор GTK через gsettings
 # GTK3/GTK4 в Debian берут тему курсора из gsettings/dconf: значения из
 # settings.ini перекрываются, а GTK4 файл не читает вовсе. Без явной
 # настройки GTK-приложения (LibreOffice Writer) рисуют курсор схемы
@@ -98,7 +115,7 @@ if [ "$(id -u)" -ne 0 ] && command -v gsettings >/dev/null 2>&1; then
     gsettings set org.gnome.desktop.interface cursor-size 24
 fi
 
-# 7. Применяем темы для Flatpak (если Flatpak установлен)
+# 8. Применяем темы для Flatpak (если Flatpak установлен)
 if command -v flatpak >/dev/null 2>&1; then
     echo "--- Applying Flatpak theme overrides ---"
     # Доступ к CSS-файлам GTK3/GTK4
