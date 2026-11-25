@@ -13,7 +13,7 @@ GNOME. Не трогает не-DE софт (GIMP, Inkscape, LibreOffice, OBS, K
 |---|---|
 | `install` | ставит Plasma (Wayland + X11), модули сети/звука/питания, Dolphin, Kate, Konsole, Spectacle, Ark, Gwenview, Okular, KCalc, KFind, портал KDE |
 | `switch-dm` | ставит SDDM с темой Breeze и делает его менеджером входа |
-| `remove-gnome` | удаляет шелл, сессию, настройки, приложения GNOME, расширения и `gdm3` |
+| `remove-gnome` | удаляет шелл, сессию, настройки, приложения GNOME (Nautilus, Totem, Evince, Shotwell, Rygel, игры и т.д.), расширения и `gdm3`; чистит conffiles от уже удалённых пакетов |
 | `finalize` | `switch-dm` + `remove-gnome` одним вызовом |
 | `rollback` | возвращает GDM и GNOME из снимка, удаляет Plasma |
 
@@ -28,7 +28,9 @@ GNOME. Не трогает не-DE софт (GIMP, Inkscape, LibreOffice, OBS, K
   OBS, VLC, Firefox, Thunar не входят ни в один набор удаления.
   Если Krita ещё не стоит — скрипт её и не поставит.
 - **Не трогает Sway/BSPWM.** Обе сессии остаются в списке SDDM.
-- **Не делает `purge`.** Конфиги GNOME в `/home` остаются, откат их возвращает.
+- **Не делает `purge` установленных пакетов.** Конфиги GNOME в `/home` остаются,
+  откат их возвращает. Для уже удалённых GNOME-пакетов чистится только
+  `config-files` (conffiles в `/etc`, включая autostart).
 - **Не запускает `autoremove` молча.** Список показывается, удаление — только
   после подтверждения.
 
@@ -80,7 +82,7 @@ Sway/Plasma — это завершит текущую сессию.
 | `snapshot` | нет | снимок пакетов, manual/auto-флагов, DM, сессий, списка GNOME и git-статуса |
 | `install` | да, с `--apply` | установка Plasma **без** SDDM и без удаления GNOME |
 | `switch-dm` | да, с `--apply` | SDDM + тема Breeze, `gdm3` выключается, но остаётся установленным |
-| `remove-gnome` | да, с `--apply` | удаление набора GNOME; требует, чтобы DM уже был SDDM |
+| `remove-gnome` | да, с `--apply` | удаление набора GNOME и очистка conffiles; требует, чтобы DM уже был SDDM |
 | `finalize` | да, с `--apply` | `switch-dm`, затем `remove-gnome` |
 | `rollback` | да, с `--apply` | GDM → удаление Plasma → установка GNOME из снимка |
 | `verify` | нет | DM, сессии, наличие GNOME/Plasma, защищённый софт, изменения в репозитории |
@@ -214,6 +216,19 @@ xdg-desktop-portal выбирает файл по `XDG_CURRENT_DESKTOP`:
 - GIMP, Inkscape, LibreOffice, OBS, VLC, Firefox, Thunar, Flatpak — на месте.
 - Репозиторий и дотфайлы — без изменений.
 
+Остаются только системные зависимости, без которых ломается не-DE софт:
+
+- `gnome-keyring` — секреты для Chrome/Electron и других GTK-приложений;
+- `gvfs*` — корзина и сетевые ресурсы для Thunar/Dolphin;
+- `evolution-data-server` — библиотеки EDS нужны `bluez-obexd` (Bluetooth);
+- `gnome-menus` — нужен `menulibre`.
+
+Их не видно в меню; приложения GNOME (Nautilus, Totem, Evince, Shotwell,
+Simple Scan, File Roller, Yelp, Baobab, Loupe, Seahorse, Tecla, Amberol,
+Rygel, игры и т.д.) удаляются. Для уже удалённых пакетов `remove-gnome`
+выполняет `apt-get purge`, чтобы убрать оставшиеся `/etc/xdg/autostart`
+и прочие conffiles.
+
 Раскладку мониторов Plasma хранит у себя (kscreen): после первого входа
 настрой один раз в System Settings → Display & Monitor. Скрипт туда не пишет,
 чтобы состояние осталось стоковым.
@@ -233,7 +248,8 @@ sudo ~/.local/bin/kde-migrate rollback --apply --yes
 5. удаляются системные файлы миграции.
 
 Krita/GIMP и прочий не-DE софт не удаляются: они `manual` и вне наборов DE.
-Настройки GNOME не purge-ились, поэтому возвращаются как были.
+Настройки GNOME в `/home` не purge-ились, поэтому возвращаются как были;
+`/etc`-conffiles удалённых пакетов восстанавливаются из пакетов.
 
 ## Если что-то пошло не так
 

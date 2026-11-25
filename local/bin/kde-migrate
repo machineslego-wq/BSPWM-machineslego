@@ -75,6 +75,29 @@ GNOME_PKGS=(
     gnome-disk-utility gnome-connections
     gnome-bluetooth-sendto
     xdg-desktop-portal-gnome
+
+    # Приложения GNOME без префикса gnome в имени.
+    nautilus nautilus-data
+    totem totem-common totem-plugins
+    evince evince-common eog
+    file-roller
+    shotwell shotwell-common
+    simple-scan
+    yelp yelp-xsl
+    baobab loupe orca seahorse tecla amberol
+    zenity zenity-common
+    rygel rygel-tracker rygel-playbin
+    evolution evolution-plugins evolution-common
+    gnome-accessibility-themes gnome-extra-icons
+    papers showtime ptyxis gnome-console
+    gnome-maps gnome-weather gnome-boxes gnome-usage
+    gnome-documents gnome-photos cheese brasero rhythmbox
+    sound-juicer gnome-screenshot
+
+    # GNOME-игры.
+    gnome-2048 gnome-klotski gnome-mahjongg gnome-nibbles
+    gnome-robots gnome-sudoku gnome-taquin gnome-tetravex
+    hitori iagno lightsoff quadrapassel swell-foop tali
 )
 
 # Пакеты, которые обязаны выжить. Дополнительно защищаются все
@@ -85,6 +108,10 @@ PROTECTED=(
     obs-studio vlc firefox-esr thunar
     krita copyq alacritty foot fish vim mc
     gnome-keyring libpam-gnome-keyring
+    # bluez-obexd (Bluetooth) использует библиотеки EDS — daemon не удаляем
+    evolution-data-server
+    # нужен menulibre (не-DE приложение)
+    gnome-menus
     gvfs gvfs-backends gvfs-fuse
     dconf-gsettings-backend gsettings-desktop-schemas
     adwaita-icon-theme gnome-themes-extra
@@ -376,23 +403,37 @@ cmd_remove_gnome() {
         esac
     fi
 
-    local -a to_remove=()
-    local p
+    local -a to_remove=() rc_gnome=()
+    local p st
     for p in "${GNOME_PKGS[@]}"; do
-        if installed "$p"; then to_remove+=("$p"); fi
+        st="$(dpkg-query -W -f='${Status}' "$p" 2>/dev/null || true)"
+        case "$st" in
+            *"install ok installed"*) to_remove+=("$p") ;;
+            *"config-files"*) rc_gnome+=("$p") ;;
+        esac
     done
     while IFS= read -r p; do
-        if [[ -n $p ]]; then to_remove+=("$p"); fi
+        [[ -n $p ]] || continue
+        st="$(dpkg-query -W -f='${Status}' "$p" 2>/dev/null || true)"
+        case "$st" in
+            *"install ok installed"*) to_remove+=("$p") ;;
+            *"config-files"*) rc_gnome+=("$p") ;;
+        esac
     done < <(dpkg-query -W -f='${Package}\n' 'gnome-shell-extension-*' 2>/dev/null || true)
 
-    if (( ${#to_remove[@]} == 0 )); then
+    if (( ${#to_remove[@]} == 0 && ${#rc_gnome[@]} == 0 )); then
         echo "GNOME уже удалён."
         return 0
     fi
 
-    echo "К удалению: ${#to_remove[@]} пакетов GNOME (включая gdm3)"
-    guard_remove "${to_remove[@]}" -- "${to_remove[@]}"
-    echo "Проверка пройдена: ни один не-DE пакет не затрагивается."
+    if (( ${#to_remove[@]} )); then
+        echo "К удалению: ${#to_remove[@]} пакетов GNOME"
+        guard_remove "${to_remove[@]}" -- "${to_remove[@]}"
+        echo "Проверка пройдена: ни один не-DE пакет не затрагивается."
+    fi
+    if (( ${#rc_gnome[@]} )); then
+        echo "Остатки conffiles: ${#rc_gnome[@]} пакетов (autostart и /etc)"
+    fi
 
     if (( ! APPLY )); then
         echo "DRY-RUN. Для применения: sudo $0 remove-gnome --apply --yes"
@@ -405,10 +446,18 @@ cmd_remove_gnome() {
     # Страховка для GTK-софта: инфраструктура GNOME, которая ему нужна.
     apt-mark manual gnome-keyring libpam-gnome-keyring gvfs gvfs-backends gvfs-fuse \
         dconf-gsettings-backend gsettings-desktop-schemas adwaita-icon-theme \
-        gnome-themes-extra at-spi2-core xdg-desktop-portal-gtk >/dev/null
+        gnome-themes-extra at-spi2-core xdg-desktop-portal-gtk evolution-data-server \
+        gnome-menus >/dev/null
 
-    confirm "Удалить ${#to_remove[@]} пакетов GNOME (без purge)?" || { echo "Отменено."; return 1; }
-    apt-get remove -y "${to_remove[@]}"
+    confirm "Удалить ${#to_remove[@]} пакетов GNOME и очистить ${#rc_gnome[@]} conffiles?" || { echo "Отменено."; return 1; }
+
+    if (( ${#to_remove[@]} )); then
+        apt-get remove -y "${to_remove[@]}"
+    fi
+    if (( ${#rc_gnome[@]} )); then
+        # conffiles от уже удалённых пакетов: /etc/xdg/autostart и прочее
+        apt-get purge -y "${rc_gnome[@]}"
+    fi
 
     # Проверяем autoremove отдельно и не запускаем его молча.
     local -a auto_rm=()
@@ -423,6 +472,13 @@ cmd_remove_gnome() {
         else
             echo "autoremove пропущен. Осиротевшие библиотеки остались."
         fi
+    fi
+
+    # Пользовательский кэш меню: иначе удалённые приложения остаются в Kickoff.
+    if command -v kbuildsycoca6 >/dev/null 2>&1; then
+        runuser -u "$REAL_USER" -- env HOME="$REAL_HOME" \
+            XDG_RUNTIME_DIR="/run/user/$(id -u "$REAL_USER")" \
+            kbuildsycoca6 --noincremental >/dev/null 2>&1 || true
     fi
 
     echo "GNOME удалён. Настройки в /home не тронуты, gdm3 можно вернуть через rollback."
@@ -525,8 +581,28 @@ cmd_verify() {
         echo "ВНИМАНИЕ: kde-config-gtk-style установлен и может менять GTK-дотфайлы"
     fi
 
+    echo "Остатки GNOME:"
+    local p st f base found=0
+    for p in "${GNOME_PKGS[@]}"; do
+        st="$(dpkg-query -W -f='${Status}' "$p" 2>/dev/null || true)"
+        case "$st" in
+            *"install ok installed"*) echo "  $p (установлен)"; found=1 ;;
+            *"config-files"*) echo "  $p (conffiles)"; found=1 ;;
+        esac
+    done
+    for f in /etc/xdg/autostart/*.desktop; do
+        [[ -e $f ]] || continue
+        base="$(basename "$f")"
+        case "$base" in
+            gnome-keyring-*.desktop|org.gnome.Evolution-alarm-notify.desktop) continue ;;
+        esac
+        case "$base" in
+            *[Gg]nome*) echo "  autostart: $base"; found=1 ;;
+        esac
+    done
+    (( found )) || echo "  нет"
+
     echo "Защищённый софт:"
-    local p
     for p in gimp inkscape libreoffice-gtk3 obs-studio vlc firefox-esr thunar krita; do
         if installed "$p"; then echo "  ok  $p"; else echo "  --  $p (не установлен)"; fi
     done
