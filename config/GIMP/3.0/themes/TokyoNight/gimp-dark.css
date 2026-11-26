@@ -7,7 +7,7 @@
 /* Основные цвета переднего плана, фона и границ */
 @define-color fg-color #c0caf5;                /* Основной текст */
 @define-color bg-color #1a1b26;                /* Основной фон */
-@define-color border-color #292e42;            /* Базовые границы */
+@define-color border-color #3b4261;            /* Базовые границы */
 
 /* Варианты переднего плана */
 @define-color dimmed-fg-color #a9b1d6;         /* Приглушённый текст */
@@ -15,8 +15,8 @@
 @define-color disabled-button-color #414868;   /* Неактивные кнопки */
 
 /* Варианты фона */
-@define-color hover-color #24283b;             /* Фон при наведении */
-@define-color widget-bg-color #1f2335;         /* Фон виджетов (панели, поля) */
+@define-color hover-color #292e42;             /* Фон при наведении */
+@define-color widget-bg-color #16161e;         /* Фон виджетов (панели, поля) */
 @define-color selected-color #7aa2f7;          /* Фон выделения (акцент) */
 
 /* "Крайние" поверхности (самые тёмные/светлые) */
@@ -24,13 +24,13 @@
 @define-color extreme-selected-color #414868;  /* Выделение на тёмном фоне */
 
 /* Варианты границ */
-@define-color strong-border-color #292e42;
+@define-color strong-border-color #3b4261;
 @define-color stronger-border-color #3b4261;
 @define-color edge-border-color #1a1b26;
 
 /* Специальные элементы */
 @define-color scrollbar-slider-color #414868;
-@define-color scrollbar-trough-color #1f2335;
+@define-color scrollbar-trough-color #16161e;
 @define-color ruler-color rgba(26, 27, 38, 0.7);
 
 /* Дополнительно: цвета для GTK-виджетов внутри GIMP,

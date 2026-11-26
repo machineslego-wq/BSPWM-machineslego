@@ -28,22 +28,22 @@
   --window-fg-color: #c0caf5;
   --view-bg-color: #1a1b26;
   --view-fg-color: #c0caf5;
-  --headerbar-bg-color: #1f2335;
+  --headerbar-bg-color: #16161e;
   --headerbar-fg-color: #c0caf5;
   --headerbar-backdrop-color: #1a1b26;
   --sidebar-bg-color: #16161e;
   --sidebar-fg-color: #c0caf5;
   --sidebar-backdrop-color: #16161e;
-  --card-bg-color: #24283b;
+  --card-bg-color: #292e42;
   --card-fg-color: #c0caf5;
-  --popover-bg-color: #1f2335;
+  --popover-bg-color: #16161e;
   --popover-fg-color: #c0caf5;
-  --dialog-bg-color: #1f2335;
+  --dialog-bg-color: #16161e;
   --dialog-fg-color: #c0caf5;
 
   /* Служебные */
-  --borders: #292e42;
-  --insensitive-bg-color: #1f2335;
+  --borders: #3b4261;
+  --insensitive-bg-color: #16161e;
   --insensitive-fg-color: #565f89;
   --scrollbar-outline-color: rgba(0, 0, 0, 0.95);
 }
@@ -58,17 +58,17 @@
 @define-color window_fg_color #c0caf5;
 @define-color view_bg_color #1a1b26;
 @define-color view_fg_color #c0caf5;
-@define-color headerbar_bg_color #1f2335;
+@define-color headerbar_bg_color #16161e;
 @define-color headerbar_fg_color #c0caf5;
 @define-color headerbar_backdrop_color #1a1b26;
 @define-color sidebar_bg_color #16161e;
 @define-color sidebar_fg_color #c0caf5;
 @define-color sidebar_backdrop_color #16161e;
-@define-color card_bg_color #24283b;
+@define-color card_bg_color #292e42;
 @define-color card_fg_color #c0caf5;
-@define-color popover_bg_color #1f2335;
+@define-color popover_bg_color #16161e;
 @define-color popover_fg_color #c0caf5;
-@define-color dialog_bg_color #1f2335;
+@define-color dialog_bg_color #16161e;
 @define-color dialog_fg_color #c0caf5;
 @define-color destructive_bg_color #f7768e;
 @define-color destructive_fg_color #1a1b26;
@@ -78,6 +78,6 @@
 @define-color warning_fg_color #1a1b26;
 @define-color error_bg_color #f7768e;
 @define-color error_fg_color #1a1b26;
-@define-color insensitive_bg_color #1f2335;
+@define-color insensitive_bg_color #16161e;
 @define-color insensitive_fg_color #565f89;
-@define-color borders #292e42;
+@define-color borders #3b4261;

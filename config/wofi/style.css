@@ -3,7 +3,7 @@
    ==========================================================
    Живёт в репозитории: config/wofi/style.css
    Палитра как в Rofi / Polybar / Waybar:
-     #1a1b26 — фон окна       #24283b — поле ввода (фолбэк)
+     #1a1b26 — фон окна       #292e42 — поле ввода (фолбэк)
      #7aa2f7 — акцент (выбранная строка, prompt)
      #c0caf5 — текст
 
@@ -18,7 +18,7 @@
    GTK-тема проекта (config/gtk-3.0/gtk.css) — с приоритетом USER,
    поэтому правило `entry` из темы перекрывает `background-color`
    у `#input`. Фон поля поиска возвращает отдельное правило в
-   gtk.css — `#outer-box #input { background-color: #24283b }`:
+   gtk.css — `#outer-box #input { background-color: #292e42 }`:
    id-селектор в USER-провайдере сильнее общего `entry`.
    Значения ниже остаются фолбэком для системы без пользовательской
    GTK-темы.
@@ -26,7 +26,7 @@
 
 /* --- Палитра --- */
 @define-color bg       #1a1b26;  /* фон окна */
-@define-color bg-alt   #24283b;  /* поле ввода */
+@define-color bg-alt   #292e42;  /* поле ввода */
 @define-color primary  #7aa2f7;  /* акцент: выбранная строка, prompt */
 @define-color fg       #c0caf5;  /* основной текст */
 

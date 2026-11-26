@@ -8,20 +8,20 @@
 /* ---------- 1. Основной механизм: CSS-переменные ---------- */
 :root {
   /* Акцент и статусы */
-  --accent-color: #2b6fd4;
-  --accent-bg-color: #2b6fd4;
+  --accent-color: #2e7de9;
+  --accent-bg-color: #2e7de9;
   --accent-fg-color: #ffffff;
-  --destructive-color: #bb2947;
-  --destructive-bg-color: #bb2947;
+  --destructive-color: #f52a65;
+  --destructive-bg-color: #f52a65;
   --destructive-fg-color: #ffffff;
-  --success-color: #4c652f;
-  --success-bg-color: #4c652f;
+  --success-color: #587539;
+  --success-bg-color: #587539;
   --success-fg-color: #ffffff;
-  --warning-color: #9a4f00;
-  --warning-bg-color: #9a4f00;
+  --warning-color: #b15c00;
+  --warning-bg-color: #b15c00;
   --warning-fg-color: #ffffff;
-  --error-color: #bb2947;
-  --error-bg-color: #bb2947;
+  --error-color: #f52a65;
+  --error-bg-color: #f52a65;
   --error-fg-color: #ffffff;
 
   /* Окна и поверхности */
@@ -29,22 +29,22 @@
   --window-fg-color: #3760bf;
   --view-bg-color: #e1e2e7;
   --view-fg-color: #3760bf;
-  --headerbar-bg-color: #f4f5f9;
+  --headerbar-bg-color: #d0d5e3;
   --headerbar-fg-color: #3760bf;
   --headerbar-backdrop-color: #e1e2e7;
-  --sidebar-bg-color: #d9dde8;
+  --sidebar-bg-color: #d0d5e3;
   --sidebar-fg-color: #3760bf;
-  --sidebar-backdrop-color: #d9dde8;
-  --card-bg-color: #dfe2eb;
+  --sidebar-backdrop-color: #d0d5e3;
+  --card-bg-color: #d0d5e3;
   --card-fg-color: #3760bf;
-  --popover-bg-color: #f4f5f9;
+  --popover-bg-color: #d0d5e3;
   --popover-fg-color: #3760bf;
-  --dialog-bg-color: #f4f5f9;
+  --dialog-bg-color: #d0d5e3;
   --dialog-fg-color: #3760bf;
 
   /* Служебные */
-  --borders: #aab3c7;
-  --insensitive-bg-color: #dfe2eb;
+  --borders: #a8aecb;
+  --insensitive-bg-color: #d0d5e3;
   --insensitive-fg-color: #848cb5;
   --scrollbar-outline-color: rgba(0, 0, 0, 0.35);
 }
@@ -52,33 +52,33 @@
 /* ---------- 2. Слой совместимости: @define-color ----------
    Нужен для тех мест libadwaita 1.x, которые ещё не перешли
    на var(). */
-@define-color accent_color #2b6fd4;
-@define-color accent_bg_color #2b6fd4;
+@define-color accent_color #2e7de9;
+@define-color accent_bg_color #2e7de9;
 @define-color accent_fg_color #ffffff;
 @define-color window_bg_color #e1e2e7;
 @define-color window_fg_color #3760bf;
 @define-color view_bg_color #e1e2e7;
 @define-color view_fg_color #3760bf;
-@define-color headerbar_bg_color #f4f5f9;
+@define-color headerbar_bg_color #d0d5e3;
 @define-color headerbar_fg_color #3760bf;
 @define-color headerbar_backdrop_color #e1e2e7;
-@define-color sidebar_bg_color #d9dde8;
+@define-color sidebar_bg_color #d0d5e3;
 @define-color sidebar_fg_color #3760bf;
-@define-color sidebar_backdrop_color #d9dde8;
-@define-color card_bg_color #dfe2eb;
+@define-color sidebar_backdrop_color #d0d5e3;
+@define-color card_bg_color #d0d5e3;
 @define-color card_fg_color #3760bf;
-@define-color popover_bg_color #f4f5f9;
+@define-color popover_bg_color #d0d5e3;
 @define-color popover_fg_color #3760bf;
-@define-color dialog_bg_color #f4f5f9;
+@define-color dialog_bg_color #d0d5e3;
 @define-color dialog_fg_color #3760bf;
-@define-color destructive_bg_color #bb2947;
+@define-color destructive_bg_color #f52a65;
 @define-color destructive_fg_color #ffffff;
-@define-color success_bg_color #4c652f;
+@define-color success_bg_color #587539;
 @define-color success_fg_color #ffffff;
-@define-color warning_bg_color #9a4f00;
+@define-color warning_bg_color #b15c00;
 @define-color warning_fg_color #ffffff;
-@define-color error_bg_color #bb2947;
+@define-color error_bg_color #f52a65;
 @define-color error_fg_color #ffffff;
-@define-color insensitive_bg_color #dfe2eb;
+@define-color insensitive_bg_color #d0d5e3;
 @define-color insensitive_fg_color #848cb5;
-@define-color borders #aab3c7;
+@define-color borders #a8aecb;

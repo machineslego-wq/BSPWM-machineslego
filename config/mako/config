@@ -45,7 +45,7 @@ border-radius=2
 
 # Полоса прогресса (хинт value — громкость и т.п.) — тёмно-синяя,
 # как bg-alt. OSD громкости перекрывает её своими критериями ниже.
-progress-color=over #1c305b
+progress-color=over #3d59a1
 
 # Иконки выключены: только текст (как в Dunst).
 icons=0
@@ -112,5 +112,5 @@ border-color=#f7768e
 progress-color=over #f7768e26
 
 [category=volume-overflow]
-border-color=#ff0000
-progress-color=over #ff000026
+border-color=#db4b4b
+progress-color=over #db4b4b26

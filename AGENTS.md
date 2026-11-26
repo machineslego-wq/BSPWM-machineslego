@@ -93,7 +93,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 
 - `config/sxhkd/sxhkdrc`: команда под хоткеем — отступ ровно 4 пробела (не табы), комментарии только отдельной строкой, brace-раскладка `super + {a,b}` работает.
 - `config/picom/*.conf`: унарный минус не парсится — писать `"0 - window-height"`. `dim-spec` у `dim` задаёт непрозрачность неактивных окон.
-- `config/polybar/config.ini`: `internal/*` там, где есть сток; исключение — `[module/bluetooth]` на `custom/script`: в Polybar 3.7 нет `internal/bluetooth`. `launch.sh` экспортирует `POLYBAR_BAT` / `POLYBAR_AC` / `POLYBAR_BACKLIGHT` — не хардкодить имена. Фон «пилюль» — `bg-mid = #1f2335`, иконки требуют JetBrainsMono Nerd Font.
+- `config/polybar/config.ini`: `internal/*` там, где есть сток; исключение — `[module/bluetooth]` на `custom/script`: в Polybar 3.7 нет `internal/bluetooth`. `launch.sh` экспортирует `POLYBAR_BAT` / `POLYBAR_AC` / `POLYBAR_BACKLIGHT` — не хардкодить имена. Фон «пилюль» — `bg-mid = #292e42`, иконки требуют JetBrainsMono Nerd Font.
 - Bluetooth в Polybar — `custom/script` с `local/bin/bluetooth`: `󰂲 OFF` / `󰂯 ON` / `󰂱 N` (N подключённых), ЛКМ `bluetooth on`, ПКМ `bluetooth off`. Опрос раз в 5 с: `bluetoothctl show` ~4 мс.
 - Если адаптер залочен (`bluetoothctl show` → `PowerState: off-blocked`), `bluetoothctl power on` возвращает ошибку: `local/bin/unblock-bt` снимает rfkill-блок (`sudo` в терминале, `pkexec` из хоткея) и включает адаптер.
 - `config/rofi/config.rasi`: размеры только в `em` (не `%`), чтобы меню не зависело от монитора. `em` считается от шрифта `JetBrainsMono Nerd Font 10` (18 px). Ширины: launcher 36em, battery 24em, wifi 24em (все меню), power-profile 20em, powermenu 17em, cheatsheet 62×36em (по самой длинной строке с тегами), dunst-history 40×24em. Высота: `fixed-height: true`, общий список 8 строк; в `dmenu` число строк передаётся по числу пунктов: `wifi` 5 (список сетей — до 12), `battery` — по числу строк upower, `powermenu` 4, `power-profile` 3; на Hyprland/XWayland без `fixed-height` dmenu схлопывается до строки ввода. В `cheatsheet-bspwm` теги строк — цвет фона `#1a1b26`: практически не видны, но участвуют в поиске.
@@ -106,7 +106,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 ## Sway
 
 - `config/sway/config`, симлинк `~/.config/sway`; `include /etc/sway/config.d/*` остаётся абсолютным. Стоковый `bar {}` удалён — панель рисует waybar.
-- Оформление: `default_border pixel 2` и `default_floating_border pixel 2` (заголовков нет), `gaps inner/outer 0`, `smart_borders on`. В режиме `pixel` рамку рисует `child_border`, поэтому он продублирован в каждом `client.*`. `client.focused #6b8dd6`, `client.unfocused`/`focused_inactive` — `#1a1b26`.
+- Оформление: `default_border pixel 2` и `default_floating_border pixel 2` (заголовков нет), `gaps inner/outer 0`, `smart_borders on`. В режиме `pixel` рамку рисует `child_border`, поэтому он продублирован в каждом `client.*`. `client.focused #7aa2f7`, `client.unfocused`/`focused_inactive` — `#1a1b26`.
 - **Все `bindsym` — с `--to-code`.** Без флага keysym привязан к текущей раскладке и в RU-режиме не срабатывает.
 - Раскладка `us,ru` + `grp:caps_toggle`, автоповтор 250/30 — через `input "type:keyboard"`; тачпад — `tap`, `dwt`, `natural_scroll enabled`.
 - `local/bin/sway-session` — обёртка вместо `sway`: PATH, `XDG_*`, курсор Bibata 24, Qt (`qt6ct`, `QT_QPA_PLATFORM="wayland;xcb"`), GTK (`GDK_BACKEND=wayland,x11`), `SAL_USE_VCLPLUGIN=gtk3`, `MOZ_ENABLE_WAYLAND`, Electron, Java; перед запуском пишет карту столов в `~/.cache/sway/workspaces.conf` (ПК — 1–7 → `DP-2`, 8–10 → `HDMI-A-4`; ноутбук/нетбук — пустой файл), её подключает `config/sway/config`; затем `exec sway "$@"`. Карта нужна до старта: `workspace <n> output <выход>` действует только на ещё не созданные столы. `home/xinitrc`/`xprofile` под Wayland не выполняются.
@@ -197,7 +197,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - Btop: `config/btop/btop.conf` + `themes/tokyo-night.theme`, тема по имени. btop перезаписывает конфиг при выходе — правки через `F2` или в репозитории.
 - Fastfetch: `config/fastfetch/graphical.jsonc` (X11) и `tty.jsonc` (консоль), выбор по `$TERM` в `config.fish`.
 - Midnight Commander: скины `local/share/mc/skins/*.ini`, формат INI, цвета `fg;bg`.
-- Telegram: темы `themes/telegram/tokyo-night.*` (тёмная, оранжевый акцент) и `tokyo-night-light.*` (светлая «Tokyo Night Day», синий акцент `#2b6fd4`), обе в форматах `.tdesktop-palette` (Desktop) и `.attheme` (мобильная). Ставятся вручную (путь Flatpak).
+- Telegram: темы `themes/telegram/tokyo-night.*` (тёмная, синий акцент `#7aa2f7`) и `tokyo-night-light.*` (светлая «Tokyo Night Day», синий акцент `#2e7de9`), обе в форматах `.tdesktop-palette` (Desktop) и `.attheme` (мобильная). Ставятся вручную (путь Flatpak).
 - Firefox: тема-аддон `themes/firefox/TokyoNight/` (`manifest.json`, иконки) и собранный `TokyoNight-1.0.0.xpi`; документация — `themes/firefox/README.md`. Временная установка — `about:debugging` → Load Temporary Add-on, постоянная — подписанный `.xpi`.
 
 ## Система

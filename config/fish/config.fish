@@ -123,8 +123,8 @@ set -g fish_color_end c0caf5
 set -g fish_color_error f7768e
 set -g fish_color_param e0af68
 set -g fish_color_comment 565f89
-set -g fish_color_selection --background=2f334d
-set -g fish_color_search_match --background=2f334d
+set -g fish_color_selection --background=3b4261
+set -g fish_color_search_match --background=3b4261
 set -g fish_color_operator 89ddff
 set -g fish_color_escape 89ddff
 set -g fish_color_autosuggestion 565f89
