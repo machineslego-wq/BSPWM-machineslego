@@ -197,7 +197,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - Btop: `config/btop/btop.conf` + `themes/tokyo-night.theme`, тема по имени. btop перезаписывает конфиг при выходе — правки через `F2` или в репозитории.
 - Fastfetch: `config/fastfetch/graphical.jsonc` (X11) и `tty.jsonc` (консоль), выбор по `$TERM` в `config.fish`.
 - Midnight Commander: скины `local/share/mc/skins/*.ini`, формат INI, цвета `fg;bg`.
-- Telegram: темы `themes/telegram/tokyo-night.*` (тёмная, синий акцент `#7aa2f7`) и `tokyo-night-light.*` (светлая «Tokyo Night Day», синий акцент `#2e7de9`), обе в форматах `.tdesktop-palette` (Desktop) и `.attheme` (мобильная). Ставятся вручную (путь Flatpak).
+- Telegram: темы `themes/telegram/tokyo-night.*` (тёмная, синий акцент `#7aa2f7`) и `tokyo-night-light.*` (светлая «Tokyo Night Day», синий акцент `#2e7de9`; роли: verified — фиолетовый, reply/waveform/media — cyan, admin — оранжевый), обе в форматах `.tdesktop-palette` (Desktop) и `.attheme` (мобильная). Ставятся вручную (путь Flatpak).
 - Firefox: тема-аддон `themes/firefox/TokyoNight/` (`manifest.json`, иконки) и собранный `TokyoNight-1.0.0.xpi`; документация — `themes/firefox/README.md`. Временная установка — `about:debugging` → Load Temporary Add-on, постоянная — подписанный `.xpi`.
 
 ## Система
