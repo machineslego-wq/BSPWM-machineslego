@@ -104,6 +104,58 @@ BSPWM-machineslego/
 └── LICENSE                      # MIT
 ```
 
+## 🧩 Ядро проекта
+
+Минимальный набор дотфайлов, без которого сессия не поднимется или райс
+развалится: запуск, хоткеи, панель, лаунчер, уведомления, терминал и стили.
+Всё остальное — обвязка вокруг этого ядра: команды по требованию, установщик,
+темы приложений и системные правки.
+
+```text
+BSPWM-machineslego/
+├── config/
+│   ├── bspwm/bspwmrc               # X11: старт сессии, автозапуск, мониторы, обои, рамки
+│   ├── sxhkd/sxhkdrc               # X11: все горячие клавиши
+│   ├── polybar/
+│   │   ├── config.ini              # X11: панель — модули, цвета, шрифты
+│   │   └── launch.sh               # X11: запуск панели по мониторам
+│   ├── picom/picom.conf            # X11: тени, скругления, размытие
+│   ├── rofi/config.rasi            # X11: лаунчер, меню окон и команд
+│   ├── dunst/dunstrc               # X11: уведомления
+│   ├── alacritty/alacritty.toml    # X11: терминал
+│   ├── sway/config                 # Wayland: старт сессии, рамки, хоткеи, автозапуск
+│   ├── waybar/
+│   │   ├── config.jsonc            # Wayland: панель — модули
+│   │   └── style.css               # Wayland: панель — цвета и островки
+│   ├── wofi/
+│   │   ├── config                  # Wayland: лаунчер и меню
+│   │   └── style.css               # Wayland: лаунчер — цвета и размеры
+│   ├── mako/config                 # Wayland: уведомления
+│   ├── foot/foot.ini               # Wayland: терминал
+│   ├── swaylock/config             # Wayland: экран блокировки
+│   ├── gtk-3.0/                    # общие стили GTK3: settings.ini + gtk.css
+│   ├── gtk-4.0/                    # общие стили GTK4/libadwaita: settings.ini + gtk.css
+│   └── qt5ct/colors/ qt6ct/colors/ # палитры Qt: tokyo-night.conf (+ day)
+├── home/
+│   ├── xinitrc                     # X11: startx → BSPWM, PATH с ~/.local/bin
+│   └── xprofile                    # X11: то же окружение при входе через DM
+├── local/bin/
+│   ├── sway-session                # Wayland: обёртка запуска — PATH, окружение, карта столов
+│   └── sway-display                # Wayland: мониторы, геометрия, обои
+└── wallpapers/                     # обои, на которые ссылаются bspwmrc и sway-display
+```
+
+Что сюда не входит и почему:
+
+- `local/bin/*` кроме `sway-session` и `sway-display` — команды по требованию
+  (`wifi`, `screenshot`, `powermenu`): без них сессия и панель работают, просто
+  часть хоткеев ничего не делает.
+- `config/nvim`, `btop`, `cava`, `copyq`, `GIMP`, `themes/` — приложения, а не
+  рабочий стол.
+- `scripts/`, `requirements/`, `system/` — установка и системные правки, не рантайм.
+- Шрифты (JetBrainsMono Nerd Font), иконки (Papirus-Dark) и курсор (Bibata) —
+  пакеты, а не дотфайлы; без них райс выглядит сломанно, но сессия стартует.
+
 ## 📋 Требования
 
 - **ОС:** Debian 13 Trixie, **Wayland** (целевая сессия — Sway, BSPWM/X11 остаётся запасной).

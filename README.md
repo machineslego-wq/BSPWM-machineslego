@@ -105,6 +105,60 @@ BSPWM-machineslego/
 └── LICENSE                      # MIT
 ```
 
+## 🧩 Project core
+
+The minimal set of dotfiles without which the session does not come up or the
+rice falls apart: startup, hotkeys, panel, launcher, notifications, terminal and
+styles. Everything else is scaffolding around this core: on-demand commands,
+the installer, application themes and system tweaks.
+
+```text
+BSPWM-machineslego/
+├── config/
+│   ├── bspwm/bspwmrc               # X11: session start, autostart, monitors, wallpaper, borders
+│   ├── sxhkd/sxhkdrc               # X11: every hotkey
+│   ├── polybar/
+│   │   ├── config.ini              # X11: panel — modules, colors, fonts
+│   │   └── launch.sh               # X11: start the panel per monitor
+│   ├── picom/picom.conf            # X11: shadows, rounded corners, blur
+│   ├── rofi/config.rasi            # X11: launcher, window and command menus
+│   ├── dunst/dunstrc               # X11: notifications
+│   ├── alacritty/alacritty.toml    # X11: terminal
+│   ├── sway/config                 # Wayland: session start, borders, hotkeys, autostart
+│   ├── waybar/
+│   │   ├── config.jsonc            # Wayland: panel — modules
+│   │   └── style.css               # Wayland: panel — colors and islands
+│   ├── wofi/
+│   │   ├── config                  # Wayland: launcher and menus
+│   │   └── style.css               # Wayland: launcher — colors and sizes
+│   ├── mako/config                 # Wayland: notifications
+│   ├── foot/foot.ini               # Wayland: terminal
+│   ├── swaylock/config             # Wayland: lock screen
+│   ├── gtk-3.0/                    # shared GTK3 styles: settings.ini + gtk.css
+│   ├── gtk-4.0/                    # shared GTK4/libadwaita styles: settings.ini + gtk.css
+│   └── qt5ct/colors/ qt6ct/colors/ # Qt palettes: tokyo-night.conf (+ day)
+├── home/
+│   ├── xinitrc                     # X11: startx → BSPWM, PATH with ~/.local/bin
+│   └── xprofile                    # X11: same environment when logging in via a DM
+├── local/bin/
+│   ├── sway-session                # Wayland: launch wrapper — PATH, environment, workspace map
+│   └── sway-display                # Wayland: monitors, geometry, wallpaper
+└── wallpapers/                     # wallpapers referenced by bspwmrc and sway-display
+```
+
+What is deliberately not here:
+
+- `local/bin/*` other than `sway-session` and `sway-display` — on-demand
+  commands (`wifi`, `screenshot`, `powermenu`): the session and panel work
+  without them, some hotkeys just do nothing.
+- `config/nvim`, `btop`, `cava`, `copyq`, `GIMP`, `themes/` — applications, not
+  the desktop itself.
+- `scripts/`, `requirements/`, `system/` — installation and system tweaks, not
+  runtime.
+- Fonts (JetBrainsMono Nerd Font), icons (Papirus-Dark) and cursor (Bibata) are
+  packages, not dotfiles; without them the rice looks broken, but the session
+  still starts.
+
 ## 📋 Requirements
 
 - **OS:** Debian 13 Trixie, **Wayland** (Sway is the target session; BSPWM/X11 stays as the fallback).
