@@ -50,7 +50,7 @@ zip -r ../TokyoNight-1.0.0.xpi manifest.json icon-48.png icon-96.png
 - `toolbar_field_highlight`
 - `icons_attention`
 
-на `#ff9e64` и пересобери `.xpi`.
+на `#ffb37a` и пересобери `.xpi`.
 
 ## Ограничения
 

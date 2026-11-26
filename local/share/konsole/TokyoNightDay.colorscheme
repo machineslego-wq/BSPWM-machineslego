@@ -1,5 +1,5 @@
 # Tokyo Night Day для Konsole.
-# Светлая пара к TokyoNight.colorscheme, классический синий акцент #2e7de9.
+# Светлая пара к TokyoNight.colorscheme, классический синий акцент #2b6fd4.
 
 [Background]
 Color=#e1e2e7
@@ -8,10 +8,10 @@ Color=#e1e2e7
 Color=#e1e2e7
 
 [BackgroundIntense]
-Color=#b7c1e3
+Color=#dfe2eb
 
 [BackgroundFaintIntense]
-Color=#b7c1e3
+Color=#dfe2eb
 
 [Foreground]
 Color=#3760bf
@@ -60,13 +60,13 @@ Color=#8c6c3e
 Color=#a27629
 
 [Color4]
-Color=#2e7de9
+Color=#2b6fd4
 
 [Color4Faint]
-Color=#2e7de9
+Color=#2b6fd4
 
 [Color4Intense]
-Color=#358aff
+Color=#2e7de9
 
 [Color5]
 Color=#9854f1

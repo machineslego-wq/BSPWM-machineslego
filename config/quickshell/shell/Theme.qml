@@ -11,9 +11,9 @@ import Quickshell
 
 Singleton {
     readonly property color bg: "#1a1b26"
-    readonly property color bgMid: "#16161e"
-    readonly property color surface: "#292e42"
-    readonly property color surfaceHigh: "#3b4261"
+    readonly property color bgMid: "#1f2335"
+    readonly property color surface: "#24283b"
+    readonly property color surfaceHigh: "#292e42"
     readonly property color fg: "#c0caf5"
     readonly property color fgDim: "#a9b1d6"
     readonly property color muted: "#565f89"

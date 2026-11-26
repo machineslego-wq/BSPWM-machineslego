@@ -37,11 +37,11 @@ font-size=20
 indicator-radius=90
 indicator-thickness=8
 
-# Ввод: кольцо — синий акцент, набранные символы — тоже синие,
+# Ввод: кольцо — синий акцент, набранные символы — оранжевые,
 # стёртые (backspace) — красные. Разделители тёмные: они отделяют
 # сегменты друг от друга и не спорят с текстом.
 ring-color=7aa2f7
-key-hl-color=7aa2f7
+key-hl-color=ff9e64
 separator-color=1a1b26
 bs-hl-color=f7768e
 
@@ -54,7 +54,7 @@ inside-ver-color=1a1b26d9
 inside-wrong-color=1a1b26d9
 line-uses-inside
 
-text-color=7aa2f7
+text-color=ff9e64
 
 # --- Состояния ---
 # Пустой ввод — приглушённое кольцо.
@@ -80,5 +80,5 @@ caps-lock-bs-hl-color=f7768e
 # Показывать us/ru при наборе: в системе две раскладки.
 show-keyboard-layout
 layout-bg-color=1a1b26d9
-layout-border-color=7aa2f7
+layout-border-color=ff9e64
 layout-text-color=c0caf5

@@ -17,9 +17,9 @@
 
 /* --- Палитра --- */
 @define-color bg            #1a1b26;
-@define-color bg-mid        #16161e;
-@define-color bg-alt        #292e42;
-@define-color bg-highlight  #3b4261;
+@define-color bg-mid        #1f2335;
+@define-color bg-alt        #24283b;
+@define-color bg-highlight  #292e42;
 @define-color fg            #c0caf5;
 @define-color disabled      #565f89;
 @define-color primary       #7aa2f7;

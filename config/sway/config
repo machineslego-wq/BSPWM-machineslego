@@ -46,11 +46,11 @@ smart_gaps off
 # занимает весь экран без обводки.
 smart_borders on
 
-# Рамки — цвета bspwm: focused #7aa2f7, остальные #1a1b26 (фон Tokyo Night,
+# Рамки — цвета bspwm: focused #6b8dd6, остальные #1a1b26 (фон Tokyo Night,
 # сливается с окном и панелью). В режиме pixel рамку вокруг окна рисует
 # child_border, поэтому он продублирован в каждой строке.
-client.focused          #7aa2f7 #16161e #c0caf5 #7aa2f7 #7aa2f7
-client.focused_inactive #1a1b26 #16161e #a9b1d6 #1a1b26 #1a1b26
+client.focused          #6b8dd6 #1f2335 #c0caf5 #6b8dd6 #6b8dd6
+client.focused_inactive #1a1b26 #1f2335 #a9b1d6 #1a1b26 #1a1b26
 client.unfocused        #1a1b26 #1a1b26 #a9b1d6 #1a1b26 #1a1b26
 client.urgent           #e0af68 #e0af68 #1a1b26 #e0af68 #e0af68
 

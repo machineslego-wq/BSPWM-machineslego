@@ -1,5 +1,5 @@
 # Theme: tokyo-night
-# Палитра как в Polybar / Waybar: bg #1a1b26, bg-alt #292e42,
+# Палитра как в Polybar / Waybar: bg #1a1b26, bg-alt #24283b,
 # текст #c0caf5, акцент #7aa2f7, comment #565f89.
 # Формат btop++ (совместим с bpytop/bashtop).
 
@@ -12,7 +12,7 @@ theme[title]="#7aa2f7"
 theme[hi_fg]="#7dcfff"
 
 # Выделенная строка в списке процессов
-theme[selected_bg]="#3d59a1"
+theme[selected_bg]="#33467c"
 theme[selected_fg]="#c0caf5"
 
 # Неактивный текст
@@ -20,7 +20,7 @@ theme[inactive_fg]="#565f89"
 
 # Подписи на графиках и фон шкал
 theme[graph_text]="#565f89"
-theme[meter_bg]="#292e42"
+theme[meter_bg]="#24283b"
 
 # Мелочи в блоке процессов: мини-графики, детали, статус
 theme[proc_misc]="#7dcfff"
