@@ -39,9 +39,9 @@ fi
 # Запуск панели Polybar
 "$HOME/.config/polybar/launch.sh" &
 
-# Запуск профиля подсветки OpenRGB (только для ПК lamer-deb)
+# Запуск профиля подсветки OpenRGB tokyo-night (только для ПК lamer-deb)
 if [ "$(hostname)" = "lamer-deb" ] && command -v openrgb &>/dev/null; then
-    (sleep 3 && openrgb --profile default) &
+    (sleep 3 && openrgb --profile tokyo-night) &
 fi
 
 # Менеджер истории буфера обмена (CopyQ).

@@ -142,12 +142,12 @@ exec pgrep -x swayidle >/dev/null || swayidle -w \
     timeout 600 'swaylock -f' \
     before-sleep 'swaylock -f'
 
-# Подсветка OpenRGB — тот же профиль, что в bspwmrc. Проверка hostname здесь
+# Подсветка OpenRGB — профиль tokyo-night, как в bspwmrc. Проверка hostname здесь
 # единственная в конфиге Sway: строка повторяет bspwmrc и к мониторам
 # отношения не имеет, ради одной команды отдельный скрипт не нужен.
 # pgrep — чтобы reload не плодил дубли; sleep — чтобы контроллер успел
 # появиться в /dev после старта сессии.
-exec_always pgrep -x openrgb >/dev/null || sh -c '[ "$(hostname)" = "lamer-deb" ] && command -v openrgb >/dev/null && { sleep 3; openrgb --profile default; }'
+exec_always pgrep -x openrgb >/dev/null || sh -c '[ "$(hostname)" = "lamer-deb" ] && command -v openrgb >/dev/null && { sleep 3; openrgb --profile tokyo-night; }'
 
 ### Клавиши: запуск приложений
 #
