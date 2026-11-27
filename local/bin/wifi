@@ -1,11 +1,11 @@
 #!/bin/bash
 # ==========================================================
-# wifi — Управление Wi-Fi (rofi в обеих сессиях; wofi — запасной)
+# wifi — Управление Wi-Fi (rofi в BSPWM, wofi в Sway)
 # ==========================================================
 # Использование: wifi {rofi|wofi}
 # Меню: включить/выключить адаптер, подключиться к сети, скрытая
 # сеть, хотспот вкл/выкл. Пароль спрашивается в терминале
-# (alacritty), если nmcli его не знает.
+# (foot в Wayland, alacritty в X11), если nmcli его не знает.
 # ==========================================================
 
 set -u
@@ -22,7 +22,6 @@ case "${1:-}" in
             rofi -dmenu -p "$1" \
                 -theme-str "window {width: 24em;} listview {lines: $n;}"
         }
-        term() { alacritty --class wifi -e "$@"; }
         ;;
     wofi)
         # $1 — prompt, $2 — число пунктов (не длиннее 12 строк).
@@ -34,13 +33,21 @@ case "${1:-}" in
             wofi --dmenu --cache-file /dev/null --insensitive \
                 --width 428 --prompt "$1" --height $((79 + 42 * n))
         }
-        term() { alacritty --class wifi -e "$@"; }
         ;;
     *)
         echo "usage: $0 {rofi|wofi}" >&2
         exit 1
         ;;
 esac
+
+# Пароль: foot в Wayland, alacritty в X11 (foot не умеет X11).
+term() {
+    if [ "${XDG_SESSION_TYPE:-}" = wayland ]; then
+        foot --app-id wifi -e "$@"
+    else
+        alacritty --class wifi -e "$@"
+    fi
+}
 
 notify() {
     notify-send -a "Wi-Fi" -h "string:x-canonical-private-synchronous:${SYNC:-wifi}" "$@"

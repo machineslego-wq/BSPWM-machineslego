@@ -35,7 +35,7 @@ esac
 cat <<EOF | menu
 <b>󰒓 СИСТЕМА И ЗАПУСК</b>
 󰌌 Super + /                        Шпаргалка                      <span foreground="#1a1b26">[помощь, хелп, help, клавиши]</span>
-󰆍 Super + Return                   Терминал (alacritty)                <span foreground="#1a1b26">[консоль, cmd, shell, terminal]</span>
+󰆍 Super + Return                   Терминал (foot)                <span foreground="#1a1b26">[консоль, cmd, shell, terminal]</span>
 󰀻 Super + D                        Лаунчер (wofi)                 <span foreground="#1a1b26">[меню, пуск, запуск, search]</span>
 󰈹 Super + B                        Браузер (Firefox)              <span foreground="#1a1b26">[браузер, интернет, web, firefox]</span>
 󰨞 Super + V                        Редактор (VS Code)             <span foreground="#1a1b26">[код, редактор, vscode, ide]</span>

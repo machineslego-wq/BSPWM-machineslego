@@ -23,10 +23,10 @@ swaylock
 
 # Панель, лаунчер, терминал
 waybar
-# wofi — старый лаунчер Sway, заменён на rofi (из apt.txt)
-# wofi
-# foot — старый терминал Sway, заменён на alacritty (из apt.txt)
-# foot
+# wofi — лаунчер Sway (rofi остаётся для BSPWM)
+wofi
+# foot — терминал Sway (alacritty — для BSPWM/запасной)
+foot
 
 # Qt-приложения под Wayland (sway-session выставляет QT_QPA_PLATFORM="wayland;xcb")
 qt6-wayland

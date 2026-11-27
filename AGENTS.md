@@ -33,10 +33,10 @@
 | Панель BSPWM | `config/polybar/config.ini`, `config/polybar/launch.sh` |
 | Панель Sway | `config/waybar/config.jsonc`, `config/waybar/style.css` |
 | Лаунчер и меню X11 | `config/rofi/config.rasi`, `local/bin/{battery,powermenu,wifi,power-profile,dunst-history}` |
-| Лаунчер и меню Wayland | `config/rofi/config.rasi`, `local/bin/{rofi-clipboard,wifi,battery,powermenu}`; `config/wofi` — запасной |
+| Лаунчер и меню Wayland | `config/wofi`, `local/bin/{wofi-clipboard,wifi,battery,powermenu}`; `config/rofi` — запасной (BSPWM) |
 | Уведомления | `config/dunst/dunstrc` (X11), `config/mako/config` (Sway) |
 | Тема GTK / Qt | `config/gtk-3.0`, `config/gtk-4.0`, `config/qt5ct`, `config/qt6ct` |
-| Терминалы | `config/alacritty/alacritty.toml` (Sway и BSPWM); `config/foot/foot.ini` — старый |
+| Терминалы | `config/foot/foot.ini` (Sway, по умолчанию); `config/alacritty/alacritty.toml` (BSPWM и запасной) |
 | Редакторы | `config/nvim/`, `home/vimrc` |
 | Пакеты | `requirements/apt.txt` (база X11), `sway.txt` (Sway, поверх базы), `apt-system.txt` (системное), `software.txt` (опциональное) |
 | Установка и линковка | `scripts/install.sh`, `link.sh`, `unlink.sh`, `software.sh`, `install-node.sh`, `install-laravel.sh`, `install-sway.sh` |
@@ -66,7 +66,7 @@
 | Синтаксис любого скрипта | `bash -n <файл>` |
 | Конфиг Sway | `sway -C -c config/sway/config` |
 | Mako | `timeout 3 dbus-run-session -- mako --config config/mako/config` (пусто = ok) |
-| Foot (старый) | `foot -C -c config/foot/foot.ini` |
+| Foot | `foot -C -c config/foot/foot.ini` |
 | Остальные конфиги | перезапуск компонента (таблица ниже) |
 
 Перед завершением — `git status`: ничего сгенерированного и никаких бэкапов в коммит.
@@ -112,11 +112,11 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - `local/bin/sway-session` — обёртка вместо `sway`: PATH, `XDG_*`, курсор Bibata 24, Qt (платформенная тема `kde` из `kdeglobals`, без Plasma — фолбэк `qt6ct`; `QT_QPA_PLATFORM="wayland;xcb"`), GTK (`GDK_BACKEND=wayland,x11`), `SAL_USE_VCLPLUGIN=gtk3`, `MOZ_ENABLE_WAYLAND`, Electron, Java; перед запуском пишет карту столов в `~/.cache/sway/workspaces.conf` (ПК — 1–7 → `DP-2`, 8–10 → `HDMI-A-4`; ноутбук/нетбук — пустой файл), её подключает `config/sway/config`; затем `exec sway "$@"`. Карта нужна до старта: `workspace <n> output <выход>` действует только на ещё не созданные столы. `home/xinitrc`/`xprofile` под Wayland не выполняются.
 - `local/bin/sway-display` — мониторы, геометрия и обои; вызывается как `exec_always`. Hostname-условие в конфиге Sway одно — автозапуск OpenRGB (повторяет `bspwmrc`); мониторы ветвятся в скрипте: ветка `lamer-deb` (`DP-2` + `HDMI-A-4` с `transform 90`) и фолбэк ноутбука живут здесь. Привязку столов см. в `sway-session`; `exec swaymsg workspace number 1` в конфиге задаёт стартовый фокус и при reload не повторяется. Имена выходов wlroots ≠ X11: `DisplayPort-1`/`HDMI-A-3` → `DP-2`/`HDMI-A-4`. Обои ставит сам Sway через `output ... bg`.
 - Автозапуск — `exec_always pgrep -x <имя> >/dev/null || <имя>` для waybar, mako, lxpolkit: reload не плодит дубли. `swayidle`: 10 минут и `before-sleep` → `swaylock -f`. `wl-paste --watch cliphist -max-items 100 store` — под таким же стражем. EasyEffects — обычный `exec` (при reload не повторяется).
-- Хоткеи: `$mod+Return` alacritty, `$mod+d` `rofi -show drun`, `$mod+/` `sway-cheatsheet` (rofi; wofi — запасной), `$mod+F1`/`$mod+F3`/`$mod+F4`/`$mod+Shift+S` скриншоты, `$mod+Shift+A` редактор, `$mod+Shift+R` запись всего экрана, `$mod+Shift+Alt+R` области, `$mod+Shift+V` буфер, `$mod+Escape`/`$mod+Shift+C` reload, `$mod+w` kill, `$mod+Alt+L` lock, `$mod+Alt+N` `wifi rofi`, `$mod+Alt+B` `battery rofi`, `$mod+Shift+Q` `powermenu rofi`, `$mod+Shift+E` `swaynag`. Полный список — `sway-cheatsheet`. Профиль питания переключается кликом по модулю PPD в waybar (отдельного меню нет).
+- Хоткеи: `$mod+Return` foot, `$mod+d` `wofi --show drun`, `$mod+/` `sway-cheatsheet wofi`, `$mod+F1`/`$mod+F3`/`$mod+F4`/`$mod+Shift+S` скриншоты, `$mod+Shift+A` редактор, `$mod+Shift+R` запись всего экрана, `$mod+Shift+Alt+R` области, `$mod+Shift+V` `wofi-clipboard`, `$mod+Escape`/`$mod+Shift+C` reload, `$mod+w` kill, `$mod+Alt+L` lock, `$mod+Alt+N` `wifi wofi`, `$mod+Alt+B` `battery wofi`, `$mod+Shift+Q` `powermenu wofi`, `$mod+Shift+E` `swaynag`. Полный список — `sway-cheatsheet`. Профиль питания переключается кликом по модулю PPD в waybar (отдельного меню нет).
 
-- `local/bin/wifi {rofi|wofi}` — один скрипт на обе сессии: `rofi` + `alacritty` (в Sway тоже rofi); `wofi` + `alacritty` остались запасными. Список сетей — `󰤨 | SSID` (иконка из `signal_icon`, `nmcli -t --escape no -f SIGNAL,SSID` + `read` с `IFS=:`; SSID — весь остаток после первого `:`, при выборе `${SSID#*| }` срезает иконку и разделитель); адаптер выбирает `nmcli`; хотспот выключается `nmcli connection down Hotspot`.
+- `local/bin/wifi {rofi|wofi}` — один скрипт на обе сессии: `rofi` в BSPWM, `wofi` в Sway; пароль спрашивается в `foot` (Wayland) или `alacritty` (X11). Список сетей — `󰤨 | SSID` (иконка из `signal_icon`, `nmcli -t --escape no -f SIGNAL,SSID` + `read` с `IFS=:`; SSID — весь остаток после первого `:`, при выборе `${SSID#*| }` срезает иконку и разделитель); адаптер выбирает `nmcli`; хотспот выключается `nmcli connection down Hotspot`.
 
-- `local/bin/battery {rofi|wofi}` — детали батареи из `upower` (заряд, статус, потребление, здоровье, время); `rofi` + `alacritty` в обеих сессиях (`wofi` — запасной). Батарея выбирается `battery_BAT*`, иначе первая `/battery_` — иначе с беспроводной мышью в меню попадает её батарея.
+- `local/bin/battery {rofi|wofi}` — детали батареи из `upower` (заряд, статус, потребление, здоровье, время); `wofi` в Sway, `rofi` в BSPWM. Батарея выбирается `battery_BAT*`, иначе первая `/battery_` — иначе с беспроводной мышью в меню попадает её батарея.
 - `local/bin/powermenu {rofi|wofi}` — один список действий: блокировка (`i3lock-fancy`/`swaylock`), выключение, выход (`bspc quit`/`swaymsg exit`), перезагрузка. Бэкенд меню и сессия независимы: блокировку и выход скрипт выбирает по `XDG_CURRENT_DESKTOP`, а `SWAYSOCK` — только если сокет жив (`-S`), поэтому `powermenu rofi` работает и в Sway, и в BSPWM, и в GNOME с устаревшим `SWAYSOCK`.
 
 ### Порталы (OBS, ScreenCast)
@@ -141,15 +141,15 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - `keyboard-state` читает `/dev/input/event*` через libevdev: пользователь должен быть в группе `input` (её выдаёт `install-sway.sh`), иначе индикаторы Caps/Num/Scroll пустые.
 - Звук — `wpctl` (WirePlumber; `pactl` в системе нет). Сеть — `network`: ЛКМ `nm-connection-editor`, ПКМ `wifi rofi`. Трей `icon-size: 16`, островки — `@bg-alt`, панель непрозрачная.
 
-### Wofi (запасной бэкенд)
+### Wofi (лаунчер Sway)
 
-- Лаунчер Sway — `rofi` (`config/rofi/config.rasi`); `config/wofi/config` + `style.css` — запасной, оформлен 1:1 с rofi: фон `#1a1b26`, поле и рамка `#24283b`, радиус окна 12, поля и строк 8, выбранная строка — акцент. Окно 648×419 (36em × 8 строк) по центру, `no_actions=true`, `layer=overlay`.
+- Лаунчер Sway — `wofi`; `config/rofi` остаётся в BSPWM и как запасной. `config/wofi/config` + `style.css` оформлены 1:1 с rofi: фон `#1a1b26`, поле и рамка `#24283b`, радиус 5 (как у панелей), поля и строк 8, выбранная строка — акцент. Окно 648×419 (36em × 8 строк) по центру, `no_actions=true`, `layer=overlay`.
 - Wofi `width`/`height` — это содержимое без border 4 px. Launcher — 644×415; меню: wifi/battery 428, powermenu 302, clipboard 788, cheatsheet 1112×644. Высота меню — `79 + 42*строк` (поле ввода + отступы + строка), border +4; скрипты считают её сами, `--lines` не используется.
 - `dynamic_lines=false` — окно не сжимается при поиске. Поиск как `rofi -dmenu -i`: `matching=contains`, `insensitive=true`, `sort_order=default`, `filter_rate=40`; `fuzzy` пересортировывал список — не возвращать.
-- Фон окна рисует **`#outer-box`**, а не `window`. Свой CSS wofi — приоритет APPLICATION (600), `config/gtk-3.0/gtk.css` — USER (800), поэтому фон и отсутствие focus-ring у поля задаёт правило `#outer-box #input` в `gtk.css`; в `style.css` значение — фолбэк. Padding окна вынесен в margin детей: иначе wofi центрует по width/height, а рисует на 30 px больше, и окно уезжает вправо-вниз.
+- Видимый фон рисует **`#outer-box`**, но у toplevel-окна GTK есть свой `.background` (#1a1b26): из-за скругления он просвечивает в углах. В `gtk.css` добавлено `#window { background-color: transparent; }` (wofi называет окно `window`), поэтому углы прозрачные. CSS wofi — APPLICATION (600), `gtk.css` — USER (800), поэтому фон и отсутствие focus-ring у поля задаёт правило `#outer-box #input` в `gtk.css`; в `style.css` — фолбэк. Padding окна вынесен в margin детей: иначе wofi центрует по width/height, а рисует на 30 px больше, и окно уезжает вправо-вниз.
 - `padding-left: 44px` у строки и `margin-left: -33px` у `#img` повторяют место под иконку, которое rofi резервирует даже без неё. Prompt в wofi — это placeholder (приглушённый) плюс иконка поиска; в rofi — акцентный label. В GTK3 placeholder отдельно не красится.
 - Меню команд — `--dmenu --cache-file /dev/null` (иначе сортировка по частоте). `--show window` под Sway не работает (нет `wlr-foreign-toplevel-management`).
-- `allow_markup` глобально выключен: иначе меню с текстом `<...>` (clipboard) ругается Pango. `sway-cheatsheet {rofi|wofi}` включает разметку сам (`-markup-rows` / `--allow-markup`) и использует скрытые теги — не вырезать; по умолчанию теперь `rofi` (через XWayland), `wofi` — запасной, те же теги и поиск.
+- `allow_markup` глобально выключен: иначе меню с текстом `<...>` (clipboard) ругается Pango. `sway-cheatsheet {rofi|wofi}` включает разметку сам (`-markup-rows` / `--allow-markup`) и использует скрытые теги — не вырезать; по умолчанию `wofi`, `rofi` — запасной, те же теги и поиск.
 - `wofi-clipboard` прогоняет `cliphist list` через `iconv -f UTF-8 -t UTF-8 -c`: cliphist режет превью по байтам и может разрезать UTF-8, иначе Pango сыплет предупреждениями.
 
 ### Mako, Swaylock, Foot
@@ -157,7 +157,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - Mako: `config/mako/config`, `pkill -HUP -x mako` перечитывает. `on-button-left=dismiss` (не `close` — с ним mako не стартует). `outer-margin=8`: waybar резервирует зону, уведомления встают под панелью.
 - OSD громкости: mako не знает dunst-хинтов `frcolor`/`hlcolor`, поэтому `local/bin/wpctl-volume` кладёт уровень в `category` (`volume-*`), а цвета задают секции `[category=volume-*]` **после** `[urgency=*]`; заливка — `progress-color` по хинту `value`.
 - Swaylock: `config/swaylock/config` читается сам, вызовы — `swaylock -f`. Цвета пишутся **без `#`** (строка с решёткой = комментарий, inline-комментариев нет). Обои — те же, что у `sway-display`, по именам выходов.
-- Foot: `config/foot/foot.ini` — **старый терминал Sway**, заменён на alacritty (`config/alacritty/alacritty.toml`); конфиг оставлен. `JetBrainsMono Nerd Font:size=10`, `pad=0x0`, без прозрачности.
+- Foot: `config/foot/foot.ini` — **терминал Sway по умолчанию**, `JetBrainsMono Nerd Font:size=10`, `pad=0x0`, без прозрачности. Alacritty (`config/alacritty`) остаётся для BSPWM и как запасной: foot не умеет X11.
 
 ## Темы: GTK, Qt, Flatpak
 
