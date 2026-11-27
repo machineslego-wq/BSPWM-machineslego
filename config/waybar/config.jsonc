@@ -9,8 +9,8 @@
 //
 // Модули rofi (powermenu, power-profile, wifi) здесь не используются:
 // под Wayland rofi не работает. Профиль питания показывает родной
-// модуль power-profiles-daemon, меню на wofi — wifi wofi, battery wofi,
-// powermenu wofi (кнопка питания справа).
+// модуль power-profiles-daemon, меню на rofi — wifi rofi, battery rofi,
+// powermenu rofi (кнопка питания справа).
 // ==========================================================
 
 {
@@ -59,18 +59,20 @@
     },
 
     // --- Кастомные модули ---
-    // Логотип Debian (клик — wofi drun)
+    // Логотип Debian (клик — rofi drun)
     "custom/debian": {
         "format": "\uf306",
         "tooltip": false,
-        "on-click": "wofi --show drun"
+        // было: "on-click": "wofi --show drun"
+        "on-click": "rofi -show drun"
     },
 
-    // Кнопка питания (powermenu wofi)
+    // Кнопка питания (powermenu rofi)
     "custom/powermenu": {
         "format": "󰐥",
         "tooltip": false,
-        "on-click": "powermenu wofi"
+        // было: "on-click": "powermenu wofi"
+        "on-click": "powermenu rofi"
     },
 
     // --- Caps Lock / Num Lock / Scroll Lock ---
@@ -154,7 +156,8 @@
         "tooltip-format-ethernet": "{ifname} · {ipaddr}/{cidr}",
         "tooltip-format-disconnected": "Нет подключения",
         "on-click": "nm-connection-editor",
-        "on-click-right": "wifi wofi"
+        // было: "on-click-right": "wifi wofi"
+        "on-click-right": "wifi rofi"
     },
 
     // --- Звук (PipeWire через wpctl) ---
@@ -194,7 +197,8 @@
         // "format-icons": [
         //     "", "", "", "", ""
         // ],
-        "on-click" : "battery wofi"
+        // было: "on-click" : "battery wofi"
+        "on-click" : "battery rofi"
     },
 
     // --- Часы ---

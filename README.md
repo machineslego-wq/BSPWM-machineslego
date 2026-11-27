@@ -44,7 +44,7 @@ Every line of code and every running process must justify its existence. This ru
 ## ✨ Features
 
 - **Native Modules First:** Polybar uses stock `internal/bspwm`, `internal/xwindow`, `internal/battery`, `internal/backlight`, `internal/network`, `internal/pulseaudio`, `internal/xkeyboard`, and `internal/date`. Zero background bash loops; the only exception is the Bluetooth status script — Polybar 3.7 has no `internal/bluetooth`.
-- **On-Demand Commands:** `wifi`, `powermenu`, `battery`, `bluetooth`, `unblock-bt`, `power-profile`, `screenshot`, `wpctl-volume`, `dunst-history`, `session-restart`, `cheatsheet-bspwm`, `rice-check`, and `rice-help` live in `~/.local/bin` (PATH); the Sway set (`sway-cheatsheet {wofi|rofi}`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, plus the wofi menu `wofi-clipboard`) lives there too; `wifi`, `battery` and `powermenu` take the menu backend as their argument (`wifi rofi`/`battery rofi`/`powermenu rofi` in BSPWM, `wifi wofi`/`battery wofi`/`powermenu wofi` in Sway); window flags — in `config/sxhkd/scripts`. They run on a hotkey and exit immediately.
+- **On-Demand Commands:** `wifi`, `powermenu`, `battery`, `bluetooth`, `unblock-bt`, `power-profile`, `screenshot`, `wpctl-volume`, `dunst-history`, `session-restart`, `cheatsheet-bspwm`, `rice-check`, and `rice-help` live in `~/.local/bin` (PATH); the Sway set (`sway-cheatsheet {wofi|rofi}`, `sway-display`, `sway-record`, `sway-screenshot`, `sway-session`, plus the wofi menu `wofi-clipboard`) lives there too; `wifi`, `battery` and `powermenu` take the menu backend as their argument (`wifi rofi`/`battery rofi`/`powermenu rofi` in both sessions; `wofi` is a fallback); window flags — in `config/sxhkd/scripts`. They run on a hotkey and exit immediately.
 - **Machine Utilities:** `start-llm` (Ollama + OpenWebUI), `start-comfy` (ComfyUI), `mount-nas` (NFS), `openrgb-i2c-fix`, `sddm-avatar`, `check-hardware`, `check-strawberry`. Docker commands are machine-specific; they check for the daemon and print usage when an argument is missing. The Apache helpers `vhost-add` / `vhost-remove` create and delete a virtual host (interactive, need `sudo`, write to `/etc/apache2` and `/etc/hosts`; `apache2` is not in `requirements/`).
 - **Hardware Autodetection:** `polybar/launch.sh` finds the battery (`POLYBAR_BAT`), AC adapter (`POLYBAR_AC`), and backlight device (`POLYBAR_BACKLIGHT`) in `/sys/class/…` — no hardcoded names.
 - **Wallpapers — `feh` only:** no picker script, no state file, no previews. Two static `feh` calls in `bspwmrc`: landscape on the main monitor, portrait on the rotated one. Change a wallpaper = edit one line.
@@ -74,7 +74,7 @@ BSPWM-machineslego/
 │   ├── easyeffects/output/      # equalizer/effects presets
 │   ├── fastfetch/               # graphical.jsonc and tty.jsonc
 │   ├── fish/                    # config.fish, fish_plugins, rustup
-│   ├── foot/foot.ini            # terminal for Sway: no padding, Tokyo Night
+│   ├── foot/foot.ini            # old Sway terminal (replaced by alacritty)
 │   ├── GIMP/3.0/themes/         # TokyoNight theme for GIMP 3
 │   ├── gtk-3.0/ gtk-4.0/        # gtk.css: Tokyo Night over Adwaita-dark
 │   ├── mako/config              # notifications for Sway: dunst-style
@@ -90,7 +90,7 @@ BSPWM-machineslego/
 │   ├── xdg-desktop-portal/      # portals.conf: ScreenCast/Screenshot → wlr
 │   ├── sxhkd/                   # sxhkdrc + hotkey helpers (scripts/)
 │   ├── waybar/                  # config.jsonc + style.css: Sway panel
-│   └── wofi/                    # config + style.css: Sway launcher and menus
+│   └── wofi/                    # (fallback) Sway launcher; primary is rofi
 ├── home/                        # symlinks to ~/*: .bashrc, .vimrc, .xinitrc, .xprofile, .Xresources
 ├── local/bin/                   # commands in ~/.local/bin: wifi, screenshot, wpctl-volume, ...
 ├── local/share/mc/skins/        # Midnight Commander skin
@@ -133,7 +133,7 @@ BSPWM-machineslego/
 │   │   ├── config                  # Wayland: launcher and menus
 │   │   └── style.css               # Wayland: launcher — colors and sizes
 │   ├── mako/config                 # Wayland: notifications
-│   ├── foot/foot.ini               # Wayland: terminal
+│   ├── foot/foot.ini               # Wayland: old terminal (alacritty)
 │   ├── swaylock/config             # Wayland: lock screen
 │   ├── gtk-3.0/                    # shared GTK3 styles: settings.ini + gtk.css
 │   ├── gtk-4.0/                    # shared GTK4/libadwaita styles: settings.ini + gtk.css
@@ -229,7 +229,7 @@ Colors live in a dconf profile rather than a file, so the repo ships a command i
 The palette is a file: `local/share/org.gnome.Ptyxis/palettes/tokyo-night.palette`, `link.sh` links it into `~/.local/share/org.gnome.Ptyxis/palettes/`. Pick Preferences → Palette → Tokyo Night in Ptyxis.
 
 **Wi-Fi.**
-The `wifi` command (`~/.local/bin`) takes the menu backend as its first argument: `wifi rofi` for BSPWM (terminal — Alacritty) and `wifi wofi` for Sway (terminal — Foot). The adapter is chosen by `nmcli`, so there is no interface table; set `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` at the top of the file.
+The `wifi` command (`~/.local/bin`) takes the menu backend as its first argument: `wifi rofi` in both sessions (terminal — Alacritty); `wifi wofi` remains a fallback (Foot). The adapter is chosen by `nmcli`, so there is no interface table; set `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` at the top of the file.
 
 **Network, Bluetooth and power without a launcher.**
 If rofi/wofi are unavailable, the same actions live in the terminal — via the aliases in `~/.bashrc` / `config.fish`:
@@ -338,7 +338,7 @@ Launch OBS as a Wayland client — `QT_QPA_PLATFORM=wayland obs` — otherwise i
 
 ## ⌨️ Keybindings
 
-**Full cheatsheet:** `Super + /` — `cheatsheet-bspwm` (Rofi) in BSPWM, `sway-cheatsheet` (wofi, `rofi` fallback) in Sway; both are searchable through hidden tags, and the BSPWM window is sized so they are not clipped. Neovim cheatsheet: `rice-doc nvim` (`docs/nvim.md`); Vim cheatsheet: the comments in `~/.vimrc`.
+**Full cheatsheet:** `Super + /` — `cheatsheet-bspwm` (Rofi) in BSPWM, `sway-cheatsheet` (rofi, `wofi` fallback) in Sway; both are searchable through hidden tags, and the BSPWM window is sized so they are not clipped. Neovim cheatsheet: `rice-doc nvim` (`docs/nvim.md`); Vim cheatsheet: the comments in `~/.vimrc`.
 
 ### BSPWM: system & launch
 

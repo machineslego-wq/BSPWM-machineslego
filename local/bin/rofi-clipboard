@@ -1,0 +1,33 @@
+#!/bin/bash
+# ==========================================================
+# rofi-clipboard — История буфера обмена (cliphist) в rofi
+# ==========================================================
+# Аналог истории CopyQ для BSPWM: cliphist хранит последние
+# 100 записей (текст и картинки), меню рисует rofi.
+#
+# Вызов: Super + Shift + V в Sway.
+# Очистка истории: cliphist wipe.
+# ==========================================================
+
+set -u
+
+# cliphist обрезает превью по байтам и может разрезать UTF-8;
+# iconv -c выбрасывает неполные последовательности, иначе Pango ругается.
+LIST=$(cliphist list 2>/dev/null | iconv -f UTF-8 -t UTF-8 -c)
+if [ -z "$LIST" ]; then
+    notify-send -a "Clipboard" -u low "Буфер" "История пуста"
+    exit 0
+fi
+
+N=$(printf '%s\n' "$LIST" | grep -c .)
+L=$((N + 1))
+[ "$L" -lt 8 ] && L=8
+[ "$L" -gt 20 ] && L=20
+CHOICE=$(printf '%s\n' "$LIST" | rofi -dmenu -i -lines "$L" \
+    -p "󰅇 Буфер" -theme-str 'window {width: 44em;}')
+
+[ -z "$CHOICE" ] && exit 0
+
+# Строка cliphist: <id><TAB><превью до 100 символов>.
+ID=${CHOICE%%$'\t'*}
+cliphist decode "$ID" | wl-copy

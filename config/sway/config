@@ -8,14 +8,15 @@
 # Применение: Super + Escape (reload) или Super + Shift + C.
 # Шпаргалка: Super + / (sway-cheatsheet).
 #
-# Соседние конфиги Sway: waybar (панель), wofi (лаунчер), mako (уведомления),
-# foot (терминал), swaylock (блокировка).
+# Соседние конфиги Sway: waybar (панель), mako (уведомления), swaylock
+# (блокировка). Лаунчер — rofi, терминал — alacritty; старые config/wofi и
+# config/foot оставлены в репозитории, но больше не используются.
 #
 # Что здесь НЕ как в BSPWM:
 #   - нет picom: тени и скругления — отдельный композитор, Sway их не умеет;
 #   - нет preselect: у Sway другая модель дерева;
-#   - вместо rofi — wofi, вместо Polybar — waybar, вместо sxhkd — сам Sway,
-#     вместо i3lock-fancy — swaylock.
+#   - лаунчер — rofi (через XWayland), терминал — alacritty, вместо Polybar —
+#     waybar, вместо sxhkd — сам Sway, вместо i3lock-fancy — swaylock.
 # ==============================================================================
 
 ### Переменные
@@ -28,8 +29,10 @@ set $down j
 set $up k
 set $right l
 # Терминал и лаунчер.
-set $term foot
-set $menu wofi --show drun
+# было: set $term foot
+set $term alacritty
+# было: set $menu wofi --show drun
+set $menu rofi -show drun
 
 ### Оформление окон
 #
@@ -151,10 +154,10 @@ exec_always pgrep -x openrgb >/dev/null || sh -c '[ "$(hostname)" = "lamer-deb" 
 
 ### Клавиши: запуск приложений
 #
-# Терминал (foot).
+# Терминал (alacritty; раньше foot).
 bindsym --to-code $mod+Return exec $term
 
-# Лаунчер (wofi).
+# Лаунчер (rofi; раньше wofi).
 bindsym --to-code $mod+d exec $menu
 
 # Браузер, редактор, файлы, микшер.
@@ -164,22 +167,26 @@ bindsym --to-code $mod+e exec thunar
 bindsym --to-code $mod+a exec pavucontrol-qt
 
 # Датчики в терминале.
-bindsym --to-code $mod+x exec foot -e watch -n 1 sensors
+# было: bindsym --to-code $mod+x exec foot -e watch -n 1 sensors
+bindsym --to-code $mod+x exec alacritty -e watch -n 1 sensors
 
 # Шпаргалка по хоткеям Sway.
 bindsym --to-code $mod+slash exec sway-cheatsheet
 
-# Wi-Fi (nmcli + wofi; пароль спрашивается в foot).
-bindsym --to-code $mod+Alt+n exec wifi wofi
+# Wi-Fi (nmcli + rofi; пароль спрашивается в alacritty).
+# было: bindsym --to-code $mod+Alt+n exec wifi wofi
+bindsym --to-code $mod+Alt+n exec wifi rofi
 
-# Батарея: заряд, статус, здоровье (wofi).
-bindsym --to-code $mod+Alt+b exec battery wofi
+# Батарея: заряд, статус, здоровье (rofi).
+# было: bindsym --to-code $mod+Alt+b exec battery wofi
+bindsym --to-code $mod+Alt+b exec battery rofi
 
 # Telegram (flatpak) через WS-прокси.
 bindsym --to-code $mod+Alt+t exec sh -c 'tg-ws-proxy & sleep 1 && flatpak run org.telegram.desktop'
 
 # История буфера обмена (cliphist; в BSPWM — CopyQ).
-bindsym --to-code $mod+Shift+v exec wofi-clipboard
+# было: bindsym --to-code $mod+Shift+v exec wofi-clipboard
+bindsym --to-code $mod+Shift+v exec rofi-clipboard
 
 ### Клавиши: конфиг, блокировка, выход
 #
@@ -191,7 +198,8 @@ bindsym --to-code $mod+Shift+c reload
 bindsym --to-code $mod+Alt+l exec swaylock -f
 
 # Меню питания: блокировка / выключить / выйти / перезагрузить.
-bindsym --to-code $mod+Shift+q exec powermenu wofi
+# было: bindsym --to-code $mod+Shift+q exec powermenu wofi
+bindsym --to-code $mod+Shift+q exec powermenu rofi
 
 # Выход из Sway с подтверждением.
 bindsym --to-code $mod+Shift+e exec swaynag -t warning \

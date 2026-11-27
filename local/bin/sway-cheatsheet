@@ -2,17 +2,17 @@
 # ==========================================================
 # sway-cheatsheet — Шпаргалка горячих клавиш Sway
 # ==========================================================
-# Аналог cheatsheet-bspwm, но меню по умолчанию рисует wofi.
-# Запасной бэкенд — rofi (работает через XWayland), если wofi
+# Аналог cheatsheet-bspwm, меню по умолчанию рисует rofi (XWayland).
+# wofi остаётся запасным бэкендом, если rofi
 # перестанет обновляться или сломается.
 # Тот же приём со скрытыми тегами: строка-описание написана цветом
 # фона, поэтому не видна, но находится поиском.
 #
-# Вызов: Super + / в Sway (wofi); вручную: sway-cheatsheet [wofi|rofi]
+# Вызов: Super + / в Sway (rofi); вручную: sway-cheatsheet [rofi|wofi]
 # Список должен совпадать с config/sway/config.
 # ==========================================================
 
-case "${1:-wofi}" in
+case "${1:-rofi}" in
     wofi)
         menu() {
             wofi --dmenu --allow-markup --cache-file /dev/null \
@@ -35,22 +35,22 @@ esac
 cat <<EOF | menu
 <b>󰒓 СИСТЕМА И ЗАПУСК</b>
 󰌌 Super + /                        Шпаргалка                      <span foreground="#1a1b26">[помощь, хелп, help, клавиши]</span>
-󰆍 Super + Return                   Терминал (foot)                <span foreground="#1a1b26">[консоль, cmd, shell, terminal]</span>
-󰀻 Super + D                        Лаунчер (wofi)                 <span foreground="#1a1b26">[меню, пуск, запуск, search]</span>
+󰆍 Super + Return                   Терминал (alacritty)                <span foreground="#1a1b26">[консоль, cmd, shell, terminal]</span>
+󰀻 Super + D                        Лаунчер (rofi)                 <span foreground="#1a1b26">[меню, пуск, запуск, search]</span>
 󰈹 Super + B                        Браузер (Firefox)              <span foreground="#1a1b26">[браузер, интернет, web, firefox]</span>
 󰨞 Super + V                        Редактор (VS Code)             <span foreground="#1a1b26">[код, редактор, vscode, ide]</span>
 󰉋 Super + E                        Файлы (Thunar)                 <span foreground="#1a1b26">[файлы, проводник, папки, explorer]</span>
 󰕾 Super + A                        Микшер звука                   <span foreground="#1a1b26">[звук, громкость, audio, наушники]</span>
-󰖩 Super + Alt + N                  Wi-Fi (wofi)                   <span foreground="#1a1b26">[сеть, wifi, интернет, хотспот, nmcli]</span>
+󰖩 Super + Alt + N                  Wi-Fi (rofi)                   <span foreground="#1a1b26">[сеть, wifi, интернет, хотспот, nmcli]</span>
 󰁹 Super + Alt + B                  Батарея: заряд и здоровье      <span foreground="#1a1b26">[батарея, заряд, battery, здоровье, энергия]</span>
  Super + Alt + T                  Telegram (flatpak) + Proxy     <span foreground="#1a1b26">[телеграм, чат, messenger, прокси, proxy]</span>
-󰔏 Super + X                        Датчики (foot)                 <span foreground="#1a1b26">[датчики, сенсоры, нагрев, sensors, watch]</span>
+󰔏 Super + X                        Датчики (alacritty)                 <span foreground="#1a1b26">[датчики, сенсоры, нагрев, sensors, watch]</span>
 󰑓 Super + Escape                   Перечитать конфиг Sway         <span foreground="#1a1b26">[рестарт, конфиг, reload, reload]</span>
 󰑓 Super + Shift + C                Перечитать конфиг Sway         <span foreground="#1a1b26">[рестарт, конфиг, reload, reload]</span>
 
 <b>󰐥 ПИТАНИЕ И БЛОКИРОВКА</b>
 󰌾 Super + Alt + L                  Заблокировать экран            <span foreground="#1a1b26">[lock, блокировка, пароль, swaylock]</span>
-󰤆 Super + Shift + Q                Меню питания (wofi)            <span foreground="#1a1b26">[выключить, перезагрузка, выход, powermenu]</span>
+󰤆 Super + Shift + Q                Меню питания (rofi)            <span foreground="#1a1b26">[выключить, перезагрузка, выход, powermenu]</span>
 󰜉 Super + Shift + E                Выход из Sway                  <span foreground="#1a1b26">[выход, quit, exit, logout, swaynag]</span>
 󰒲 Бездействие 10 мин               Автоблокировка (swayidle)      <span foreground="#1a1b26">[idle, таймаут, блокировка, swayidle]</span>
 

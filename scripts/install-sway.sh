@@ -134,7 +134,7 @@ fi
 log ""
 log "Конфиг Sway лежит в репозитории: config/sway/config"
 log "  линкуется в ~/.config/sway через ./scripts/link.sh"
-log "Мониторы и обои: sway-display, терминал: config/foot"
+log "Мониторы и обои: sway-display, терминал: alacritty"
 log "Индикаторы Caps/Num Lock: waybar keyboard-state (группа input)"
 log ""
 log "Проверка конфига: sway -C -c ~/.config/sway/config"
