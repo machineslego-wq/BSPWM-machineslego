@@ -7,10 +7,9 @@
 // Перезапуск после правки этого файла: pkill -x waybar; waybar &
 // style.css подхватывается на лету (reload_style_on_change).
 //
-// Модули rofi (powermenu, power-profile, wifi) здесь не используются:
-// rofi работает через XWayland. Профиль питания показывает родной
-// модуль power-profiles-daemon, меню на rofi — wifi rofi, battery rofi,
-// powermenu rofi (кнопка питания справа).
+// Меню — на wofi (rofi остаётся в BSPWM). Профиль питания показывает
+// родной модуль power-profiles-daemon, меню — wifi wofi, battery wofi,
+// powermenu wofi (кнопка питания справа).
 // ==========================================================
 
 {
@@ -59,20 +58,20 @@
     },
 
     // --- Кастомные модули ---
-    // Логотип Debian (клик — rofi drun)
+    // Логотип Debian (клик — wofi drun)
     "custom/debian": {
         "format": "\uf306",
         "tooltip": false,
-        // было: "on-click": "wofi --show drun"
-        "on-click": "rofi -show drun"
+        // было: "on-click": "rofi -show drun"
+        "on-click": "wofi --show drun"
     },
 
-    // Кнопка питания (powermenu rofi)
+    // Кнопка питания (powermenu wofi)
     "custom/powermenu": {
         "format": "󰐥",
         "tooltip": false,
-        // было: "on-click": "powermenu wofi"
-        "on-click": "powermenu rofi"
+        // было: "on-click": "powermenu rofi"
+        "on-click": "powermenu wofi"
     },
 
     // --- Caps Lock / Num Lock / Scroll Lock ---
@@ -156,8 +155,8 @@
         "tooltip-format-ethernet": "{ifname} · {ipaddr}/{cidr}",
         "tooltip-format-disconnected": "Нет подключения",
         "on-click": "nm-connection-editor",
-        // было: "on-click-right": "wifi wofi"
-        "on-click-right": "wifi rofi"
+        // было: "on-click-right": "wifi rofi"
+        "on-click-right": "wifi wofi"
     },
 
     // --- Звук (PipeWire через wpctl) ---
@@ -197,8 +196,8 @@
         // "format-icons": [
         //     "", "", "", "", ""
         // ],
-        // было: "on-click" : "battery wofi"
-        "on-click" : "battery rofi"
+        // было: "on-click" : "battery rofi"
+        "on-click" : "battery wofi"
     },
 
     // --- Часы ---
