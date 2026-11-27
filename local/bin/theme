@@ -1,0 +1,104 @@
+#!/bin/bash
+# ==========================================================
+# theme — линкует/разлинковывает GTK и Qt конфиги целиком
+# ==========================================================
+# on     — ~/.config/{gtk-3.0,gtk-4.0,qt5ct,qt6ct,environment.d}
+#          -> каталоги репозитория. Существующее заменяется
+#          принудительно: реальные каталоги/файлы уходят в
+#          ~/.dotfiles-backup-YYYYMMDD-HHMMSS.
+# off    — ссылки убираются, gtk-theme=Adwaita: сток.
+# status — показать состояние.
+#
+# Применение: перезапуск приложений / следующая сессия.
+# ==========================================================
+
+set -u
+
+self=$(readlink -f "$0")
+root=$(cd "$(dirname "$self")/../.." && pwd)
+dirs=(gtk-3.0 gtk-4.0 qt5ct qt6ct environment.d)
+backup="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
+backup_used=0
+
+gtk_theme_name() {
+    gsettings set org.gnome.desktop.interface gtk-theme "$1" 2>/dev/null || true
+}
+
+backup_path() {
+    local dst=$1
+    if [ "$backup_used" -eq 0 ]; then
+        mkdir -p "$backup"
+        backup_used=1
+    fi
+    mkdir -p "$(dirname "$backup/$dst")"
+    mv "$dst" "$backup/$dst"
+    echo "  бэкап: $dst -> $backup/$dst"
+}
+
+link_dirs() {
+    local name dst
+    for name in "${dirs[@]}"; do
+        dst="$HOME/.config/$name"
+        if [ -L "$dst" ]; then
+            ln -sfn "$root/config/$name" "$dst"
+        elif [ -d "$dst" ] && [ -z "$(ls -A "$dst")" ]; then
+            # пустой каталог GTK создаёт сам — его можно заменить ссылкой
+            rmdir "$dst"
+            ln -s "$root/config/$name" "$dst"
+        elif [ -e "$dst" ]; then
+            backup_path "$dst"
+            ln -s "$root/config/$name" "$dst"
+        else
+            ln -s "$root/config/$name" "$dst"
+        fi
+    done
+}
+
+unlink_dirs() {
+    local name dst
+    for name in "${dirs[@]}"; do
+        dst="$HOME/.config/$name"
+        if [ -L "$dst" ]; then
+            case "$(readlink "$dst")" in
+                "$root"/*) rm -f "$dst" ;;
+                *) echo "  $name: ссылка вне репозитория, не трогаю" >&2 ;;
+            esac
+        elif [ -e "$dst" ]; then
+            echo "  $name: настоящий каталог/файл, не удаляю" >&2
+        fi
+    done
+}
+
+case "${1:-status}" in
+    on)
+        link_dirs
+        gtk_theme_name Adwaita-dark
+        echo "GTK и Qt темы включены (ссылки на config/...)."
+        ;;
+    off)
+        unlink_dirs
+        gtk_theme_name Adwaita
+        echo "GTK и Qt темы выключены: сток (gtk-theme=Adwaita)."
+        ;;
+    status)
+        for name in "${dirs[@]}"; do
+            dst="$HOME/.config/$name"
+            if [ -L "$dst" ]; then
+                echo "$name: ссылка на $(readlink "$dst")"
+            elif [ -e "$dst" ]; then
+                if [ -d "$dst" ] && [ -z "$(ls -A "$dst")" ]; then
+                    echo "$name: пустой каталог (тема выключена)"
+                else
+                    echo "$name: настоящий каталог/файл"
+                fi
+            else
+                echo "$name: нет (сток)"
+            fi
+        done
+        printf 'gtk-theme: %s\n' "$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null | tr -d "'")"
+        ;;
+    *)
+        echo "usage: $0 {on|off|status}" >&2
+        exit 1
+        ;;
+esac
