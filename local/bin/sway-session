@@ -55,10 +55,17 @@ export XCURSOR_THEME=Bibata-Modern-Ice
 export XCURSOR_SIZE=24
 
 # --- Qt ---
-# Qt-приложения следуют GTK-теме: платформенная тема gtk3
-# (пакеты qt5-gtk-platformtheme / qt6-gtk-platformtheme).
+# KDE-приложения (Dolphin, Okular, Ark) красятся только платформенной темой
+# kde: палитру, стиль и иконки она берёт из kdeglobals (схема TokyoNight).
+# qt6ct задаёт QPalette, но KF6-виджеты его игнорируют — остаются серые
+# полосы Breeze. Если Plasma не установлена, остаётся qt6ct с палитрой
+# из config/qt6ct.
 # wayland;xcb — сначала нативный Wayland, иначе XWayland (старые Qt-приложения).
-export QT_QPA_PLATFORMTHEME=gtk3
+if ls /usr/lib/*/qt6/plugins/platformthemes/KDEPlasmaPlatformTheme6.so >/dev/null 2>&1; then
+    export QT_QPA_PLATFORMTHEME=kde
+else
+    export QT_QPA_PLATFORMTHEME=qt6ct
+fi
 export QT_QPA_PLATFORM="wayland;xcb"
 
 # --- GTK ---

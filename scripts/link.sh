@@ -131,8 +131,10 @@ if command -v flatpak >/dev/null 2>&1; then
     # Доступ к папке с темами (если она у тебя есть)
     flatpak override --user --filesystem=xdg-data/themes:ro
 
-    # Qt в Flatpak следует GTK-теме
-    flatpak override --user --env=QT_QPA_PLATFORMTHEME=gtk3
+    # Доступ к конфигам Qt
+    flatpak override --user --filesystem=xdg-config/qt5ct:ro
+    flatpak override --user --filesystem=xdg-config/qt6ct:ro
+    flatpak override --user --env=QT_QPA_PLATFORMTHEME=qt5ct
 fi
 
 echo "Done. (Готово.)"

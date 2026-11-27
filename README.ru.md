@@ -75,11 +75,12 @@ BSPWM-machineslego/
 │   ├── fish/                    # config.fish, fish_plugins, rustup
 │   ├── foot/foot.ini            # терминал Sway: без отступов, Tokyo Night
 │   ├── GIMP/3.0/themes/         # тема TokyoNight для GIMP 3
-│   ├── gtk-4.0/                 # gtk.css: Tokyo Night для libadwaita (GTK4)
+│   ├── gtk-3.0/ gtk-4.0/        # gtk.css: Tokyo Night поверх Adwaita-dark
 │   ├── mako/config              # уведомления Sway: стиль dunst
 │   ├── nvim/                    # Lua-конфиг, vim.pack, CHEATSHEET.md
 │   ├── picom/                   # picom.conf + picom-eco.conf
 │   ├── polybar/                 # config.ini, launch.sh
+│   ├── qt5ct/ qt6ct/            # палитры Qt: tokyo-night.conf
 │   ├── quickshell/shell/        # исходники QML (не подключены)
 │   ├── rofi/config.rasi         # лаунчер/окна/команды
 │   ├── swappy/config            # редактор скриншотов: сохранение в «Изображения»
@@ -132,8 +133,8 @@ BSPWM-machineslego/
 │   ├── mako/config                 # Wayland: уведомления
 │   ├── foot/foot.ini               # Wayland: терминал
 │   ├── swaylock/config             # Wayland: экран блокировки
-│   ├── gtk-3.0/                    # GTK3: settings.ini (Adwaita-dark)
-│   └── gtk-4.0/                    # GTK4/libadwaita: settings.ini + gtk.css
+│   ├── gtk-3.0/                    # общие стили GTK3: settings.ini + gtk.css
+│   ├── gtk-4.0/                    # общие стили GTK4/libadwaita: settings.ini + gtk.css
 ├── home/
 │   ├── xinitrc                     # X11: startx → BSPWM, PATH с ~/.local/bin
 │   └── xprofile                    # X11: то же окружение при входе через DM
@@ -198,7 +199,7 @@ chmod +x scripts/*.sh
 - `local/share/mc/skins/*.ini` → `~/.local/share/mc/skins/`
 - выставляет `+x` командам из `local/bin`, скриптам SXHKD и `bspwmrc`
 - выставляет тему курсора GTK в gsettings (`Bibata-Modern-Ice`, 24) — без этого GTK-приложения рисуют стоковый Adwaita, пока Sway и XWayland показывают Bibata
-- при наличии Flatpak выдаёт override'ы: read-only доступ к `xdg-config/gtk-3.0`, `gtk-4.0`, `xdg-data/themes` и `QT_QPA_PLATFORMTHEME=gtk3`
+- при наличии Flatpak выдаёт override'ы: read-only доступ к `xdg-config/gtk-3.0`, `gtk-4.0`, `qt5ct`, `qt6ct`, `xdg-data/themes` и `QT_QPA_PLATFORMTHEME=qt5ct`
 
 ## ⚙️ После установки
 
@@ -289,9 +290,9 @@ sudo systemctl kill -s HUP systemd-logind
 `./scripts/install-laravel.sh` ставит `php-cli` и расширения (`mbstring`, `xml`, `curl`, `zip`, `sqlite3`, `intl`, `mysql`), Composer 2 в `~/.local/bin/composer` и глобально `laravel/installer`. Бинарник `laravel` Composer кладёт в `~/.config/composer/vendor/bin` — этого каталога обычно нет в PATH, поэтому скрипт прописывает его в bash и fish (блок `composer-global`). `UPDATE_COMPOSER=1` переустанавливает Composer. Новый проект: `laravel new <name>`; альтернатива — `composer create-project laravel/laravel <name>`.
 
 **Темы.**
-- **GTK4:** `config/gtk-4.0/gtk.css` — переменные libadwaita (`:root` с `--*-color`), слой `@define-color` и точечные правила там, где libadwaita считает цвет сам (hover в меню). Применение — перезапуск приложения; Flatpak подхватывают CSS после повторного `link.sh`.
-- **GTK3 и GNOME Shell:** отдельных тем больше нет — стоковая Adwaita (в BSPWM тёмная через `settings.ini`, в GNOME — по Style). Меньше поддержки: не нужно ловить смену селекторов.
-- **Qt:** своих палитр нет — `QT_QPA_PLATFORMTHEME=gtk3` в сессиях, Qt следует GTK-теме (в GNOME то же выбирается само). В Plasma цвет задаёт схема KDE. Рамку окна Qt на Wayland рисует Qt: `config/environment.d/10-qt.conf` задаёт `QT_WAYLAND_DECORATION=adwaita`.
+- **GTK3/GTK4:** `config/gtk-3.0/gtk.css` — полный CSS поверх `Adwaita-dark`: `@define-color` плюс прямые селекторы (Adwaita жёстко прописывает цвета, их приходится переопределять вручную). `config/gtk-4.0/gtk.css` — переменные libadwaita (`:root` с `--*-color`), слой `@define-color` для совместимости и точечные правила там, где libadwaita считает цвет сам (hover в меню). Применение — перезапуск приложения; Flatpak-приложения подхватывают CSS после повторного `link.sh`.
+- **Qt5/Qt6:** палитры `config/qt5ct/colors/tokyo-night.conf` и `config/qt6ct/colors/tokyo-night.conf` (21 роль `QPalette`, формат `#AARRGGBB`), `style=Fusion`, иконки Papirus-Dark. В Sway и BSPWM платформенная тема — `kde`: палитру, стиль и иконки она берёт из `kdeglobals`, потому что KF6-приложения (Dolphin, Okular, Ark) палитру qt6ct игнорируют и оставляют серые виджеты Breeze. qt6ct остаётся фолбэком для систем без Plasma. Применение: `qt5ct`/`qt6ct` или перезапуск приложения. Рамку окна Qt на Wayland рисует сам Qt: `config/environment.d/10-qt.conf` задаёт `QT_WAYLAND_DECORATION=adwaita`, чтобы заголовок был как в GTK (после перелогина).
+- **GNOME Shell:** пользовательской темы нет — стоковая Adwaita, следует Style в GNOME. Полный вариант сохранён в ветке `themes-full`.
 - **GIMP 3:** `config/GIMP/3.0/themes/TokyoNight/` подхватывается как пользовательская тема — включи её в GIMP: Preferences → Interface → Theme.
 - **CopyQ:** тема `tokyo-night.ini` + меню команд (закрепить, метки). История и геометрия окна в git не попадают.
 - **Cava:** `config/cava/config` — спектр в терминале. 60 fps для мгновенной реакции, `noise_reduction = 40`: подъём без задержки, спад резкий, но плавный. Один моно-спектр по всей ширине — низкие частоты слева, высокие справа; градиент по высоте столбика — синий → голубой → фиолетовый → коралловый. Запуск — `cava` (в Alacritty), конфиг читается при старте.
