@@ -51,9 +51,9 @@ window#waybar.hidden {
 #center,
 #right {
     background-color: @bg-alt;
-    border-radius: 5px;
+    border-radius: 15px;
     margin: 4px 6px;
-    padding: 0 2px;
+    padding: 0 5px;
 }
 
 /* Модули внутри островков — без своих пилюль: только padding */
