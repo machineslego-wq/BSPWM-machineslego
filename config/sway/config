@@ -110,7 +110,10 @@ include ~/.cache/sway/workspaces.conf
 # ConditionEnvironment=WAYLAND_DISPLAY, без переменной бэкенд не стартует.
 # /etc/sway/config.d/50-systemd-user.conf делает то же для четырёх
 # переменных; эта строка нужна, если файла нет (сборка не из пакета).
-exec sh -c 'command -v dbus-update-activation-environment >/dev/null && dbus-update-activation-environment --systemd --all'
+# GDK_BACKEND и I3SOCK не экспортируем: GDK_BACKEND=wayland,x11 ломает
+# xdg-desktop-portal-gnome в следующей сессии («Non-compatible display
+# server»), а мёртвые сокеты Sway/i3 не нужны dbus-сервисам.
+exec sh -c 'command -v dbus-update-activation-environment >/dev/null && env -u GDK_BACKEND -u I3SOCK dbus-update-activation-environment --systemd --all'
 
 # Мониторы и обои. У Sway нет условий по hostname, поэтому ветвление
 # (lamer-deb: DP-2 + повёрнутый HDMI-A-4) живёт в скрипте.

@@ -121,8 +121,8 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 
 ### Порталы (OBS, ScreenCast)
 
-1. Переменные Sway должны попасть в systemd/dbus: в конфиге есть `dbus-update-activation-environment --systemd --all`. Проверка: `systemctl --user show-environment | grep WAYLAND_DISPLAY`.
-2. `config/xdg-desktop-portal/portals.conf`: `default=gtk`, а `ScreenCast`/`Screenshot` — `wlr` (hyprland-портал тоже заявляет `sway`, поэтому выбор явный). `default=wlr` нельзя: остальные функции отвалятся.
+1. Переменные Sway должны попасть в systemd/dbus: в конфиге есть `dbus-update-activation-environment --systemd --all`, но `GDK_BACKEND` и `I3SOCK` из экспорта исключены (`env -u`): с `GDK_BACKEND=wayland,x11` `xdg-desktop-portal-gnome` в следующей GNOME-сессии пишет «Non-compatible display server» и отдаёт только настройки. Проверка: `systemctl --user show-environment | grep WAYLAND_DISPLAY`.
+2. `config/xdg-desktop-portal/sway-portals.conf`: `default=gtk`, а `ScreenCast`/`Screenshot` — `wlr` (hyprland-портал тоже заявляет `sway`, поэтому выбор явный). `default=wlr` нельзя: остальные функции отвалятся. У GNOME свой `gnome-portals.conf` (`default=gnome`), у BSPWM — `bspwm-portals.conf` (`default=gtk`).
 3. OBS запускать с `QT_QPA_PLATFORM="wayland;xcb"` (как в `sway-session`), иначе он уйдёт в XWayland.
 4. `slurp` нужен порталу для выбора монитора; он в `requirements/sway.txt`.
 5. Смена сессии ломает порталы: generic `xdg-desktop-portal` читает `<desktop>-portals.conf` один раз при старте и остаётся с конфигом прошлой сессии. `local/bin/session-cleanup` останавливает generic и все бэкенды (gtk/wlr/gnome/kde) и чистит переменные прошлой сессии в systemd: Qt-окружение, `GDK_BACKEND` (с ним `xdg-desktop-portal-gnome` пишет «Non-compatible display server» и отдаёт только настройки), `SWAYSOCK`/`I3SOCK`, `SAL_USE_VCLPLUGIN`, `MOZ_ENABLE_WAYLAND`, Electron и Java. Вызывается только из `powermenu` перед выходом (`powermenu rofi|wofi`). Вручную — `session-cleanup`.

@@ -85,7 +85,8 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 
 # --- systemd ---
 # Окружение в systemd/dbus прокидывает сам Sway: config/sway/config,
-# строка exec dbus-update-activation-environment --systemd --all.
+# exec dbus-update-activation-environment --systemd --all, но без
+# GDK_BACKEND и I3SOCK (см. комментарий там).
 # Это нужно порталам (ScreenCast/Screenshot) и dbus-сервисам.
 #
 # Маска создаёт ~/.config/systemd/user/waybar.service -> /dev/null.
