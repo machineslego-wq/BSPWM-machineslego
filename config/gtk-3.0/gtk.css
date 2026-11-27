@@ -1172,17 +1172,24 @@ infobar.error button:hover {
 }
 
 /* Popover-меню (гамбургер GNOME Terminal и т.п.): Adwaita красит
-   hover в серый — возвращаем палитру. */
-popover.menu modelbutton:hover,
-popover.menu modelbutton:selected,
-popover.menu menuitem:hover,
-popover menuitem:hover {
+   hover в серый (тёмная тема) или белый (светлая) — возвращаем палитру.
+   Селекторы без предка popover: GtkPopoverMenu может не иметь класса .menu. */
+modelbutton:hover,
+modelbutton.flat:hover,
+.menuitem.button.flat:hover,
+popover modelbutton:hover,
+popover.background modelbutton:hover {
     color: #c0caf5;
     background-color: #292e42;
+    background-image: none;
 }
 
-popover.menu modelbutton:active,
-popover.menu menuitem:active {
+modelbutton:active,
+modelbutton:selected,
+modelbutton.flat:selected,
+.menuitem.button.flat:selected,
+popover modelbutton:active {
     color: #eff1f5;
     background-color: #31363b;
+    background-image: none;
 }
