@@ -3,8 +3,7 @@
 # powermenu — Меню питания в rofi (обе сессии; wofi — запасной)
 # ==========================================================
 # Использование: powermenu {rofi|wofi}
-# Один список действий: блокировка, выключение, выход, выход без темы
-# GTK/Qt, перезагрузка.
+# Один список действий: блокировка, выключение, выход, перезагрузка.
 # Бэкенд меню (rofi/wofi) и сессия — разные вещи: блокировка и выход
 # выбираются по XDG_CURRENT_DESKTOP, а SWAYSOCK — только если сокет жив.
 # Блокировка — i3lock-fancy/swaylock, выход — bspc quit/swaymsg exit.
@@ -20,14 +19,10 @@ clean_session() {
     command -v session-cleanup >/dev/null 2>&1 && session-cleanup || true
 }
 
-unlink_theme() {
-    command -v theme-unlink >/dev/null 2>&1 && theme-unlink || true
-}
-
 case "${1:-}" in
     rofi)
         menu() { rofi -dmenu -p "󰤆 Питание" \
-                    -theme-str 'window {width: 17em;} listview {lines: 5;}'; }
+                    -theme-str 'window {width: 17em;} listview {lines: 4;}'; }
         ;;
     wofi)
         menu() { wofi --dmenu --cache-file /dev/null --insensitive \
@@ -42,30 +37,19 @@ esac
 # Действия сессии не зависят от меню: rofi теперь используется и в Sway.
 if [[ ${XDG_CURRENT_DESKTOP:-} == *[Ss]way* || -S ${SWAYSOCK:-} ]]; then
     lock() { swaylock -f; }
-    quit_session() {
-        # Автоматически разлинковать GTK/Qt при выходе:
-        # theme-unlink
-        clean_session
-        swaymsg exit
-    }
+    quit_session() { clean_session; swaymsg exit; }
 else
     lock() { i3lock-fancy -p; }
-    quit_session() {
-        # Автоматически разлинковать GTK/Qt при выходе:
-        # theme-unlink
-        clean_session
-        bspc quit
-    }
+    quit_session() { clean_session; bspc quit; }
 fi
 
-CHOICE=$(printf '󰌾 Заблокировать\n󰐥 Выключить\n󰍃 Выйти\n󰍃 Выйти без темы GTK/Qt\n󰜉 Перезагрузить' | menu)
+CHOICE=$(printf '󰌾 Заблокировать\n󰐥 Выключить\n󰍃 Выйти\n󰜉 Перезагрузить' | menu)
 [ -z "$CHOICE" ] && exit 0
 
 # Без подтверждения: меню и есть подтверждение.
 case "$CHOICE" in
     *"Заблокировать"*) sleep 0.3; lock ;;
     *"Выключить"*)     systemctl poweroff ;;
-    *"без темы"*)      unlink_theme; quit_session ;;
     *"Выйти"*)         quit_session ;;
     *"Перезагрузить"*) systemctl reboot ;;
 esac
