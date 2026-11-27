@@ -154,7 +154,7 @@
 
 ## ❌ Отвергнуто (оставлено для истории)
 
-- **Shell-тема (gnome-shell.css)** — удалена из `main` как самое дорогое в поддержке (смена селекторов каждый major GNOME). Панель и меню — стоковая Adwaita, следует Style. GTK3/GTK4-темы и палитры qt5ct/qt6ct оставлены. Полный набор вместе с shell-темой сохранён в ветке `themes-full`; вернуть можно `git checkout themes-full -- local/share/themes`.
+- **Shell-тема (gnome-shell.css)** — удалена из `main` как самое дорогое в поддержке (смена селекторов каждый major GNOME). Панель и меню — стоковые: Shell в GNOME 48 всегда тёмный, Style меняет только приложения. GTK3/GTK4-темы и палитры qt5ct/qt6ct оставлены. Полный набор вместе с shell-темой сохранён в ветке `themes-full`; вернуть можно `git checkout themes-full -- local/share/themes`.
 
 - **Тема Firefox аддоном (WebExtension)** — тема ставится только с подписью AMO: ESR принимает лишь подписанные расширения, `xpinstall.signatures.required=false` в ESR игнорируется, а `about:debugging` грузит `.xpi` до перезапуска. Держать её в репозитории — мёртвый артефакт, поэтому `themes/firefox/` удалён. Если тема понадобится: `userChrome.css` (без подписи, но правится под версии Firefox) или готовая тема с AMO.
 

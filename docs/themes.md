@@ -35,9 +35,10 @@
 
 ## Светлая тема
 
-Tokyo Night Day: фон `#e1e2e7`, текст `#3760bf`, акцент `#2e7de9`.
-Включается вручную (`gtk-light.css`, `TokyoNightDay`-схемы, профиль
-Konsole); авто-переключения нет.
+Светлых вариантов в `main` нет: GTK- и Qt-палитры только тёмные, светлый
+Tokyo Night Day остался лишь в темах Telegram (`tokyo-night-light.*`).
+Стоковый GNOME при этом может быть светлым для приложений (Style →
+Light), но Shell в GNOME 48 остаётся тёмным — см. `AGENTS.md`.
 
 ## Важно
 
