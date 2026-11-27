@@ -1,11 +1,12 @@
 #!/bin/bash
 # ==========================================================
-# session-cleanup — сброс порталов и Qt-окружения между сессиями
+# session-cleanup — сброс порталов и окружения сессии
 # ==========================================================
 # Останавливает xdg-desktop-portal и бэкенды (gtk/wlr/gnome/kde), чтобы
-# следующая сессия прочитала свой <desktop>-portals.conf, и убирает
-# Qt-переменные из systemd user environment.
-# Вызывается при старте Sway/BSPWM и при выходе из них; вручную —
+# следующая сессия прочитала свой <desktop>-portals.conf, и убирает из
+# systemd user environment переменные прошлой сессии: Qt-окружение,
+# GDK_BACKEND (с ним xdg-desktop-portal-gnome не видит дисплей) и
+# сокеты Sway/i3. Вызывается из powermenu перед выходом; вручную —
 # если порталы сломались после смены сессии.
 # ==========================================================
 
@@ -13,6 +14,9 @@ set -u
 
 systemctl --user unset-environment \
     QT_QPA_PLATFORMTHEME QT_STYLE_OVERRIDE QT_QPA_PLATFORM QT_WAYLAND_RECONNECT \
+    GDK_BACKEND SWAYSOCK I3SOCK \
+    SAL_USE_VCLPLUGIN MOZ_ENABLE_WAYLAND ELECTRON_OZONE_PLATFORM_HINT \
+    _JAVA_AWT_WM_NONREPARENTING \
     2>/dev/null || true
 
 systemctl --user stop \

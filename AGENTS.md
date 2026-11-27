@@ -117,7 +117,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - `local/bin/wifi {rofi|wofi}` — один скрипт на обе сессии: `rofi` + `alacritty` (в Sway тоже rofi); `wofi` + `foot` остались запасными. Список сетей — `󰤨 | SSID` (иконка из `signal_icon`, `nmcli -t --escape no -f SIGNAL,SSID` + `read` с `IFS=:`; SSID — весь остаток после первого `:`, при выборе `${SSID#*| }` срезает иконку и разделитель); адаптер выбирает `nmcli`; хотспот выключается `nmcli connection down Hotspot`.
 
 - `local/bin/battery {rofi|wofi}` — детали батареи из `upower` (заряд, статус, потребление, здоровье, время); `rofi` + `alacritty` в обеих сессиях (`wofi` — запасной). Батарея выбирается `battery_BAT*`, иначе первая `/battery_` — иначе с беспроводной мышью в меню попадает её батарея.
-- `local/bin/powermenu {rofi|wofi}` — один список действий: блокировка (`i3lock-fancy`/`swaylock`), выключение, выход (`bspc quit`/`swaymsg exit`), перезагрузка. Бэкенд меню и сессия независимы: блокировку и выход скрипт выбирает по `XDG_CURRENT_DESKTOP`/`SWAYSOCK`, поэтому `powermenu rofi` работает и в Sway, и в BSPWM.
+- `local/bin/powermenu {rofi|wofi}` — один список действий: блокировка (`i3lock-fancy`/`swaylock`), выключение, выход (`bspc quit`/`swaymsg exit`), перезагрузка. Бэкенд меню и сессия независимы: блокировку и выход скрипт выбирает по `XDG_CURRENT_DESKTOP`, а `SWAYSOCK` — только если сокет жив (`-S`), поэтому `powermenu rofi` работает и в Sway, и в BSPWM, и в GNOME с устаревшим `SWAYSOCK`.
 
 ### Порталы (OBS, ScreenCast)
 
@@ -125,7 +125,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 2. `config/xdg-desktop-portal/portals.conf`: `default=gtk`, а `ScreenCast`/`Screenshot` — `wlr` (hyprland-портал тоже заявляет `sway`, поэтому выбор явный). `default=wlr` нельзя: остальные функции отвалятся.
 3. OBS запускать с `QT_QPA_PLATFORM="wayland;xcb"` (как в `sway-session`), иначе он уйдёт в XWayland.
 4. `slurp` нужен порталу для выбора монитора; он в `requirements/sway.txt`.
-5. Смена сессии ломает порталы: generic `xdg-desktop-portal` читает `<desktop>-portals.conf` один раз при старте и остаётся с конфигом прошлой сессии. `local/bin/session-cleanup` останавливает generic и все бэкенды (gtk/wlr/gnome/kde) и чистит Qt-переменные; вызывается только из `powermenu` перед выходом (`powermenu rofi|wofi`). Вручную — `session-cleanup`.
+5. Смена сессии ломает порталы: generic `xdg-desktop-portal` читает `<desktop>-portals.conf` один раз при старте и остаётся с конфигом прошлой сессии. `local/bin/session-cleanup` останавливает generic и все бэкенды (gtk/wlr/gnome/kde) и чистит переменные прошлой сессии в systemd: Qt-окружение, `GDK_BACKEND` (с ним `xdg-desktop-portal-gnome` пишет «Non-compatible display server» и отдаёт только настройки), `SWAYSOCK`/`I3SOCK`, `SAL_USE_VCLPLUGIN`, `MOZ_ENABLE_WAYLAND`, Electron и Java. Вызывается только из `powermenu` перед выходом (`powermenu rofi|wofi`). Вручную — `session-cleanup`.
 
 ### Скриншоты, запись, буфер
 

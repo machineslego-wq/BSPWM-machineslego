@@ -5,11 +5,12 @@
 # Использование: powermenu {rofi|wofi}
 # Один список действий: блокировка, выключение, выход, перезагрузка.
 # Бэкенд меню (rofi/wofi) и сессия — разные вещи: блокировка и выход
-# выбираются по XDG_CURRENT_DESKTOP/SWAYSOCK, а не по бэкенду меню.
+# выбираются по XDG_CURRENT_DESKTOP, а SWAYSOCK — только если сокет жив.
 # Блокировка — i3lock-fancy/swaylock, выход — bspc quit/swaymsg exit.
-# Перед выходом чистим Qt-переменные из systemd и останавливаем порталы:
-# иначе Plasma после Sway наследует qt6ct, а xdg-desktop-portal держит
-# конфиг Sway (sway-portals.conf) до перезагрузки.
+# Перед выходом чистим переменные сессии в systemd и останавливаем порталы:
+# иначе следующая сессия наследует qt6ct, GDK_BACKEND (ломает портал
+# GNOME) и мёртвые SWAYSOCK/I3SOCK, а xdg-desktop-portal держит конфиг
+# прошлой сессии до перезагрузки.
 # ==========================================================
 
 set -u
@@ -34,7 +35,7 @@ case "${1:-}" in
 esac
 
 # Действия сессии не зависят от меню: rofi теперь используется и в Sway.
-if [[ ${XDG_CURRENT_DESKTOP:-} == *[Ss]way* || -n ${SWAYSOCK:-} ]]; then
+if [[ ${XDG_CURRENT_DESKTOP:-} == *[Ss]way* || -S ${SWAYSOCK:-} ]]; then
     lock() { swaylock -f; }
     quit_session() { clean_session; swaymsg exit; }
 else
