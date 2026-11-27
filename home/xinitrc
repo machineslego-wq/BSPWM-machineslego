@@ -34,10 +34,6 @@ export XDG_MENU_PREFIX=plasma-
 export SAL_USE_VCLPLUGIN=gtk3
 
 # 3. Запуск оконного менеджера
-# После выхода из BSPWM сбрасываем порталы и завершаем Xorg.
-cleanup() {
-    command -v session-cleanup >/dev/null 2>&1 && session-cleanup || true
-}
-trap cleanup EXIT
-cleanup
-bspwm
+# exec заменяет процесс xinit на BSPWM, чтобы при выходе из WM сессия Xorg
+# корректно завершалась.
+exec bspwm

@@ -14,5 +14,3 @@ fi
 export XDG_MENU_PREFIX=plasma-
 export XCURSOR_THEME=Bibata-Modern-Ice
 export XCURSOR_SIZE=24
-# Сброс порталов, оставшихся от предыдущей сессии (GNOME/Sway).
-command -v session-cleanup >/dev/null 2>&1 && session-cleanup || true

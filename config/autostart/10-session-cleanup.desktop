@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Session cleanup (portals)
-Comment=Reset xdg-desktop-portal after switching sessions
-Exec=sh -c 'exec "$HOME"/.local/bin/session-cleanup'
-OnlyShowIn=GNOME;
-NoDisplay=true
-X-GNOME-Autostart-enabled=true
