@@ -9,6 +9,10 @@
      фон #1a1b26 · панель #16161e · поверхность #1f2335
      поверхность+ #24283b · hover #292e42 · текст #c0caf5
      приглушённый #565f89 · акцент #7aa2f7 · красный #f7768e
+
+   !important стоит там, где стоковый CSS считает цвет через
+   -st-accent-color (системный акцент): иначе вместо #7aa2f7
+   остаётся светло-голубой Adwaita.
    ========================================================== */
 
 @import url("resource:///org/gnome/shell/theme/gnome-shell-dark.css");
@@ -91,6 +95,35 @@ stage {
     background-color: #292e42;
 }
 
+/* --- Кнопки и иконки (быстрые настройки, диалоги) --- */
+.button,
+.icon-button,
+.calendar .calendar-month-header .pager-button,
+.message .message-header .message-expand-button,
+.message .message-header .message-close-button,
+.message-notification-group .message-collapse-button {
+    color: #c0caf5;
+    background-color: #24283b;
+}
+
+.button:hover,
+.icon-button:hover,
+.calendar .calendar-month-header .pager-button:hover,
+.message .message-header .message-expand-button:hover,
+.message .message-header .message-close-button:hover,
+.message-notification-group .message-collapse-button:hover {
+    color: #eff1f5;
+    background-color: #292e42;
+}
+
+.button:active,
+.button:checked,
+.icon-button:active,
+.icon-button:checked {
+    color: #c0caf5;
+    background-color: #31363b;
+}
+
 /* --- Поля ввода: поиск, переименование --- */
 StEntry {
     background-color: #24283b;
@@ -133,17 +166,32 @@ StEntry:insensitive {
 }
 
 .quick-toggle:checked {
-    background-color: #7aa2f7;
-    color: #1a1b26;
+    background-color: #7aa2f7 !important;
+    color: #1a1b26 !important;
 }
 
 .quick-toggle:checked:hover {
-    background-color: #8fb4f9;
+    background-color: #8fb4f9 !important;
 }
 
+.quick-toggle-menu,
 .quick-toggle-menu-button {
     background-color: #24283b;
     color: #c0caf5;
+}
+
+.quick-toggle-menu:hover,
+.quick-toggle-menu-button:hover {
+    background-color: #292e42;
+}
+
+.quick-settings-system-item .power-item {
+    background-color: #24283b;
+    color: #c0caf5;
+}
+
+.quick-settings-system-item .power-item:hover {
+    background-color: #292e42;
 }
 
 /* --- Переключатели, чекбоксы, ползунки --- */
@@ -156,8 +204,8 @@ StEntry:insensitive {
 }
 
 .toggle-switch:checked {
-    background: #7aa2f7;
-    color: #1a1b26;
+    background: #7aa2f7 !important;
+    color: #1a1b26 !important;
 }
 
 .toggle-switch:checked .handle {
@@ -165,15 +213,16 @@ StEntry:insensitive {
 }
 
 .check-box:checked StIcon {
-    background-color: #7aa2f7;
-    color: #1a1b26;
+    background-color: #7aa2f7 !important;
+    color: #1a1b26 !important;
 }
 
-.slider {
+.slider,
+.quick-slider .slider {
     color: #c0caf5;
-    -barlevel-background-color: #292e42;
-    -barlevel-active-background-color: #7aa2f7;
-    -barlevel-overdrive-color: #f7768e;
+    -barlevel-background-color: #292e42 !important;
+    -barlevel-active-background-color: #7aa2f7 !important;
+    -barlevel-overdrive-color: #f7768e !important;
 }
 
 /* --- Панель приложений (dash) --- */
@@ -189,13 +238,34 @@ StEntry:insensitive {
     color: #c0caf5;
 }
 
+/* --- Сетка приложений и папки --- */
+.app-folder {
+    background-color: #24283b;
+    color: #c0caf5;
+}
+
+.app-folder:hover {
+    background-color: #292e42;
+}
+
+.app-folder-dialog {
+    background-color: #1f2335;
+    color: #c0caf5;
+}
+
+.app-folder-dialog .folder-name-container .folder-name-entry {
+    background-color: #24283b;
+    color: #c0caf5;
+}
+
 /* --- Уведомления --- */
 .notification-banner {
     background-color: #1f2335;
     color: #c0caf5;
 }
 
-.message {
+.message,
+.message-list {
     background-color: #24283b;
     color: #c0caf5;
 }
@@ -228,21 +298,47 @@ StEntry:insensitive {
 }
 
 .osd-window .level {
-    -barlevel-background-color: #292e42;
-    -barlevel-active-background-color: #7aa2f7;
+    -barlevel-background-color: #292e42 !important;
+    -barlevel-active-background-color: #7aa2f7 !important;
 }
 
-/* --- Календарь в меню часов --- */
+/* --- Календарь и карточки в меню часов --- */
 .calendar {
     background-color: transparent;
     color: #c0caf5;
 }
 
-.calendar .calendar-day:hover {
+.calendar .calendar-day,
+.calendar .calendar-day-heading,
+.calendar .calendar-month-header .calendar-month-label,
+.calendar .calendar-month-header .pager-button {
+    color: #c0caf5;
+    background-color: transparent;
+}
+
+.calendar .calendar-day:hover,
+.calendar .calendar-day-heading:hover,
+.calendar .calendar-month-header .calendar-month-label:hover,
+.calendar .calendar-month-header .pager-button:hover {
     background-color: #292e42;
 }
 
 .calendar .calendar-day.calendar-today {
-    background-color: #7aa2f7;
-    color: #1a1b26;
+    background-color: #7aa2f7 !important;
+    color: #1a1b26 !important;
+}
+
+.datemenu-today-button,
+.events-button,
+.world-clocks-button,
+.weather-button {
+    background-color: #24283b;
+    color: #c0caf5;
+}
+
+.datemenu-today-button:hover,
+.events-button:hover,
+.world-clocks-button:hover,
+.weather-button:hover {
+    background-color: #292e42;
 }
