@@ -46,7 +46,7 @@ cat <<EOF | rofi -dmenu -i -markup-rows -scroll-method 1 -p "󰌌 Горячие
 
 <b>󰃠 ЯРКОСТЬ И ЗВУК</b>
 󰃠 Fn + Яркость +/-                 Яркость +5% / -5%              <span foreground="#1a1b26">[яркость, brightness, экран]</span>
-󰕾 Fn + Громкость +/-               Громкость +5% / -5%            <span foreground="#1a1b26">[звук, громкость, volume]</span>
+󰕾 Fn + Громкость +/-               Громкость +2% / -2%            <span foreground="#1a1b26">[звук, громкость, volume]</span>
 󰕾 Fn + Mute                        Выключить/включить звук        <span foreground="#1a1b26">[mute, звук, тишина]</span>
 
 <b>󰖯 УПРАВЛЕНИЕ ОКНАМИ</b>

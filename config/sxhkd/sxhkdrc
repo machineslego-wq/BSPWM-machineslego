@@ -118,11 +118,11 @@ XF86MonBrightnessUp
 XF86MonBrightnessDown
     brightnessctl set 5%-
 
-# Громкость: +5% (Fn + Vol Up)
+# Громкость: +2% (Fn + Vol Up)
 XF86AudioRaiseVolume
     wpctl-volume up
 
-# Громкость: -5% (Fn + Vol Down)
+# Громкость: -2% (Fn + Vol Down)
 XF86AudioLowerVolume
     wpctl-volume down
 

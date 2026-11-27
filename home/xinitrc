@@ -13,7 +13,7 @@ systemctl --user import-environment DISPLAY XAUTHORITY
 xrdb -merge "$HOME/.Xresources"
 
 # 2. Настройка курсора мыши
-# (тема Bibata-Modern-Amber, размер 24)
+# (тема Bibata-Modern-Ice, размер 24)
 export XCURSOR_THEME=Bibata-Modern-Ice
 export XCURSOR_SIZE=24
 # KDE-приложения (Dolphin, Okular, Ark) красятся только платформенной темой
