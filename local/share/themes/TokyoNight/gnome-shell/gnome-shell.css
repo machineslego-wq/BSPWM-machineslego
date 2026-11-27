@@ -413,3 +413,19 @@ StEntry:insensitive {
     background-color: #1f2335;
     border-radius: 30px;
 }
+
+/* --- Часы: подсветка висит на дочернем .clock, а не на кнопке --- */
+#panel .panel-button.clock-display:focus .clock,
+#panel .panel-button.clock-display:hover .clock {
+    box-shadow: inset 0 0 0 100px rgba(122, 162, 247, 0.16);
+}
+
+#panel .panel-button.clock-display:active .clock,
+#panel .panel-button.clock-display:checked .clock {
+    box-shadow: inset 0 0 0 100px rgba(122, 162, 247, 0.28);
+}
+
+#panel .panel-button.clock-display:active .clock:hover,
+#panel .panel-button.clock-display:checked .clock:hover {
+    box-shadow: inset 0 0 0 100px rgba(122, 162, 247, 0.34);
+}
