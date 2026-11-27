@@ -1,0 +1,47 @@
+#!/bin/bash
+# ==========================================================
+# gtk-theme — включает/выключает Tokyo Night для GTK3/GTK4
+# ==========================================================
+# on     — ~/.config/gtk-{3.0,4.0}/gtk.css -> файлы темы
+# off    — gtk.css -> /dev/null (стоковая Adwaita)
+# status — показать текущее состояние
+# Переключается только user CSS; gtk-theme и settings.ini не трогаются.
+# ==========================================================
+
+set -eu
+
+self=$(readlink -f "$0")
+root=$(cd "$(dirname "$self")/../.." && pwd)
+
+link_theme() {
+    local ver=$1 target=$2
+    local dir="$HOME/.config/gtk-$ver"
+    mkdir -p "$dir"
+    ln -sfn "$target" "$dir/gtk.css"
+}
+
+case "${1:-status}" in
+    on)
+        link_theme 3.0 "$root/config/gtk-3.0/gtk.css"
+        link_theme 4.0 "$root/config/gtk-4.0/gtk.css"
+        echo "GTK-тема Tokyo Night включена (нужен перезапуск приложений)."
+        ;;
+    off)
+        link_theme 3.0 /dev/null
+        link_theme 4.0 /dev/null
+        echo "GTK-тема выключена: приложения на стоковой Adwaita."
+        ;;
+    status)
+        for ver in 3.0 4.0; do
+            target=$(readlink -f "$HOME/.config/gtk-$ver/gtk.css" 2>/dev/null || true)
+            case "$target" in
+                /dev/null|"") echo "gtk-$ver: выключена" ;;
+                *) echo "gtk-$ver: включена" ;;
+            esac
+        done
+        ;;
+    *)
+        echo "usage: $0 {on|off|status}" >&2
+        exit 1
+        ;;
+esac

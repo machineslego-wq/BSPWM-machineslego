@@ -115,4 +115,8 @@ else
     : > "$workspaces_conf"
 fi
 
-exec sway "$@"
+command -v gtk-theme >/dev/null 2>&1 && gtk-theme on
+sway "$@"
+rc=$?
+command -v gtk-theme >/dev/null 2>&1 && gtk-theme off
+exit "$rc"

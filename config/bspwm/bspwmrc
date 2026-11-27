@@ -12,6 +12,9 @@
 # Демон горячих клавиш (SXHKD).
 pgrep -x sxhkd > /dev/null || sxhkd &
 
+# GTK-тема на время сессии (в GNOME выключена, включается вручную).
+command -v gtk-theme >/dev/null 2>&1 && gtk-theme on
+
 # Уведомления (Dunst).
 pgrep -x dunst > /dev/null || dunst &
 

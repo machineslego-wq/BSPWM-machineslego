@@ -13,6 +13,8 @@
 set -u
 
 clean_session() {
+    gtk-theme off 2>/dev/null || true
+
     systemctl --user unset-environment \
         QT_QPA_PLATFORMTHEME QT_STYLE_OVERRIDE QT_QPA_PLATFORM QT_WAYLAND_RECONNECT \
         2>/dev/null || true

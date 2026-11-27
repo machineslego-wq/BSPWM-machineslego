@@ -34,6 +34,9 @@ export XDG_MENU_PREFIX=plasma-
 export SAL_USE_VCLPLUGIN=gtk3
 
 # 3. Запуск оконного менеджера
-# exec заменяет текущий процесс (оболочку xinit) на BSPWM,
-# чтобы при выходе из WM сессия Xorg корректно завершалась.
-exec bspwm
+# Без exec: после выхода из BSPWM гасим GTK-тему и завершаем Xorg.
+command -v gtk-theme >/dev/null 2>&1 && gtk-theme on
+bspwm
+rc=$?
+command -v gtk-theme >/dev/null 2>&1 && gtk-theme off
+exit "$rc"
