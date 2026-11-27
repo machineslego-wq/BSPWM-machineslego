@@ -342,3 +342,46 @@ StEntry:insensitive {
 .weather-button:hover {
     background-color: #292e42;
 }
+
+/* --- Фон обзора и сетки приложений --- */
+#overviewGroup {
+    background-color: #141618;
+}
+
+/* --- Составные кнопки быстрых настроек: сегмент со стрелкой --- */
+.quick-toggle-has-menu .quick-toggle-menu-button {
+    color: #c0caf5;
+    background-color: #24283b;
+}
+
+.quick-toggle-has-menu .quick-toggle-menu-button:hover {
+    color: #eff1f5;
+    background-color: #292e42;
+}
+
+.quick-toggle-has-menu .quick-toggle-menu-button:checked {
+    color: #1a1b26;
+    background-color: #5f8fe0;
+}
+
+.quick-toggle-has-menu .quick-toggle-menu-button:checked:hover {
+    background-color: #6f9be6;
+}
+
+.quick-toggle-has-menu:checked .quick-toggle-separator {
+    background-color: #1a1b26;
+}
+
+/* --- Второстепенный текст: календарь и устройства --- */
+.events-button .events-box .events-title,
+.world-clocks-button .world-clocks-header,
+.events-button .events-box .events-list .event-box .event-summary {
+    color: #c0caf5;
+}
+
+.events-button .events-box .events-list .event-placeholder,
+.events-button .events-box .events-list .event-box .event-time,
+.world-clocks-button .world-clocks-grid .world-clocks-timezone,
+.device-subtitle {
+    color: #a9b1d6;
+}
