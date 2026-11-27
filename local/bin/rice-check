@@ -33,6 +33,13 @@ check_link() {
 
 for dir in config/*/; do
     pkg=$(basename "$dir")
+    case $pkg in
+        gtk-3.0|gtk-4.0)
+            # gtk-theme off: ссылки может не быть — это штатное состояние
+            [ -L "$HOME/.config/$pkg" ] && check_link "$HOME/.config/$pkg" "$DOTFILES/config/$pkg"
+            continue
+            ;;
+    esac
     check_link "$HOME/.config/$pkg" "$DOTFILES/config/$pkg"
 done
 for file in home/*; do

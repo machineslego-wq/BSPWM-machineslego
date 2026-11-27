@@ -27,6 +27,10 @@ link_dirs() {
         dst="$HOME/.config/gtk-$ver"
         if [[ -L $dst ]]; then
             ln -sfn "$root/config/gtk-$ver" "$dst"
+        elif [[ -d $dst && -z "$(ls -A "$dst")" ]]; then
+            # пустой каталог GTK создаёт сам — его можно заменить ссылкой
+            rmdir "$dst"
+            ln -s "$root/config/gtk-$ver" "$dst"
         elif [[ -e $dst ]]; then
             echo "  gtk-$ver: уже есть настоящий каталог, не трогаю" >&2
         else
@@ -64,7 +68,11 @@ case "${1:-status}" in
             if [[ -L $dst ]]; then
                 echo "gtk-$ver: ссылка на $(readlink "$dst")"
             elif [[ -e $dst ]]; then
-                echo "gtk-$ver: настоящий каталог"
+                if [[ -z "$(ls -A "$dst")" ]]; then
+                    echo "gtk-$ver: пустой каталог (тема выключена)"
+                else
+                    echo "gtk-$ver: настоящий каталог с файлами"
+                fi
             else
                 echo "gtk-$ver: нет (стоковая Adwaita)"
             fi
