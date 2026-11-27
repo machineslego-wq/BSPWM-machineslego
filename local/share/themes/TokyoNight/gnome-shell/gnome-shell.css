@@ -1,0 +1,248 @@
+/* ==========================================================
+   Tokyo Night — тема GNOME Shell (GNOME 48)
+   ==========================================================
+   Ставится через расширение User Themes:
+     ~/.local/share/themes/TokyoNight/gnome-shell/gnome-shell.css
+
+   Стоковый тёмный CSS подключается целиком, дальше только
+   переопределения цветов. Палитра та же, что в GTK/Qt/терминалах:
+     фон #1a1b26 · панель #16161e · поверхность #1f2335
+     поверхность+ #24283b · hover #292e42 · текст #c0caf5
+     приглушённый #565f89 · акцент #7aa2f7 · красный #f7768e
+   ========================================================== */
+
+@import url("resource:///org/gnome/shell/theme/gnome-shell-dark.css");
+
+stage {
+    color: #c0caf5;
+}
+
+/* --- Панель --- */
+#panel {
+    background-color: #16161e;
+}
+
+#panel .panel-button {
+    color: #c0caf5;
+}
+
+#panel .panel-button:hover,
+#panel .panel-button:focus {
+    box-shadow: inset 0 0 0 100px rgba(122, 162, 247, 0.16);
+}
+
+#panel .panel-button:active,
+#panel .panel-button:checked {
+    box-shadow: inset 0 0 0 100px rgba(122, 162, 247, 0.28);
+}
+
+#panel .panel-button#panelActivities .workspace-dot {
+    background-color: #c0caf5;
+}
+
+#panel .panel-button.screen-recording-indicator {
+    box-shadow: inset 0 0 0 100px #f7768e;
+}
+
+#panel .panel-button.screen-recording-indicator:hover {
+    box-shadow: inset 0 0 0 100px #ff9db0;
+}
+
+/* --- Меню и подменю --- */
+.popup-menu {
+    color: #c0caf5;
+}
+
+.popup-menu-content,
+.candidate-popup-content {
+    background-color: #1f2335;
+    border: 1px solid #292e42;
+}
+
+.popup-menu-item {
+    color: #c0caf5;
+}
+
+.popup-menu-item:hover,
+.popup-menu-item:selected,
+.popup-menu-item:checked {
+    color: #c0caf5;
+    background-color: #292e42;
+}
+
+.popup-menu-item:active {
+    color: #1a1b26;
+    background-color: #7aa2f7;
+}
+
+.popup-menu-item:active:hover {
+    background-color: #8fb4f9;
+}
+
+.popup-menu-item:insensitive {
+    color: #565f89;
+}
+
+.popup-sub-menu {
+    background-color: #1a1b26;
+}
+
+.popup-separator-menu-item .popup-separator-menu-item-separator {
+    background-color: #292e42;
+}
+
+/* --- Поля ввода: поиск, переименование --- */
+StEntry {
+    background-color: #24283b;
+    color: #c0caf5;
+}
+
+StEntry:hover {
+    background-color: #292e42;
+    color: #eff1f5;
+}
+
+StEntry:focus {
+    background-color: #24283b;
+    color: #eff1f5;
+    box-shadow: inset 0 0 0 2px #7aa2f7;
+}
+
+StEntry:insensitive {
+    background-color: #1f2335;
+    color: #565f89;
+}
+
+.search-entry {
+    background-color: #24283b;
+    color: #c0caf5;
+}
+
+/* --- Быстрые настройки (шторка справа) --- */
+.quick-settings {
+    background-color: #1f2335;
+}
+
+.quick-toggle {
+    background-color: #24283b;
+    color: #c0caf5;
+}
+
+.quick-toggle:hover {
+    background-color: #292e42;
+}
+
+.quick-toggle:checked {
+    background-color: #7aa2f7;
+    color: #1a1b26;
+}
+
+.quick-toggle:checked:hover {
+    background-color: #8fb4f9;
+}
+
+.quick-toggle-menu-button {
+    background-color: #24283b;
+    color: #c0caf5;
+}
+
+/* --- Переключатели, чекбоксы, ползунки --- */
+.toggle-switch {
+    background: #292e42;
+}
+
+.toggle-switch .handle {
+    background: #c0caf5;
+}
+
+.toggle-switch:checked {
+    background: #7aa2f7;
+    color: #1a1b26;
+}
+
+.toggle-switch:checked .handle {
+    background: #1a1b26;
+}
+
+.check-box:checked StIcon {
+    background-color: #7aa2f7;
+    color: #1a1b26;
+}
+
+.slider {
+    color: #c0caf5;
+    -barlevel-background-color: #292e42;
+    -barlevel-active-background-color: #7aa2f7;
+    -barlevel-overdrive-color: #f7768e;
+}
+
+/* --- Панель приложений (dash) --- */
+#dash .dash-background {
+    background-color: #1f2335;
+}
+
+.dash-label,
+.window-caption,
+.screenshot-ui-tooltip {
+    background-color: #1f2335;
+    border: 1px solid #292e42;
+    color: #c0caf5;
+}
+
+/* --- Уведомления --- */
+.notification-banner {
+    background-color: #1f2335;
+    color: #c0caf5;
+}
+
+.message {
+    background-color: #24283b;
+    color: #c0caf5;
+}
+
+/* --- Диалоги (выключение, пароль) --- */
+.modal-dialog {
+    background-color: #1f2335;
+    color: #c0caf5;
+}
+
+.modal-dialog .modal-dialog-button-box .modal-dialog-button {
+    background-color: #24283b;
+    color: #c0caf5;
+}
+
+.modal-dialog .modal-dialog-button-box .modal-dialog-button:hover {
+    background-color: #292e42;
+}
+
+/* --- Переключатель окон (Alt+Tab) --- */
+.switcher-list {
+    background-color: #1f2335;
+    color: #c0caf5;
+}
+
+/* --- OSD громкости и яркости --- */
+.osd-window {
+    background-color: #1f2335;
+    color: #c0caf5;
+}
+
+.osd-window .level {
+    -barlevel-background-color: #292e42;
+    -barlevel-active-background-color: #7aa2f7;
+}
+
+/* --- Календарь в меню часов --- */
+.calendar {
+    background-color: transparent;
+    color: #c0caf5;
+}
+
+.calendar .calendar-day:hover {
+    background-color: #292e42;
+}
+
+.calendar .calendar-day.calendar-today {
+    background-color: #7aa2f7;
+    color: #1a1b26;
+}
