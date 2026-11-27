@@ -1,0 +1,42 @@
+#!/bin/bash
+# ==========================================================
+# theme-unlink — разлинковывает GTK и Qt темы (стоковые)
+# ==========================================================
+# GTK: gtk-theme off — убирает ссылки gtk-3.0/gtk-4.0 и ставит
+#      gtk-theme=Adwaita.
+# Qt:  убирает ссылки ~/.config/qt5ct, qt6ct и environment.d
+#      (10-qt.conf с QT_QPA_PLATFORMTHEME=qt6ct).
+# Применение — следующий запуск приложений / следующая сессия.
+# Вернуть — ./scripts/link.sh (он заново линкует всё).
+# ==========================================================
+
+set -u
+
+self=$(readlink -f "$0")
+root=$(cd "$(dirname "$self")/../.." && pwd)
+
+unlink_repo_link() {
+    local dst=$1
+    if [ ! -L "$dst" ]; then
+        [ -e "$dst" ] && echo "  $dst: не ссылка, не трогаю" >&2
+        return
+    fi
+    case "$(readlink -f "$dst")" in
+        "$root"/*) rm -f "$dst"; echo "  разлинковано: $dst" ;;
+        *) echo "  $dst: ссылка вне репозитория, не трогаю" >&2 ;;
+    esac
+}
+
+if command -v gtk-theme >/dev/null 2>&1; then
+    gtk-theme off
+else
+    unlink_repo_link "$HOME/.config/gtk-3.0"
+    unlink_repo_link "$HOME/.config/gtk-4.0"
+    gsettings set org.gnome.desktop.interface gtk-theme Adwaita 2>/dev/null || true
+fi
+
+unlink_repo_link "$HOME/.config/qt5ct"
+unlink_repo_link "$HOME/.config/qt6ct"
+unlink_repo_link "$HOME/.config/environment.d"
+
+echo "GTK и Qt разлинкованы: следующие приложения будут в стоковой теме."
