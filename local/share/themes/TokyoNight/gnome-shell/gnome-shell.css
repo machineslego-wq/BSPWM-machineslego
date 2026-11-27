@@ -429,3 +429,21 @@ StEntry:insensitive {
 #panel .panel-button.clock-display:checked .clock:hover {
     box-shadow: inset 0 0 0 100px rgba(122, 162, 247, 0.34);
 }
+
+/* --- Плитки приложений и папок: hover/focus ---
+   У стокового CSS состояния :focus:hover специфичнее простого :hover,
+   поэтому серый оставался при наведении на сфокусированную плитку. */
+.app-folder:hover,
+.app-folder:focus,
+.app-folder:focus:hover,
+.app-folder:active,
+.app-folder:active:hover,
+.app-folder:checked,
+.overview-tile:hover,
+.overview-tile:focus,
+.overview-tile:focus:hover,
+.grid-search-result:hover,
+.grid-search-result:focus {
+    background-color: #292e42;
+    color: #c0caf5;
+}
