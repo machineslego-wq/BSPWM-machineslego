@@ -50,6 +50,7 @@
 - **Блокировка экрана:** `xss-lock` + `i3lock-fancy` — через 10 минут бездействия, с гашением монитора по DPMS и корректной блокировкой перед сном (`--transfer-sleep-lock`).
 - **Современная оболочка:** Fish + промпт Tide (Fisher). Автодополнения, подсветка синтаксиса, git-статус без фоновых демонов. `eza` для списков файлов, `fastfetch` с отдельными конфигами для X11 и TTY.
 - **Плавность и плоский дизайн:** Picom с анимациями окон, скруглениями и тенями, без blur и без затемнения неактивных окон. Строгие цвета Tokyo Night.
+- **Скругления:** в BSPWM их делает Picom (`corner-radius 15`, тени, анимации); в Sway композитор этого не умеет, поэтому окна тайлятся на всю площадь, а UI (waybar, mako, wofi) скруглён минимально — 5 px. Подробнее — `rice-doc themes`.
 - **Профили питания:** Performance / Balanced / Power Saver через PPD. В `power-saver` Picom автоматически переключается на `picom-eco.conf` — без анимаций и теней.
 - **Единый стиль:** Polybar, Rofi, Dunst, Picom, Alacritty/Foot, Fish, Cava, Btop, GTK3/GTK4, Qt5/Qt6, GIMP 3, CopyQ, Midnight Commander и Telegram оформлены в Tokyo Night.
 - **Workflow:** история буфера (CopyQ в BSPWM, cliphist + wofi в Sway), история уведомлений (Rofi), скриншоты сразу в буфер, мгновенные пометки на скриншоте (swappy) и запись экрана по хоткею (wf-recorder), шпаргалки по хоткеям (Rofi в BSPWM, wofi в Sway), Neovim в стиле базового VS Code со своей шпаргалкой.

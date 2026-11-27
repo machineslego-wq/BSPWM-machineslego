@@ -51,6 +51,7 @@ Every line of code and every running process must justify its existence. This ru
 - **Screen locking:** `xss-lock` + `i3lock-fancy` — after 10 minutes idle, with DPMS monitor blanking and proper locking before sleep (`--transfer-sleep-lock`).
 - **Modern Shell:** Fish + Tide prompt (Fisher). Autosuggestions, syntax highlighting, git status without background daemons. `eza` for file listings, `fastfetch` with separate X11 and TTY configs.
 - **Smooth & Flat:** Picom with window animations, rounded corners, and shadows; no blur and no dimming of inactive windows. Strict Tokyo Night colors.
+- **Rounding:** BSPWM gets it from Picom (`corner-radius 15`, shadows, animations); Sway cannot do it, so windows tile edge-to-edge and the UI (waybar, mako, wofi) rounds minimally — 5 px. Details: `rice-doc themes`.
 - **Power Profiles:** Performance / Balanced / Power Saver via PPD. In `power-saver` Picom automatically switches to `picom-eco.conf` — no animations, no shadows.
 - **One Consistent Style:** Polybar, Rofi, Dunst, Picom, Alacritty/Foot, Fish, Cava, Btop, GTK3/GTK4, Qt5/Qt6, GIMP 3, CopyQ, Midnight Commander, and Telegram are all themed in Tokyo Night.
 - **Workflow:** clipboard history (CopyQ on BSPWM, cliphist + wofi on Sway), notification history (Rofi), screenshots straight into the clipboard, instant screenshot annotations (swappy), hotkey screen recording (wf-recorder), keybinding cheatsheets (Rofi for BSPWM, wofi for Sway), and a Neovim setup styled after base VS Code with its own cheatsheet.
