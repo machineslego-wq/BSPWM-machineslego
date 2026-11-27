@@ -24,6 +24,28 @@ gtk_theme_name() {
     gsettings set org.gnome.desktop.interface gtk-theme "$1" 2>/dev/null || true
 }
 
+flatpak_on() {
+    command -v flatpak >/dev/null 2>&1 || return 0
+    flatpak override --user \
+        --filesystem=xdg-config/gtk-3.0:ro \
+        --filesystem=xdg-config/gtk-4.0:ro \
+        --filesystem=xdg-config/qt5ct:ro \
+        --filesystem=xdg-config/qt6ct:ro \
+        --filesystem=xdg-data/themes:ro \
+        --env=QT_QPA_PLATFORMTHEME=qt5ct 2>/dev/null || true
+}
+
+flatpak_off() {
+    command -v flatpak >/dev/null 2>&1 || return 0
+    flatpak override --user \
+        --nofilesystem=xdg-config/gtk-3.0 \
+        --nofilesystem=xdg-config/gtk-4.0 \
+        --nofilesystem=xdg-config/qt5ct \
+        --nofilesystem=xdg-config/qt6ct \
+        --nofilesystem=xdg-data/themes \
+        --unset-env=QT_QPA_PLATFORMTHEME 2>/dev/null || true
+}
+
 backup_path() {
     local dst=$1
     if [ "$backup_used" -eq 0 ]; then
@@ -72,13 +94,15 @@ unlink_dirs() {
 case "${1:-status}" in
     on)
         link_dirs
+        flatpak_on
         gtk_theme_name Adwaita-dark
-        echo "GTK и Qt темы включены (ссылки на config/...)."
+        echo "GTK и Qt темы включены (ссылки на config/..., Flatpak-override'ы)."
         ;;
     off)
         unlink_dirs
+        flatpak_off
         gtk_theme_name Adwaita
-        echo "GTK и Qt темы выключены: сток (gtk-theme=Adwaita)."
+        echo "GTK и Qt темы выключены: сток (gtk-theme=Adwaita, Flatpak без темы)."
         ;;
     status)
         for name in "${dirs[@]}"; do
@@ -96,6 +120,13 @@ case "${1:-status}" in
             fi
         done
         printf 'gtk-theme: %s\n' "$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null | tr -d "'")"
+        if command -v flatpak >/dev/null 2>&1; then
+            if flatpak override --user --show 2>/dev/null | grep -q 'xdg-config/gtk-4.0:ro'; then
+                echo "flatpak: тема включена"
+            else
+                echo "flatpak: сток"
+            fi
+        fi
         ;;
     *)
         echo "usage: $0 {on|off|status}" >&2
