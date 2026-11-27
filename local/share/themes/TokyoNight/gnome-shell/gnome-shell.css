@@ -1,4 +1,3 @@
-/* Сгенерировано из config/theme/palette.conf — не править вручную. */
 /* ==========================================================
    Tokyo Night — тема GNOME Shell (GNOME 48)
    ==========================================================
@@ -480,4 +479,15 @@ StEntry:insensitive {
 #dash .dash-item-container .overview-tile,
 #dash .dash-item-container .grid-search-result {
     background-color: transparent;
+}
+
+/* --- Миниатюры рабочих столов в обзоре --- */
+.workspace-thumbnails .workspace-thumbnail {
+    color: #c0caf5;
+    background-color: #24283b;
+    border-color: #292e42;
+}
+
+.workspace-thumbnail-indicator {
+    border: 3px solid #7aa2f7;
 }
