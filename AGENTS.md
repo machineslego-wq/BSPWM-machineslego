@@ -117,7 +117,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - `local/bin/wifi {rofi|wofi}` — один скрипт на обе сессии: `rofi` + `alacritty` (в Sway тоже rofi); `wofi` + `foot` остались запасными. Список сетей — `󰤨 | SSID` (иконка из `signal_icon`, `nmcli -t --escape no -f SIGNAL,SSID` + `read` с `IFS=:`; SSID — весь остаток после первого `:`, при выборе `${SSID#*| }` срезает иконку и разделитель); адаптер выбирает `nmcli`; хотспот выключается `nmcli connection down Hotspot`.
 
 - `local/bin/battery {rofi|wofi}` — детали батареи из `upower` (заряд, статус, потребление, здоровье, время); `rofi` + `alacritty` в обеих сессиях (`wofi` — запасной). Батарея выбирается `battery_BAT*`, иначе первая `/battery_` — иначе с беспроводной мышью в меню попадает её батарея.
-- `local/bin/powermenu {rofi|wofi}` — один список действий: блокировка (`i3lock-fancy`/`swaylock`), выключение, выход (`bspc quit`/`swaymsg exit`), перезагрузка. В Sway теперь `powermenu rofi` (`wofi` — запасной), поэтому `wofi-powermenu` не нужен.
+- `local/bin/powermenu {rofi|wofi}` — один список действий: блокировка (`i3lock-fancy`/`swaylock`), выключение, выход (`bspc quit`/`swaymsg exit`), перезагрузка. Бэкенд меню и сессия независимы: блокировку и выход скрипт выбирает по `XDG_CURRENT_DESKTOP`/`SWAYSOCK`, поэтому `powermenu rofi` работает и в Sway, и в BSPWM.
 
 ### Порталы (OBS, ScreenCast)
 

@@ -4,6 +4,8 @@
 # ==========================================================
 # Использование: powermenu {rofi|wofi}
 # Один список действий: блокировка, выключение, выход, перезагрузка.
+# Бэкенд меню (rofi/wofi) и сессия — разные вещи: блокировка и выход
+# выбираются по XDG_CURRENT_DESKTOP/SWAYSOCK, а не по бэкенду меню.
 # Блокировка — i3lock-fancy/swaylock, выход — bspc quit/swaymsg exit.
 # Перед выходом чистим Qt-переменные из systemd и останавливаем порталы:
 # иначе Plasma после Sway наследует qt6ct, а xdg-desktop-portal держит
@@ -29,20 +31,25 @@ case "${1:-}" in
     rofi)
         menu() { rofi -dmenu -p "󰤆 Питание" \
                     -theme-str 'window {width: 17em;} listview {lines: 4;}'; }
-        lock() { i3lock-fancy -p; }
-        quit_session() { clean_session; bspc quit; }
         ;;
     wofi)
         menu() { wofi --dmenu --cache-file /dev/null --insensitive \
                     --prompt "󰤆 Питание" --width 340 --lines 8; }
-        lock() { swaylock -f; }
-        quit_session() { clean_session; swaymsg exit; }
         ;;
     *)
         echo "usage: $0 {rofi|wofi}" >&2
         exit 1
         ;;
 esac
+
+# Действия сессии не зависят от меню: rofi теперь используется и в Sway.
+if [[ ${XDG_CURRENT_DESKTOP:-} == *[Ss]way* || -n ${SWAYSOCK:-} ]]; then
+    lock() { swaylock -f; }
+    quit_session() { clean_session; swaymsg exit; }
+else
+    lock() { i3lock-fancy -p; }
+    quit_session() { clean_session; bspc quit; }
+fi
 
 CHOICE=$(printf '󰌾 Заблокировать\n󰐥 Выключить\n󰍃 Выйти\n󰜉 Перезагрузить' | menu)
 [ -z "$CHOICE" ] && exit 0
