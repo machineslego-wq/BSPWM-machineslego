@@ -61,6 +61,7 @@ stage {
 .candidate-popup-content {
     background-color: #1f2335;
     border: 1px solid #292e42;
+    border-radius: 20px;
 }
 
 .popup-menu-item {
@@ -313,6 +314,11 @@ StEntry:insensitive {
 .calendar .calendar-month-header .calendar-month-label,
 .calendar .calendar-month-header .pager-button {
     color: #c0caf5;
+    background-color: #24283b;
+}
+
+.calendar .calendar-day-heading,
+.calendar .calendar-month-header .calendar-month-label {
     background-color: transparent;
 }
 
@@ -345,7 +351,7 @@ StEntry:insensitive {
 
 /* --- Фон обзора и сетки приложений --- */
 #overviewGroup {
-    background-color: #141618;
+    background-color: #1f2335;
 }
 
 /* --- Составные кнопки быстрых настроек: сегмент со стрелкой --- */
@@ -361,7 +367,7 @@ StEntry:insensitive {
 
 .quick-toggle-has-menu .quick-toggle-menu-button:checked {
     color: #1a1b26;
-    background-color: #5f8fe0;
+    background-color: #7aa2f7 !important;
 }
 
 .quick-toggle-has-menu .quick-toggle-menu-button:checked:hover {
@@ -369,7 +375,7 @@ StEntry:insensitive {
 }
 
 .quick-toggle-has-menu:checked .quick-toggle-separator {
-    background-color: #1a1b26;
+    background-color: transparent;
 }
 
 /* --- Второстепенный текст: календарь и устройства --- */
@@ -384,4 +390,15 @@ StEntry:insensitive {
 .world-clocks-button .world-clocks-grid .world-clocks-timezone,
 .device-subtitle {
     color: #a9b1d6;
+}
+
+/* --- Кружок-иконка в подменю быстрых настроек --- */
+.quick-toggle-menu .header .icon {
+    background-color: #292e42;
+    color: #c0caf5;
+}
+
+.quick-toggle-menu .header .icon.active {
+    background-color: #7aa2f7 !important;
+    color: #1a1b26 !important;
 }
