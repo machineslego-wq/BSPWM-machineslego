@@ -102,3 +102,19 @@ popover.menu modelbutton:selected:active {
     box-shadow: none;
     outline: none;
 }
+
+/* Nautilus 48 намеренно ставит серый акцент для вида файлов
+   (--accent-bg-color: #959595): из-за него выделение папок серое.
+   Возвращаем акцент палитры. */
+.nautilus-grid-view gridview,
+.nautilus-list-view listview,
+.nautilus-network-view listview {
+    --accent-bg-color: #7aa2f7;
+    --accent-color: #7aa2f7;
+}
+
+/* Тост libadwaita («отправлено в корзину», «Отменить») — #505053. */
+toast {
+    background-color: #1f2335;
+    color: #c0caf5;
+}
