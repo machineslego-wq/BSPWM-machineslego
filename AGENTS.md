@@ -159,6 +159,8 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 
 ## Темы: GTK, Qt, Flatpak
 
+- Единая палитра: `config/theme/palette.conf` (имена вроде `bg`, `surface`, `accent`). Из неё `local/bin/theme-gen` собирает `config/gtk-3.0/gtk.css`, `config/gtk-4.0/gtk.css` и `local/share/themes/TokyoNight/gnome-shell/gnome-shell.css` по шаблонам `config/theme/*.css.in`. Сами CSS-файлы не править — при следующем `theme-gen` перезапишутся: меняй переменные в палитре и запускай `theme-gen`, затем перезапускай приложения (Shell — reload темы User Themes).
+
 - `config/gtk-3.0/gtk.css` — полный CSS поверх `Adwaita-dark` (`@define-color` + прямые селекторы). `config/gtk-4.0/gtk.css` — только переменные libadwaita (`:root`) и слой `@define-color`; прямых селекторов нет.
 - Светлые варианты — `gtk-light.css` в обоих каталогах, те же селекторы, другая палитра (Tokyo Night Day). Включение: скопировать light-файл поверх `gtk.css`, `gsettings set ... gtk-theme Adwaita`, `color-scheme default`, `icon-theme Papirus`. Возврат — `git checkout -- config/gtk-3.0/gtk.css config/gtk-4.0/gtk.css` + `Adwaita-dark`/`prefer-dark`/`Papirus-Dark`. В BSPWM дополнительно правится `gtk-theme-name` в `settings.ini` (в X11 нет xsettingsd).
 - `Papirus-Dark` — светлые символы для тёмного фона; на светлой теме нужен `Papirus`.

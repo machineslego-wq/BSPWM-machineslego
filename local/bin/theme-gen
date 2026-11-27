@@ -1,0 +1,42 @@
+#!/bin/bash
+# ==========================================================
+# theme-gen — собирает CSS GTK3/GTK4/Shell из одной палитры
+# ==========================================================
+# Читает config/theme/palette.conf и рендерит шаблоны *.css.in
+# в рабочие файлы. Запускать после правки палитры.
+# ==========================================================
+
+set -eu
+
+self=$(readlink -f "$0")
+root=$(cd "$(dirname "$self")/../.." && pwd)
+palette="$root/config/theme/palette.conf"
+
+[ -f "$palette" ] || { echo "нет $palette" >&2; exit 1; }
+
+sedfile=$(mktemp)
+trap 'rm -f "$sedfile"' EXIT
+
+while IFS='=' read -r name value; do
+    case "$name" in ''|'#'*) continue ;; esac
+    printf 's|{{%s}}|%s|g\n' "$name" "$value" >> "$sedfile"
+done < "$palette"
+
+render() {
+    local tpl=$1 out=$2
+    {
+        echo "/* Сгенерировано из config/theme/palette.conf — не править вручную. */"
+        sed -f "$sedfile" "$tpl"
+    } > "$out"
+    if grep -q '{{' "$out"; then
+        echo "ошибка: в $out остались неизвестные переменные" >&2
+        grep -o '{{[a-z_]*}}' "$out" | sort -u >&2
+        exit 1
+    fi
+    echo "  $out"
+}
+
+echo "theme-gen: сборка из config/theme/palette.conf"
+render "$root/config/theme/gtk-3.0.css.in" "$root/config/gtk-3.0/gtk.css"
+render "$root/config/theme/gtk-4.0.css.in" "$root/config/gtk-4.0/gtk.css"
+render "$root/config/theme/gnome-shell.css.in" "$root/local/share/themes/TokyoNight/gnome-shell/gnome-shell.css"

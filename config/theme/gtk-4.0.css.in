@@ -1,0 +1,97 @@
+/* ==========================================================
+   Tokyo Night для GTK4 / libadwaita
+   :root — основной механизм для GTK4. @define-color — для
+   совместимости. Прямые селекторы — только где нужно.
+   ========================================================== */
+
+/* ---------- 1. Основной механизм: CSS-переменные ---------- */
+:root {
+  /* Акцент и статусы */
+  --accent-color: {{accent}};
+  --accent-bg-color: {{accent}};
+  --accent-fg-color: {{bg}};
+  --destructive-color: {{red}};
+  --destructive-bg-color: {{red}};
+  --destructive-fg-color: {{bg}};
+  --success-color: {{green}};
+  --success-bg-color: {{green}};
+  --success-fg-color: {{bg}};
+  --warning-color: {{yellow}};
+  --warning-bg-color: {{yellow}};
+  --warning-fg-color: {{bg}};
+  --error-color: {{red}};
+  --error-bg-color: {{red}};
+  --error-fg-color: {{bg}};
+
+  /* Окна и поверхности */
+  --window-bg-color: {{bg}};
+  --window-fg-color: {{fg}};
+  --view-bg-color: {{bg}};
+  --view-fg-color: {{fg}};
+  --headerbar-bg-color: {{surface}};
+  --headerbar-fg-color: {{fg}};
+  --headerbar-backdrop-color: {{bg}};
+  --sidebar-bg-color: {{bg_deep}};
+  --sidebar-fg-color: {{fg}};
+  --sidebar-backdrop-color: {{bg_deep}};
+  --card-bg-color: {{surface_alt}};
+  --card-fg-color: {{fg}};
+  --popover-bg-color: {{surface}};
+  --popover-fg-color: {{fg}};
+  --dialog-bg-color: {{surface}};
+  --dialog-fg-color: {{fg}};
+
+  /* Служебные */
+  --borders: {{hover}};
+  --insensitive-bg-color: {{surface}};
+  --insensitive-fg-color: {{muted}};
+  --scrollbar-outline-color: rgba(0, 0, 0, 0.95);
+}
+
+/* ---------- 2. Слой совместимости: @define-color ----------
+   Нужен для тех мест libadwaita 1.x, которые ещё не перешли
+   на var(). */
+@define-color accent_color {{accent}};
+@define-color accent_bg_color {{accent}};
+@define-color accent_fg_color {{bg}};
+@define-color window_bg_color {{bg}};
+@define-color window_fg_color {{fg}};
+@define-color view_bg_color {{bg}};
+@define-color view_fg_color {{fg}};
+@define-color headerbar_bg_color {{surface}};
+@define-color headerbar_fg_color {{fg}};
+@define-color headerbar_backdrop_color {{bg}};
+@define-color sidebar_bg_color {{bg_deep}};
+@define-color sidebar_fg_color {{fg}};
+@define-color sidebar_backdrop_color {{bg_deep}};
+@define-color card_bg_color {{surface_alt}};
+@define-color card_fg_color {{fg}};
+@define-color popover_bg_color {{surface}};
+@define-color popover_fg_color {{fg}};
+@define-color dialog_bg_color {{surface}};
+@define-color dialog_fg_color {{fg}};
+@define-color destructive_bg_color {{red}};
+@define-color destructive_fg_color {{bg}};
+@define-color success_bg_color {{green}};
+@define-color success_fg_color {{bg}};
+@define-color warning_bg_color {{yellow}};
+@define-color warning_fg_color {{bg}};
+@define-color error_bg_color {{red}};
+@define-color error_fg_color {{bg}};
+@define-color insensitive_bg_color {{surface}};
+@define-color insensitive_fg_color {{muted}};
+@define-color borders {{hover}};
+
+/* ---------- 3. Точечные переопределения ----------
+   libadwaita считает hover строк меню как currentColor 10%:
+   получается серый. Возвращаем цвет палитры. */
+popover.menu modelbutton:hover,
+popover.menu modelbutton:selected {
+    background-color: {{hover}};
+    color: {{fg}};
+}
+
+popover.menu modelbutton:active {
+    background-color: {{hover_alt}};
+    color: {{fg_bright}};
+}
