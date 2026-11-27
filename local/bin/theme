@@ -2,7 +2,7 @@
 # ==========================================================
 # theme — линкует/разлинковывает GTK и Qt конфиги целиком
 # ==========================================================
-# on     — ~/.config/{gtk-3.0,gtk-4.0,qt5ct,qt6ct,environment.d}
+# on     — ~/.config/{gtk-3.0,gtk-4.0,qt5ct,qt6ct}
 #          -> каталоги репозитория. Существующее заменяется
 #          принудительно: реальные каталоги/файлы уходят в
 #          ~/.dotfiles-backup-YYYYMMDD-HHMMSS.
@@ -16,7 +16,7 @@ set -u
 
 self=$(readlink -f "$0")
 root=$(cd "$(dirname "$self")/../.." && pwd)
-dirs=(gtk-3.0 gtk-4.0 qt5ct qt6ct environment.d)
+dirs=(gtk-3.0 gtk-4.0 qt5ct qt6ct)
 backup="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
 backup_used=0
 
