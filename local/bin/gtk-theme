@@ -2,16 +2,24 @@
 # ==========================================================
 # gtk-theme — включает/выключает Tokyo Night для GTK3/GTK4
 # ==========================================================
-# on     — ~/.config/gtk-{3.0,4.0}/gtk.css -> файлы темы
-# off    — gtk.css -> /dev/null (стоковая Adwaita)
+# on     — тема Tokyo Night: gtk.css + shell-тема TokyoNight + Adwaita-dark
+# off    — снять всё, что мешает GNOME Style: gtk.css -> /dev/null,
+#          пустая shell-тема, gtk-theme = Adwaita
 # status — показать текущее состояние
-# Переключается только user CSS; gtk-theme и settings.ini не трогаются.
 # ==========================================================
 
 set -eu
 
 self=$(readlink -f "$0")
 root=$(cd "$(dirname "$self")/../.." && pwd)
+
+shell_theme() {
+    gsettings set org.gnome.shell.extensions.user-theme name "$1" 2>/dev/null || true
+}
+
+gtk_theme() {
+    gsettings set org.gnome.desktop.interface gtk-theme "$1" 2>/dev/null || true
+}
 
 link_theme() {
     local ver=$1 target=$2
@@ -24,12 +32,16 @@ case "${1:-status}" in
     on)
         link_theme 3.0 "$root/config/gtk-3.0/gtk.css"
         link_theme 4.0 "$root/config/gtk-4.0/gtk.css"
-        echo "GTK-тема Tokyo Night включена (нужен перезапуск приложений)."
+        shell_theme TokyoNight
+        gtk_theme Adwaita-dark
+        echo "Тема Tokyo Night включена: GTK, shell, gtk-theme (нужен перезапуск приложений)."
         ;;
     off)
         link_theme 3.0 /dev/null
         link_theme 4.0 /dev/null
-        echo "GTK-тема выключена: приложения на стоковой Adwaita."
+        shell_theme ''
+        gtk_theme Adwaita
+        echo "Тема снята: GTK, shell и gtk-theme на стоковой Adwaita (Style в GNOME работает)."
         ;;
     status)
         for ver in 3.0 4.0; do
@@ -39,6 +51,8 @@ case "${1:-status}" in
                 *) echo "gtk-$ver: включена" ;;
             esac
         done
+        printf 'shell: %s\n' "$(gsettings get org.gnome.shell.extensions.user-theme name 2>/dev/null | tr -d "'" || echo '?')"
+        printf 'gtk-theme: %s\n' "$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null | tr -d "'" || echo '?')"
         ;;
     *)
         echo "usage: $0 {on|off|status}" >&2
