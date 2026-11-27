@@ -265,8 +265,7 @@ StEntry:insensitive {
     color: #c0caf5;
 }
 
-.message,
-.message-list {
+.message {
     background-color: #24283b;
     color: #c0caf5;
 }
@@ -314,7 +313,7 @@ StEntry:insensitive {
 .calendar .calendar-month-header .calendar-month-label,
 .calendar .calendar-month-header .pager-button {
     color: #c0caf5;
-    background-color: #24283b;
+    background-color: transparent;
 }
 
 .calendar .calendar-day-heading,
@@ -326,7 +325,7 @@ StEntry:insensitive {
 .calendar .calendar-day-heading:hover,
 .calendar .calendar-month-header .calendar-month-label:hover,
 .calendar .calendar-month-header .pager-button:hover {
-    background-color: #292e42;
+    background-color: #31363b;
 }
 
 .calendar .calendar-day.calendar-today {
@@ -401,4 +400,10 @@ StEntry:insensitive {
 .quick-toggle-menu .header .icon.active {
     background-color: #7aa2f7 !important;
     color: #1a1b26 !important;
+}
+
+/* --- Меню часов: скругления внешнего контейнера --- */
+.datemenu-popover {
+    background-color: #1f2335;
+    border-radius: 30px;
 }
