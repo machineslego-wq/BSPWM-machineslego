@@ -115,4 +115,12 @@ else
     : > "$workspaces_conf"
 fi
 
-exec sway "$@"
+cleanup() {
+    command -v session-cleanup >/dev/null 2>&1 && session-cleanup || true
+}
+trap 'exit 0' TERM INT
+trap cleanup EXIT
+
+# Старт: сбрасываем порталы, оставшиеся от предыдущей сессии.
+cleanup
+sway "$@"

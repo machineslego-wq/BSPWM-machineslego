@@ -15,16 +15,7 @@
 set -u
 
 clean_session() {
-    systemctl --user unset-environment \
-        QT_QPA_PLATFORMTHEME QT_STYLE_OVERRIDE QT_QPA_PLATFORM QT_WAYLAND_RECONNECT \
-        2>/dev/null || true
-
-    systemctl --user stop \
-        xdg-desktop-portal.service \
-        xdg-desktop-portal-gtk.service \
-        xdg-desktop-portal-wlr.service \
-        plasma-xdg-desktop-portal-kde.service \
-        2>/dev/null || true
+    command -v session-cleanup >/dev/null 2>&1 && session-cleanup || true
 }
 
 case "${1:-}" in

@@ -125,6 +125,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 2. `config/xdg-desktop-portal/portals.conf`: `default=gtk`, а `ScreenCast`/`Screenshot` — `wlr` (hyprland-портал тоже заявляет `sway`, поэтому выбор явный). `default=wlr` нельзя: остальные функции отвалятся.
 3. OBS запускать с `QT_QPA_PLATFORM="wayland;xcb"` (как в `sway-session`), иначе он уйдёт в XWayland.
 4. `slurp` нужен порталу для выбора монитора; он в `requirements/sway.txt`.
+5. Смена сессии ломает порталы: generic `xdg-desktop-portal` читает `<desktop>-portals.conf` один раз при старте и остаётся с конфигом прошлой сессии. `local/bin/session-cleanup` останавливает generic и все бэкенды (gtk/wlr/gnome/kde) и чистит Qt-переменные; вызывается `sway-session`/`home/xinitrc`/`home/xprofile` при старте, `powermenu` и `sway-session` при выходе, а в GNOME — autostart `config/autostart/10-session-cleanup.desktop`. Вручную — `session-cleanup`.
 
 ### Скриншоты, запись, буфер
 

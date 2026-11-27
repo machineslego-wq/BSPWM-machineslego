@@ -38,7 +38,18 @@ if [ -d "$DOTFILES/config" ]; then
     for pkg in "$DOTFILES/config"/*; do
         [ -d "$pkg" ] || continue
         pkg_name=$(basename "$pkg")
+        # autostart линкуется пофайлово: в ~/.config/autostart могут быть
+        # чужие .desktop (EasyEffects, OpenRGB), каталог не подменяем.
+        case $pkg_name in autostart) continue ;; esac
         link_item "$pkg" "$HOME/.config/$pkg_name"
+    done
+fi
+
+if [ -d "$DOTFILES/config/autostart" ]; then
+    mkdir -p "$HOME/.config/autostart"
+    for file in "$DOTFILES/config/autostart"/*; do
+        [ -e "$file" ] || continue
+        link_item "$file" "$HOME/.config/autostart/$(basename "$file")"
     done
 fi
 
