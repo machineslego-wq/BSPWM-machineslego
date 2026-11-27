@@ -205,6 +205,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - `install.sh` при наличии батареи пишет `/etc/systemd/logind.conf.d/10-lid-suspend.conf`: закрытие крышки → suspend.
 - Аудио — PipeWire + WirePlumber (`pipewire`, `pipewire-audio`, `pipewire-pulse`, `wireplumber`). `pactl` в системе нет: громкость и mute — `wpctl`.
 - `requirements/apt-system.txt` (`power-profiles-daemon`, `flatpak`) читает `install.sh`; TLP при наличии удаляется, чтобы не конфликтовать с PPD.
+- `scripts/install-lamp.sh` — локальный веб-стек по `requirements/lamp.txt`: Apache, MariaDB (только `127.0.0.1`), PHP `mod_php`, phpMyAdmin на `http://localhost/phpmyadmin`. Две учётки: `devadmin` (полные права) и `project` (только базы `project_%`). Пароли генерируются и пишутся в `~/.config/webstack/credentials` (`chmod 600`); посмотреть — `scripts/install-lamp.sh --show-passwords`, свои — `--password`, перегенерировать — `--reset-passwords`. Скрипт идемпотентен.
 
 ## Устройства
 

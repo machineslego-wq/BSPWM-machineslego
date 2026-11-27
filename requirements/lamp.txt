@@ -1,0 +1,14 @@
+# Локальный веб-стек для разработки (Debian 13)
+# Читается scripts/install-lamp.sh; ставится через apt.
+apache2
+curl
+mariadb-server
+libapache2-mod-php
+php-mysql
+php-mbstring
+php-xml
+php-curl
+php-zip
+php-gd
+php-intl
+phpmyadmin

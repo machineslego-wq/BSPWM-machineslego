@@ -94,7 +94,7 @@ BSPWM-machineslego/
 ├── local/bin/                   # команды в ~/.local/bin: wifi, screenshot, wpctl-volume, ...
 ├── local/share/mc/skins/        # скин Midnight Commander
 ├── system/etc/                  # копируется в /etc: touchpad, NetworkManager, interfaces
-├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh, install-laravel.sh, install-sway.sh
+├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh, install-laravel.sh, install-lamp.sh, install-sway.sh
 ├── requirements/                # списки пакетов: apt.txt, apt-system.txt, software.txt, sway.txt
 ├── screenshots/                 # превью для README
 ├── themes/telegram/             # темы Telegram: .tdesktop-palette + .attheme (тёмная + светлая)
@@ -178,6 +178,7 @@ chmod +x scripts/*.sh
 - **Дополнительный софт:** `./scripts/software.sh`
 - **Node.js / npm:** `./scripts/install-node.sh` (отдельно, см. ниже)
 - **PHP / Composer / Laravel:** `./scripts/install-laravel.sh` (отдельно, см. ниже)
+- **Локальный веб-стек:** `./scripts/install-lamp.sh` (Apache + PHP + MariaDB + phpMyAdmin, см. ниже)
 - **Sway (основная сессия):** `./scripts/install-sway.sh` — ставит пакеты из `requirements/sway.txt` поверх базовой установки: шрифты, иконки, Qt-темы, сеть (`nmcli`/`nmtui` из `network-manager`) и звук (`wpctl` из `wireplumber`) приходят из `apt.txt`. Добавляет пользователя в группу `input` (индикаторы Caps/Num Lock в waybar), конфиги не трогает; `--session` дополнительно добавляет сессию в GDM, которая запускает `sway-session` (обёртка с окружением: под Wayland `xinitrc`/`xprofile` не работают). BSPWM при этом не удаляется: он остаётся запасной X11-сессией. Сам Sway настраивается в `config/sway`: только рамки (pixel 2), без отступов, цвета рамок Tokyo Night, терминал `foot` (`config/foot`), waybar вместо Polybar, wofi вместо Rofi, мониторы и обои — через `sway-display`, а карту столов генерирует `sway-session` по hostname (на ПК 1–7 привязаны к `DP-2`, 8–10 — к `HDMI-A-4`; ноутбукам и нетбукам достаётся пустая карта, и столы создаются на текущем выходе); конфиг Sway подключает её через include, потому что условий по hostname у Sway нет, а карта должна быть известна до создания первых столов, блокировка — `swaylock` (`config/swaylock`: синее кольцо при вводе, оранжевые символы пароля, те же обои, что на рабочем столе), скриншоты — через `sway-screenshot`, меню Wi-Fi, батареи и питания — через `wifi wofi`, `battery wofi`, `powermenu wofi` (wofi в стиле Rofi, скругление 2 px), уведомления — `mako` (`config/mako`) в стиле `dunst`
 - **Откат:** `./scripts/unlink.sh`
 - **Запуск:** `sway-session` из TTY или сессия в GDM, добавленная `install-sway.sh --session`; `startx` по-прежнему поднимает запасной BSPWM.
@@ -288,6 +289,9 @@ sudo systemctl kill -s HUP systemd-logind
 
 **PHP, Composer и Laravel.**
 `./scripts/install-laravel.sh` ставит `php-cli` и расширения (`mbstring`, `xml`, `curl`, `zip`, `sqlite3`, `intl`, `mysql`), Composer 2 в `~/.local/bin/composer` и глобально `laravel/installer`. Бинарник `laravel` Composer кладёт в `~/.config/composer/vendor/bin` — этого каталога обычно нет в PATH, поэтому скрипт прописывает его в bash и fish (блок `composer-global`). `UPDATE_COMPOSER=1` переустанавливает Composer. Новый проект: `laravel new <name>`; альтернатива — `composer create-project laravel/laravel <name>`.
+
+**Локальный веб-стек.**
+`./scripts/install-lamp.sh` ставит Apache, MariaDB, PHP (`mod_php`) и phpMyAdmin по списку `requirements/lamp.txt`: Apache на localhost, MariaDB слушает только `127.0.0.1`, phpMyAdmin — `http://localhost/phpmyadmin`. Создаются две учётки: `devadmin` с полными правами (локальная разработка) и `project` — только на базы с префиксом `project_` (может создавать их по маске). Пароли генерируются случайно и сохраняются в `~/.config/webstack/credentials` (`chmod 600`, в git не попадает), в конце скрипт печатает их. Посмотреть позже: `./scripts/install-lamp.sh --show-passwords`; задать свои: `--password '...'`; перегенерировать: `--reset-passwords`. Скрипт идемпотентен — повторный запуск сохраняет базы и пароли.
 
 **Темы.**
 - **GTK3/GTK4:** `config/gtk-3.0/gtk.css` — полный CSS поверх `Adwaita-dark`: `@define-color` плюс прямые селекторы (Adwaita жёстко прописывает цвета, их приходится переопределять вручную). `config/gtk-4.0/gtk.css` — переменные libadwaita (`:root` с `--*-color`), слой `@define-color` для совместимости и точечные правила там, где libadwaita считает цвет сам (hover в меню). Применение — перезапуск приложения; Flatpak-приложения подхватывают CSS после повторного `link.sh`.
