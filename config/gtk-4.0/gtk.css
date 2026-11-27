@@ -91,7 +91,14 @@ popover.menu modelbutton:selected {
     color: #c0caf5;
 }
 
-popover.menu modelbutton:active {
-    background-color: #31363b;
-    color: #eff1f5;
+/* Нажатие: цвет палитры и ничего лишнего. #31363b/#eff1f5 были
+   из чужой палитры и давали серое выделение с каймой. */
+popover.menu modelbutton:active,
+popover.menu modelbutton:selected:active {
+    background-color: #2f334d;
+    background-image: none;
+    color: #c0caf5;
+    border: none;
+    box-shadow: none;
+    outline: none;
 }

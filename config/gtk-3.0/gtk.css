@@ -1189,7 +1189,11 @@ modelbutton:selected,
 modelbutton.flat:selected,
 .menuitem.button.flat:selected,
 popover modelbutton:active {
-    color: #eff1f5;
-    background-color: #31363b;
+    color: #c0caf5;
+    background-color: #2f334d;
     background-image: none;
+    border-color: transparent;
+    box-shadow: none;
+    outline-style: none;
+    outline-width: 0;
 }
