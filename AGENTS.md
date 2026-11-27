@@ -12,8 +12,6 @@
 | `home/<file>` | файл домашнего каталога | симлинк `~/.<file>` |
 | `local/bin/<cmd>` | команда в PATH | симлинк `~/.local/bin/<cmd>` |
 | `local/share/mc/skins/*.ini` | скины Midnight Commander | `~/.local/share/mc/skins/` |
-| `local/share/color-schemes/*.colors` | цветовые схемы KDE Plasma | `~/.local/share/color-schemes/` |
-| `local/share/konsole/*` | профили и цветовые схемы Konsole | `~/.local/share/konsole/` |
 | `system/etc/**` | системные конфиги | копия в `/etc/**` + бэкап `/etc/dotfiles-backup-YYYYMMDD-HHMMSS` |
 | `scripts/*.sh` | установка и линковка | запуск вручную |
 | `requirements/*.txt` | списки пакетов | читают `scripts/*.sh` |
@@ -36,8 +34,8 @@
 | Лаунчер и меню X11 | `config/rofi/config.rasi`, `local/bin/{battery,powermenu,wifi,power-profile,dunst-history}` |
 | Лаунчер и меню Wayland | `config/wofi/{config,style.css}`, `local/bin/{wofi-*,wifi,battery,powermenu}` |
 | Уведомления | `config/dunst/dunstrc` (X11), `config/mako/config` (Sway) |
-| Тема GTK / Qt | `config/gtk-3.0`, `config/gtk-4.0`, `config/qt5ct`, `config/qt6ct`; KDE — `local/share/color-schemes/TokyoNight.colors` |
-| Терминалы | `config/alacritty/alacritty.toml`, `config/foot/foot.ini`; Konsole — `local/share/konsole/` |
+| Тема GTK / Qt | `config/gtk-3.0`, `config/gtk-4.0`, `config/qt5ct`, `config/qt6ct` |
+| Терминалы | `config/alacritty/alacritty.toml`, `config/foot/foot.ini` |
 | Редакторы | `config/nvim/`, `home/vimrc` |
 | Пакеты | `requirements/apt.txt` (база X11), `sway.txt` (Sway, поверх базы), `apt-system.txt` (системное), `software.txt` (опциональное) |
 | Установка и линковка | `scripts/install.sh`, `link.sh`, `unlink.sh`, `software.sh`, `install-node.sh`, `install-laravel.sh`, `install-sway.sh` |
@@ -167,14 +165,12 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - Qt: `config/qt5ct/colors/tokyo-night.conf` и `qt6ct/...` — 21 роль `QPalette` в порядке enum, цвет `#AARRGGBB`. `style=Fusion`, `custom_palette=true`. Применение — `qt5ct`/`qt6ct` или перезапуск приложения. Это фолбэк: в Sway/BSPWM платформенная тема — `kde` (палитра, стиль и иконки из `kdeglobals`), потому что KF6-приложения (Dolphin, Okular, Ark) палитру qt6ct игнорируют и рисуют серые виджеты Breeze. `sway-session`/`xinitrc`/`xprofile` выбирают `kde`, если установлен `plasma-integration`, иначе `qt6ct`. В Plasma цвет задаёт схема KDE, а не qt5ct/qt6ct.
 - Рамка окна Qt-приложений на Wayland: её рисует сам Qt, поэтому заголовок отличается от GTK. Чтобы он был как Adwaita/GTK, в `config/environment.d/10-qt.conf` стоит `QT_WAYLAND_DECORATION=adwaita` (файл линкуется в `~/.config/environment.d/`, плагин `libadwaita.so` даёт `qt6-wayland`). Действует после перелогина; разово — `QT_WAYLAND_DECORATION=adwaita <команда>`.
 - GNOME Shell: пользовательской темы нет — стоковая Adwaita, следует Style в GNOME. Полный вариант сохранён в ветке `themes-full`.
-- KDE: `local/share/color-schemes/TokyoNight.colors` (тёмная) и `TokyoNightDay.colors` (светлая) → `~/.local/share/color-schemes/` (`link.sh`); применяется `plasma-apply-colorscheme TokyoNight|TokyoNightDay`. Секция `[WM]` красит рамки KWin, `[Colors:*]` — внутренности Qt-приложений. Для Qt5-софта нужен `plasma5-integration`.
 - VLC — Qt5, и у него есть **своя** тёмная палитра (`qt-dark-palette` в `~/.config/vlc/vlcrc`), которая перебивает системную: в KDE с Tokyo Night VLC остаётся «своим» тёмным. Выключить: Инструменты → Настройки → Интерфейс → «Use dark palette». `QtStyle=qt5ct-style` в `~/.config/vlc/vlc-qt-interface.conf` можно оставить. В Plasma палитру даёт `plasma5-integration`, в Sway/BSPWM — та же платформенная тема `kde` (её Qt5-плагин читает тот же `kdeglobals`).
 - Flatpak: `link.sh` при наличии Flatpak выдаёт read-only доступ к `gtk-3.0`, `gtk-4.0`, `qt5ct`, `qt6ct`, `xdg-data/themes` и `QT_QPA_PLATFORMTHEME=qt5ct`. После повторного `link.sh` Flatpak-приложения нужно перезапустить.
 
 ## Терминал и шелл
 
 - Alacritty: `config/alacritty/alacritty.toml`, `JetBrainsMono Nerd Font 10`, `opacity = 1` (прозрачность отвергнута), `live_config_reload = true`.
-- Konsole: `local/share/konsole/TokyoNight.*` (тёмная) и `TokyoNightDay.*` (светлая) — схемы и профили, `link.sh` линкует в `~/.local/share/konsole/`; профиль выбирается в Konsole → Configure Konsole → Profiles.
 - GNOME Terminal: профили хранятся в dconf, файла для линковки нет. Палитру применяет `local/bin/gnome-terminal-palette` — фон `#1a1b26`, текст `#c0caf5`, те же 16 цветов ANSI, что в Alacritty/Foot, курсор и выделение. `--reset` возвращает цвета темы GNOME. Новые окна подхватывают сразу, открытые — после перезапуска.
 - Ptyxis (терминал GNOME в Debian 13): `local/share/org.gnome.Ptyxis/palettes/tokyo-night.palette`, `link.sh` линкует его в `~/.local/share/org.gnome.Ptyxis/palettes/`. Палитра выбирается в Preferences → Palette (или `default-palette-id` в профиле). Формат — INI `[Palette]`, те же 16 цветов ANSI.
 - Bash-промпт: `home/bashrc` только выбирает файл из `config/bash/themes/` по `BASH_PROMPT` (по умолчанию `tokyo-night`; есть `tokyo-night-minimal` и `empty`). Нет файла — стоковый `PS1`. Применение — `exec bash` или `source ~/.bashrc`.

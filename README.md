@@ -221,7 +221,7 @@ The wizard sets style, colors, and icons. `config.fish` already defines Tokyo Ni
 To switch for good, edit the `BASH_PROMPT=` line in `~/.bashrc`; to try it for one shell, run `BASH_PROMPT=tokyo-night-minimal bash`. If the file is missing, the stock `\u@\h:\w\$` stays.
 
 **GNOME Terminal.**
-Colors live in a dconf profile rather than a file, so the repo ships a command instead: `gnome-terminal-palette` (`~/.local/bin`) applies the Tokyo Night palette to the default profile — background, foreground, 16 ANSI colors, cursor and selection, matching Alacritty/Foot/Konsole. `gnome-terminal-palette --reset` restores the GNOME theme colors. New windows pick it up immediately, open ones after a restart.
+Colors live in a dconf profile rather than a file, so the repo ships a command instead: `gnome-terminal-palette` (`~/.local/bin`) applies the Tokyo Night palette to the default profile — background, foreground, 16 ANSI colors, cursor and selection, matching Alacritty/Foot. `gnome-terminal-palette --reset` restores the GNOME theme colors. New windows pick it up immediately, open ones after a restart.
 
 **Ptyxis (GNOME terminal).**
 The palette is a file: `local/share/org.gnome.Ptyxis/palettes/tokyo-night.palette`, `link.sh` links it into `~/.local/share/org.gnome.Ptyxis/palettes/`. Pick Preferences → Palette → Tokyo Night in Ptyxis.

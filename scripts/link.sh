@@ -80,20 +80,6 @@ fi
 
 # 5. Линкуем local/share/... (схемы KDE, Konsole, палитра Ptyxis, тема Shell)
 echo "--- Installing KDE color schemes and Konsole files (Установка схем KDE и Konsole) ---"
-if [ -d "$DOTFILES/local/share/color-schemes" ]; then
-    for scheme in "$DOTFILES/local/share/color-schemes"/*.colors; do
-        [ -e "$scheme" ] || continue
-        scheme_name=$(basename "$scheme")
-        link_item "$scheme" "$HOME/.local/share/color-schemes/$scheme_name"
-    done
-fi
-if [ -d "$DOTFILES/local/share/konsole" ]; then
-    for file in "$DOTFILES/local/share/konsole"/*; do
-        [ -e "$file" ] || continue
-        file_name=$(basename "$file")
-        link_item "$file" "$HOME/.local/share/konsole/$file_name"
-    done
-fi
 if [ -d "$DOTFILES/local/share/org.gnome.Ptyxis/palettes" ]; then
     for file in "$DOTFILES/local/share/org.gnome.Ptyxis/palettes"/*.palette; do
         [ -e "$file" ] || continue
