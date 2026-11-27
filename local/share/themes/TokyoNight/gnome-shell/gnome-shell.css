@@ -234,7 +234,7 @@ StEntry:insensitive {
 
 /* --- Панель приложений (dash) --- */
 #dash .dash-background {
-    background-color: #1f2335;
+    background-color: #1a1b26;
 }
 
 .dash-label,
@@ -472,4 +472,11 @@ StEntry:insensitive {
 #dash .dash-item-container .overview-tile:active .overview-icon,
 #dash .dash-item-container .grid-search-result:active .overview-icon {
     background-color: #31363b;
+}
+
+/* Плитка дока не красится целиком — подсветка только у иконки */
+#dash .dash-item-container .show-apps,
+#dash .dash-item-container .overview-tile,
+#dash .dash-item-container .grid-search-result {
+    background-color: transparent;
 }
