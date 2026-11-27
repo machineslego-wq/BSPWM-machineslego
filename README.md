@@ -224,6 +224,9 @@ To switch for good, edit the `BASH_PROMPT=` line in `~/.bashrc`; to try it for o
 **GNOME Terminal.**
 Colors live in a dconf profile rather than a file, so the repo ships a command instead: `gnome-terminal-palette` (`~/.local/bin`) applies the Tokyo Night palette to the default profile — background, foreground, 16 ANSI colors, cursor and selection, matching Alacritty/Foot/Konsole. `gnome-terminal-palette --reset` restores the GNOME theme colors. New windows pick it up immediately, open ones after a restart.
 
+**Ptyxis (GNOME terminal).**
+The palette is a file: `local/share/org.gnome.Ptyxis/palettes/tokyo-night.palette`, `link.sh` links it into `~/.local/share/org.gnome.Ptyxis/palettes/`. Pick Preferences → Palette → Tokyo Night in Ptyxis.
+
 **Wi-Fi.**
 The `wifi` command (`~/.local/bin`) takes the menu backend as its first argument: `wifi rofi` for BSPWM (terminal — Alacritty) and `wifi wofi` for Sway (terminal — Foot). The adapter is chosen by `nmcli`, so there is no interface table; set `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` at the top of the file.
 

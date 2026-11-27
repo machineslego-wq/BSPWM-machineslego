@@ -221,6 +221,9 @@ tide configure
 **GNOME Terminal.**
 Цвета хранятся не в файле, а в профиле dconf, поэтому в репозитории лежит команда: `gnome-terminal-palette` (`~/.local/bin`) применяет палитру Tokyo Night к профилю по умолчанию — фон, текст, 16 цветов ANSI, курсор и выделение, как в Alacritty/Foot/Konsole. `gnome-terminal-palette --reset` возвращает цвета темы GNOME. Новые окна подхватывают сразу, открытые — после перезапуска.
 
+**Ptyxis (терминал GNOME).**
+Палитра лежит файлом: `local/share/org.gnome.Ptyxis/palettes/tokyo-night.palette`, `link.sh` линкует её в `~/.local/share/org.gnome.Ptyxis/palettes/`. В Ptyxis выбери Preferences → Palette → Tokyo Night.
+
 **Wi-Fi.**
 Команда `wifi` (`~/.local/bin`) принимает бэкенд меню первым аргументом: `wifi rofi` для BSPWM (терминал — Alacritty) и `wifi wofi` для Sway (терминал — Foot). Адаптер выбирает `nmcli`, таблицы интерфейсов нет; `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` задаются в начале файла.
 

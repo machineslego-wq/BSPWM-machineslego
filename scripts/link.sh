@@ -78,7 +78,7 @@ if [ -d "$DOTFILES/local/share/mc/skins" ]; then
     done
 fi
 
-# 5. Линкуем local/share/... (схемы KDE и Konsole)
+# 5. Линкуем local/share/... (схемы KDE, Konsole и палитра Ptyxis)
 echo "--- Installing KDE color schemes and Konsole files (Установка схем KDE и Konsole) ---"
 if [ -d "$DOTFILES/local/share/color-schemes" ]; then
     for scheme in "$DOTFILES/local/share/color-schemes"/*.colors; do
@@ -92,6 +92,13 @@ if [ -d "$DOTFILES/local/share/konsole" ]; then
         [ -e "$file" ] || continue
         file_name=$(basename "$file")
         link_item "$file" "$HOME/.local/share/konsole/$file_name"
+    done
+fi
+if [ -d "$DOTFILES/local/share/org.gnome.Ptyxis/palettes" ]; then
+    for file in "$DOTFILES/local/share/org.gnome.Ptyxis/palettes"/*.palette; do
+        [ -e "$file" ] || continue
+        file_name=$(basename "$file")
+        link_item "$file" "$HOME/.local/share/org.gnome.Ptyxis/palettes/$file_name"
     done
 fi
 
