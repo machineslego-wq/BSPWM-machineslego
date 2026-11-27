@@ -59,8 +59,8 @@ echo "--- Installing commands to ~/.local/bin (Установка команд) 
 if [ -d "$DOTFILES/local/bin" ]; then
     for cmd in "$DOTFILES/local/bin"/*; do
         [ -e "$cmd" ] || continue
-        # Документация (start-llm.md) лежит рядом с командами, но это не
-        # команда: не линкуем и не ставим +x.
+        # Документация живёт в docs/, но на случай старых *.md рядом — не
+        # линкуем и не ставим +x.
         case $cmd in *.md) continue ;; esac
         chmod +x "$cmd"
         cmd_name=$(basename "$cmd")

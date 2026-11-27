@@ -78,7 +78,7 @@ BSPWM-machineslego/
 │   ├── GIMP/3.0/themes/         # TokyoNight theme for GIMP 3
 │   ├── gtk-3.0/ gtk-4.0/        # gtk.css: Tokyo Night over Adwaita-dark
 │   ├── mako/config              # notifications for Sway: dunst-style
-│   ├── nvim/                    # Lua config, vim.pack, CHEATSHEET.md
+│   ├── nvim/                    # Lua config, vim.pack
 │   ├── picom/                   # picom.conf + picom-eco.conf
 │   ├── polybar/                 # config.ini, launch.sh
 │   ├── qt5ct/ qt6ct/            # Qt palettes: tokyo-night.conf
@@ -97,6 +97,7 @@ BSPWM-machineslego/
 ├── system/etc/                  # copied to /etc: touchpad, NetworkManager, interfaces
 ├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh, install-laravel.sh, install-lamp.sh, install-sway.sh
 ├── requirements/                # package lists: apt.txt, apt-system.txt, software.txt, sway.txt
+├── docs/                        # command docs and cheatsheets (view with rice-doc <name>)
 ├── screenshots/                 # README previews
 ├── themes/telegram/             # Telegram themes: .tdesktop-palette + .attheme (dark + light)
 ├── wallpapers/                  # 1080p/4K and portrait wallpapers
@@ -282,7 +283,7 @@ sudo systemctl kill -s HUP systemd-logind
 `Super + Alt + P` or a click on the Polybar module. The menu offers Performance / Balanced / Power Saver, switches via `powerprofilesctl`, and immediately restarts Picom with the matching profile. Limitation: on Celeron N4120 the `performance` profile is unavailable — only `balanced` and `power-saver`.
 
 **Neovim.**
-The config is written in Lua, plugins are managed by the built-in `vim.pack` (Neovim 0.12). The list lives in `lua/plugins.lua`, versions are pinned by `nvim-pack-lock.json`. The first launch needs network: `vim.pack` downloads plugins and Mason installs LSP servers into `~/.local/share/nvim/mason/bin`. Update plugins with `:lua vim.pack.update()` and `:restart`; Treesitter parsers with `:TSUpdate`. Full cheatsheet: `config/nvim/CHEATSHEET.md`.
+The config is written in Lua, plugins are managed by the built-in `vim.pack` (Neovim 0.12). The list lives in `lua/plugins.lua`, versions are pinned by `nvim-pack-lock.json`. The first launch needs network: `vim.pack` downloads plugins and Mason installs LSP servers into `~/.local/share/nvim/mason/bin`. Update plugins with `:lua vim.pack.update()` and `:restart`; Treesitter parsers with `:TSUpdate`. Full cheatsheet: `rice-doc nvim` (`docs/nvim.md`).
 
 **Vim.**
 A plugin-free fallback editor: `home/vimrc` → `~/.vimrc`. Syntax highlighting and `filetype plugin indent on` are enabled, numbering is hybrid (absolute number on the cursor line, relative distances around it), persistent undo lives in `~/.vim/undo`, indentation is 4 spaces by default (2 for json/yaml/html/css/scss/js/ts/vue), and extension-less configs get a filetype (`sxhkdrc`, `bspwmrc`, `xinitrc`, `dunstrc`, `picom*.conf`, `qt5ct.conf`, `qt6ct.conf`, `NetworkManager.conf`, `copyq*.conf`, `*.tdesktop-palette`). Colors come from the terminal palette (Tokyo Night in Alacritty); no colorscheme is overridden. Apply changes with `:source ~/.vimrc`.
@@ -337,7 +338,7 @@ Launch OBS as a Wayland client — `QT_QPA_PLATFORM=wayland obs` — otherwise i
 
 ## ⌨️ Keybindings
 
-**Full cheatsheet:** `Super + /` — `cheatsheet-bspwm` (Rofi) in BSPWM, `sway-cheatsheet` (wofi, `rofi` fallback) in Sway; both are searchable through hidden tags, and the BSPWM window is sized so they are not clipped. Neovim cheatsheet: `config/nvim/CHEATSHEET.md`; Vim cheatsheet: the comments in `~/.vimrc`.
+**Full cheatsheet:** `Super + /` — `cheatsheet-bspwm` (Rofi) in BSPWM, `sway-cheatsheet` (wofi, `rofi` fallback) in Sway; both are searchable through hidden tags, and the BSPWM window is sized so they are not clipped. Neovim cheatsheet: `rice-doc nvim` (`docs/nvim.md`); Vim cheatsheet: the comments in `~/.vimrc`.
 
 ### BSPWM: system & launch
 

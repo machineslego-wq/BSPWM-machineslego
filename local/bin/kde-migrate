@@ -16,7 +16,7 @@
 #   sudo kde-migrate rollback   [--apply] [--yes]
 #   kde-migrate verify
 #
-# Документация и описание флагов: local/bin/kde-migrate.md
+# Документация и описание флагов: docs/kde-migrate.md
 # ==========================================================
 
 set -euo pipefail
@@ -655,7 +655,7 @@ kde-migrate — обратимая миграция Debian 13: GNOME → KDE Pla
   sudo $0 finalize --apply --yes
   sudo $0 rollback --apply --yes
 
-Подробная документация: local/bin/kde-migrate.md
+Подробная документация: docs/kde-migrate.md
 EOF
     exit "${1:-0}"
 }

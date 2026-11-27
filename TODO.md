@@ -112,7 +112,7 @@
 
 - [x] **Релиз `v1.7.0`** — аннотированный тег, `RELEASE.md` с заметками на двух языках (EN-блок, `---`, RU-блок), запись в whitelist `.gitignore`, порядок публикации в AGENTS.
 - [x] **Eco-режим (PPD + Picom)** — реализован в `782477e`. `bspwmrc` выбирает `picom-eco.conf` при `power-saver`, `power-profile` перезапускает Picom при смене профиля через меню.
-- [x] **Neovim** — AppImage в `~/.local/bin/nvim`, конфиг на `vim.pack`, Mason, Treesitter; neo-tree с фиксированной шириной 32 и открытием файлов справа; шпаргалка в `config/nvim/CHEATSHEET.md`.
+- [x] **Neovim** — AppImage в `~/.local/bin/nvim`, конфиг на `vim.pack`, Mason, Treesitter; neo-tree с фиксированной шириной 32 и открытием файлов справа; шпаргалка в `docs/nvim.md`.
 - [x] **Vim** — `home/vimrc` без плагинов: подсветка синтаксиса и определение типов файлов, гибридная нумерация (абсолютный номер на строке курсора, относительные вокруг), постоянная история в `~/.vim/undo`, типы файлов для конфигов без расширения. `vim` добавлен в `apt.txt`.
 - [x] **Единая тема** — GTK3/GTK4 (свой CSS поверх `Adwaita-dark`), Qt5/Qt6, GIMP 3, CopyQ, Telegram, Midnight Commander.
 - [x] **Node.js без sudo** — `scripts/install-node.sh` (NodeSource LTS, prefix `~/.npm-global`).

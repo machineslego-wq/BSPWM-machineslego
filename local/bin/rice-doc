@@ -1,0 +1,41 @@
+#!/bin/bash
+# ==========================================================
+# rice-doc — документация команд и компонентов из docs/
+# ==========================================================
+# Без аргументов — список; rice-doc <имя> — открыть docs/<имя>.md.
+# Имя можно с .md и без. Pager — less, если есть терминал, иначе cat.
+# ==========================================================
+
+set -eu
+
+self=$(readlink -f "$0")
+root=$(cd "$(dirname "$self")/../.." && pwd)
+docs="$root/docs"
+
+[[ -d $docs ]] || { echo "нет каталога $docs" >&2; exit 1; }
+
+if (($# == 0)); then
+    echo "Документация ($docs):"
+    for file in "$docs"/*.md; do
+        [[ -e $file ]] || continue
+        name=$(basename "$file" .md)
+        title=$(grep -m1 '^# ' "$file" 2>/dev/null | sed 's/^# //')
+        printf '  %-18s %s\n' "$name" "$title"
+    done
+    echo
+    echo "Открыть: rice-doc <имя>"
+    exit 0
+fi
+
+name=${1%.md}
+file="$docs/$name.md"
+if [[ ! -f $file ]]; then
+    echo "нет такой документации: $name" >&2
+    echo "Список: rice-doc" >&2
+    exit 1
+fi
+
+if [[ -t 1 ]] && command -v less >/dev/null 2>&1; then
+    exec less -R "$file"
+fi
+cat "$file"

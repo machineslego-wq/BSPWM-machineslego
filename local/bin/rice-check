@@ -40,7 +40,7 @@ for file in home/*; do
     check_link "$HOME/.$name" "$DOTFILES/$file"
 done
 for file in local/bin/*; do
-    # Документация (start-llm.md) командой не является: link.sh её не линкует.
+    # Документация живёт в docs/: на случай старых .md — пропускаем.
     case $file in *.md) continue ;; esac
     check_link "$HOME/.local/bin/$(basename "$file")" "$DOTFILES/$file"
 done
@@ -275,7 +275,7 @@ done < <(grep '^bindsym' config/sway/config)
 # иначе переименование команды валит проверку до коммита.
 while IFS= read -r file; do
     [ -f "$file" ] || continue
-    # Не исполняемые файлы (например, local/bin/start-llm.md) — документация,
+    # Не исполняемые файлы — документация (docs/),
     # а не скрипты: bash -n на них заведомо падает.
     [ -x "$file" ] || continue
     bash -n "$file" 2>/dev/null || bad "синтаксис: $file"

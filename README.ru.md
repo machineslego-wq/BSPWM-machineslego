@@ -77,7 +77,7 @@ BSPWM-machineslego/
 │   ├── GIMP/3.0/themes/         # тема TokyoNight для GIMP 3
 │   ├── gtk-3.0/ gtk-4.0/        # gtk.css: Tokyo Night поверх Adwaita-dark
 │   ├── mako/config              # уведомления Sway: стиль dunst
-│   ├── nvim/                    # Lua-конфиг, vim.pack, CHEATSHEET.md
+│   ├── nvim/                    # Lua-конфиг, vim.pack
 │   ├── picom/                   # picom.conf + picom-eco.conf
 │   ├── polybar/                 # config.ini, launch.sh
 │   ├── qt5ct/ qt6ct/            # палитры Qt: tokyo-night.conf
@@ -96,6 +96,7 @@ BSPWM-machineslego/
 ├── system/etc/                  # копируется в /etc: touchpad, NetworkManager, interfaces
 ├── scripts/                     # install.sh, link.sh, unlink.sh, software.sh, install-node.sh, install-laravel.sh, install-lamp.sh, install-sway.sh
 ├── requirements/                # списки пакетов: apt.txt, apt-system.txt, software.txt, sway.txt
+├── docs/                        # инструкции команд и шпаргалки (просмотр: rice-doc <имя>)
 ├── screenshots/                 # превью для README
 ├── themes/telegram/             # темы Telegram: .tdesktop-palette + .attheme (тёмная + светлая)
 ├── wallpapers/                  # обои 1080p/4K и портретные
@@ -279,7 +280,7 @@ sudo systemctl kill -s HUP systemd-logind
 `Super + Alt + P` или клик по модулю в Polybar. Меню показывает Performance / Balanced / Power Saver, переключение идёт через `powerprofilesctl` и сразу перезапускает Picom с нужным профилем. Ограничение: на Celeron N4120 профиль `performance` недоступен — только `balanced` и `power-saver`.
 
 **Neovim.**
-Конфиг на Lua, плагины ставит встроенный `vim.pack` (Neovim 0.12), список — в `lua/plugins.lua`, версии фиксирует `nvim-pack-lock.json`. Первый запуск требует сети: `vim.pack` качает плагины, Mason — LSP-серверы в `~/.local/share/nvim/mason/bin`. Обновление плагинов: `:lua vim.pack.update()` и `:restart`; парсеры Treesitter — `:TSUpdate`. Полная шпаргалка — `config/nvim/CHEATSHEET.md`.
+Конфиг на Lua, плагины ставит встроенный `vim.pack` (Neovim 0.12), список — в `lua/plugins.lua`, версии фиксирует `nvim-pack-lock.json`. Первый запуск требует сети: `vim.pack` качает плагины, Mason — LSP-серверы в `~/.local/share/nvim/mason/bin`. Обновление плагинов: `:lua vim.pack.update()` и `:restart`; парсеры Treesitter — `:TSUpdate`. Полная шпаргалка — `rice-doc nvim` (файл `docs/nvim.md`).
 
 **Vim.**
 Запасной редактор без плагинов: `home/vimrc` → `~/.vimrc`. Включены подсветка синтаксиса и `filetype plugin indent on`, гибридная нумерация (на строке курсора — абсолютный номер, вокруг — относительные), постоянная история изменений в `~/.vim/undo`, 4 пробела по умолчанию (2 для json/yaml/html/css/scss/js/ts/vue) и типы файлов для конфигов без расширения (`sxhkdrc`, `bspwmrc`, `xinitrc`, `dunstrc`, `picom*.conf`, `qt5ct.conf`, `qt6ct.conf`, `NetworkManager.conf`, `copyq*.conf`, `*.tdesktop-palette`). Цвета берутся из палитры терминала (Tokyo Night в Alacritty), тема не переопределяется. Изменения применяются через `:source ~/.vimrc`.
@@ -334,7 +335,7 @@ OBS нужно запускать как Wayland-клиент (`QT_QPA_PLATFORM=
 
 ## ⌨️ Горячие клавиши
 
-**Полная шпаргалка:** `Super + /` — `cheatsheet-bspwm` (Rofi) в BSPWM, `sway-cheatsheet` (wofi, запасной `rofi`) в Sway; обе с поиском по скрытым тегам, окно BSPWM рассчитано по самой длинной строке, чтобы теги не обрезались. Шпаргалка по Neovim — `config/nvim/CHEATSHEET.md`, по Vim — комментарии в `~/.vimrc`.
+**Полная шпаргалка:** `Super + /` — `cheatsheet-bspwm` (Rofi) в BSPWM, `sway-cheatsheet` (wofi, запасной `rofi`) в Sway; обе с поиском по скрытым тегам, окно BSPWM рассчитано по самой длинной строке, чтобы теги не обрезались. Шпаргалка по Neovim — `rice-doc nvim` (`docs/nvim.md`), по Vim — комментарии в `~/.vimrc`.
 
 ### BSPWM: система и запуск
 

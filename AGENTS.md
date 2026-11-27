@@ -12,6 +12,7 @@
 | `home/<file>` | файл домашнего каталога | симлинк `~/.<file>` |
 | `local/bin/<cmd>` | команда в PATH | симлинк `~/.local/bin/<cmd>` |
 | `local/share/mc/skins/*.ini` | скины Midnight Commander | `~/.local/share/mc/skins/` |
+| `docs/*.md` | инструкции команд и шпаргалки | просмотр: `rice-doc <имя>` |
 | `system/etc/**` | системные конфиги | копия в `/etc/**` + бэкап `/etc/dotfiles-backup-YYYYMMDD-HHMMSS` |
 | `scripts/*.sh` | установка и линковка | запуск вручную |
 | `requirements/*.txt` | списки пакетов | читают `scripts/*.sh` |
@@ -50,8 +51,8 @@
 - **Стоковый модуль вместо скрипта.** Скрипт появляется только там, где без него нельзя: запускается по требованию и сразу завершается. Никаких фоновых циклов и мёртвого кода.
 - Перед новой фичей — `TODO.md`, раздел «Отвергнуто». Без явной просьбы не возвращать: темы/прозрачность, выборщик обоев, авто-темы, автогенерацию GTK-темы.
 - **Персонализацию не обобщать молча:** hostname, имена мониторов и Wi-Fi интерфейсов, пути к обоям (см. «Персонализация»).
-- **Палитра — сборник, а не сток.** Большинство цветов — Tokyo Night (Night/Storm/Moon/Day), но фоновая лестница и часть производных оттенков свои. Оранжевый `#ff9e64` в Telegram и Obsidian — осознанный контраст, в системе акцент синий `#7aa2f7` (глаза). Не «исправлять» это на сток без явной просьбы. Подробности — `themes/README.md`.
-- Новая команда: `local/bin/<имя>` без расширения, с шебангом, `chmod +x`. **Третья строка файла** — описание: её читает `rice-help`. Документация в `local/bin` — это `*.md` (`start-llm.md`): такие файлы не линкуются и не исполняются.
+- **Палитра — сборник, а не сток.** Большинство цветов — Tokyo Night (Night/Storm/Moon/Day), но фоновая лестница и часть производных оттенков свои. Оранжевый `#ff9e64` в Telegram и Obsidian — осознанный контраст, в системе акцент синий `#7aa2f7` (глаза). Не «исправлять» это на сток без явной просьбы. Подробности — `docs/themes.md`.
+- Новая команда: `local/bin/<имя>` без расширения, с шебангом, `chmod +x`. **Третья строка файла** — описание: её читает `rice-help`. Документация — `docs/*.md`, смотреть `rice-doc <имя>`; в `local/bin` файлов `*.md` не держим.
 - Документация на русском. `README.md` и `README.ru.md` обновляются одновременно. `RELEASE.md` — только текущий релиз, не история.
 - Не трогать: чужие файлы в `~/.local/bin` (`nvim`, `tree-sitter`, `zed`), сгенерированное Fish/Tide (`fish_variables`, `conf.d/_tide_*.fish`, `functions/`, `completions/`), `~/.dotfiles-backup-*`, истории и логи.
 - `.gitignore` — whitelist: новый файл/папка в корне не попадёт в git, пока не добавлен в исключения.
@@ -185,7 +186,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 
 - **Neovim** (`config/nvim`): Lua, менеджер — встроенный `vim.pack` (Neovim 0.12), плагины только в `lua/plugins.lua`. Файлы по зонам: `options`, `keymaps` (общие хоткеи), `finder` (telescope), `plugins`, `theme`, `treesitter`, `completion`, `lsp` (LSP-хоткеи вешает `LspAttach`), `explorer`, `git` (git-хунки вешает `on_attach`), `ui` (lualine + which-key). `nvim-pack-lock.json` версионируется, руками не править.
 - Вкладки — это буферы: полоска сверху рисуется lualine (`tabline.buffers`), переключение — `<S-h>`/`<S-l>`, `<leader>fb` или клик. `hidden` не отключён (стоковое поведение Neovim). Сайдбар 32 колонки с `winfixwidth`, файлы открываются справа; `WinClosed` создаёт пустую рабочую область справа.
-- Хоткеи: leader — пробел; `<C-h/j/k/l>` окна, `<leader>e` дерево, `<leader>ff/fg/fb/fh` поиск, `<C-\>` терминал, `<leader>w` сохранить, `<leader>q` `:qa`, LSP: `gd`, `gD`, `gr`, `gi`, `K`, `<leader>ca/rn/f/cd`, `[d`/`]d`; git: `]c`/`[c`, `<leader>gs/gr/gp/gb/gd`. Полный список — `config/nvim/CHEATSHEET.md`.
+- Хоткеи: leader — пробел; `<C-h/j/k/l>` окна, `<leader>e` дерево, `<leader>ff/fg/fb/fh` поиск, `<C-\>` терминал, `<leader>w` сохранить, `<leader>q` `:qa`, LSP: `gd`, `gD`, `gr`, `gi`, `K`, `<leader>ca/rn/f/cd`, `[d`/`]d`; git: `]c`/`[c`, `<leader>gs/gr/gp/gb/gd`. Полный список — `docs/nvim.md`.
 - LSP-серверы (lua_ls, bashls, pyright, ts_ls, clangd, rust_analyzer, jsonls, yamlls, html, cssls, emmet_language_server, intelephense) ставит `mason-lspconfig` при первом запуске (`ensure_installed`); вручную — `:Mason` / `:MasonInstall <имя>`. Telescope ищет через `ripgrep` (`requirements/software.txt`), без `rg` не работают `find_files`/`live_grep`. Treesitter требует `tree-sitter` CLI ≥ 0.26.1 (кладёт `install.sh`). Первый запуск требует сеть: `vim.pack` качает плагины.
 - **Vim** (`home/vimrc`): без плагинов, палитра — из терминала. Гибридные номера, `undofile` в `~/.vim/undo`, отступы 4/2/табы по типу файла, `<C-h/j/k/l>` окна, `<Esc>` снимает подсветку поиска. Vim не знает `sxhkdrc`, `bspwmrc`, `dunstrc`, `picom*.conf` — для них в vimrc есть `augroup` с `setlocal filetype`.
 
