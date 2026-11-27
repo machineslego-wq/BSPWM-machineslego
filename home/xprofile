@@ -1,4 +1,8 @@
 export PATH="$HOME/.local/bin:$PATH"
 export QT_STYLE_OVERRIDE=qt6ct
+# KDE-приложениям (Dolphin) вне Plasma нужен файл меню: KServiceGroup ищет
+# $XDG_MENU_PREFIX + applications.menu, в Debian он есть только как
+# plasma-applications.menu. Без префикса список «Открыть с помощью» пуст.
+export XDG_MENU_PREFIX=plasma-
 export XCURSOR_THEME=Bibata-Modern-Ice
 export XCURSOR_SIZE=24

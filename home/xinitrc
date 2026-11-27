@@ -17,6 +17,10 @@ xrdb -merge "$HOME/.Xresources"
 export XCURSOR_THEME=Bibata-Modern-Ice
 export XCURSOR_SIZE=24
 export QT_QPA_PLATFORMTHEME=qt6ct
+# KDE-приложениям (Dolphin) вне Plasma нужен файл меню: KServiceGroup ищет
+# $XDG_MENU_PREFIX + applications.menu, в Debian он есть только как
+# plasma-applications.menu. Без префикса список «Открыть с помощью» пуст.
+export XDG_MENU_PREFIX=plasma-
 
 # Фикс для libreoffice для gtk3
 export SAL_USE_VCLPLUGIN=gtk3

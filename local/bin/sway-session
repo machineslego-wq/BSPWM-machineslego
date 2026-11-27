@@ -42,6 +42,13 @@ export XDG_SESSION_TYPE=wayland
 export XDG_SESSION_DESKTOP=sway
 export DESKTOP_SESSION=sway
 
+# --- Меню приложений для KDE-софта ---
+# Dolphin и другие KF6-приложения строят список «Открыть с помощью» из
+# KServiceGroup, а тот ищет $XDG_MENU_PREFIX + applications.menu. В Debian
+# файл есть только как plasma-applications.menu (пакет plasma-workspace),
+# префикс выставляет сессия Plasma. Без него список пустой — задаём сами.
+export XDG_MENU_PREFIX=plasma-
+
 # --- Курсор ---
 # Sway берёт тему курсора из этих же переменных (сам и Xwayland-клиенты).
 export XCURSOR_THEME=Bibata-Modern-Ice
