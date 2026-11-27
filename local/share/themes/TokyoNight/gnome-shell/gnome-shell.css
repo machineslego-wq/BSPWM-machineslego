@@ -40,6 +40,12 @@ stage {
     box-shadow: inset 0 0 0 100px rgba(122, 162, 247, 0.28);
 }
 
+/* Курсор на открытом меню: стоковый CSS даёт 32% белого */
+#panel .panel-button:active:hover,
+#panel .panel-button:checked:hover {
+    box-shadow: inset 0 0 0 100px rgba(122, 162, 247, 0.34);
+}
+
 #panel .panel-button#panelActivities .workspace-dot {
     background-color: #c0caf5;
 }
