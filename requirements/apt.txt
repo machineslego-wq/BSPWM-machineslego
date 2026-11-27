@@ -16,8 +16,8 @@ dunst
 picom
 feh
 lxappearance
-qt5ct
-qt6ct
+qt5-gtk-platformtheme
+qt6-gtk-platformtheme
 papirus-icon-theme
 bibata-cursor-theme
 fonts-jetbrains-mono

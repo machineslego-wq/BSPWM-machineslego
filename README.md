@@ -76,12 +76,11 @@ BSPWM-machineslego/
 │   ├── fish/                    # config.fish, fish_plugins, rustup
 │   ├── foot/foot.ini            # terminal for Sway: no padding, Tokyo Night
 │   ├── GIMP/3.0/themes/         # TokyoNight theme for GIMP 3
-│   ├── gtk-3.0/ gtk-4.0/        # gtk.css: Tokyo Night over Adwaita-dark, gtk-light.css: day
+│   ├── gtk-4.0/                 # gtk.css: Tokyo Night for libadwaita (GTK4)
 │   ├── mako/config              # notifications for Sway: dunst-style
 │   ├── nvim/                    # Lua config, vim.pack, CHEATSHEET.md
 │   ├── picom/                   # picom.conf + picom-eco.conf
 │   ├── polybar/                 # config.ini, launch.sh
-│   ├── qt5ct/ qt6ct/            # tokyo-night.conf + tokyo-night-day.conf palettes
 │   ├── quickshell/shell/        # QML sources (not connected)
 │   ├── rofi/config.rasi         # launcher/windows/commands
 │   ├── swappy/config            # screenshot editor: saves to the Pictures folder
@@ -136,7 +135,6 @@ BSPWM-machineslego/
 │   ├── swaylock/config             # Wayland: lock screen
 │   ├── gtk-3.0/                    # shared GTK3 styles: settings.ini + gtk.css
 │   ├── gtk-4.0/                    # shared GTK4/libadwaita styles: settings.ini + gtk.css
-│   └── qt5ct/colors/ qt6ct/colors/ # Qt palettes: tokyo-night.conf (+ day)
 ├── home/
 │   ├── xinitrc                     # X11: startx → BSPWM, PATH with ~/.local/bin
 │   └── xprofile                    # X11: same environment when logging in via a DM
@@ -203,7 +201,7 @@ chmod +x scripts/*.sh
 - `local/share/mc/skins/*.ini` → `~/.local/share/mc/skins/`
 - sets `+x` on `local/bin` commands, SXHKD scripts, and `bspwmrc`
 - sets the GTK cursor theme in gsettings (`Bibata-Modern-Ice`, 24) — without it GTK apps draw the default Adwaita cursor while Sway and XWayland show Bibata
-- with Flatpak installed, adds overrides: read-only access to `xdg-config/gtk-3.0`, `gtk-4.0`, `qt5ct`, `qt6ct`, `xdg-data/themes`, and `QT_QPA_PLATFORMTHEME=qt5ct`
+- with Flatpak installed, adds overrides: read-only access to `xdg-config/gtk-3.0`, `gtk-4.0`, `xdg-data/themes`, and `QT_QPA_PLATFORMTHEME=gtk3`
 
 ## ⚙️ Post-Install
 
@@ -294,10 +292,9 @@ A plugin-free fallback editor: `home/vimrc` → `~/.vimrc`. Syntax highlighting 
 `./scripts/install-laravel.sh` installs `php-cli` and the extensions (`mbstring`, `xml`, `curl`, `zip`, `sqlite3`, `intl`, `mysql`), Composer 2 into `~/.local/bin/composer`, and `laravel/installer` globally. The `laravel` binary lives in `~/.config/composer/vendor/bin`, which is usually missing from PATH, so the script adds it for bash and fish (the `composer-global` block). `UPDATE_COMPOSER=1` reinstalls Composer. New project: `laravel new <name>`; alternative: `composer create-project laravel/laravel <name>`.
 
 **Themes.**
-- **Per-session theme:** `gtk-theme on|off` is one switch for `gtk.css` (theme or `/dev/null`), the User Themes shell theme (`TokyoNight` or empty) and `gtk-theme` (`Adwaita-dark` or `Adwaita`). `off` removes everything that blocks the GNOME Style toggle; Sway and BSPWM enable the theme on start and disable it on exit.
-- **GTK3/GTK4:** `config/gtk-3.0/gtk.css` is a full stylesheet over `Adwaita-dark`: `@define-color` plus direct selectors (Adwaita hardcodes its colors, so they have to be overridden by hand). `config/gtk-4.0/gtk.css` contains libadwaita variables (`:root` with `--*-color`), a compatibility `@define-color` layer, and a few direct rules where libadwaita computes the colour itself (menu hover). `gtk-light.css` in both folders is a 1:1 light variant over `Adwaita` (background `#e1e2e7`, text `#3760bf`, accent `#2b6fd4`) and is off by default: copy it over `gtk.css` and switch `gtk-theme` / `color-scheme` in gsettings to enable it. `gtk-theme-name` is unchanged, only colors are repainted. Apply by restarting the app; Flatpak apps pick up the CSS after re-running `link.sh`.
-- **Qt5/Qt6:** palettes in `config/qt5ct/colors/tokyo-night.conf` and `config/qt6ct/colors/tokyo-night.conf` (21 `QPalette` roles, `#AARRGGBB` format), `style=Fusion`, Papirus-Dark icons. `tokyo-night-day.conf` is the matching light palette (same roles: window `#e1e2e7`, text `#3760bf`, accent `#2b6fd4`); enable it by pointing `color_scheme_path` at that file and switching `icon_theme` to `Papirus`. In Sway and BSPWM the platform theme is `kde`: it takes palette, style and icons from `kdeglobals`, because KF6 apps (Dolphin, Okular, Ark) ignore the qt6ct palette and keep gray Breeze widgets. qt6ct stays as the fallback for systems without Plasma. Apply with `qt5ct`/`qt6ct` or by restarting the app. Qt draws its own Wayland window frame: `config/environment.d/10-qt.conf` sets `QT_WAYLAND_DECORATION=adwaita` so the titlebar matches GTK (applies after re-login).
-- **GNOME Shell theme:** `local/share/themes/TokyoNight/gnome-shell/gnome-shell.css` (`link.sh` links it into `~/.local/share/themes/`). The stock `gnome-shell-dark.css` is pulled in with `@import`; everything after it is color overrides: panel, menus, quick settings, dash, notifications, dialogs, OSD, calendar. Enable with `gsettings set org.gnome.shell.extensions.user-theme name 'TokyoNight'`, disable with an empty string; it applies after a re-login (the User Themes extension must be on).
+- **GTK4:** `config/gtk-4.0/gtk.css` holds libadwaita variables (`:root` with `--*-color`), a `@define-color` layer, and a few direct rules where libadwaita computes the colour itself (menu hover). Apply by restarting the app; Flatpak apps pick it up after re-running `link.sh`.
+- **GTK3 and GNOME Shell:** there are no custom themes anymore — stock Adwaita (dark on BSPWM via `settings.ini`, following Style on GNOME). Less maintenance: no selectors to chase.
+- **Qt:** no custom palettes — `QT_QPA_PLATFORMTHEME=gtk3` in the sessions makes Qt follow the GTK theme (GNOME picks it automatically). Plasma uses the KDE colour scheme. Qt draws its own Wayland frame: `config/environment.d/10-qt.conf` sets `QT_WAYLAND_DECORATION=adwaita`.
 - **GIMP 3:** `config/GIMP/3.0/themes/TokyoNight/` is picked up as a user theme — enable it in GIMP: Preferences → Interface → Theme.
 - **CopyQ:** `tokyo-night.ini` theme plus a command menu (pin, tags). History and window geometry never reach git.
 - **Cava:** `config/cava/config` — a terminal spectrum. 60 fps for instant response, `noise_reduction = 40`: bars rise without delay and fall sharply but smoothly. One mono spectrum across the width — low frequencies on the left, high on the right; the gradient follows bar height — blue → cyan → purple → coral. Run `cava` (in Alacritty); the config is read at startup.

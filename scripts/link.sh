@@ -38,26 +38,9 @@ if [ -d "$DOTFILES/config" ]; then
     for pkg in "$DOTFILES/config"/*; do
         [ -d "$pkg" ] || continue
         pkg_name=$(basename "$pkg")
-        # GTK-каталоги линкуются пофайлово: gtk.css переключается gtk-theme
-        case $pkg_name in gtk-3.0|gtk-4.0) continue ;; esac
         link_item "$pkg" "$HOME/.config/$pkg_name"
     done
 fi
-
-# GTK: настоящие каталоги (не симлинки), gtk.css — переключатель темы
-for ver in 3.0 4.0; do
-    src="$DOTFILES/config/gtk-$ver"
-    dst="$HOME/.config/gtk-$ver"
-    [ -d "$src" ] || continue
-    [ -L "$dst" ] && rm "$dst"
-    mkdir -p "$dst"
-    for f in settings.ini gtk-light.css bookmarks; do
-        [ -e "$src/$f" ] || continue
-        link_item "$src/$f" "$dst/$f"
-    done
-    ln -sfn /dev/null "$dst/gtk.css"
-done
-echo "  GTK-тема выключена по умолчанию (включить: gtk-theme on)"
 
 # 2. Линкуем home/ -> ~/ (добавляя точку к именам файлов)
 echo "--- Installing files to ~/ (Установка файлов в ~/) ---"
@@ -118,13 +101,6 @@ if [ -d "$DOTFILES/local/share/org.gnome.Ptyxis/palettes" ]; then
         link_item "$file" "$HOME/.local/share/org.gnome.Ptyxis/palettes/$file_name"
     done
 fi
-if [ -d "$DOTFILES/local/share/themes" ]; then
-    for theme in "$DOTFILES/local/share/themes"/*; do
-        [ -e "$theme" ] || continue
-        theme_name=$(basename "$theme")
-        link_item "$theme" "$HOME/.local/share/themes/$theme_name"
-    done
-fi
 
 # 6. Права на скрипты
 echo "--- Setting permissions (+x) (Выставление прав (+x)) ---"
@@ -154,11 +130,9 @@ if command -v flatpak >/dev/null 2>&1; then
     flatpak override --user --filesystem=xdg-config/gtk-4.0:ro
     # Доступ к папке с темами (если она у тебя есть)
     flatpak override --user --filesystem=xdg-data/themes:ro
-    
-    # Доступ к конфигам Qt
-    flatpak override --user --filesystem=xdg-config/qt5ct:ro
-    flatpak override --user --filesystem=xdg-config/qt6ct:ro
-    flatpak override --user --env=QT_QPA_PLATFORMTHEME=qt5ct
+
+    # Qt в Flatpak следует GTK-теме
+    flatpak override --user --env=QT_QPA_PLATFORMTHEME=gtk3
 fi
 
 echo "Done. (Готово.)"

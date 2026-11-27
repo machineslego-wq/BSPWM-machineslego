@@ -119,7 +119,6 @@ PROTECTED=(
     papirus-icon-theme bibata-cursor-theme
     at-spi2-core
     xdg-desktop-portal-gtk
-    qt5ct qt6ct
 )
 
 # ----------------------------------------------------------
@@ -318,11 +317,12 @@ cmd_install() {
         echo "ВНИМАНИЕ: ~/.config/xdg-desktop-portal не слинкован — запусти scripts/link.sh"
     fi
 
-    # Под SDDM X11-сессия читает ~/.xprofile с QT_STYLE_OVERRIDE=qt6ct.
+    # Под SDDM X11-сессия читает ~/.xprofile с QT_QPA_PLATFORMTHEME=gtk3.
     # Сбрасываем это только внутри Plasma, сам дотфайл не меняем.
     install -d /etc/xdg/plasma-workspace/env
     cat > /etc/xdg/plasma-workspace/env/10-plasma-clean-env.sh <<'EOF'
-# Стоковый вид Plasma: не наследовать QT_STYLE_OVERRIDE из ~/.xprofile
+# Стоковый вид Plasma: не наследовать Qt-окружение из ~/.xprofile
+unset QT_QPA_PLATFORMTHEME
 unset QT_STYLE_OVERRIDE
 EOF
 

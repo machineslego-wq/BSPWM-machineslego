@@ -23,7 +23,7 @@
 | `TODO.md` | блокнот: план, «Отвергнуто», ограничения | — |
 | `RELEASE.md` | заметки только к текущему релизу | — |
 
-`config/` содержит: `alacritty`, `bash`, `bspwm`, `btop`, `cava`, `copyq`, `dunst`, `easyeffects`, `fastfetch`, `fish`, `foot`, `GIMP`, `gtk-3.0`, `gtk-4.0`, `mako`, `newt`, `nvim`, `picom`, `polybar`, `qt5ct`, `qt6ct`, `quickshell`, `rofi`, `swappy`, `sway`, `swaylock`, `sxhkd`, `waybar`, `wofi`, `xdg-desktop-portal`.
+`config/` содержит: `alacritty`, `bash`, `bspwm`, `btop`, `cava`, `copyq`, `dunst`, `easyeffects`, `fastfetch`, `fish`, `foot`, `GIMP`, `gtk-3.0`, `gtk-4.0`, `mako`, `newt`, `nvim`, `picom`, `polybar`, `quickshell`, `rofi`, `swappy`, `sway`, `swaylock`, `sxhkd`, `waybar`, `wofi`, `xdg-desktop-portal`.
 
 ## Что где менять
 
@@ -36,7 +36,7 @@
 | Лаунчер и меню X11 | `config/rofi/config.rasi`, `local/bin/{battery,powermenu,wifi,power-profile,dunst-history}` |
 | Лаунчер и меню Wayland | `config/wofi/{config,style.css}`, `local/bin/{wofi-*,wifi,battery,powermenu}` |
 | Уведомления | `config/dunst/dunstrc` (X11), `config/mako/config` (Sway) |
-| Тема GTK / Qt | `config/gtk-3.0`, `config/gtk-4.0`, `config/qt5ct`, `config/qt6ct`; KDE — `local/share/color-schemes/TokyoNight.colors` |
+| Тема GTK / Qt | `config/gtk-4.0/gtk.css`; KDE — `local/share/color-schemes/TokyoNight.colors` |
 | Терминалы | `config/alacritty/alacritty.toml`, `config/foot/foot.ini`; Konsole — `local/share/konsole/` |
 | Редакторы | `config/nvim/`, `home/vimrc` |
 | Пакеты | `requirements/apt.txt` (база X11), `sway.txt` (Sway, поверх базы), `apt-system.txt` (системное), `software.txt` (опциональное) |
@@ -85,7 +85,7 @@
 | Mako | `pkill -HUP -x mako` |
 | Neovim | следующий запуск (или `:source %` для текущего файла) |
 | Vim | `:source ~/.vimrc` |
-| GTK / Qt | перезапуск приложения (Qt: `qt5ct` / `qt6ct`) |
+| GTK / Qt | перезапуск приложения |
 | Полный перезапуск BSPWM-сессии | `session-restart` / `Super + Alt + Shift + R` |
 
 Picom выбирает профиль по `powerprofilesctl get`: `power-saver` → `picom-eco.conf`, иначе → `picom.conf`.
@@ -110,7 +110,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - Оформление: `default_border pixel 2` и `default_floating_border pixel 2` (заголовков нет), `gaps inner/outer 0`, `smart_borders on`. В режиме `pixel` рамку рисует `child_border`, поэтому он продублирован в каждом `client.*`. `client.focused #6b8dd6`, `client.unfocused`/`focused_inactive` — `#1a1b26`.
 - **Все `bindsym` — с `--to-code`.** Без флага keysym привязан к текущей раскладке и в RU-режиме не срабатывает.
 - Раскладка `us,ru` + `grp:caps_toggle`, автоповтор 250/30 — через `input "type:keyboard"`; тачпад — `tap`, `dwt`, `natural_scroll enabled`.
-- `local/bin/sway-session` — обёртка вместо `sway`: PATH, `XDG_*`, курсор Bibata 24, Qt (платформенная тема `kde` из `kdeglobals`, без Plasma — фолбэк `qt6ct`; `QT_QPA_PLATFORM="wayland;xcb"`), GTK (`GDK_BACKEND=wayland,x11`), `SAL_USE_VCLPLUGIN=gtk3`, `MOZ_ENABLE_WAYLAND`, Electron, Java; перед запуском пишет карту столов в `~/.cache/sway/workspaces.conf` (ПК — 1–7 → `DP-2`, 8–10 → `HDMI-A-4`; ноутбук/нетбук — пустой файл), её подключает `config/sway/config`; затем `exec sway "$@"`. Карта нужна до старта: `workspace <n> output <выход>` действует только на ещё не созданные столы. `home/xinitrc`/`xprofile` под Wayland не выполняются.
+- `local/bin/sway-session` — обёртка вместо `sway`: PATH, `XDG_*`, курсор Bibata 24, Qt (платформенная тема `gtk3`; `QT_QPA_PLATFORM="wayland;xcb"`), GTK (`GDK_BACKEND=wayland,x11`), `SAL_USE_VCLPLUGIN=gtk3`, `MOZ_ENABLE_WAYLAND`, Electron, Java; перед запуском пишет карту столов в `~/.cache/sway/workspaces.conf` (ПК — 1–7 → `DP-2`, 8–10 → `HDMI-A-4`; ноутбук/нетбук — пустой файл), её подключает `config/sway/config`; затем `exec sway "$@"`. Карта нужна до старта: `workspace <n> output <выход>` действует только на ещё не созданные столы. `home/xinitrc`/`xprofile` под Wayland не выполняются.
 - `local/bin/sway-display` — мониторы, геометрия и обои; вызывается как `exec_always`. Hostname-условие в конфиге Sway одно — автозапуск OpenRGB (повторяет `bspwmrc`); мониторы ветвятся в скрипте: ветка `lamer-deb` (`DP-2` + `HDMI-A-4` с `transform 90`) и фолбэк ноутбука живут здесь. Привязку столов см. в `sway-session`; `exec swaymsg workspace number 1` в конфиге задаёт стартовый фокус и при reload не повторяется. Имена выходов wlroots ≠ X11: `DisplayPort-1`/`HDMI-A-3` → `DP-2`/`HDMI-A-4`. Обои ставит сам Sway через `output ... bg`.
 - Автозапуск — `exec_always pgrep -x <имя> >/dev/null || <имя>` для waybar, mako, lxpolkit: reload не плодит дубли. `swayidle`: 10 минут и `before-sleep` → `swaylock -f`. `wl-paste --watch cliphist -max-items 100 store` — под таким же стражем. EasyEffects — обычный `exec` (при reload не повторяется).
 - Хоткеи: `$mod+Return` foot, `$mod+d` `wofi --show drun`, `$mod+/` `sway-cheatsheet` (wofi; `rofi` — запасной бэкенд), `$mod+F1..F4`/`$mod+Shift+S` скриншоты, `$mod+Shift+A` редактор, `$mod+Shift+R` запись всего экрана, `$mod+Shift+Alt+R` области, `$mod+Shift+V` буфер, `$mod+Escape`/`$mod+Shift+C` reload, `$mod+w` kill, `$mod+Alt+L` lock, `$mod+Alt+N` `wifi wofi`, `$mod+Alt+B` `battery wofi`, `$mod+Shift+Q` `powermenu wofi`, `$mod+Shift+E` `swaynag`. Полный список — `sway-cheatsheet`. Профиль питания переключается кликом по модулю PPD в waybar (отдельного меню нет).
@@ -159,19 +159,15 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 
 ## Темы: GTK, Qt, Flatpak
 
-- Тема включается одним переключателем `gtk-theme on|off|status`: `on` — `gtk.css` темы + shell-тема `TokyoNight` + `gtk-theme=Adwaita-dark`; `off` снимает всё, что мешает Style в GNOME — `gtk.css` -> `/dev/null`, пустая shell-тема, `gtk-theme=Adwaita`. `sway-session`, `bspwmrc` и `home/xinitrc` включают тему на старте, выход из Sway и `powermenu` выключают. `link.sh` создаёт `~/.config/gtk-*` настоящими каталогами и линкует файлы поштучно, чтобы переключатель работал.
-- **Почему CSS-оверрайды, а не своя GTK-тема.** `@define-color` меняет только именованные цвета, а большую часть цветов Adwaita прописывает жёстко в селекторах — без прямых правил Thunar, диалоги и прочий GTK3-софт остаются серыми. Полноценная тема (Adwaita SCSS → `sassc` → `~/.themes`) закрыла бы GTK3, но не решает главного: libadwaita (GTK4) игнорирует `gtk-theme` и читает только `~/.config/gtk-4.0/gtk.css`; при этом райс должен работать и под Sway/BSPWM, где нет GNOME и xsettings. Один оверлей на оба тулкита + одна палитра проще, чем тема плюс отдельный CSS. Поэтому объём правил в `gtk-3.0.css` — не случайность, а цена перекраски Adwaita без собственной темы.
-- `config/gtk-3.0/gtk.css` — полный CSS поверх `Adwaita-dark` (`@define-color` + прямые селекторы). `config/gtk-4.0/gtk.css` — переменные libadwaita (`:root`) и слой `@define-color`; прямые селекторы точечно там, где libadwaita считает цвет сам (например, hover в `popover.menu modelbutton` через `color-mix(currentColor …)`).
-- Светлые варианты — `gtk-light.css` в обоих каталогах, те же селекторы, другая палитра (Tokyo Night Day). Включение: скопировать light-файл поверх `gtk.css`, `gsettings set ... gtk-theme Adwaita`, `color-scheme default`, `icon-theme Papirus`. Возврат — `git checkout -- config/gtk-3.0/gtk.css config/gtk-4.0/gtk.css` + `Adwaita-dark`/`prefer-dark`/`Papirus-Dark`. В BSPWM дополнительно правится `gtk-theme-name` в `settings.ini` (в X11 нет xsettingsd).
-- `Papirus-Dark` — светлые символы для тёмного фона; на светлой теме нужен `Papirus`.
-- Курсор берётся из gsettings (`cursor-theme`/`cursor-size`), не из `settings.ini`; `link.sh` ставит `Bibata-Modern-Ice` 24. Без этого GTK-приложения рисуют Adwaita-курсор, пока Sway/XWayland показывают Bibata.
-- GTK3: Adwaita рисует `background-image`/`box-shadow` в hover/active/checked/disabled/backdrop — в user CSS сбрасывать явно. Infobar — `infobar > revealer > box`, toolbar/searchbar — `searchbar > revealer > box`. Rubberband — отдельные правила `.rubberband`. Строки списков — и `row:selected`, не только `row.activatable:selected`.
-- Qt: `config/qt5ct/colors/tokyo-night.conf` и `qt6ct/...` — 21 роль `QPalette` в порядке enum, цвет `#AARRGGBB`; светлый — `tokyo-night-day.conf` (переключение — `sed` в `qt5ct.conf`/`qt6ct.conf` + `icon_theme=Papirus`). `style=Fusion`, `custom_palette=true`. Применение — `qt5ct`/`qt6ct` или перезапуск приложения. Это фолбэк: в Sway/BSPWM платформенная тема — `kde` (палитра, стиль и иконки из `kdeglobals`), потому что KF6-приложения (Dolphin, Okular, Ark) палитру qt6ct игнорируют и рисуют серые виджеты Breeze. `sway-session`/`xinitrc`/`xprofile` выбирают `kde`, если установлен `plasma-integration`, иначе `qt6ct`. В Plasma цвет задаёт схема KDE, а не qt5ct/qt6ct.
-- Рамка окна Qt-приложений на Wayland: её рисует сам Qt, поэтому заголовок отличается от GTK. Чтобы он был как Adwaita/GTK, в `config/environment.d/10-qt.conf` стоит `QT_WAYLAND_DECORATION=adwaita` (файл линкуется в `~/.config/environment.d/`, плагин `libadwaita.so` даёт `qt6-wayland`). Действует после перелогина; разово — `QT_WAYLAND_DECORATION=adwaita <команда>`.
-- KDE: `local/share/color-schemes/TokyoNight.colors` (тёмная) и `TokyoNightDay.colors` (светлая) → `~/.local/share/color-schemes/` (`link.sh`); применяется `plasma-apply-colorscheme TokyoNight|TokyoNightDay`. Секция `[WM]` красит рамки KWin, `[Colors:*]` — внутренности Qt-приложений. Для Qt5-софта нужен `plasma5-integration`.
-- GNOME Shell: `local/share/themes/TokyoNight/gnome-shell/gnome-shell.css` → `~/.local/share/themes/` (`link.sh`). Стоковый `gnome-shell-dark.css` подключается через `@import url("resource:///org/gnome/shell/theme/gnome-shell-dark.css")`, дальше только переопределения: панель `#16161e`, меню/шторка `#1f2335`, dash, уведомления, диалоги, OSD, календарь. Включение — `gsettings set org.gnome.shell.extensions.user-theme name 'TokyoNight'`, выключение — пустая строка `''`; применяется после перелогина, расширение User Themes должно быть активно.
-- VLC — Qt5, и у него есть **своя** тёмная палитра (`qt-dark-palette` в `~/.config/vlc/vlcrc`), которая перебивает системную: в KDE с Tokyo Night VLC остаётся «своим» тёмным. Выключить: Инструменты → Настройки → Интерфейс → «Use dark palette». `QtStyle=qt5ct-style` в `~/.config/vlc/vlc-qt-interface.conf` можно оставить. В Plasma палитру даёт `plasma5-integration`, в Sway/BSPWM — та же платформенная тема `kde` (её Qt5-плагин читает тот же `kdeglobals`).
-- Flatpak: `link.sh` при наличии Flatpak выдаёт read-only доступ к `gtk-3.0`, `gtk-4.0`, `qt5ct`, `qt6ct`, `xdg-data/themes` и `QT_QPA_PLATFORMTHEME=qt5ct`. После повторного `link.sh` Flatpak-приложения нужно перезапустить.
+- Палитра райса — в трёх местах: `config/gtk-4.0/gtk.css` (libadwaita-приложения), статические палитры терминалов/Telegram/редакторов и схема KDE (`local/share/color-schemes`). Отдельных GTK3- и shell-тем больше нет: GTK3-софт и панель GNOME остаются на стоковой Adwaita (в BSPWM — тёмная из `settings.ini`, в GNOME — по Style).
+- `config/gtk-4.0/gtk.css` — переменные libadwaita (`:root` и `@define-color`) плюс точечные правила там, где libadwaita считает цвет сам (hover в `popover.menu modelbutton`). GTK3-оверрайдов нет: Adwaita 3.24 заморожена, а перекраска тянула >1000 строк.
+- Почему так: libadwaita читает только `~/.config/gtk-4.0/gtk.css`; shell-тема и GTK3-оверрайды — самое дорогое в поддержке (селекторы GNOME меняются каждый major). Полный набор тем сохранён в ветке `themes-full`.
+- `Papirus-Dark` — иконки; курсор — `Bibata-Modern-Ice` 24 из gsettings (`link.sh`).
+- Qt: своих палитр нет. В `sway-session`, `home/xinitrc`, `home/xprofile` стоит `QT_QPA_PLATFORMTHEME=gtk3` — Qt-приложения следуют GTK-теме (в GNOME то же выбирается само). В Plasma цвет задаёт схема KDE: `plasma-apply-colorscheme TokyoNight|TokyoNightDay`.
+- Рамка окна Qt-приложений на Wayland: её рисует сам Qt. Чтобы заголовок был как Adwaita/GTK, `config/environment.d/10-qt.conf` задаёт `QT_WAYLAND_DECORATION=adwaita` (плагин `libadwaita.so` из `qt6-wayland`). Действует после перелогина; разово — `QT_WAYLAND_DECORATION=adwaita <команда>`.
+- KDE: `local/share/color-schemes/TokyoNight.colors` (тёмная) и `TokyoNightDay.colors` (светлая) → `~/.local/share/color-schemes/` (`link.sh`); применяется `plasma-apply-colorscheme`. Секция `[WM]` красит рамки KWin, `[Colors:*]` — внутренности Qt-приложений.
+- VLC — Qt5, у него своя тёмная палитра (`qt-dark-palette` в `~/.config/vlc/vlcrc`), которая перебивает системную. Выключить: Инструменты → Настройки → Интерфейс → «Use dark palette».
+- Flatpak: `link.sh` при наличии Flatpak выдаёт read-only доступ к `gtk-3.0`, `gtk-4.0`, `xdg-data/themes` и `QT_QPA_PLATFORMTHEME=gtk3`. После повторного `link.sh` Flatpak-приложения нужно перезапустить.
 
 ## Терминал и шелл
 

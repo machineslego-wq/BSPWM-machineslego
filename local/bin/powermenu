@@ -6,15 +6,13 @@
 # Один список действий: блокировка, выключение, выход, перезагрузка.
 # Блокировка — i3lock-fancy/swaylock, выход — bspc quit/swaymsg exit.
 # Перед выходом чистим Qt-переменные из systemd и останавливаем порталы:
-# иначе Plasma после Sway наследует qt6ct, а xdg-desktop-portal держит
+# иначе Plasma после Sway наследует gtk3-тему, а xdg-desktop-portal держит
 # конфиг Sway (sway-portals.conf) до перезагрузки.
 # ==========================================================
 
 set -u
 
 clean_session() {
-    gtk-theme off 2>/dev/null || true
-
     systemctl --user unset-environment \
         QT_QPA_PLATFORMTHEME QT_STYLE_OVERRIDE QT_QPA_PLATFORM QT_WAYLAND_RECONNECT \
         2>/dev/null || true

@@ -10,8 +10,7 @@
 #   bluez                 — bluetoothctl (модуль Bluetooth в waybar, алиас bt)
 #   jq                    — sway-display и sway-record
 #   wireplumber           — wpctl (модуль звука в waybar)
-#   qt6ct                 — QT_QPA_PLATFORMTHEME в sway-session, если Plasma
-#                           не установлена (иначе платформенная тема kde)
+#   qt6-gtk-platformtheme — QT_QPA_PLATFORMTHEME=gtk3 в sway-session
 #   papirus-icon-theme    — иконки wofi
 # power-profiles-daemon — из requirements/apt-system.txt (модуль профиля питания)
 
