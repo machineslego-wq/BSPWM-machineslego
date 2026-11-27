@@ -1,20 +1,23 @@
 /* ==========================================================
    wofi — стиль 1:1 с rofi (config/rofi/config.rasi)
    ==========================================================
-   Значения взяты из rofi:
-     window        radius 12, border 2 bg-alt
+   Значения взяты из rofi, скругления — 5 px как у панелей:
+     window        radius 5, border 2 bg-alt
      mainbox       padding 13
-     inputbar      padding 11x13, radius 8, bg-alt
+     inputbar      padding 11x13, radius 5, bg-alt
      listview      отступ сверху 11
-     element       padding 9x11, radius 8
+     element       padding 9x11, radius 5
      selected      bg accent, текст bg
      icon          1.2em (22 px), зазор 10 px
 
    ВАЖНО: свой CSS wofi ставит с приоритетом APPLICATION (600),
    а GTK-тема проекта (config/gtk-3.0/gtk.css) — с приоритетом
    USER (800). Поэтому фон поля ввода, цвет рамки и focus-ring
-   возвращает отдельное правило `#outer-box #input` в gtk.css.
-   Значения здесь остаются фолбэком для системы без темы.
+   возвращает правило `#outer-box #input` в gtk.css, а фон самого
+   окна задаёт `.background` (#1a1b26). `#window` из этого файла
+   его не перекрывает: в gtk.css окно сделано прозрачным
+   (`#window { background-color: transparent; }`), иначе квадратный
+   фон окна просвечивает в скруглённых углах #outer-box.
    ========================================================== */
 
 @define-color bg       #1a1b26;
@@ -27,7 +30,7 @@
     font-size: 14px;
 }
 
-/* Окно: фон, рамка и скругление как у rofi.
+/* Окно: фон, рамка и скругление 5 px, как у waybar/mako.
    padding вынесен в margin детей (#input/#inner-box): иначе
    wofi считает центр по width/height, а рисует на 30 px больше,
    и окно уезжает вправо-вниз. С border 2 смещение — 2 px. */
@@ -35,7 +38,7 @@
     margin: 0;
     padding: 0;
     border: 2px solid @bg-alt;
-    border-radius: 12px;
+    border-radius: 5px;
     background-color: @bg;
     color: @fg;
 }
@@ -49,7 +52,7 @@
     padding: 10px 13px;
     min-height: 0;
     border: none;
-    border-radius: 8px;
+    border-radius: 5px;
     background-color: @bg-alt;
     color: @fg;
     caret-color: @primary;
@@ -81,7 +84,7 @@
 #entry {
     margin: 0 5px 4px 5px;
     padding: 9px 9px 9px 44px;
-    border-radius: 8px;
+    border-radius: 5px;
     background-color: transparent;
 }
 

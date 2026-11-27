@@ -116,6 +116,14 @@ spinbutton:focus:not(.vertical) {
     box-shadow: none;
 }
 
+/* Окно wofi: у #outer-box скруглённые углы, а фон самого окна
+   (.background, #1a1b26) квадратный и просвечивает в углах.
+   Wofi называет toplevel «window», поэтому здесь его можно
+   сделать прозрачным — тогда в углах видно то, что за меню. */
+#window {
+    background-color: transparent;
+}
+
 entry:disabled,
 spinbutton:disabled:not(.vertical) {
     color: #565f89;
