@@ -109,8 +109,11 @@ spinbutton:focus:not(.vertical) {
    #outer-box. Свой CSS wofi ставит с приоритетом APPLICATION (600),
    а этот файл — USER (800), поэтому id-селектор здесь возвращает
    полю фон bg-alt; общее правило entry выше его не перекрывает. */
-#outer-box #input {
+#outer-box #input,
+#outer-box #input:focus {
     background-color: #24283b;
+    border-color: transparent;
+    box-shadow: none;
 }
 
 entry:disabled,

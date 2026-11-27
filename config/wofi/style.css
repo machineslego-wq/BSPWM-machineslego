@@ -1,56 +1,55 @@
 /* ==========================================================
-   wofi для Sway — тема Tokyo Night
+   wofi — стиль 1:1 с rofi (config/rofi/config.rasi)
    ==========================================================
-   Живёт в репозитории: config/wofi/style.css
-   Палитра как в Rofi / Polybar / Waybar:
-     #1a1b26 — фон окна       #24283b — поле ввода (фолбэк)
-     #7aa2f7 — акцент (выбранная строка, prompt)
-     #c0caf5 — текст
+   Значения взяты из rofi:
+     window        radius 12, border 2 bg-alt
+     mainbox       padding 13
+     inputbar      padding 11x13, radius 8, bg-alt
+     listview      отступ сверху 11
+     element       padding 9x11, radius 8
+     selected      bg accent, текст bg
+     icon          1.2em (22 px), зазор 10 px
 
-   Внешний вид повторяет config/rofi/config.rasi: отступ 8 px,
-   выбранная строка — синяя с тёмным текстом. Окно без
-   скруглений, поле и строки — 2 px.
-
-   ВАЖНО: селектор `window` (и `#window`) wofi игнорирует —
-   фон окна рисует `#outer-box`.
-
-   ВАЖНО: свой CSS wofi ставит с приоритетом APPLICATION, а
-   GTK-тема проекта (config/gtk-3.0/gtk.css) — с приоритетом USER,
-   поэтому правило `entry` из темы перекрывает `background-color`
-   у `#input`. Фон поля поиска возвращает отдельное правило в
-   gtk.css — `#outer-box #input { background-color: #24283b }`:
-   id-селектор в USER-провайдере сильнее общего `entry`.
-   Значения ниже остаются фолбэком для системы без пользовательской
-   GTK-темы.
+   ВАЖНО: свой CSS wofi ставит с приоритетом APPLICATION (600),
+   а GTK-тема проекта (config/gtk-3.0/gtk.css) — с приоритетом
+   USER (800). Поэтому фон поля ввода, цвет рамки и focus-ring
+   возвращает отдельное правило `#outer-box #input` в gtk.css.
+   Значения здесь остаются фолбэком для системы без темы.
    ========================================================== */
 
-/* --- Палитра --- */
-@define-color bg       #1a1b26;  /* фон окна */
-@define-color bg-alt   #24283b;  /* поле ввода */
-@define-color primary  #7aa2f7;  /* акцент: выбранная строка, prompt */
-@define-color fg       #c0caf5;  /* основной текст */
+@define-color bg       #1a1b26;
+@define-color bg-alt   #24283b;
+@define-color primary  #7aa2f7;
+@define-color fg       #c0caf5;
 
 * {
     font-family: "JetBrainsMono Nerd Font";
     font-size: 14px;
 }
 
+/* Окно: фон, рамка и скругление как у rofi.
+   padding вынесен в margin детей (#input/#inner-box): иначе
+   wofi считает центр по width/height, а рисует на 30 px больше,
+   и окно уезжает вправо-вниз. С border 2 смещение — 2 px. */
 #outer-box {
     margin: 0;
-    padding: 8px;
-    border-radius: 0;
+    padding: 0;
     border: 2px solid @bg-alt;
+    border-radius: 12px;
     background-color: @bg;
     color: @fg;
 }
 
+/* Поле поиска: inputbar из rofi (mainbox padding 13 + 11x13) */
 #input {
-    margin: 8px 8px 10px 8px;   /* снизу чуть меньше: зазор до списка */
-    /* padding: 8px 10px; */          /* 8 + 18 + 8 = 34 px */
+    margin: 13px 13px 11px 13px;
+    padding: 14px 13px;
+    min-height: 0;
     border: none;
-    border-radius: 2px;
-    background-color: @bg-alt;  /* фолбэк: в проекте фон даёт gtk.css */
+    border-radius: 8px;
+    background-color: @bg-alt;
     color: @fg;
+    caret-color: @primary;
 }
 
 #input image {
@@ -58,7 +57,7 @@
 }
 
 #inner-box {
-    margin: 0;
+    margin: 0 13px 13px 13px;
     padding: 0;
     background-color: transparent;
 }
@@ -70,11 +69,17 @@
     background-color: transparent;
 }
 
+/* Строка списка: element из rofi.
+   padding 9 + margin-bottom 4 дают блок 38 и шаг 42, как у rofi
+   (блок 39, между строками 3). Горизонтальные 5 px повторяют
+   отступ listview. padding-left 44 — место под иконку, которое
+   rofi резервирует даже без неё; #img сдвигает иконку назад,
+   чтобы строка с картинкой не уезжала. */
 #entry {
-    margin: 0 8px;
-    padding: 6px 10px;           /* 6 + 18 + 6 = 30 px — плотнее строк */
-    border-radius: 2px;
-    background-color: transparent;  /* фолбэк: в проекте строки красит тема */
+    margin: 0 5px 4px 5px;
+    padding: 9px 9px 9px 44px;
+    border-radius: 8px;
+    background-color: transparent;
 }
 
 #entry:selected {
@@ -93,6 +98,7 @@
 }
 
 #img {
-    padding: 0 12px 0 0;
+    margin: 0 0 0 -33px;
+    padding: 0 10px 0 0;
     background-color: transparent;
 }

@@ -25,8 +25,9 @@ case "${1:-}" in
                     -theme-str 'window {width: 17em;} listview {lines: 4;}'; }
         ;;
     wofi)
+        # 4 пункта: 79 + 42*4 = 247, ширина 17em = 306 - border 4.
         menu() { wofi --dmenu --cache-file /dev/null --insensitive \
-                    --prompt "󰤆 Питание" --width 340 --lines 8; }
+                    --prompt "󰤆 Питание" --width 302 --height 247; }
         ;;
     *)
         echo "usage: $0 {rofi|wofi}" >&2

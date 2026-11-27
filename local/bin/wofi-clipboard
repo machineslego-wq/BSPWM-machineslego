@@ -24,7 +24,7 @@ L=$((N + 1))
 [ "$L" -lt 8 ] && L=8
 [ "$L" -gt 20 ] && L=20
 CHOICE=$(printf '%s\n' "$LIST" | wofi --dmenu --cache-file /dev/null \
-    --prompt "󰅇 Буфер" --width 860 --lines "$L")
+    --prompt "󰅇 Буфер" --width 788 --height $((79 + 42 * L)))
 
 [ -z "$CHOICE" ] && exit 0
 

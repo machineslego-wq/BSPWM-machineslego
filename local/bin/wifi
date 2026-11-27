@@ -5,7 +5,7 @@
 # Использование: wifi {rofi|wofi}
 # Меню: включить/выключить адаптер, подключиться к сети, скрытая
 # сеть, хотспот вкл/выкл. Пароль спрашивается в терминале
-# (alacritty / foot), если nmcli его не знает.
+# (alacritty), если nmcli его не знает.
 # ==========================================================
 
 set -u
@@ -25,16 +25,16 @@ case "${1:-}" in
         term() { alacritty --class wifi -e "$@"; }
         ;;
     wofi)
-        # $1 — prompt, $2 — число пунктов, $3/$4 — минимум/максимум строк.
-        # +1 строка на поле ввода; минимум 8, чтобы окно не было крошечным.
+        # $1 — prompt, $2 — число пунктов (не длиннее 12 строк).
+        # Wofi width/height — это содержимое без border 4 px.
+        # Высота: 79 (поле ввода + отступы) + 42 на строку + border.
         menu() {
-            local n=$(($2 + 1)) min=${3:-8} max=${4:-16}
-            [ "$n" -lt "$min" ] && n=$min
-            [ "$n" -gt "$max" ] && n=$max
+            local n=$2
+            [ "$n" -gt 12 ] && n=12
             wofi --dmenu --cache-file /dev/null --insensitive \
-                --width 440 --prompt "$1" --lines "$n"
+                --width 428 --prompt "$1" --height $((79 + 42 * n))
         }
-        term() { foot --app-id wifi -e "$@"; }
+        term() { alacritty --class wifi -e "$@"; }
         ;;
     *)
         echo "usage: $0 {rofi|wofi}" >&2
@@ -93,7 +93,7 @@ else
 fi
 
 CHOICE=$(printf '%s\n' "$TOGGLE" "󰤨 Подключиться к сети" "󰈈 Скрытая сеть" \
-    "󰀂 Включить хотспот" "󰅖 Выключить хотспот" | menu "󰖩 Wi-Fi" 5 8 16)
+    "󰀂 Включить хотспот" "󰅖 Выключить хотспот" | menu "󰖩 Wi-Fi" 5)
 [ -n "$CHOICE" ] || exit 0
 
 case "$CHOICE" in
@@ -111,7 +111,7 @@ case "$CHOICE" in
         LIST=$(networks)
         [ -n "$LIST" ] || { notify "Сети не найдены" "Проверьте адаптер"; exit 1; }
         N=$(printf '%s\n' "$LIST" | grep -c .)
-        SSID=$(printf '%s\n' "$LIST" | menu "Выбор сети" "$N" 8 16)
+        SSID=$(printf '%s\n' "$LIST" | menu "Выбор сети" "$N")
         [ -n "$SSID" ] || exit 0
         # "󰤨 | Home6" → "Home6": отрезаем всё до "| " включительно.
         # Пробел в шаблоне обязателен, иначе в SSID останется ведущий пробел.
@@ -124,7 +124,7 @@ case "$CHOICE" in
         ;;
     *"Скрытая сеть"*)
         require_on
-        SSID=$(printf '' | menu "SSID скрытой сети" 1 3 5)
+        SSID=$(printf '' | menu "SSID скрытой сети" 1)
         [ -n "$SSID" ] || exit 0
         notify "Подождите..." "Подключение к скрытой сети..."
         ask_password "$SSID" hidden

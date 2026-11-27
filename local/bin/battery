@@ -14,13 +14,10 @@ case "${1:-}" in
                     -theme-str "window {width: 24em;} listview {lines: $1;}"; }
         ;;
     wofi)
-        # $1 — число строк; +1 на поле ввода, минимум 8, максимум 10.
+        # $1 — число строк; 79 (поле ввода + отступы) + 42 на строку.
         menu() {
-            local n=$(($1 + 1))
-            [ "$n" -lt 8 ] && n=8
-            [ "$n" -gt 10 ] && n=10
             wofi --dmenu --cache-file /dev/null --insensitive \
-                --prompt "󰁹 Батарея" --width 400 --lines "$n"
+                --prompt "󰁹 Батарея" --width 428 --height $((79 + 42 * $1))
         }
         ;;
     *)

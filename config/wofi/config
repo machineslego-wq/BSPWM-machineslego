@@ -1,43 +1,54 @@
 # ==========================================================
-# wofi — лаунчер для Sway (тема Tokyo Night)
+# wofi — запасной лаунчер Sway, оформлен как rofi
 # ==========================================================
 # Живёт в репозитории: config/wofi -> ~/.config/wofi
-# Запуск из Sway: wofi --show drun   (хоткей Super+D)
-# Команды: wofi --show run
+# Запуск: wofi --show drun (лаунчер), wofi --dmenu (меню)
 # Стиль — style.css рядом, читается при каждом запуске.
+#
+# Размеры сняты с rofi (config/rofi/config.rasi) на шрифте 10:
+# 1em = 18 px, значит 36em = 648 px. Rofi-окно 648x419 при
+# listview lines: 8. Меню-скрипты передают свои --width/--lines.
 # ==========================================================
 
-# Режим по умолчанию (drun = .desktop-приложения)
 show=drun
 prompt=Запуск
 
-# Размер окна по умолчанию. Меню-команды передают свой --width.
-width=600
-height=400
+# --- Геометрия ---
+# 36em, как у rofi: 648 px всего. Wofi width — это ширина
+# содержимого, поэтому 648 - 2*(13 padding + 2 border) = 618.
+# --- Геометрия ---
+# 36em как у rofi: 648x419 всего. Wofi width/height — это размер
+# содержимого без border (2 px с каждой стороны), поэтому
+# 648 - 4 = 644 и 419 - 4 = 415.
+width=644
+height=415
 location=center
 orientation=vertical
 halign=fill
 content_halign=fill
 
-# Поиск
-filter_rate=100
-matching=fuzzy
-key_expand=Tab
+# --- Поиск как в rofi -dmenu -i ---
+# contains + insensitive: подстрока без учёта регистра.
+# fuzzy пересортировывает список на каждом символе — отсюда
+# «прыгающий» блок; sort_order=default сохраняет порядок.
+filter_rate=40
+matching=contains
+insensitive=true
+sort_order=default
 
-# Внешний вид списка. allow_markup глобально выключен: иначе меню
-# с текстом, содержащим <...> (clipboard), ругается Pango.
-# sway-cheatsheet включает разметку сам флагом --allow-markup.
+# --- Список ---
+# allow_markup глобально выключен: иначе меню с текстом <...>
+# (clipboard) ругается Pango. sway-cheatsheet включает сам.
 allow_images=true
 image_size=22
 allow_markup=false
 hide_scroll=true
 
-# Окно подстраивается под число пунктов, но dynamic_lines работает только
-# вместе с lines (--lines): меню-скрипты передают его сами. Без lines окно
-# висит на height=400.
-dynamic_lines=true
+# Окно не подстраивается под число пунктов: иначе при поиске
+# список сжимается и уезжает. Высота фиксирована.
+dynamic_lines=false
 
-# Кнопки действий (Launch/Close) не нужны: выбор по Enter.
+# Кнопки действий не нужны: выбор по Enter.
 no_actions=true
 
 # Слой отрисовки поверх окон.

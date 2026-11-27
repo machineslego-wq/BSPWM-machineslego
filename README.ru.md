@@ -226,7 +226,7 @@ tide configure
 Палитра лежит файлом: `local/share/org.gnome.Ptyxis/palettes/tokyo-night.palette`, `link.sh` линкует её в `~/.local/share/org.gnome.Ptyxis/palettes/`. В Ptyxis выбери Preferences → Palette → Tokyo Night.
 
 **Wi-Fi.**
-Команда `wifi` (`~/.local/bin`) принимает бэкенд меню первым аргументом: `wifi rofi` в обеих сессиях (терминал — Alacritty); `wifi wofi` остаётся запасным (Foot). Адаптер выбирает `nmcli`, таблицы интерфейсов нет; `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` задаются в начале файла.
+Команда `wifi` (`~/.local/bin`) принимает бэкенд меню первым аргументом: `wifi rofi` в обеих сессиях (терминал — Alacritty); `wifi wofi` остаётся запасным (терминал — Alacritty). Адаптер выбирает `nmcli`, таблицы интерфейсов нет; `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` задаются в начале файла.
 
 **Сеть, Bluetooth и питание без лаунчера.**
 Если rofi/wofi недоступны, те же действия есть в терминале — через алиасы из `~/.bashrc` / `config.fish`:

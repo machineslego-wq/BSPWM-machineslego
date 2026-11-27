@@ -16,7 +16,7 @@ case "${1:-rofi}" in
     wofi)
         menu() {
             wofi --dmenu --allow-markup --cache-file /dev/null \
-                --prompt "󰌌 Горячие клавиши" --width 960 --height 650
+                --prompt "󰌌 Горячие клавиши" --width 1112 --height 644
         }
         ;;
     rofi)
