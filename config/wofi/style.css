@@ -40,10 +40,12 @@
     color: @fg;
 }
 
-/* Поле поиска: inputbar из rofi (mainbox padding 13 + 11x13) */
+/* Поле поиска: высота 40, как inputbar в rofi (padding 10 + строка
+   20). Нижний отступ 19, а не 11: 8 px, сэкономленные на поле,
+   уходят в зазор, поэтому строки остаются на своих местах. */
 #input {
-    margin: 13px 13px 11px 13px;
-    padding: 14px 13px;
+    margin: 13px 13px 19px 13px;
+    padding: 10px 13px;
     min-height: 0;
     border: none;
     border-radius: 8px;
