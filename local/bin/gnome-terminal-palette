@@ -1,0 +1,55 @@
+#!/bin/bash
+# ==========================================================
+# gnome-terminal-palette — палитра Tokyo Night для GNOME Terminal
+# ==========================================================
+# Применяет цвета к профилю по умолчанию через dconf.
+# Использование: gnome-terminal-palette [--reset]
+# --reset возвращает цвета темы GNOME.
+# ==========================================================
+
+set -u
+
+BG="#1a1b26"
+FG="#c0caf5"
+SEL_BG="#7aa2f7"
+SEL_FG="#1a1b26"
+
+# 16 цветов ANSI: normal (8) + bright (8), как в alacritty/foot/konsole.
+PALETTE="['#15161e', '#f7768e', '#9ece6a', '#e0af68', '#7aa2f7', '#bb9af7', '#7dcfff', '#a9b1d6', '#414868', '#f7768e', '#9ece6a', '#e0af68', '#7aa2f7', '#bb9af7', '#7dcfff', '#c0caf5']"
+
+command -v gsettings >/dev/null 2>&1 || {
+    echo "нет gsettings: нужен пакет libglib2.0-bin" >&2
+    exit 1
+}
+
+profile=$(gsettings get org.gnome.Terminal.ProfilesList default 2>/dev/null | tr -d "'")
+if [[ -z $profile ]]; then
+    echo "не найден профиль GNOME Terminal (gnome-terminal не установлен?)" >&2
+    exit 1
+fi
+
+base="/org/gnome/terminal/legacy/profiles:/:$profile"
+
+if [[ ${1:-} == --reset ]]; then
+    dconf write "$base/use-theme-colors" true
+    dconf reset "$base/palette" 2>/dev/null || true
+    dconf write "$base/cursor-colors-set" false
+    dconf write "$base/highlight-colors-set" false
+    echo "Палитра сброшена на цвета темы GNOME (профиль $profile)."
+    exit 0
+fi
+
+dconf write "$base/use-theme-colors" false
+dconf write "$base/background-color" "'$BG'"
+dconf write "$base/foreground-color" "'$FG'"
+dconf write "$base/palette" "$PALETTE"
+dconf write "$base/bold-color-same-as-fg" true
+dconf write "$base/cursor-colors-set" true
+dconf write "$base/cursor-background-color" "'$FG'"
+dconf write "$base/cursor-foreground-color" "'$BG'"
+dconf write "$base/highlight-colors-set" true
+dconf write "$base/highlight-background-color" "'$SEL_BG'"
+dconf write "$base/highlight-foreground-color" "'$SEL_FG'"
+
+echo "Палитра Tokyo Night применена к профилю $profile."
+echo "Новый терминал подхватит цвета; открытые окна — после перезапуска."

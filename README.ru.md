@@ -218,6 +218,9 @@ tide configure
 
 Сменить насовсем — поправить строку `BASH_PROMPT=` в `~/.bashrc`; примерить на один запуск — `BASH_PROMPT=tokyo-night-minimal bash`. Если файла нет, остаётся стоковый `\u@\h:\w\$`.
 
+**GNOME Terminal.**
+Цвета хранятся не в файле, а в профиле dconf, поэтому в репозитории лежит команда: `gnome-terminal-palette` (`~/.local/bin`) применяет палитру Tokyo Night к профилю по умолчанию — фон, текст, 16 цветов ANSI, курсор и выделение, как в Alacritty/Foot/Konsole. `gnome-terminal-palette --reset` возвращает цвета темы GNOME. Новые окна подхватывают сразу, открытые — после перезапуска.
+
 **Wi-Fi.**
 Команда `wifi` (`~/.local/bin`) принимает бэкенд меню первым аргументом: `wifi rofi` для BSPWM (терминал — Alacritty) и `wifi wofi` для Sway (терминал — Foot). Адаптер выбирает `nmcli`, таблицы интерфейсов нет; `HOTSPOT_SSID` / `HOTSPOT_PASSWORD` задаются в начале файла.
 

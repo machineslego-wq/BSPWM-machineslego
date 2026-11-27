@@ -173,6 +173,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 
 - Alacritty: `config/alacritty/alacritty.toml`, `JetBrainsMono Nerd Font 10`, `opacity = 1` (прозрачность отвергнута), `live_config_reload = true`.
 - Konsole: `local/share/konsole/TokyoNight.*` (тёмная) и `TokyoNightDay.*` (светлая) — схемы и профили, `link.sh` линкует в `~/.local/share/konsole/`; профиль выбирается в Konsole → Configure Konsole → Profiles.
+- GNOME Terminal: профили хранятся в dconf, файла для линковки нет. Палитру применяет `local/bin/gnome-terminal-palette` — фон `#1a1b26`, текст `#c0caf5`, те же 16 цветов ANSI, что в Alacritty/Foot, курсор и выделение. `--reset` возвращает цвета темы GNOME. Новые окна подхватывают сразу, открытые — после перезапуска.
 - Bash-промпт: `home/bashrc` только выбирает файл из `config/bash/themes/` по `BASH_PROMPT` (по умолчанию `tokyo-night`; есть `tokyo-night-minimal` и `empty`). Нет файла — стоковый `PS1`. Применение — `exec bash` или `source ~/.bashrc`.
 - Fish/Tide: `config/fish/config.fish`; Tide ставится `install.sh`. Сгенерированное в git не коммитить.
 - Алиасы без лаунчера — в `home/bashrc` и `config/fish/config.fish`: `net` (nmtui), `wifi-list`, `wifi-connect[-ask]`, `wifi-on/off`, `bt[-on/-off]`, `pp`/`pp-set bal|eco|perf`, `rh` (`rice-help`).
