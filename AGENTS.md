@@ -17,7 +17,7 @@
 | `system/etc/**` | системные конфиги | копия в `/etc/**` + бэкап `/etc/dotfiles-backup-YYYYMMDD-HHMMSS` |
 | `scripts/*.sh` | установка и линковка | запуск вручную |
 | `requirements/*.txt` | списки пакетов | читают `scripts/*.sh` |
-| `screenshots/`, `wallpapers/`, `themes/` | картинки для README, темы Telegram и Firefox | — |
+| `screenshots/`, `wallpapers/`, `themes/` | картинки для README, темы Telegram | — |
 | `README.md`, `README.ru.md` | публичная документация; раздел «Ядро проекта» — минимальный набор дотфайлов, без которого сессия и райс не работают | — |
 | `DEVICES.md` | железо, мониторы и ветки конфигов трёх машин (внутренний справочник) | — |
 | `TODO.md` | блокнот: план, «Отвергнуто», ограничения | — |
@@ -205,7 +205,6 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - Fastfetch: `config/fastfetch/graphical.jsonc` (X11) и `tty.jsonc` (консоль), выбор по `$TERM` в `config.fish`.
 - Midnight Commander: скины `local/share/mc/skins/*.ini`, формат INI, цвета `fg;bg`.
 - Telegram: темы `themes/telegram/tokyo-night.*` (тёмная, оранжевый акцент) и `tokyo-night-light.*` (светлая «Tokyo Night Day», синий акцент `#2b6fd4`), обе в форматах `.tdesktop-palette` (Desktop) и `.attheme` (мобильная). Ставятся вручную (путь Flatpak).
-- Firefox: тема-аддон `themes/firefox/TokyoNight/` (`manifest.json`, иконки) и собранный `TokyoNight-1.0.0.xpi`; документация — `themes/firefox/README.md`. Временная установка — `about:debugging` → Load Temporary Add-on, постоянная — подписанный `.xpi`.
 
 ## Система
 
