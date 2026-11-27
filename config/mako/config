@@ -41,7 +41,7 @@ background-color=#1a1b26
 text-color=#c0caf5
 border-size=2
 border-color=#7aa2f7
-border-radius=15
+border-radius=5
 
 # Полоса прогресса (хинт value — громкость и т.п.) — тёмно-синяя,
 # как bg-alt. OSD громкости перекрывает её своими критериями ниже.
