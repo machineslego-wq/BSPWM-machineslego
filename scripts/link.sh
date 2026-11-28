@@ -38,8 +38,16 @@ if [ -d "$DOTFILES/config" ]; then
     for pkg in "$DOTFILES/config"/*; do
         [ -d "$pkg" ] || continue
         pkg_name=$(basename "$pkg")
+        # environment.d линкуется поштучно (ниже): theme off должен убирать
+        # один файл, не трогая каталог репозитория.
+        [ "$pkg_name" = environment.d ] && continue
         link_item "$pkg" "$HOME/.config/$pkg_name"
     done
+fi
+# environment.d: QT_QPA_PLATFORMTHEME для GNOME-сессии (см. theme on/off)
+if [ -f "$DOTFILES/config/environment.d/90-qt.conf" ]; then
+    link_item "$DOTFILES/config/environment.d/90-qt.conf" \
+        "$HOME/.config/environment.d/90-qt.conf"
 fi
 
 # 2. Линкуем home/ -> ~/ (добавляя точку к именам файлов)

@@ -47,6 +47,8 @@ if [ -d "$HOME/.config" ]; then
         check_and_remove "$item"
     done
 fi
+# 1b. environment.d линкуется поштучно (каталог настоящий, шаг 1 его не трогает)
+check_and_remove "$HOME/.config/environment.d/90-qt.conf"
 
 # 2. Чистим файлы в ~/ (автоматически берем список из папки home репозитория)
 if [ -d "$DOTFILES/home" ]; then

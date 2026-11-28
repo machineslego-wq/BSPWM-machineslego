@@ -41,9 +41,18 @@ for dir in config/*/; do
             [ -L "$HOME/.config/$pkg" ] && check_link "$HOME/.config/$pkg" "$DOTFILES/config/$pkg"
             continue
             ;;
+        environment.d)
+            # линкуется поштучно и управляется theme on/off
+            continue
+            ;;
     esac
     check_link "$HOME/.config/$pkg" "$DOTFILES/config/$pkg"
 done
+# environment.d: ссылки может не быть после theme off — это штатное состояние
+if [ -L "$HOME/.config/environment.d/90-qt.conf" ]; then
+    check_link "$HOME/.config/environment.d/90-qt.conf" \
+        "$DOTFILES/config/environment.d/90-qt.conf"
+fi
 for file in home/*; do
     name=$(basename "$file")
     check_link "$HOME/.$name" "$DOTFILES/$file"

@@ -192,7 +192,7 @@ xdg-desktop-portal выбирает файл по `XDG_CURRENT_DESKTOP`:
 
 | Системный файл | Зачем | Удаляется откатом |
 |---|---|---|
-| `/etc/xdg/plasma-workspace/env/10-plasma-clean-env.sh` | сбрасывает `QT_STYLE_OVERRIDE=qt6ct` из `~/.xprofile` только внутри Plasma X11 | да |
+| `/etc/xdg/plasma-workspace/env/10-plasma-clean-env.sh` | сбрасывает `QT_STYLE_OVERRIDE=qt6ct` из `~/.xprofile` и `QT_QPA_PLATFORMTHEME=qt6ct` из `~/.config/environment.d` только внутри Plasma | да |
 | `/etc/sddm.conf.d/10-theme.conf` | тема входа Breeze | да |
 | `/etc/X11/default-display-manager` | текущий DM | нет (перезаписывается) |
 | symlink `/etc/systemd/system/display-manager.service` | sddm ↔ gdm | нет (переключается) |

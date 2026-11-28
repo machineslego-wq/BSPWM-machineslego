@@ -235,6 +235,9 @@ cmd_status() {
     if [[ -f $REAL_HOME/.xprofile ]] && grep -q QT_STYLE_OVERRIDE "$REAL_HOME/.xprofile"; then
         note "~/.xprofile задаёт QT_STYLE_OVERRIDE (Plasma X11 получит системный сброс)"
     fi
+    if [[ -f $REAL_HOME/.config/environment.d/90-qt.conf ]]; then
+        note "environment.d задаёт QT_QPA_PLATFORMTHEME (Plasma сбрасывает его в 10-plasma-clean-env.sh)"
+    fi
     if [[ -d $REPO/.git ]]; then
         note "репозиторий: $(git -C "$REPO" status --porcelain --untracked-files=no | wc -l) изменений"
     fi
@@ -319,11 +322,14 @@ cmd_install() {
     fi
 
     # Под SDDM X11-сессия читает ~/.xprofile с QT_STYLE_OVERRIDE=qt6ct.
-    # Сбрасываем это только внутри Plasma, сам дотфайл не меняем.
+    # Плюс environment.d задаёт QT_QPA_PLATFORMTHEME=qt6ct для GNOME.
+    # Сбрасываем оба только внутри Plasma, сами дотфайлы не меняем:
+    # иначе платформенная тема kde не подхватится и KF6 станет серым.
     install -d /etc/xdg/plasma-workspace/env
     cat > /etc/xdg/plasma-workspace/env/10-plasma-clean-env.sh <<'EOF'
-# Стоковый вид Plasma: не наследовать QT_STYLE_OVERRIDE из ~/.xprofile
+# Стоковый вид Plasma: не наследовать темы Sway/BSPWM/GNOME
 unset QT_STYLE_OVERRIDE
+unset QT_QPA_PLATFORMTHEME
 EOF
 
     # Plasma 6: gmenudbusmenuproxy при каждом старте перезаписывает

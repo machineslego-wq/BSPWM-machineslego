@@ -6,6 +6,9 @@
 #          -> каталоги репозитория. Существующее заменяется
 #          принудительно: реальные каталоги/файлы уходят в
 #          ~/.dotfiles-backup-YYYYMMDD-HHMMSS.
+#          Плюс ~/.config/environment.d/90-qt.conf:
+#          QT_QPA_PLATFORMTHEME=qt6ct, чтобы Qt-палитра
+#          работала и в GNOME (нужен повторный вход).
 # off    — ссылки убираются, gtk-theme=Adwaita: сток.
 # status — показать состояние.
 #
@@ -17,6 +20,8 @@ set -u
 self=$(readlink -f "$0")
 root=$(cd "$(dirname "$self")/../.." && pwd)
 dirs=(gtk-3.0 gtk-4.0 qt5ct qt6ct)
+env_src="$root/config/environment.d/90-qt.conf"
+env_dst="$HOME/.config/environment.d/90-qt.conf"
 backup="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
 backup_used=0
 
@@ -91,18 +96,46 @@ unlink_dirs() {
     done
 }
 
+link_env() {
+    [ -f "$env_src" ] || return 0
+    if [ -L "$env_dst" ]; then
+        ln -sfn "$env_src" "$env_dst"
+    elif [ -e "$env_dst" ]; then
+        backup_path "$env_dst"
+        ln -s "$env_src" "$env_dst"
+    else
+        mkdir -p "$(dirname "$env_dst")"
+        ln -s "$env_src" "$env_dst"
+    fi
+}
+
+unlink_env() {
+    if [ -L "$env_dst" ]; then
+        case "$(readlink "$env_dst")" in
+            "$root"/*) rm -f "$env_dst" ;;
+            *) echo "  environment.d/90-qt.conf: ссылка вне репозитория, не трогаю" >&2 ;;
+        esac
+    elif [ -e "$env_dst" ]; then
+        echo "  environment.d/90-qt.conf: настоящий файл, не удаляю" >&2
+    fi
+}
+
 case "${1:-status}" in
     on)
         link_dirs
+        link_env
         flatpak_on
         gtk_theme_name Adwaita-dark
         echo "GTK и Qt темы включены (ссылки на config/..., Flatpak-override'ы)."
+        echo "Qt в GNOME: QT_QPA_PLATFORMTHEME=qt6ct — применится после повторного входа."
         ;;
     off)
         unlink_dirs
+        unlink_env
         flatpak_off
         gtk_theme_name Adwaita
         echo "GTK и Qt темы выключены: сток (gtk-theme=Adwaita, Flatpak без темы)."
+        echo "Qt в GNOME вернётся к gtk3/Adwaita после повторного входа."
         ;;
     status)
         for name in "${dirs[@]}"; do
@@ -119,6 +152,13 @@ case "${1:-status}" in
                 echo "$name: нет (сток)"
             fi
         done
+        if [ -L "$env_dst" ]; then
+            echo "environment.d/90-qt.conf: ссылка на $(readlink "$env_dst")"
+        elif [ -e "$env_dst" ]; then
+            echo "environment.d/90-qt.conf: настоящий файл"
+        else
+            echo "environment.d/90-qt.conf: нет (Qt в GNOME — сток gtk3)"
+        fi
         printf 'gtk-theme: %s\n' "$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null | tr -d "'")"
         if command -v flatpak >/dev/null 2>&1; then
             if flatpak override --user --show 2>/dev/null | grep -q 'xdg-config/gtk-4.0:ro'; then
