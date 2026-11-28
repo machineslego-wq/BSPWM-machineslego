@@ -58,6 +58,23 @@
 - `.gitignore` — whitelist: новый файл/папка в корне не попадёт в git, пока не добавлен в исключения.
 - Тег и `git push` — только по явной просьбе. Ветка одна — `main`.
 
+## Райс: что заморожено
+
+Подробный разбор с цифрами — `TODO.md`, «Разбор: окупаемость райса». Коротко, чтобы не переделывать по кругу:
+
+| Что | Правило |
+|---|---|
+| `config/gtk-3.0/gtk.css`, `config/gtk-4.0/gtk.css`, `config/qt5ct`, `config/qt6ct` | заморожено: править только при поломке после обновления Debian/GNOME, не «для красоты» |
+| `config/polybar/config.ini` | не наращивать модулями: 16 модулей на одну панель уже много; `pill-*` и `debian-logo` — декор, не функция |
+| `config/picom/picom.conf` | база (radius 15, тени, fading) — да; пер-апп анимации Dunst/Telegram/Firefox — первый кандидат на упрощение |
+| `config/rofi`, `config/wofi`, `config/dunst`, `config/mako`, `config/foot`, `config/alacritty`, `config/newt`, `config/swappy`, `config/swaylock` | не трогать без причины: дешёвые статические конфиги с устойчивым контрактом |
+| `config/cava` | используется не на всех машинах; конфиг держать. Шейдеры в конфиге не подключены — проверять на машине, где cava реально запускается |
+| `config/quickshell` | закрытый эксперимент (Quickshell против waybar/wofi на Sway); отдельные утилиты выиграли — архив, не подключён, не удалять |
+| `config/GIMP`, `config/copyq`, `local/share/mc`, `themes/telegram` | заморожено; у GIMP в git только тема (2,2 КБ), runtime-состояние не трекается |
+| палитра в 25 файлах | смена акцента = 25 правок; генератор отвергнут, дублирование принято осознанно |
+
+Два оконника (BSPWM + Sway) — вынужденная необходимость, а не переусложнение: дублирование UI-стека — цена переезда.
+
 ## Проверка
 
 | Что | Как |
@@ -200,7 +217,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 - GIMP: `config/GIMP/3.0/themes/TokyoNight/`, переключение в Preferences → Interface → Theme.
 - CopyQ: трекаются `copyq/themes/tokyo-night.ini`, `copyq.conf`, `copyq-commands.ini`, остальное игнорируется. Автозапуск в `bspwmrc`.
 - EasyEffects: пресеты `config/easyeffects/output/*.json`, автозапуск в `bspwmrc` при наличии бинарника.
-- Cava: `config/cava/config` (60 fps, mono, градиент Tokyo Night), перезапуск.
+- Cava: `config/cava/config` (60 fps, mono, градиент Tokyo Night), перезапуск. Запускается не на всех машинах; шейдеры из `config/cava/shaders` в конфиге не подключены.
 - Btop: `config/btop/btop.conf` + `themes/tokyo-night.theme`, тема по имени. btop перезаписывает конфиг при выходе — правки через `F2` или в репозитории.
 - Fastfetch: `config/fastfetch/graphical.jsonc` (X11) и `tty.jsonc` (консоль), выбор по `$TERM` в `config.fish`.
 - Midnight Commander: скины `local/share/mc/skins/*.ini`, формат INI, цвета `fg;bg`.
@@ -238,7 +255,7 @@ Picom выбирает профиль по `powerprofilesctl get`: `power-saver`
 ## Устаревшее и служебное
 
 - `wallpaper.sh` удалён: обои — статичные `feh`/`output bg`.
-- `config/quickshell` — QML-исходники из другой ветки, лежат «на всякий случай»; не подключены и без просьбы не удаляются.
+- `config/quickshell` — QML-исходники закрытого эксперимента на Sway: сравнивали Quickshell с waybar/wofi/скриптами, выиграли отдельные утилиты (переносимость). Оставлены как архив, не подключены и без просьбы не удаляются.
 - `TODO.md` — рабочий блокнот, не документация релиза. `AGENTS.md` — внутренняя инструкция (эта карта), не публикуется; публичное — README.
 
 ## Релизы
